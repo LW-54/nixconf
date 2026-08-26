@@ -13,7 +13,7 @@
       src = inputs.mdbase-obsidian;
 
       # First build fails and prints the real hash — paste it back in here.
-      npmDepsHash = pkgs.lib.fakeHash;
+      npmDepsHash = "sha256-uNjAJgblwmzVZ0Hzz7IYPjqnhmWgPLBQ4LU2Nu/1IKc=";
       npmBuildScript = "build";
 
       installPhase = ''
