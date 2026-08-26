@@ -5,7 +5,7 @@
     import-tree.url = "github:vic/import-tree";
     wrappers.url = "github:Lassulus/wrappers";
     wrapper-modules.url = "github:BirdeeHub/nix-wrapper-modules";
-    helium.url = "github:oxcl/helium";
+    helium.url = "github:oxcl/nix-flake-helium-browser";
     nix-index-database = {
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";

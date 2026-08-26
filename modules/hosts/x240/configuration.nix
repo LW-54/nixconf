@@ -9,11 +9,13 @@
       
       self.nixosModules.nix
       self.nixosModules.user
-      self.nixosModules.gnome
+      #self.nixosModules.gnome
+      self.nixosModules.cosmic
       
       self.nixosModules.git
       self.nixosModules.vscode
       self.nixosModules.helium
+      self.nixosModules.bitwarden
     ];
 
     boot.loader.grub.enable = true;

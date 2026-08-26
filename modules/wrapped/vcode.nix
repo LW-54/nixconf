@@ -9,10 +9,6 @@
     packages.vscode = inputs.wrappers.lib.wrapPackage {
       inherit pkgs;
       package = pkgs.vscode;
-      flags = [
-        "--enable-features=UseOzonePlatform"
-        "--ozone-platform=wayland"
-      ];
     };
   };
 }

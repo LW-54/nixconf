@@ -1,4 +1,11 @@
 {inputs, ...}: {
+  perSystem = {system, ...}: {
+    _module.args.pkgs = import inputs.nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+    };
+  };
+
   flake.nixosModules.nix = {pkgs, ...}: {
     imports = [
       inputs.nix-index-database.nixosModules.nix-index
