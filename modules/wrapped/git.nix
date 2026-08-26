@@ -10,7 +10,7 @@
       inherit pkgs;
       package = pkgs.git;
       exePath = "${pkgs.git}/bin/git";
-      env = {
+      env = rec {
         GIT_AUTHOR_NAME = "LW-54";
         GIT_AUTHOR_EMAIL = "leonardwilsonb@gmail.com";
         GIT_COMMITTER_NAME = GIT_AUTHOR_NAME;

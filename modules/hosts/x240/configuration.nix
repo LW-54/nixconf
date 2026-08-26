@@ -5,7 +5,7 @@
 
   flake.nixosModules.x240Config = { pkgs, lib, ... }: {
     imports = [
-      ./hardware-configuration.nix
+      self.nixosModules.x240Hardware
       
       self.nixosModules.nix
       self.nixosModules.user
