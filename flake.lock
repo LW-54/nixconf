@@ -51,6 +51,23 @@
         "type": "github"
       }
     },
+    "mdbase-connect": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787747327,
+        "narHash": "sha256-lu7SRIw0OX4uq6GtYz9NNvbSVr/KCG9aOcUaRi3lmOc=",
+        "owner": "mdbase-dev",
+        "repo": "mdbase-connect",
+        "rev": "d3aa2d3dd7e0f03c43fb1c204acc23920fcb0d76",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mdbase-dev",
+        "ref": "main",
+        "repo": "mdbase-connect",
+        "type": "github"
+      }
+    },
     "mdbase-obsidian": {
       "flake": false,
       "locked": {
@@ -171,6 +188,7 @@
         "flake-parts": "flake-parts",
         "helium": "helium",
         "import-tree": "import-tree",
+        "mdbase-connect": "mdbase-connect",
         "mdbase-obsidian": "mdbase-obsidian",
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs_2",

@@ -18,6 +18,7 @@
       self.nixosModules.helium
       self.nixosModules.bitwarden
       self.nixosModules.obsidian
+      self.nixosModules.mdbase-connect
     ];
 
     boot.loader.grub.enable = true;

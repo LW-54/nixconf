@@ -1,122 +1,121 @@
 { self, inputs, ... }: {
+  # Module for the standalone CLI
+  flake.nixosModules.mdbase-cli = { pkgs, ... }: {
+    environment.systemPackages = [
+      self.packages.${pkgs.stdenv.hostPlatform.system}.mdbase-cli
+    ];
+  };
+
+  # Module for the Desktop application
   flake.nixosModules.mdbase-connect = { pkgs, ... }: {
     environment.systemPackages = [
       self.packages.${pkgs.stdenv.hostPlatform.system}.mdbase-connect
     ];
   };
 
-  perSystem = { pkgs, lib, ... }:
-    let
-      cli = pkgs.rustPlatform.buildRustPackage {
-        pname = "mdbase-cli";
-        version = "unstable";
-        src = inputs.mdbase-connect;
-
-        cargoLock = {
-          lockFile = "${inputs.mdbase-connect}/Cargo.lock";
-          outputHashes = {
-            "mdbase-interop-0.1.0-rc.2" = "sha256-gg3WoBLgaffUf4uYsl5if8+JpfMJR3/dolJj5ww2SXI=";
-          };
-        };
-
-        postPatch = ''
-          cp -R ${inputs.mdbase-rs} ../mdbase-rs
-        '';
-
-        cargoBuildFlags = [ "-p" "mdbase-cli" ];
-        doCheck = false;
-
-        installPhase = ''
-          mdbase_bin=$(find target -type f -name mdbase -perm -0100 -print -quit)
-          test -n "$mdbase_bin"
-          install -Dm755 "$mdbase_bin" $out/bin/mdbase
-        '';
-
-        meta = {
-          description = "Headless mdbase Connect CLI and daemon";
-          mainProgram = "mdbase";
-          platforms = lib.platforms.linux;
-        };
+  perSystem = { pkgs, ... }: {
+    
+    # 1. Standalone native CLI and background service
+    packages.mdbase-cli = pkgs.stdenv.mkDerivation rec {
+      pname = "mdbase-cli";
+      version = "0.1.0-beta.90"; 
+      
+      src = pkgs.fetchurl {
+        url = "https://github.com/mdbase-dev/mdbase-connect/releases/download/v${version}/mdbase-cli-${version}-linux-x64.tar.gz";
+        hash = "sha256-HMxeOCz2L84BGgz9UiUHV7khJ+FqOIpPxf86KShYEVA=";
       };
-    in {
-      packages.mdbase-cli = cli;
 
-      packages.mdbase-connect = pkgs.stdenv.mkDerivation {
-        pname = "mdbase-connect";
-        version = "unstable";
-        src = inputs.mdbase-connect;
+      installPhase = ''
+        runHook preInstall
+        mkdir -p $out/bin
+        cp mdbase $out/bin/mdbase
+        chmod +x $out/bin/mdbase
+        runHook postInstall
+      '';
 
-        pnpmDeps = pkgs.fetchPnpmDeps {
-          pname = "mdbase-connect";
-          version = "unstable";
-          src = inputs.mdbase-connect;
-          pnpm = pkgs.pnpm_11;
-          fetcherVersion = 4;
-          hash = "sha256-asY62PBw+i4elWbE59oWfD1gP45g1e6lBsdIvzPM3eQ=";
-        };
-
-        postPatch = ''
-          cp -R ${inputs.mdbase-rs} ../mdbase-rs
-          substituteInPlace apps/desktop/forge.config.cjs \
-            --replace-fail "packagerConfig: {" \
-            "packagerConfig: { electronZipDir: path.resolve(__dirname, \"../../electron-dist\"),"
-        '';
-
-        nativeBuildInputs = [
-          pkgs.nodejs_24
-          pkgs.pnpm_11
-          pkgs.pnpmConfigHook
-          pkgs.electron
-          pkgs.zip
-          pkgs.copyDesktopItems
-          pkgs.makeWrapper
-        ];
-
-        desktopItems = [
-          (pkgs.makeDesktopItem {
-            name = "mdbase-connect";
-            desktopName = "mdbase connect";
-            exec = "mdbase-connect";
-            terminal = false;
-            categories = [ "Utility" ];
-          })
-        ];
-
-        preBuild = ''
-          mkdir -p target/release
-          cp ${cli}/bin/mdbase target/release/mdbase
-          mkdir -p electron-dist-src electron-dist
-          cp -RL ${pkgs.electron}/libexec/. electron-dist-src/
-          (cd electron-dist-src && zip -qr ../electron-dist/electron-v43.1.1-linux-x64.zip .)
-        '';
-
-        buildPhase = ''
-          runHook preBuild
-          pnpm --filter @mdbase/connect-desktop exec node node_modules/typescript/bin/tsc -p tsconfig.main.json
-          pnpm --filter @mdbase/connect-desktop exec node scripts/build-main.mjs
-          pnpm --filter @mdbase/connect-desktop exec node node_modules/vite/bin/vite.js build
-          pnpm --filter @mdbase/connect-desktop exec node node_modules/@electron-forge/cli/dist/electron-forge.js package
-          pnpm --filter @mdbase/connect-desktop exec node scripts/verify-package.mjs
-          runHook postBuild
-        '';
-
-        installPhase = ''
-          runHook preInstall
-          app_dir=$(find apps/desktop/out -mindepth 1 -maxdepth 1 -type d -name 'mdbase connect-*' -print -quit)
-          test -n "$app_dir"
-          mkdir -p $out/lib/mdbase-connect $out/bin
-          cp -R "$app_dir"/. $out/lib/mdbase-connect/
-          makeWrapper "$out/lib/mdbase-connect/mdbase connect" $out/bin/mdbase-connect
-          ln -s $out/lib/mdbase-connect/resources/mdbase $out/bin/mdbase
-          copyDesktopItems
-          runHook postInstall
-        '';
-
-        meta = {
-          description = "mdbase Connect desktop application and CLI";
-          mainProgram = "mdbase-connect";
-          platforms = lib.platforms.linux;
-        };
+      meta = {
+        mainProgram = "mdbase";
       };
     };
+
+    # 2. Desktop Electron application
+    packages.mdbase-connect = pkgs.stdenv.mkDerivation rec {
+      pname = "mdbase-connect";
+      version = "0.1.0-beta.90"; 
+      
+      src = pkgs.fetchurl {
+        url = "https://github.com/mdbase-dev/mdbase-connect/releases/download/v${version}/mdbase-connect-${version}-linux-x64.deb";
+        hash = "sha256-Jmg4rStV6h2jpeINNqUB8eOfXmC7Pha/6NANTpDL738=";
+      };
+
+      nativeBuildInputs = [
+        pkgs.dpkg
+        pkgs.autoPatchelfHook
+        pkgs.makeWrapper
+      ];
+
+      buildInputs = with pkgs; [
+        alsa-lib
+        at-spi2-atk
+        at-spi2-core
+        atk
+        cairo
+        cups
+        dbus
+        expat
+        glib
+        gtk3
+        libdrm
+        libGL         
+        libglvnd      
+        libxkbcommon
+        mesa
+        nspr
+        nss
+        pango
+        systemd
+        libx11
+        libxcomposite
+        libxdamage
+        libxext
+        libxfixes
+        libxrandr
+        libxcb
+      ];
+
+      unpackPhase = ''
+        mkdir -p extracted
+        cd extracted
+        dpkg-deb --fsys-tarfile $src | tar -x --no-same-permissions --no-same-owner
+        cd ..
+      '';
+      
+      sourceRoot = "extracted";
+
+      installPhase = ''
+        runHook preInstall
+        
+        mkdir -p $out
+        cp -r usr/* $out/
+        
+        mkdir -p $out/bin
+        ln -sf $out/lib/mdbase-connect/mdbase-connect $out/bin/mdbase-connect
+        
+        runHook postInstall
+      '';
+      
+      # Added xdg-utils to PATH and CA certs to the environment variables
+      postFixup = ''
+        wrapProgram $out/bin/mdbase-connect \
+          --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath buildInputs}" \
+          --prefix PATH : "${pkgs.xdg-utils}/bin" \
+          --set NIX_SSL_CERT_FILE "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" \
+          --set SSL_CERT_FILE "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt"
+      '';
+
+      meta = {
+        mainProgram = "mdbase-connect";
+      };
+    };
+  };
 }

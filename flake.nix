@@ -14,6 +14,10 @@
       url = "github:mdbase-dev/mdbase-obsidian";
       flake = false;
     };
+    mdbase-connect = {
+      url = "github:mdbase-dev/mdbase-connect/main";
+      flake = false;
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules);
