@@ -18,6 +18,10 @@
       url = "github:mdbase-dev/mdbase-connect/main";
       flake = false;
     };
+    mdbase-lsp = {
+      url = "github:callumalpass/mdbase-lsp";
+      flake = false;
+    };
   };
 
   outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules);
