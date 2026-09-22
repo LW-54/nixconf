@@ -9,6 +9,7 @@
       
       self.nixosModules.nix
       self.nixosModules.user
+      self.nixosModules.sops
 
       self.nixosModules.gnome
       self.nixosModules.cosmic
@@ -27,6 +28,8 @@
     
     networking.hostName = "x240";
     networking.networkmanager.enable = true;
+
+    sops.age.keyFile = "/var/lib/sops-nix/key.txt";
 
     time.timeZone = "Europe/Paris";
     i18n.defaultLocale = "en_US.UTF-8";

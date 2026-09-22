@@ -10,6 +10,10 @@
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     mdbase-obsidian = {
       url = "github:mdbase-dev/mdbase-obsidian";
       flake = false;

@@ -1,0 +1,19 @@
+keys:
+  admin: &admin_key age1yph7kqs5wq2hf4edt2f648en0unpjak7nps9u5v8r43ev9fvsewsmuahjk
+  x240: &x240_key age1tf3x0m3my5qwrde6vaguw0vnest32j3xu734nnp47lcj8qky6d5qnwgnma
+
+tags:
+  base: &base
+    merge:
+      - age:
+          - *admin_key
+
+  personal: &personal
+    <<: *base
+    age:
+      - *x240_key
+
+creation_rules:
+  - path_regex: ^secrets/.*$
+    key_groups:
+      - *personal
