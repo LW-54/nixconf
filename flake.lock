@@ -87,11 +87,11 @@
     "mdbase-obsidian": {
       "flake": false,
       "locked": {
-        "lastModified": 1787483455,
-        "narHash": "sha256-gPLuvP7MSW+BAKHRiyk2dkhvHtn/HshG8VzPC+iqEVw=",
+        "lastModified": 1789559071,
+        "narHash": "sha256-bzC4GIqxDsxEMYAls8anAeKjY1Feia2k1qUuFv0p3gc=",
         "owner": "mdbase-dev",
         "repo": "mdbase-obsidian",
-        "rev": "47f9c7839341386c167c35730c139179fa04a7fb",
+        "rev": "e3e01fd5e789ad341ff2a6d507905a7132d78f67",
         "type": "github"
       },
       "original": {
