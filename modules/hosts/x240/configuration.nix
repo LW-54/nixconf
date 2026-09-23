@@ -3,13 +3,16 @@
     modules = [ self.nixosModules.x240Config ];
   };
 
-  flake.nixosModules.x240Config = { pkgs, lib, ... }: {
+  flake.nixosModules.x240Config = { pkgs, ... }: {
     imports = [
       self.nixosModules.x240Hardware
       
       self.nixosModules.nix
       self.nixosModules.user
       self.nixosModules.sops
+      self.nixosModules.sops-tools
+      self.nixosModules.wifi-rez
+      self.nixosModules.wifi-eduroam
 
       self.nixosModules.gnome
       self.nixosModules.cosmic
