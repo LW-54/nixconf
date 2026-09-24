@@ -4,9 +4,99 @@
   flake.nixosModules.wifi-rez = { config, lib, pkgs, ... }:
     let
       cfg = config.services.wifi-rez;
-      loginScript = config.sops.templates."wifi-rez-login".path;
       usernameSecret = "wifi-rez-username";
       passwordSecret = "wifi-rez-password";
+      browserPython = pkgs.python3.withPackages (pythonPackages: [ pythonPackages.selenium ]);
+        loginScript = pkgs.writeText "wifi-rez-login.py" ''
+        import os
+        import sys
+        import tempfile
+        import time
+        import urllib.error
+        import urllib.request
+
+        from selenium import webdriver
+        from selenium.common.exceptions import WebDriverException
+        from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+
+        probe_url = ${builtins.toJSON cfg.probeUrl}
+        login_url = ${builtins.toJSON cfg.loginUrl}
+        retries = ${toString cfg.retryCount}
+        chromium = "${pkgs.chromium}/bin/chromium"
+        chromedriver = "${pkgs.chromedriver}/bin/chromedriver"
+
+        def read_credential(name):
+          with open(os.path.join(os.environ["CREDENTIALS_DIRECTORY"], name), encoding="utf-8") as credential:
+            return credential.read().strip()
+
+        def unrestricted_network():
+          request = urllib.request.Request(probe_url, method="GET")
+          try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+              return response.status == 204
+          except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError):
+            return False
+
+        def browser_login(username, password):
+          options = Options()
+          options.binary_location = chromium
+          options.add_argument("--headless=new")
+          options.add_argument("--no-sandbox")
+          options.add_argument("--disable-setuid-sandbox")
+          options.add_argument("--no-first-run")
+          options.add_argument("--no-default-browser-check")
+          options.add_argument("--disable-gpu")
+          options.add_argument("--disable-dev-shm-usage")
+          with tempfile.TemporaryDirectory(prefix="wifi-rez-browser-") as profile:
+            options.add_argument("--user-data-dir=" + profile)
+            driver = None
+            try:
+              driver = webdriver.Chrome(
+                service=Service(executable_path=chromedriver, log_output=os.devnull),
+                options=options,
+              )
+              driver.set_page_load_timeout(20)
+              driver.get(login_url)
+              password_field = WebDriverWait(driver, 15).until(
+                lambda current: current.find_element(By.CSS_SELECTOR, "input[type='password']")
+              )
+              visible = [field for field in driver.find_elements(By.CSS_SELECTOR, "input") if field.is_displayed() and field.is_enabled()]
+              username_field = next(
+                field for field in visible
+                if "username" in ((field.get_attribute("name") or "") + " " + (field.get_attribute("id") or "")).lower()
+              )
+              username_field.send_keys(username)
+              password_field.send_keys(password)
+              driver.find_element(By.CSS_SELECTOR, "button[type='submit'], input[type='submit']").click()
+              time.sleep(5)
+              return unrestricted_network()
+            except (WebDriverException, StopIteration):
+              return False
+            finally:
+              if driver is not None:
+                driver.quit()
+
+        def login_once(username, password):
+          if unrestricted_network():
+            print("wifi-rez: network is already authenticated")
+            return True
+          return browser_login(username, password)
+
+        username = read_credential("username")
+        password = read_credential("password")
+        for attempt in range(1, retries + 1):
+          if login_once(username, password):
+            print("wifi-rez: captive portal login succeeded")
+            sys.exit(0)
+          if attempt < retries:
+            time.sleep(5)
+
+        print("wifi-rez: captive portal login failed after {} attempts".format(retries), file=sys.stderr)
+        sys.exit(1)
+        '';
       dispatcherScript = pkgs.writeShellScript "wifi-rez-dispatcher" ''
         if [[ "''${2:-}" != "up" || "''${CONNECTION_ID:-}" != "${cfg.ssid}" ]]; then
           exit 0
@@ -27,12 +117,6 @@
           type = lib.types.nullOr lib.types.str;
           default = null;
           description = "Optional Wi-Fi interface to bind the NetworkManager profile to.";
-        };
-
-        usernamePrefix = lib.mkOption {
-          type = lib.types.str;
-          default = "ZONE_653-";
-          description = "Prefix required by the captive portal before the username.";
         };
 
         sopsFile = lib.mkOption {
@@ -56,7 +140,13 @@
         probeUrl = lib.mkOption {
           type = lib.types.str;
           default = "http://clients3.google.com/generate_204";
-          description = "HTTP URL used to trigger captive portal interception.";
+          description = "HTTP URL used only to verify unrestricted internet access after login.";
+        };
+
+        loginUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://saas1.hotspotmanager.fr/hotspot.php?ap_name=Bat-B-Et2-B202+&ap_tags=&continue_url=http%3A%2F%2Fcapture.adipsys.net%2F&login_url=https%3A%2F%2Feu.network-auth.com%2Fsplash%2F0-DDmdjd.0.945%2Flogin%3Fcontinue_url%3Dhttp%25253A%25252F%25252Fcapture.adipsys.net%25252F%26mauth%3DEfqbOaLu03DvCu787KxlL_vU8WuTdKtwHDkvLK3bHaSuEpPlW1al79xYBA9w_dXE-ffAGhirLH4sEfqbVDkQgMkxgCG0cmNV-psf8lVKvcuSBYK8kXllK_5m4XyuBdkAq_aDEF0PmBgDhX3miYMcStnNG6d7oHOwktgZYJu9NRreiFc6KW_bS0WpeVgVm8bRYlx2K2wOEd6aLmlgHWra9f74o0YvphHmxTmNMKAVupBpNc0JXw&ap_mac=f8:9e:28:db:e5:f7&client_ip=10.60.86.184&client_mac=5c:c5:d4:af:51:9f";
+          description = "Full captive-portal URL opened by the headless browser after Wi-Fi connects.";
         };
 
         retryCount = lib.mkOption {
@@ -79,7 +169,7 @@
           connection = {
             id = cfg.ssid;
             type = "wifi";
-            autoconnect = "yes";
+            autoconnect = "true";
             autoconnect-priority = "100";
           };
           wifi = {
@@ -101,93 +191,6 @@
           key = cfg.passwordKey;
         };
 
-        sops.templates."wifi-rez-login" = {
-          mode = "0700";
-          content = ''
-            #!${pkgs.bash}/bin/bash
-            set -euo pipefail
-
-            readonly USERNAME_PREFIX=${lib.escapeShellArg cfg.usernamePrefix}
-            USERNAME=$(${pkgs.coreutils}/bin/cat ${config.sops.secrets.${usernameSecret}.path})
-            PASSWORD=$(${pkgs.coreutils}/bin/cat ${config.sops.secrets.${passwordSecret}.path})
-            readonly USERNAME PASSWORD
-            readonly PROBE_URL=${lib.escapeShellArg cfg.probeUrl}
-            readonly RETRIES=${toString cfg.retryCount}
-            readonly CURL=${pkgs.curl}/bin/curl
-            readonly PYTHON=${pkgs.python3}/bin/python3
-
-            login_once() {
-              local runtime_dir headers login_url form status
-              runtime_dir=$(${pkgs.coreutils}/bin/mktemp -d)
-              trap '${pkgs.coreutils}/bin/rm -rf "$runtime_dir"' RETURN
-              headers="$runtime_dir/headers"
-
-              "$CURL" --silent --show-error --max-time 15 --dump-header "$headers" \
-                --cookie-jar "$runtime_dir/cookies" --output /dev/null \
-                --max-redirs 0 "$PROBE_URL" || true
-
-              login_url=$(${pkgs.gnugrep}/bin/grep -i '^location:' "$headers" | \
-                ${pkgs.coreutils}/bin/tail -n 1 | \
-                ${pkgs.gawk}/bin/awk '{$1=""; sub(/^ /, ""); sub(/\r$/, ""); print}')
-              if [[ -z "$login_url" ]]; then
-                echo "wifi-rez: captive portal did not provide a login URL" >&2
-                return 1
-              fi
-
-              login_url=$(
-                LOGIN_URL="$login_url" "$PYTHON" - <<'PY'
-            import os
-            from urllib.parse import unquote
-            print(unquote(os.environ["login_url"]))
-            PY
-              )
-
-              form=$(
-                LOGIN_USERNAME="''${USERNAME_PREFIX}''${USERNAME}" \
-                LOGIN_EMAIL="''${USERNAME_PREFIX}''${USERNAME}" \
-                LOGIN_NOTPREFIXED_USERNAME="$USERNAME" \
-                LOGIN_PASSWORD="$PASSWORD" \
-                "$PYTHON" - <<'PY'
-            import os
-            from urllib.parse import urlencode
-            print(urlencode({
-                "request_flag": "0",
-                "username": os.environ["LOGIN_USERNAME"],
-                "connexion_mode": "1",
-                "preview_user_type": "",
-                "email": os.environ["LOGIN_EMAIL"],
-                "notprefixed_username": os.environ["LOGIN_NOTPREFIXED_USERNAME"],
-                "password": os.environ["LOGIN_PASSWORD"],
-            }))
-            PY
-              )
-
-              status=$(
-                printf '%s' "$form" | "$CURL" --silent --show-error --max-time 15 \
-                  --cookie "$runtime_dir/cookies" --cookie-jar "$runtime_dir/cookies" \
-                  --request POST --header 'Content-Type: application/x-www-form-urlencoded' \
-                  --data-binary @- --output /dev/null --write-out '%{http_code}' "$login_url"
-              )
-              [[ "$status" =~ ^2|^3 ]] || {
-                echo "wifi-rez: portal login returned HTTP $status" >&2
-                return 1
-              }
-
-              echo "wifi-rez: captive portal login submitted successfully"
-            }
-
-            for attempt in $(seq 1 "$RETRIES"); do
-              if login_once; then
-                exit 0
-              fi
-              [[ "$attempt" -lt "$RETRIES" ]] && ${pkgs.coreutils}/bin/sleep 5
-            done
-
-            echo "wifi-rez: captive portal login failed after $RETRIES attempts" >&2
-            exit 1
-          '';
-        };
-
         networking.networkmanager.dispatcherScripts = [
           {
             source = dispatcherScript;
@@ -201,9 +204,19 @@
           after = [ "NetworkManager.service" "network-online.target" ];
           serviceConfig = {
             Type = "oneshot";
-            ExecStart = "${pkgs.util-linux}/bin/flock -n /run/wifi-rez-login.lock ${loginScript}";
-            TimeoutStartSec = "90s";
+            ExecStart = "${pkgs.util-linux}/bin/flock -n /run/wifi-rez-login/wifi-rez-login.lock ${browserPython}/bin/python ${loginScript}";
+            LoadCredential = [
+              "username:${config.sops.secrets.${usernameSecret}.path}"
+              "password:${config.sops.secrets.${passwordSecret}.path}"
+            ];
+            DynamicUser = true;
+            RuntimeDirectory = "wifi-rez-login";
             PrivateTmp = true;
+            ProtectHome = true;
+            RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" "AF_NETLINK" ];
+            MemoryMax = "768M";
+            TasksMax = 256;
+            TimeoutStartSec = "120s";
           };
         };
       };
@@ -296,7 +309,7 @@
             connection = {
               id = "eduroam";
               type = "wifi";
-              autoconnect = "yes";
+              autoconnect = "true";
               autoconnect-priority = "90";
             };
             wifi = {

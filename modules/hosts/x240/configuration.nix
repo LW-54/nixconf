@@ -34,6 +34,9 @@
 
     sops.age.keyFile = "/var/lib/sops-nix/key.txt";
 
+    nix.settings.build-cores = 3; # Fixed to 3 for x240 (4 cores - 1)
+    nix.settings.cores = 3;      # Fixed to 3 for x240 (4 cores - 1)
+
     time.timeZone = "Europe/Paris";
     i18n.defaultLocale = "en_US.UTF-8";
     i18n.extraLocaleSettings = {
@@ -66,5 +69,10 @@
     ];
 
     system.stateVersion = "25.11"; 
+    
   };
 }
+
+
+
+
