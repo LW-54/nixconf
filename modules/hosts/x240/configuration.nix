@@ -3,7 +3,7 @@
     modules = [ self.nixosModules.x240Config ];
   };
 
-  flake.nixosModules.x240Config = { pkgs, ... }: {
+  flake.nixosModules.x240Config = { pkgs, config, ... }: {
     imports = [
       self.nixosModules.x240Hardware
       
@@ -36,6 +36,7 @@
 
     nix.settings.build-cores = 3; # Fixed to 3 for x240 (4 cores - 1)
     nix.settings.cores = 3;      # Fixed to 3 for x240 (4 cores - 1)
+    nix.settings.trusted-users = [ config.preferences.user.name ];
 
     time.timeZone = "Europe/Paris";
     i18n.defaultLocale = "en_US.UTF-8";
