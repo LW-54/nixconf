@@ -30,18 +30,37 @@ jobs:
         run: |
           set -euo pipefail
 
-          for target in \
-            packages.x86_64-linux \
-            apps.x86_64-linux \
-            checks.x86_64-linux \
-            formatter.x86_64-linux \
-            devShells.x86_64-linux \
-            nixosConfigurations
-          do
-            if nix eval --quiet --expr "let flake = builtins.getFlake (toString ./.); in builtins.hasAttr \"${target#*.}\" (flake.${target%%.*})" >/dev/null 2>&1; then
-              echo "Building $target"
-              nix build .#$target --all --no-link
-            else
-              echo "Skipping missing output: $target"
+          flake_json="$(nix flake show --json)"
+
+          for category in packages apps checks formatter devShells nixosConfigurations; do
+            if ! jq -e --arg c "$category" 'has($c)' <<<"$flake_json" >/dev/null 2>&1; then
+              echo "Skipping missing category: $category"
+              continue
             fi
+
+            case "$category" in
+              packages|apps|checks|formatter|devShells)
+                while IFS= read -r target; do
+                  [ -n "$target" ] || continue
+                  echo "==> Building .$target"
+                  nix build ".#$target" --no-link || echo "missing output: $target"
+                done < <(
+                  jq -r --arg c "$category" '
+                    .[$c] | to_entries[] |
+                    (.key) as $system |
+                    (.value | if type == "object" then to_entries[] | "\($c).\($system).\(.key)" else "\($c).\($system)" end)
+                  ' <<<"$flake_json"
+                )
+                ;;
+              nixosConfigurations)
+                while IFS= read -r host; do
+                  [ -n "$host" ] || continue
+                  target="nixosConfigurations.$host.config.system.build.toplevel"
+                  echo "==> Building .#$target"
+                  nix build ".#$target" --no-link || echo "missing output: $target"
+                done < <(
+                  jq -r --arg c "$category" '.[$c] | keys[]' <<<"$flake_json"
+                )
+                ;;
+            esac
           done
