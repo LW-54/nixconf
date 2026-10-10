@@ -210,6 +210,7 @@
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs_2",
         "sops-nix": "sops-nix",
+        "systems": "systems",
         "wrapper-modules": "wrapper-modules",
         "wrappers": "wrappers"
       }
@@ -231,6 +232,21 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1791244623,
+        "narHash": "sha256-uuanbkFk8a313Zfrxdcz8Us/yQtaxNnKJtX8v0ZPpd8=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "d36eeed142f88b5a636f2e3856a53c61654cf29b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
         "type": "github"
       }
     },
