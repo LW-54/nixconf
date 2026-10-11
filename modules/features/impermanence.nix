@@ -27,8 +27,8 @@
         };
 
       mkUserPersistence = userName: {
-        environment.persistence."/persist/users/${userName}/userdata".users.${userName} = userScope userName "data";
-        environment.persistence."/persist/users/${userName}/usercache".users.${userName} = userScope userName "cache";
+        environment.persistence."/persist/users/${userName}/data".users.${userName} = userScope userName "data";
+        environment.persistence."/persist/users/${userName}/cache".users.${userName} = userScope userName "cache";
       };
     in
     {
