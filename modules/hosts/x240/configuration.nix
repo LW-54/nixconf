@@ -9,7 +9,6 @@
       
       self.nixosModules.nix
       self.nixosModules.user
-      self.nixosModules.persistence
       self.nixosModules.sops
       self.nixosModules.sops-tools
       self.nixosModules.wifi-eduroam
@@ -31,7 +30,6 @@
     networking.networkmanager.enable = true;
 
     persistence = {
-      enable = true;
       users.${config.preferences.user.name} = {
         data.directories = [
           "nixconf"
@@ -83,6 +81,5 @@
     
   };
 }
-
 
 

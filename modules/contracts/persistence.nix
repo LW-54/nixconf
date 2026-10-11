@@ -1,26 +1,21 @@
-{ self, ... }:
+{ ... }:
 
 {
   flake.nixosModules.persistence = { lib, ... }:
     let
-      entryType = lib.types.oneOf [
-        lib.types.str
-        (lib.types.attrsOf lib.types.anything)
-      ];
+      entries = lib.types.listOf (lib.types.either lib.types.str (lib.types.attrsOf lib.types.anything));
 
-      userPathsSubmodule = lib.types.submodule {
-        options = {
-          directories = lib.mkOption {
-            type = lib.types.listOf entryType;
-            default = [ ];
-            description = "Relative home-directory paths (or impermanence attribute sets) persisted for this user.";
-          };
+      scope = subject: {
+        directories = lib.mkOption {
+          type = entries;
+          default = [ ];
+          description = "Directories to persist, ${subject}.";
+        };
 
-          files = lib.mkOption {
-            type = lib.types.listOf entryType;
-            default = [ ];
-            description = "Relative home-file paths (or impermanence attribute sets) persisted for this user.";
-          };
+        files = lib.mkOption {
+          type = entries;
+          default = [ ];
+          description = "Files to persist, ${subject}.";
         };
       };
     in
@@ -32,26 +27,24 @@
           type = lib.types.attrsOf (lib.types.submodule {
             options = {
               data = lib.mkOption {
-                type = userPathsSubmodule;
+                type = lib.types.submodule {
+                  options = scope "relative to `/home/<name>`, persisted under `/persist/users/<name>/userdata`";
+                };
                 default = { };
-                description = ''
-                  User data persisted under `/persist/users/<name>/userdata`.
-                  Entries here are interpreted as paths relative to `/home/<name>` when passed through `environment.persistence.<root>.users.<name>`.
-                '';
               };
-
               cache = lib.mkOption {
-                type = userPathsSubmodule;
+                type = lib.types.submodule {
+                  options = scope "relative to `/home/<name>`, persisted under `/persist/users/<name>/usercache`";
+                };
                 default = { };
-                description = ''
-                  User cache persisted under `/persist/users/<name>/usercache`.
-                  `userdata` and `usercache` are repository naming conventions, not upstream impermanence requirements.
-                '';
               };
             };
           });
           default = { };
-          description = "Per-user persistence declarations keyed by username.";
+          description = ''
+            Per-user persistence declarations keyed by username.
+            `userdata` and `usercache` are repository conventions, not upstream impermanence requirements.
+          '';
           example = {
             alice = {
               data.directories = [ "Documents" "Projects" ".ssh" ];
@@ -59,18 +52,6 @@
             };
           };
         };
-
-        directories = lib.mkOption {
-          type = lib.types.listOf entryType;
-          default = [ ];
-          description = "Additional absolute system directories persisted under `/persist/system`.";
-        };
-
-        files = lib.mkOption {
-          type = lib.types.listOf entryType;
-          default = [ ];
-          description = "Additional absolute system files persisted under `/persist/system`.";
-        };
-      };
+      } // scope "as absolute system paths under `/persist/system`";
     };
 }
