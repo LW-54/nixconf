@@ -6,6 +6,10 @@
     import-tree.url = "github:denful/import-tree";
     wrapper-modules.url = "github:nix-community/nix-wrapper-modules";
     helium.url = "github:oxcl/nix-flake-helium-browser";
+    impermanence = {
+      url = "github:nix-community/impermanence";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
