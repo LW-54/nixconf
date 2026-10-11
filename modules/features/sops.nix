@@ -4,7 +4,7 @@
   flake.nixosModules.sops = {
     imports = [
       inputs.sops-nix.nixosModules.sops
-    ];
+    ]; # secrets.enable = true; if/when a secrets contract is implemented.
   };
 
   flake.nixosModules.sops-tools = { config, pkgs, ... }:

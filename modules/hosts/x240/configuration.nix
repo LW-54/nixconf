@@ -11,18 +11,14 @@
       self.nixosModules.user
       self.nixosModules.sops
       self.nixosModules.sops-tools
-      self.nixosModules.wifi-rez
       self.nixosModules.wifi-eduroam
 
-      self.nixosModules.gnome
       self.nixosModules.cosmic
       
       self.nixosModules.git
       self.nixosModules.vscode
       self.nixosModules.helium
       self.nixosModules.bitwarden
-      self.nixosModules.obsidian
-      self.nixosModules.mdbase-connect
     ];
 
     boot.loader.grub.enable = true;
@@ -64,8 +60,6 @@
     };
 
     environment.systemPackages = with pkgs; [
-      yt-dlp
-      ffmpeg
       curl
     ];
 
