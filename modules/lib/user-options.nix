@@ -44,6 +44,17 @@ let
       message = "${feature}.users.${userName} refers to an unknown user.";
     }) users;
 
+  mkUserPersistence = {
+    lib,
+    users,
+    userEnabled ? (_: true),
+    data ? { },
+    cache ? { },
+  }:
+    lib.mapAttrs (_: _: {
+      inherit data cache;
+    }) (lib.filterAttrs (userName: _: userEnabled userName) users);
+
   mkHjemUserProjection = {
     lib,
     name,
@@ -146,6 +157,7 @@ let
       mkOptionWithUserOverride
       resolveUserOption
       assertUsersExist
+      mkUserPersistence
       mkHjemUserProjection
       mkUserFeature;
   };

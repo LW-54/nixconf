@@ -34,7 +34,7 @@
     {
       imports = inputs.impermanence.nixosModules.impermanence;
 
-      persistence.enable = lib.mkDefault true; # unsure if maybe it should be explicit
+      persistence.enable = lib.mkDefault true;
 
       assertions =
         map (userName: {

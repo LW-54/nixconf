@@ -1,33 +1,32 @@
 { self, ... }:
 {
-  flake.nixosModules.vscode = { lib, ... }:
+  flake.nixosModules.vscode = { config, lib, ... }:
     let
-      settings = self.lib.mkOptionWithUserOverride {
-        inherit lib;
-        type = lib.types.attrsOf lib.types.anything;
-        default = { };
-        userDefault = { };
-        merge = lib.recursiveUpdate;
-        description = "Visual Studio Code settings";
-      };
+      cfg = config.vscode;
     in
     {
-      imports = [ (self.lib.mkUserFeature {
-      inherit lib;
-      name = "vscode";
-      description = "Visual Studio Code";
-      package = pkgs: pkgs.vscode;
+      imports = [
+        (self.lib.mkUserFeature {
+          inherit lib;
+          name = "vscode";
+          description = "Visual Studio Code";
+          package = pkgs: pkgs.vscode;
+        })
+      ];
 
-      featureOptions.settings = settings.global;
-      userOptions.settings = settings.user;
-
-      userModule = { cfg, user, lib, ... }:
-        {
-          xdg.config.files."Code/User/settings.json" = {
-            generator = lib.generators.toJSON { };
-            value = lib.recursiveUpdate cfg.settings (user.settings or { });
+      config.persistence.users = self.lib.mkUserPersistence {
+        inherit lib;
+        users = config.hjem.users;
+        userEnabled = userName:
+          self.lib.resolveUserOption {
+            inherit lib;
+            global = cfg.enable;
+            users = cfg.users;
+            inherit userName;
           };
+        data = {
+          directories = [ ".config/Code" ".vscode" ];
         };
-      }) ];
+      };
     };
 }

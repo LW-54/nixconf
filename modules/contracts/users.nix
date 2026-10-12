@@ -37,13 +37,13 @@
 
         hjem.users.${cfg.name}.enable = lib.mkDefault true;
         hjem.clobberByDefault = true;
-/*
+
         persistence.users.${cfg.name}.data.directories = lib.mkDefault [
             "nixconf"
             "Documents" 
             "Downloads"
             "Projects"
-        ];*/
+        ];
       };
     };
 }
