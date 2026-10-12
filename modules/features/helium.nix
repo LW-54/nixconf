@@ -42,6 +42,21 @@
         })
       ];
 
+        config.persistence.users = self.lib.mkUserPersistence {
+          inherit lib;
+          users = config.hjem.users;
+          userEnabled = userName:
+            self.lib.resolveUserOption {
+              inherit lib;
+              global = cfg.enable;
+              users = cfg.users;
+              inherit userName;
+            };
+          data = {
+            directories = [ ".config/net.imput.helium" ];
+          };
+        };
+
       options.helium = {
         enable = lib.mkEnableOption "Helium Browser" // {
           default = true;

@@ -43,6 +43,7 @@
             "Documents" 
             "Downloads"
             "Projects"
+            ".ssh"
         ];
       };
     };
