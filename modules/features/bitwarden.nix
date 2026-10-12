@@ -25,9 +25,10 @@
               if sshAgentOverride == null then cfg.sshAgent.enable else sshAgentOverride;
           in
           {
-            environment.sessionVariables.SSH_AUTH_SOCK = lib.mkIf
-              sshAgentEnabled
-              "$HOME/.bitwarden-ssh-agent.sock";
+            environment.sessionVariables = lib.mkIf sshAgentEnabled {
+              BITWARDEN_SSH_AUTH_SOCK = "$HOME/.bitwarden-ssh-agent.sock";
+              SSH_AUTH_SOCK = "$BITWARDEN_SSH_AUTH_SOCK";
+            };
           };
       }) ];
     };
