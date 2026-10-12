@@ -6,10 +6,11 @@
   flake.nixosModules.x240Config = { pkgs, config, ... }: {
     imports = [
       self.nixosModules.x240Hardware
+
+      self.nixosModules.contracts
       
       self.nixosModules.nix
-      self.nixosModules.user
-      self.nixosModules.sops
+      self.nixosModules.locale
       self.nixosModules.sops-tools
       self.nixosModules.wifi-eduroam
 
@@ -28,25 +29,18 @@
     networking.hostName = "x240";
     networking.networkmanager.enable = true;
 
+    environment.systemPackages = with pkgs; [
+          curl
+    ];
+
     sops.age.keyFile = "/var/lib/sops-nix/key.txt";
+
+    bitwarden.users.lw.sshAgent.enable = true;
 
     nix.settings.build-cores = 3; # Fixed to 3 for x240 (4 cores - 1)
     nix.settings.cores = 3;      # Fixed to 3 for x240 (4 cores - 1)
-    nix.settings.trusted-users = [ config.preferences.user.name ];
+    nix.settings.trusted-users = [ "lw" ];
 
-    time.timeZone = "Europe/Paris";
-    i18n.defaultLocale = "en_US.UTF-8";
-    i18n.extraLocaleSettings = {
-      LC_ADDRESS = "fr_FR.UTF-8";
-      LC_IDENTIFICATION = "fr_FR.UTF-8";
-      LC_MEASUREMENT = "fr_FR.UTF-8";
-      LC_MONETARY = "fr_FR.UTF-8";
-      LC_NAME = "fr_FR.UTF-8";
-      LC_NUMERIC = "fr_FR.UTF-8";
-      LC_PAPER = "fr_FR.UTF-8";
-      LC_TELEPHONE = "fr_FR.UTF-8";
-      LC_TIME = "fr_FR.UTF-8";
-    };
     console.keyMap = "fr";
     services.xserver.xkb = { layout = "fr"; variant = ""; };
 
@@ -58,10 +52,6 @@
       alsa.support32Bit = true;
       pulse.enable = true;
     };
-
-    environment.systemPackages = with pkgs; [
-      curl
-    ];
 
     system.stateVersion = "25.11"; 
     
