@@ -1,13 +1,12 @@
 { inputs, ... }:
 {
-  flake.nixosModules.secrets = { 
-    imports = [
-      inputs.sops-nix.nixosModules.sops
-    ];
-  };
+  flake.nixosModules.secrets = { lib, ... }:
+    {
+      imports = [
+        inputs.sops-nix.nixosModules.sops
+      ];
+
+      sops.age.keyFile = lib.mkDefault "/var/lib/sops-nix/key.txt";
+    };
 }
 
-/*
-  This file is a placeholder for a potential secrets contract abstracting sops.
-  it would expose something like options.secrets 
-*/

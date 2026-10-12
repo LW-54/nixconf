@@ -26,6 +26,13 @@
           isNormalUser = lib.mkDefault true;
           description = lib.mkDefault "${cfg.name}'s account";
           extraGroups = lib.mkDefault [ "wheel" "networkmanager" ];
+          hashedPasswordFile = config.sops.secrets.default-user-password-hash.path;
+        };
+
+        sops.secrets.default-user-password-hash = {
+          sopsFile = ../../secrets/users/default.yaml;
+          key = "passwordHash";
+          neededForUsers = true;
         };
 
         hjem.users.${cfg.name}.enable = lib.mkDefault true;

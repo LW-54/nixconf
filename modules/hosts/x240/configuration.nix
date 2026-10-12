@@ -10,8 +10,8 @@
       self.nixosModules.contracts
       
       self.nixosModules.nix
+      self.nixosModules.direnv
       self.nixosModules.locale
-      self.nixosModules.sops-tools
       self.nixosModules.wifi-eduroam
 
       self.nixosModules.cosmic
@@ -33,13 +33,13 @@
           curl
     ];
 
-    sops.age.keyFile = "/var/lib/sops-nix/key.txt";
+    bitwarden.users.${config.users.defaultUser.name}.sshAgent.enable = true;
 
-    bitwarden.users.lw.sshAgent.enable = true;
-
-    nix.settings.build-cores = 3; # Fixed to 3 for x240 (4 cores - 1)
-    nix.settings.cores = 3;      # Fixed to 3 for x240 (4 cores - 1)
-    nix.settings.trusted-users = [ "lw" ];
+    nix.settings = { # Fixed to 3 for x240 (4 cores - 1).
+      build-cores = 3;
+      cores = 3;
+      trusted-users = [ config.users.defaultUser.name ];
+    };
 
     console.keyMap = "fr";
     services.xserver.xkb = { layout = "fr"; variant = ""; };
