@@ -4,68 +4,73 @@
   flake.nixosModules.impermanence = { lib, config, ... }:
     let
       cfg = config.persistence;
-      userNames = builtins.attrNames cfg.users;
-      users = cfg.users;
       systemRoot = "/persist/system";
 
       isRelativeEntry = entry:
-        if builtins.isString entry then
-          !(lib.hasPrefix "/" entry)
-        else
-          true;
+        let
+          paths =
+            if builtins.isString entry then
+              [ entry ]
+            else
+              (lib.optional (entry ? directory) entry.directory)
+              ++ (lib.optional (entry ? file) entry.file);
+        in
+        paths != [ ] && lib.all (path: !lib.hasPrefix "/" path) paths;
 
-      userEntries = userName:
-        users.${userName}.data.directories
-        ++ users.${userName}.data.files
-        ++ users.${userName}.cache.directories
-        ++ users.${userName}.cache.files;
-
-      userScope = userName: scope:
+      mkUserScope = userName: scope:
+        let
+          inherit (cfg.users.${userName}.${scope}) directories files;
+        in
         {
-          directories = users.${userName}.${scope}.directories;
-          files = users.${userName}.${scope}.files;
+          inherit directories files;
         };
 
       mkUserPersistence = userName: {
-        environment.persistence."/persist/users/${userName}/data".users.${userName} = userScope userName "data";
-        environment.persistence."/persist/users/${userName}/cache".users.${userName} = userScope userName "cache";
+        "/persist/users/${userName}/data".users.${userName} = mkUserScope userName "data";
+        "/persist/users/${userName}/cache".users.${userName} = mkUserScope userName "cache";
+      };
+
+      systemPersistence = {
+        ${systemRoot} = {
+          hideMounts = true;
+          directories = [
+            "/etc/nixos"
+            "/var/log"
+            "/var/lib/nixos"
+            "/var/lib/systemd/coredump"
+            "/etc/NetworkManager/system-connections"
+            "/tmp"
+          ] ++ cfg.directories;
+          files = [
+            "/etc/machine-id"
+          ] ++ cfg.files;
+        };
       };
     in
     {
-      imports = inputs.impermanence.nixosModules.impermanence;
+      imports = [ inputs.impermanence.nixosModules.impermanence ];
 
-      persistence.enable = lib.mkDefault true;
+      persistence.enable = true;
 
-      assertions =
-        map (userName: {
-          assertion = lib.all isRelativeEntry (userEntries userName);
-          message = "persistence.users.${userName} entries must be relative paths (or impermanence attribute sets), because they are mapped to /home/${userName}.";
-        }) userNames;
+      assertions = lib.mapAttrsToList (userName: user: {
+        assertion = lib.all isRelativeEntry (
+          user.data.directories
+          ++ user.data.files
+          ++ user.cache.directories
+          ++ user.cache.files
+        );
+        message = "persistence.users.${userName} entries must be relative paths (or impermanence attribute sets), because they are mapped to /home/${userName}.";
+      }) cfg.users;
 
-      config = lib.mkIf cfg.enable (lib.mkMerge (
-        [
-          {
-            programs.fuse.userAllowOther = true;
-            boot.tmp.cleanOnBoot = lib.mkDefault true;
-            fileSystems."/persist".neededForBoot = lib.mkDefault true;
+      programs.fuse.userAllowOther = lib.mkIf cfg.enable true;
+      boot.tmp.cleanOnBoot = lib.mkIf cfg.enable true;
+      fileSystems."/persist".neededForBoot = lib.mkIf cfg.enable true;
 
-            environment.persistence.${systemRoot} = {
-              hideMounts = true;
-              directories = [
-                "/etc/nixos"
-                "/var/log"
-                "/var/lib/nixos"
-                "/var/lib/systemd/coredump"
-                "/etc/NetworkManager/system-connections"
-                "/tmp"
-              ] ++ cfg.directories;
-              files = [
-                "/etc/machine-id"
-              ] ++ cfg.files;
-            };
-          }
-        ]
-        ++ map mkUserPersistence userNames
-      ));
+      environment.persistence = lib.mkIf cfg.enable (
+        lib.mkMerge (
+          [ systemPersistence ]
+          ++ map mkUserPersistence (builtins.attrNames cfg.users)
+        )
+      );
     };
 }

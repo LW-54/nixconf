@@ -3,10 +3,19 @@
     modules = [ self.nixosModules.x240Config ];
   };
 
-  flake.nixosModules.x240Config = { pkgs, config, ... }: {
+  flake.nixosModules.x240Config = { lib, ... }:
+    {
+      imports = [
+        self.nixosModules.x240Hardware
+        self.nixosModules.x240Boot
+        self.nixosModules.x240Storage
+        self.nixosModules.impermanence
+        self.nixosModules.x240System
+      ];
+    };
+
+  flake.nixosModules.x240System = { pkgs, config, ... }: {
     imports = [
-      self.nixosModules.x240Hardware
-      self.nixosModules.x240Boot
       self.nixosModules.x240Desktop
       self.nixosModules.x240Resources
 
@@ -32,8 +41,8 @@
 
     bitwarden.users.${config.users.defaultUser.name}.sshAgent.enable = true;
 
-    system.stateVersion = "25.11"; 
-    
+    system.configurationRevision = self.rev or self.dirtyRev or "unknown";
+    system.stateVersion = "25.11";
   };
 }
 

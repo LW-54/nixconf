@@ -7,8 +7,7 @@
         services.displayManager.cosmic-greeter.enable = true;
 
         persistence.users = self.lib.mkUserPersistence {
-          inherit lib;
-          users = config.hjem.users;
+          inherit lib config;
           data = {
             directories = [
               ".config/cosmic"

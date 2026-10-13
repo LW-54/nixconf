@@ -30,6 +30,9 @@ flake.lib.resolveUserOption = {
     let override = lib.attrByPath ([ userName ] ++ path) null users;
     in if override == null then global else override;
 
+flake.lib.normalUsers = { lib, users }:
+    lib.filterAttrs (_: user: user.isNormalUser or false) users;
+
 flake.lib.assertUsersExist = { lib, config, feature, users }:
     lib.mapAttrsToList (userName: _: {
     assertion = config.users.users ? ${userName};
@@ -38,13 +41,15 @@ flake.lib.assertUsersExist = { lib, config, feature, users }:
 
 flake.lib.mkUserPersistence = {
     lib,
-    users,
+    config,
+    users ? config.users.users,
     userEnabled ? (_: true),
     data ? { },
     cache ? { },
 }:
     lib.mapAttrs (_: _: { inherit data cache; })
-    (lib.filterAttrs (userName: _: userEnabled userName) users);
+    (lib.filterAttrs (userName: _: userEnabled userName)
+        (lib.filterAttrs (_: user: user.isNormalUser or false) users));
 
 flake.lib.mkHjemUserProjection = {
     lib,

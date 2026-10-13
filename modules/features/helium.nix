@@ -43,8 +43,7 @@
       ];
 
         config.persistence.users = self.lib.mkUserPersistence {
-          inherit lib;
-          users = config.hjem.users;
+          inherit lib config;
           userEnabled = userName:
             self.lib.resolveUserOption {
               inherit lib;

@@ -1,4 +1,4 @@
-{ ... }:
+{ self, ... }:
 {
   flake.nixosModules.direnv = { config, lib, ... }:
     {
@@ -11,9 +11,10 @@
           nix-direnv.enable = true;
         };
 
-        persistence.users = lib.mapAttrs (_: _: {
+        persistence.users = self.lib.mkUserPersistence {
+          inherit lib config;
           cache.directories = [ ".cache/direnv" ];
-        }) config.users.users;
+        };
       };
     };
 }
