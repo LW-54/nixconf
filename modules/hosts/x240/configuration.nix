@@ -25,6 +25,7 @@
       self.nixosModules.direnv
       self.nixosModules.locale
       self.nixosModules.wifi-eduroam
+      self.nixosModules.fonts
 
       self.nixosModules.cosmic
       
