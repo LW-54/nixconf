@@ -11,10 +11,6 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules);
 }
 /*
-
-cachix watcher
-rust-env
-
 creat contracts
 
 caddy ? should it be tool independent ?

@@ -4,12 +4,18 @@
     lib,
     ...
   }: {
+    options.cosmic = {
+      enable = lib.mkEnableOption "the COSMIC desktop" // {default = true;};
+      greeter.enable = lib.mkEnableOption "the COSMIC greeter";
+    };
+
     config = {
-      services.desktopManager.cosmic.enable = true;
-      services.displayManager.cosmic-greeter.enable = true;
+      services.desktopManager.cosmic.enable = config.cosmic.enable;
+      services.displayManager.cosmic-greeter.enable = config.cosmic.greeter.enable;
 
       persistence.users = self.lib.mkUserPersistence {
         inherit lib config;
+        userEnabled = _: config.services.desktopManager.cosmic.enable;
         data = {
           directories = [
             ".config/cosmic"
@@ -23,7 +29,9 @@
         };
       };
 
-      persistence.directories = ["/var/lib/cosmic-greeter"];
+      persistence.directories = lib.mkIf config.services.displayManager.cosmic-greeter.enable [
+        "/var/lib/cosmic-greeter"
+      ];
     };
   };
 }

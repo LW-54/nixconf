@@ -34,6 +34,10 @@
       self.nixosModules.wifi-eduroam
       self.nixosModules.fonts
 
+      self.nixosModules.labwc
+      self.nixosModules.noctalia
+      self.nixosModules.noctalia-greeter
+      self.nixosModules.tack
       self.nixosModules.cosmic
       self.nixosModules.dolphin
       self.nixosModules.foot
@@ -47,7 +51,10 @@
     networking.hostName = "x240";
     networking.networkmanager.enable = true;
 
-    environment.systemPackages = with pkgs; [curl];
+    environment.systemPackages = with pkgs; [
+      curl
+      wl-clipboard
+    ];
 
     bitwarden.users.${config.users.defaultUser.name}.sshAgent.enable = true;
 

@@ -80,3 +80,12 @@ url = "github:nix-community/nix-index-database"
 
 [inputs.helium]
 url = "github:oxcl/nix-flake-helium-browser"
+
+[inputs.noctalia]
+url = "github:noctalia-dev/noctalia"
+
+[inputs.noctalia-greeter]
+url = "github:noctalia-dev/noctalia-greeter"
+
+[inputs.tack]
+url = "github:manic-systems/tack"
