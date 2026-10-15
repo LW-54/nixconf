@@ -1,6 +1,4 @@
-{ self, ... }:
-
-{
+{self, ...}: {
   flake.nixosModules.contracts = {
     imports = [
       self.nixosModules.users

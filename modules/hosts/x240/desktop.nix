@@ -1,5 +1,4 @@
-{ ... }:
-{
+{...}: {
   flake.nixosModules.x240Desktop = {
     console.keyMap = "fr";
     services.xserver.xkb = {

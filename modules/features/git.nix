@@ -1,5 +1,8 @@
-{ self, inputs, ... }:
-let
+{
+  self,
+  inputs,
+  ...
+}: let
   defaultSettings = {
     user.name = "LW-54";
     user.email = "leonardwilsonb@gmail.com";
@@ -8,44 +11,46 @@ let
     push.autoSetupRemote = true;
     rerere.enabled = true;
   };
-in
-{
-  perSystem = { pkgs, ... }:
-    {
-      packages.git = inputs.wrapper-modules.wrappers.git.wrap {
-        inherit pkgs;
-        settings = defaultSettings;
-      };
+in {
+  perSystem = {pkgs, ...}: {
+    packages.git = inputs.wrapper-modules.wrappers.git.wrap {
+      inherit pkgs;
+      settings = defaultSettings;
     };
+  };
 
-  flake.nixosModules.git = { lib, ... }:
-    let
-      settings = self.lib.mkOptionWithUserOverride {
-        inherit lib;
-        type = lib.types.attrsOf lib.types.anything;
-        default = defaultSettings;
-        userDefault = { };
-        merge = lib.recursiveUpdate;
-        description = "Git settings";
-      };
-    in
-    {
-      imports = [ (self.lib.mkUserFeature {
+  flake.nixosModules.git = {lib, ...}: let
+    settings = self.lib.mkOptionWithUserOverride {
       inherit lib;
-      name = "git";
-      description = "Git";
-      package = pkgs: pkgs.git;
+      type = lib.types.attrsOf lib.types.anything;
+      default = defaultSettings;
+      userDefault = {};
+      merge = lib.recursiveUpdate;
+      description = "Git settings";
+    };
+  in {
+    imports = [
+      (self.lib.mkUserFeature {
+        inherit lib;
+        name = "git";
+        description = "Git";
+        package = pkgs: pkgs.git;
 
-      featureOptions.settings = settings.global;
-      userOptions.settings = settings.user;
+        featureOptions.settings = settings.global;
+        userOptions.settings = settings.user;
 
-      userModule = { cfg, user, lib, ... }:
-        {
+        userModule = {
+          cfg,
+          user,
+          lib,
+          ...
+        }: {
           xdg.config.files."git/config" = {
-            generator = lib.generators.toINI { };
-            value = lib.recursiveUpdate cfg.settings (user.settings or { });
+            generator = lib.generators.toINI {};
+            value = lib.recursiveUpdate cfg.settings (user.settings or {});
           };
         };
-      }) ];
-    };
+      })
+    ];
+  };
 }

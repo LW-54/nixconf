@@ -1,9 +1,7 @@
-{ inputs, ... }:
-
-{
+{inputs, ...}: {
   systems = import inputs.systems;
 
-  perSystem = { pkgs, ... }: {
+  perSystem = {pkgs, ...}: {
     formatter = pkgs.alejandra;
   };
 }
