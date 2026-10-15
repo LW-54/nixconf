@@ -28,6 +28,7 @@
       self.nixosModules.fonts
 
       self.nixosModules.cosmic
+      self.nixosModules.dolphin
       
       self.nixosModules.git
       self.nixosModules.vscode
