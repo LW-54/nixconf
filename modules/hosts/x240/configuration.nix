@@ -31,7 +31,7 @@
       
       self.nixosModules.git
       self.nixosModules.vscode
-      self.nixosModules.helium
+      self.nixosModules.vivaldi
       self.nixosModules.bitwarden
     ];
 
