@@ -1,22 +1,12 @@
 {
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    systems.url = "github:nix-systems/default";
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    import-tree.url = "github:denful/import-tree";
-
-    wrapper-modules = { url = "github:nix-community/nix-wrapper-modules"; inputs.nixpkgs.follows = "nixpkgs"; };
-    hjem = { url = "github:feel-co/hjem"; inputs.nixpkgs.follows = "nixpkgs"; };
-
-    sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
-    impermanence = { url = "github:nix-community/impermanence"; inputs.nixpkgs.follows = "nixpkgs"; };
-    disko = { url = "github:nix-community/disko"; inputs.nixpkgs.follows = "nixpkgs"; };
-
-    nix-index-database = { url = "github:nix-community/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
-    helium = { url = "github:oxcl/nix-flake-helium-browser"; inputs.nixpkgs.follows = "nixpkgs"; };
-  };
-
-  outputs = inputs:
+  outputs = { self, ... }@args:
+    let
+      inputs = (import ./.tack) {
+        overrides = args.tackOverrides or { };
+      } // {
+        self = self // { inherit inputs; };
+      };
+    in
     inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./modules);
 }
 
@@ -36,6 +26,9 @@
   wifi
   cachix watcher
   rust-env
+
+  disko module 
+  nix
 
 
   creat contracts
