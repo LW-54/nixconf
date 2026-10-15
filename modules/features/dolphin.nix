@@ -2,7 +2,6 @@
 {
   perSystem = { pkgs, ... }:
     let
-      dolphinPackage = pkgs.kdePackages.dolphin;
       runtimePackages = with pkgs.kdePackages; [
         plasma-integration
         breeze
@@ -12,24 +11,19 @@
         qtsvg
         qtwayland
       ];
-      dolphin = pkgs.symlinkJoin {
+    in
+    {
+      packages.dolphin = pkgs.symlinkJoin {
         name = "dolphin-portable";
-        paths = [ dolphinPackage ] ++ runtimePackages;
+        paths = [ pkgs.kdePackages.dolphin ] ++ runtimePackages;
         nativeBuildInputs = [ pkgs.makeWrapper ];
+        meta.mainProgram = "dolphin";
         postBuild = ''
           wrapProgram $out/bin/dolphin \
             --set QT_QPA_PLATFORM "wayland;xcb" \
             --prefix XDG_DATA_DIRS : "$out/share" \
             --prefix QT_PLUGIN_PATH : "$out/lib/qt-6/plugins"
         '';
-      };
-    in
-    {
-      packages.dolphin = dolphin;
-      apps.dolphin = {
-        type = "app";
-        program = "${dolphin}/bin/dolphin";
-        meta.description = "Portable Dolphin file manager";
       };
     };
 

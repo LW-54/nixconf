@@ -29,6 +29,7 @@
 
       self.nixosModules.cosmic
       self.nixosModules.dolphin
+      self.nixosModules.foot
       
       self.nixosModules.git
       self.nixosModules.vscode

@@ -1,18 +1,29 @@
-{ self, ... }:
+{ self, inputs, ... }:
+let
+  defaultSettings = {
+    user.name = "LW-54";
+    user.email = "leonardwilsonb@gmail.com";
+    pull.rebase = true;
+    fetch.prune = true;
+    push.autoSetupRemote = true;
+    rerere.enabled = true;
+  };
+in
 {
+  perSystem = { pkgs, ... }:
+    {
+      packages.git = inputs.wrapper-modules.wrappers.git.wrap {
+        inherit pkgs;
+        settings = defaultSettings;
+      };
+    };
+
   flake.nixosModules.git = { lib, ... }:
     let
       settings = self.lib.mkOptionWithUserOverride {
         inherit lib;
         type = lib.types.attrsOf lib.types.anything;
-        default = {
-          user.name = "LW-54";
-          user.email = "leonardwilsonb@gmail.com";
-          pull.rebase = true;
-          fetch.prune = true;
-          push.autoSetupRemote = true;
-          rerere.enabled = true;
-        };
+        default = defaultSettings;
         userDefault = { };
         merge = lib.recursiveUpdate;
         description = "Git settings";
