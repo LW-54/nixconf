@@ -37,6 +37,7 @@
       self.nixosModules.labwc
       self.nixosModules.noctalia
       self.nixosModules.noctalia-greeter
+      self.nixosModules.keyring
       self.nixosModules.tack
       self.nixosModules.cosmic
       self.nixosModules.dolphin
@@ -50,6 +51,12 @@
 
     networking.hostName = "x240";
     networking.networkmanager.enable = true;
+
+    labwc.users.${config.users.defaultUser.name}.environment = ''
+      XKB_DEFAULT_LAYOUT=fr
+      XKB_DEFAULT_VARIANT=
+      XKB_DEFAULT_OPTIONS=
+    '';
 
     environment.systemPackages = with pkgs; [
       curl

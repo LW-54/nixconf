@@ -111,7 +111,11 @@
             users = cfg.users;
             inherit userName;
           };
-        data.directories = [".config/noctalia"];
+        data.directories = [
+          ".config/noctalia"
+          ".local/state/noctalia"
+          "Pictures/Wallpapers"
+        ];
       };
     };
   };
