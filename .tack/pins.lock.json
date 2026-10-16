@@ -8,8 +8,11 @@
     "import-tree": "github:denful/import-tree",
     "nix-index-database": "github:nix-community/nix-index-database",
     "nixpkgs": "github:NixOS/nixpkgs/nixos-unstable",
+    "noctalia": "github:noctalia-dev/noctalia",
+    "noctalia-greeter": "github:noctalia-dev/noctalia-greeter",
     "sops-nix": "github:Mic92/sops-nix",
     "systems": "github:nix-systems/default",
+    "tack": "github:manic-systems/tack",
     "wrapper-modules": "github:nix-community/nix-wrapper-modules"
   },
   "disko": {
@@ -76,6 +79,22 @@
     "narHash": "sha256-jBYGPi4udQ9uo4KQp9m2J0546nJVQitG15gvZSaVVAs=",
     "lastModified": 1791956154
   },
+  "noctalia": {
+    "type": "github",
+    "owner": "noctalia-dev",
+    "repo": "noctalia",
+    "rev": "b043ac235182ace8d772fa6891e8e6e88e1b3981",
+    "narHash": "sha256-HaLdbU5H7z4CcvKC/eejWEyfnk49txL3RufYNbGieIg=",
+    "lastModified": 1792104691
+  },
+  "noctalia-greeter": {
+    "type": "github",
+    "owner": "noctalia-dev",
+    "repo": "noctalia-greeter",
+    "rev": "c0d328447e3093107a6002cd947c7b5f4a289eed",
+    "narHash": "sha256-T7mKc+DgrSTEtNXXE2jfVHoUNRogl/A0HhfjbKSIDMM=",
+    "lastModified": 1791996288
+  },
   "sops-nix": {
     "type": "github",
     "owner": "Mic92",
@@ -91,6 +110,14 @@
     "rev": "d36eeed142f88b5a636f2e3856a53c61654cf29b",
     "narHash": "sha256-uuanbkFk8a313Zfrxdcz8Us/yQtaxNnKJtX8v0ZPpd8=",
     "lastModified": 1791244623
+  },
+  "tack": {
+    "type": "github",
+    "owner": "manic-systems",
+    "repo": "tack",
+    "rev": "d785e637b7f6d0694a53951588c484f32397335e",
+    "narHash": "sha256-q3o87E0s55Z09YVhFJtws2Dvv1IRCoGxOOtomZsJEXA=",
+    "lastModified": 1792090744
   },
   "wrapper-modules": {
     "type": "github",
