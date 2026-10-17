@@ -29,41 +29,37 @@
       self.nixosModules.contracts
 
       self.nixosModules.nix
+      self.nixosModules.sops-tools
       self.nixosModules.direnv
       self.nixosModules.locale
       self.nixosModules.wifi-eduroam
       self.nixosModules.fonts
 
       self.nixosModules.labwc
+      self.nixosModules.uwsm
       self.nixosModules.noctalia
       self.nixosModules.noctalia-greeter
       self.nixosModules.keyring
       self.nixosModules.tack
-      self.nixosModules.cosmic
       self.nixosModules.dolphin
       self.nixosModules.foot
 
       self.nixosModules.git
       self.nixosModules.vscode
       self.nixosModules.vivaldi
-      self.nixosModules.bitwarden
+      self.nixosModules.bitwarden-desktop
+      self.nixosModules.bw
     ];
 
     networking.hostName = "x240";
     networking.networkmanager.enable = true;
-
-    labwc.users.${config.users.defaultUser.name}.environment = ''
-      XKB_DEFAULT_LAYOUT=fr
-      XKB_DEFAULT_VARIANT=
-      XKB_DEFAULT_OPTIONS=
-    '';
+    services.displayManager.defaultSession = "labwc-uwsm";
 
     environment.systemPackages = with pkgs; [
       curl
       wl-clipboard
+      alejandra
     ];
-
-    bitwarden.users.${config.users.defaultUser.name}.sshAgent.enable = true;
 
     system.configurationRevision = self.rev or self.dirtyRev or "unknown";
     system.stateVersion = "25.11";
