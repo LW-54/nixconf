@@ -6,18 +6,26 @@
   defaultAgeKeyFile = "/persist/sops-nix/key.txt";
   mkSopsHostShell = {
     pkgs,
-    keyFile,
+    keyFile ? defaultAgeKeyFile,
   }:
     pkgs.mkShell {
       packages = [
         pkgs.age
         pkgs.sops
       ];
-      shellHook = ''
-        export SOPS_AGE_KEY="$(cat ${keyFile})"
+      shellHook = let
+        keyFileArg = pkgs.lib.escapeShellArg keyFile;
+      in ''
+        SOPS_AGE_KEY="$(${pkgs.coreutils}/bin/cat ${keyFileArg} 2>/dev/null ||
+          { command -v sudo >/dev/null 2>&1 && sudo ${pkgs.coreutils}/bin/cat ${keyFileArg}; } ||
+          { printf 'Unable to read the SOPS age key file: %s\n' ${keyFileArg} >&2; exit 1; }
+        )" || exit 1
+        export SOPS_AGE_KEY
       '';
     };
 in {
+  flake.lib.mkSopsHostShell = mkSopsHostShell;
+
   perSystem = {pkgs, ...}: {
     devShells.sops-admin = pkgs.mkShell {
       packages = [
@@ -33,13 +41,12 @@ in {
       };
     };
 
-    devShells.sops-host = mkSopsHostShell {
+    devShells.sops-host = self.lib.mkSopsHostShell {
       inherit pkgs;
-      keyFile = defaultAgeKeyFile;
     };
   };
 
-  flake.nixosModules.sops-nix = {
+  flake.nixosModules.sops = {
     config,
     lib,
     pkgs,
@@ -56,7 +63,7 @@ in {
       sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
       system.extraDependencies =
         lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin
-        ++ lib.optional cfg.prebuildHostShell (mkSopsHostShell {
+        ++ lib.optional cfg.prebuildHostShell (self.lib.mkSopsHostShell {
           inherit pkgs;
           keyFile = config.sops.age.keyFile;
         });

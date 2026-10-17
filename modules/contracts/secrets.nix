@@ -1,3 +1,3 @@
 {self, ...}: {
-  flake.nixosModules.secrets = {imports = [self.nixosModules.sops-nix];};
+  flake.nixosModules.secrets = {imports = [self.nixosModules.sops];};
 }
