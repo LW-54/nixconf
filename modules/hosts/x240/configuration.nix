@@ -29,7 +29,6 @@
       self.nixosModules.contracts
 
       self.nixosModules.nix
-      self.nixosModules.sops-tools
       self.nixosModules.direnv
       self.nixosModules.locale
       self.nixosModules.wifi-eduroam
@@ -47,7 +46,6 @@
       self.nixosModules.git
       self.nixosModules.vscode
       self.nixosModules.vivaldi
-      self.nixosModules.bitwarden-desktop
       self.nixosModules.bw
     ];
 
@@ -59,6 +57,8 @@
       curl
       wl-clipboard
       alejandra
+      btop
+      jq
     ];
 
     system.configurationRevision = self.rev or self.dirtyRev or "unknown";
