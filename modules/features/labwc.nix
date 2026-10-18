@@ -1,4 +1,10 @@
-{self, ...}: {
+{
+  config,
+  self,
+  ...
+}: let
+  flakeLib = config.flake.lib;
+in {
   flake.nixosModules.labwc = {
     config,
     lib,
@@ -62,7 +68,7 @@
     '';
   in {
     imports = [
-      (self.lib.mkHjemUserProjection {
+      (flakeLib.users.mkHjemUserProjection {
         inherit lib;
         name = "labwc";
         description = "Labwc";
@@ -124,7 +130,7 @@
         })
       ];
 
-      persistence.users = self.lib.mkUserPersistence {
+      persistence.users = flakeLib.users.mkUserPersistence {
         inherit lib config;
         data.directories = [".config/labwc"];
       };

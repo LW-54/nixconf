@@ -3,7 +3,7 @@
   config,
   ...
 }: {
-  flake.lib.mkOptionWithUserOverride = {
+  flake.lib.users.mkOptionWithUserOverride = {
     lib,
     type,
     default,
@@ -24,7 +24,7 @@
     resolve = globalValue: userValue: merge globalValue userValue;
   };
 
-  flake.lib.resolveUserOption = {
+  flake.lib.users.resolveUserOption = {
     lib,
     global,
     users,
@@ -37,13 +37,13 @@
     then global
     else override;
 
-  flake.lib.normalUsers = {
+  flake.lib.users.normalUsers = {
     lib,
     users,
   }:
     lib.filterAttrs (_: user: user.isNormalUser or false) users;
 
-  flake.lib.assertUsersExist = {
+  flake.lib.users.assertUsersExist = {
     lib,
     config,
     feature,
@@ -55,7 +55,7 @@
     })
     users;
 
-  flake.lib.mkUserPersistence = {
+  flake.lib.users.mkUserPersistence = {
     lib,
     config,
     users ? config.users.users,
@@ -67,7 +67,7 @@
     (lib.filterAttrs (userName: _: userEnabled userName)
       (lib.filterAttrs (_: user: user.isNormalUser or false) users));
 
-  flake.lib.mkHjemUserProjection = {
+  flake.lib.users.mkHjemUserProjection = {
     lib,
     name,
     description,
@@ -106,7 +106,7 @@
     };
   };
 
-  flake.lib.mkUserFeature = {
+  flake.lib.users.mkUserFeature = {
     lib,
     name,
     description,

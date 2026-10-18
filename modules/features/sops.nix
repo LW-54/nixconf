@@ -1,8 +1,10 @@
 {
+  config,
   inputs,
   self,
   ...
 }: let
+  flakeLib = config.flake.lib;
   defaultAgeKeyFile = "/persist/sops-nix/key.txt";
   mkSopsHostShell = {
     pkgs,
@@ -24,24 +26,24 @@
       '';
     };
 in {
-  flake.lib.mkSopsHostShell = mkSopsHostShell;
+  flake.lib.sops.mkHostShell = mkSopsHostShell;
 
   perSystem = {pkgs, ...}: {
     devShells.sops-admin = pkgs.mkShell {
       packages = [
-        self.packages.${pkgs.system}.bw
+        self.packages.${pkgs.stdenv.hostPlatform.system}.bw
         pkgs.age
         pkgs.jq
         pkgs.sops
       ];
-      shellHook = self.lib.mkBitwardenSecretShellHook {
+      shellHook = flakeLib.bitwarden.mkSecretShellHook {
         itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";
         variable = "SOPS_AGE_KEY";
         jqFilter = ".notes | select(type == \"string\" and length > 0)";
       };
     };
 
-    devShells.sops-host = self.lib.mkSopsHostShell {
+    devShells.sops-host = flakeLib.sops.mkHostShell {
       inherit pkgs;
     };
   };
@@ -62,8 +64,8 @@ in {
     config = {
       sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
       system.extraDependencies =
-        lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin
-        ++ lib.optional cfg.prebuildHostShell (self.lib.mkSopsHostShell {
+        lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.stdenv.hostPlatform.system}.sops-admin
+        ++ lib.optional cfg.prebuildHostShell (flakeLib.sops.mkHostShell {
           inherit pkgs;
           keyFile = config.sops.age.keyFile;
         });

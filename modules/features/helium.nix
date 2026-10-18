@@ -1,8 +1,11 @@
 {
+  config,
   self,
   inputs,
   ...
-}: {
+}: let
+  flakeLib = config.flake.lib;
+in {
   flake.nixosModules.helium = {
     config,
     lib,
@@ -12,7 +15,7 @@
   in {
     imports = [
       inputs.helium.nixosModules.default
-      (self.lib.mkHjemUserProjection {
+      (flakeLib.users.mkHjemUserProjection {
         inherit lib;
         name = "helium";
         description = "Helium Browser";
@@ -55,10 +58,10 @@
       })
     ];
 
-    config.persistence.users = self.lib.mkUserPersistence {
+    config.persistence.users = flakeLib.users.mkUserPersistence {
       inherit lib config;
       userEnabled = userName:
-        self.lib.resolveUserOption {
+        flakeLib.users.resolveUserOption {
           inherit lib;
           global = cfg.enable;
           users = cfg.users;

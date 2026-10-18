@@ -1,8 +1,10 @@
 {
+  config,
   self,
   inputs,
   ...
 }: let
+  flakeLib = config.flake.lib;
   defaultSettings = {};
 in {
   perSystem = {pkgs, ...}: {
@@ -17,7 +19,7 @@ in {
     lib,
     ...
   }: let
-    settings = self.lib.mkOptionWithUserOverride {
+    settings = flakeLib.users.mkOptionWithUserOverride {
       inherit lib;
       type = lib.types.attrsOf lib.types.anything;
       default = defaultSettings;
@@ -25,7 +27,7 @@ in {
       merge = lib.recursiveUpdate;
       description = "Foot terminal settings";
     };
-    server = self.lib.mkOptionWithUserOverride {
+    server = flakeLib.users.mkOptionWithUserOverride {
       inherit lib;
       type = lib.types.bool;
       default = true;
@@ -34,7 +36,7 @@ in {
     };
   in {
     imports = [
-      (self.lib.mkUserFeature {
+      (flakeLib.users.mkUserFeature {
         inherit lib;
         name = "foot";
         description = "Foot Terminal";
@@ -74,10 +76,10 @@ in {
       })
     ];
 
-    config.persistence.users = self.lib.mkUserPersistence {
+    config.persistence.users = flakeLib.users.mkUserPersistence {
       inherit lib config;
       userEnabled = userName:
-        self.lib.resolveUserOption {
+        flakeLib.users.resolveUserOption {
           inherit lib;
           global = config.foot.enable;
           users = config.foot.users;

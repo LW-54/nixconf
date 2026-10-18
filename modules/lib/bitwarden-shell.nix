@@ -36,9 +36,5 @@
       }
     '';
 in {
-  perSystem = {...}: {
-    _module.args.mkBitwardenSecretShellHook = mkBitwardenSecretShellHook;
-  };
-
-  flake.lib.mkBitwardenSecretShellHook = mkBitwardenSecretShellHook;
+  flake.lib.bitwarden.mkSecretShellHook = mkBitwardenSecretShellHook;
 }

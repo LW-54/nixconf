@@ -1,4 +1,10 @@
-{self, ...}: {
+{
+  config,
+  self,
+  ...
+}: let
+  flakeLib = config.flake.lib;
+in {
   perSystem = {pkgs, ...}: {
     packages.bw = pkgs.writeShellApplication {
       name = "bw";
@@ -23,9 +29,9 @@
     pkgs,
     ...
   }: {
-    environment.systemPackages = [self.packages.${pkgs.system}.bw];
+    environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.bw];
 
-    persistence.users = self.lib.mkUserPersistence {
+    persistence.users = flakeLib.users.mkUserPersistence {
       inherit lib config;
       data.directories = [".config/Bitwarden CLI"];
     };
@@ -39,7 +45,7 @@
     cfg = config.bitwarden-desktop;
   in {
     imports = [
-      (self.lib.mkUserFeature {
+      (flakeLib.users.mkUserFeature {
         inherit lib;
         name = "bitwarden-desktop";
         description = "Bitwarden Desktop";
@@ -47,10 +53,10 @@
       })
     ];
 
-    config.persistence.users = self.lib.mkUserPersistence {
+    config.persistence.users = flakeLib.users.mkUserPersistence {
       inherit lib config;
       userEnabled = userName:
-        self.lib.resolveUserOption {
+        flakeLib.users.resolveUserOption {
           inherit lib;
           global = cfg.enable;
           users = cfg.users;

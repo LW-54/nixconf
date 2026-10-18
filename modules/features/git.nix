@@ -1,8 +1,10 @@
 {
+  config,
   self,
   inputs,
   ...
 }: let
+  flakeLib = config.flake.lib;
   defaultSettings = {
     user.name = "LW-54";
     user.email = "leonardwilsonb@gmail.com";
@@ -20,7 +22,7 @@ in {
 
     devShells.github-ssh = pkgs.mkShell {
       packages = [
-        self.packages.${pkgs.system}.bw
+        self.packages.${pkgs.stdenv.hostPlatform.system}.bw
         pkgs.jq
       ];
       shellHook = ''
@@ -29,7 +31,7 @@ in {
         chmod 600 "''${github_ssh_key}"
         trap 'rm -f "''${github_ssh_key}"' EXIT
 
-        ${self.lib.mkBitwardenSecretShellHook {
+        ${flakeLib.bitwarden.mkSecretShellHook {
           itemId = "334fd4e6-1911-4017-9232-9463e6b70e21";
           jqFilter = ".sshKey.privateKey | select(type == \"string\" and length > 0)";
         }} > "''${github_ssh_key}"
@@ -46,7 +48,7 @@ in {
     ...
   }: let
     cfg = config.git;
-    settings = self.lib.mkOptionWithUserOverride {
+    settings = flakeLib.users.mkOptionWithUserOverride {
       inherit lib;
       type = lib.types.attrsOf lib.types.anything;
       default = defaultSettings;
@@ -56,10 +58,10 @@ in {
     };
   in {
     options.git.prebuildGithubSsh = lib.mkEnableOption "prebuilding the GitHub SSH development shell" // {default = true;};
-    config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.system}.github-ssh;
+    config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
 
     imports = [
-      (self.lib.mkUserFeature {
+      (flakeLib.users.mkUserFeature {
         inherit lib;
         name = "git";
         description = "Git";

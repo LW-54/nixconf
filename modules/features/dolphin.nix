@@ -1,4 +1,10 @@
-{self, ...}: {
+{
+  config,
+  self,
+  ...
+}: let
+  flakeLib = config.flake.lib;
+in {
   perSystem = {pkgs, ...}: let
     runtimePackages = with pkgs.kdePackages; [
       plasma-integration
@@ -32,18 +38,18 @@
     cfg = config.dolphin;
   in {
     imports = [
-      (self.lib.mkUserFeature {
+      (flakeLib.users.mkUserFeature {
         inherit lib;
         name = "dolphin";
         description = "Dolphin File Manager";
-        package = pkgs: self.packages.${pkgs.system}.dolphin;
+        package = pkgs: self.packages.${pkgs.stdenv.hostPlatform.system}.dolphin;
       })
     ];
 
-    config.persistence.users = self.lib.mkUserPersistence {
+    config.persistence.users = flakeLib.users.mkUserPersistence {
       inherit lib config;
       userEnabled = userName:
-        self.lib.resolveUserOption {
+        flakeLib.users.resolveUserOption {
           inherit lib;
           global = cfg.enable;
           users = cfg.users;

@@ -1,7 +1,19 @@
-{inputs, ...}: {
-  systems = import inputs.systems;
+{
+  inputs,
+  lib,
+  ...
+}: {
+  options.flake.lib = lib.mkOption {
+    type = lib.types.lazyAttrsOf lib.types.raw;
+    default = {};
+    description = "Repository helper library functions.";
+  };
 
-  perSystem = {pkgs, ...}: {
-    formatter = pkgs.alejandra;
+  config = {
+    systems = import inputs.systems;
+
+    perSystem = {pkgs, ...}: {
+      formatter = pkgs.alejandra;
+    };
   };
 }

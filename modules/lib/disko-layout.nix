@@ -1,5 +1,5 @@
 {...}: {
-  flake.lib.mkPersistentDiskoLayout = {
+  flake.lib.disko.mkLayout = {
     device,
     espSize ? "1G",
     biosBootSize ? "1M",
