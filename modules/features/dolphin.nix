@@ -1,10 +1,36 @@
-{
-  config,
-  self,
-  ...
-}: let
-  flakeLib = config.flake.lib;
-in {
+{self, ...}: {
+  flake.nixosModules.dolphin = {
+    config,
+    lib,
+    ...
+  }: let
+    cfg = config.dolphin;
+  in {
+    imports = [
+      (self.lib.users.mkUserFeature {
+        inherit lib;
+        name = "dolphin";
+        description = "Dolphin File Manager";
+        package = pkgs: self.packages.${pkgs.stdenv.hostPlatform.system}.dolphin;
+      })
+    ];
+
+    config.persistence.users = self.lib.users.mkUserPersistence {
+      inherit lib config;
+      userEnabled = userName:
+        self.lib.users.resolveUserOption {
+          inherit lib;
+          global = cfg.enable;
+          users = cfg.users;
+          inherit userName;
+        };
+      data = {
+        directories = [".local/share/dolphin"];
+        files = [".config/dolphinrc"];
+      };
+    };
+  };
+
   perSystem = {pkgs, ...}: let
     runtimePackages = with pkgs.kdePackages; [
       plasma-integration
@@ -27,38 +53,6 @@ in {
           --prefix XDG_DATA_DIRS : "$out/share" \
           --prefix QT_PLUGIN_PATH : "$out/lib/qt-6/plugins"
       '';
-    };
-  };
-
-  flake.nixosModules.dolphin = {
-    config,
-    lib,
-    ...
-  }: let
-    cfg = config.dolphin;
-  in {
-    imports = [
-      (flakeLib.users.mkUserFeature {
-        inherit lib;
-        name = "dolphin";
-        description = "Dolphin File Manager";
-        package = pkgs: self.packages.${pkgs.stdenv.hostPlatform.system}.dolphin;
-      })
-    ];
-
-    config.persistence.users = flakeLib.users.mkUserPersistence {
-      inherit lib config;
-      userEnabled = userName:
-        flakeLib.users.resolveUserOption {
-          inherit lib;
-          global = cfg.enable;
-          users = cfg.users;
-          inherit userName;
-        };
-      data = {
-        directories = [".local/share/dolphin"];
-        files = [".config/dolphinrc"];
-      };
     };
   };
 }

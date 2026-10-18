@@ -1,11 +1,8 @@
 {
-  config,
   self,
   inputs,
   ...
-}: let
-  flakeLib = config.flake.lib;
-in {
+}: {
   flake.nixosModules.noctalia = {
     config,
     lib,
@@ -90,7 +87,7 @@ in {
     };
   in {
     imports = [
-      (flakeLib.users.mkHjemUserProjection {
+      (self.lib.users.mkHjemUserProjection {
         inherit lib;
         name = "noctalia";
         description = "Noctalia Shell";
@@ -203,10 +200,10 @@ in {
         })
       ];
 
-      persistence.users = flakeLib.users.mkUserPersistence {
+      persistence.users = self.lib.users.mkUserPersistence {
         inherit lib config;
         userEnabled = userName:
-          flakeLib.users.resolveUserOption {
+          self.lib.users.resolveUserOption {
             inherit lib;
             global = cfg.enable;
             users = cfg.users;

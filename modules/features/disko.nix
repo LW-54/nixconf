@@ -1,4 +1,6 @@
-{...}: {
+{inputs, ...}: {
+  flake.nixosModules.disko = inputs.disko.nixosModules.disko;
+
   flake.lib.disko.mkLayout = {
     device,
     espSize ? "1G",

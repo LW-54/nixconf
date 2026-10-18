@@ -1,10 +1,4 @@
-{
-  config,
-  self,
-  ...
-}: let
-  flakeLib = config.flake.lib;
-in {
+{self, ...}: {
   flake.nixosModules.locale = {
     config,
     lib,
@@ -41,7 +35,7 @@ in {
     };
   in {
     imports = [
-      (flakeLib.users.mkUserFeature {
+      (self.lib.users.mkUserFeature {
         inherit lib;
         name = "locale";
         description = "locale configuration";

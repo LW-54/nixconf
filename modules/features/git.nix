@@ -1,10 +1,8 @@
 {
-  config,
   self,
   inputs,
   ...
 }: let
-  flakeLib = config.flake.lib;
   defaultSettings = {
     user.name = "LW-54";
     user.email = "leonardwilsonb@gmail.com";
@@ -14,33 +12,6 @@
     rerere.enabled = true;
   };
 in {
-  perSystem = {pkgs, ...}: {
-    packages.git = inputs.wrapper-modules.wrappers.git.wrap {
-      inherit pkgs;
-      settings = defaultSettings;
-    };
-
-    devShells.github-ssh = pkgs.mkShell {
-      packages = [
-        self.packages.${pkgs.stdenv.hostPlatform.system}.bw
-        pkgs.jq
-      ];
-      shellHook = ''
-        umask 077
-        github_ssh_key="$(mktemp "''${TMPDIR:-/tmp}/github-ssh.XXXXXX")"
-        chmod 600 "''${github_ssh_key}"
-        trap 'rm -f "''${github_ssh_key}"' EXIT
-
-        ${flakeLib.bitwarden.mkSecretShellHook {
-          itemId = "334fd4e6-1911-4017-9232-9463e6b70e21";
-          jqFilter = ".sshKey.privateKey | select(type == \"string\" and length > 0)";
-        }} > "''${github_ssh_key}"
-
-        export GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -i ''${github_ssh_key}"
-      '';
-    };
-  };
-
   flake.nixosModules.git = {
     config,
     lib,
@@ -48,7 +19,7 @@ in {
     ...
   }: let
     cfg = config.git;
-    settings = flakeLib.users.mkOptionWithUserOverride {
+    settings = self.lib.users.mkOptionWithUserOverride {
       inherit lib;
       type = lib.types.attrsOf lib.types.anything;
       default = defaultSettings;
@@ -61,7 +32,7 @@ in {
     config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
 
     imports = [
-      (flakeLib.users.mkUserFeature {
+      (self.lib.users.mkUserFeature {
         inherit lib;
         name = "git";
         description = "Git";
@@ -83,5 +54,29 @@ in {
         };
       })
     ];
+  };
+
+  perSystem = {pkgs, ...}: {
+    packages.git = inputs.wrapper-modules.wrappers.git.wrap {
+      inherit pkgs;
+      settings = defaultSettings;
+    };
+
+    devShells.github-ssh = self.lib.bitwarden.mkShell {
+      inherit pkgs;
+      shellHook = ''
+        umask 077
+        github_ssh_key="$(mktemp "''${TMPDIR:-/tmp}/github-ssh.XXXXXX")"
+        chmod 600 "''${github_ssh_key}"
+        trap 'rm -f "''${github_ssh_key}"' EXIT
+
+        ${self.lib.bitwarden.mkValue {
+          itemId = "334fd4e6-1911-4017-9232-9463e6b70e21";
+          jqFilter = ".sshKey.privateKey | select(type == \"string\" and length > 0)";
+        }} > "''${github_ssh_key}"
+
+        export GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -i ''${github_ssh_key}"
+      '';
+    };
   };
 }

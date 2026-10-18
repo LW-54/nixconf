@@ -1,25 +1,16 @@
 {
-  config,
   self,
   inputs,
   ...
 }: let
-  flakeLib = config.flake.lib;
   defaultSettings = {};
 in {
-  perSystem = {pkgs, ...}: {
-    packages.foot = inputs.wrapper-modules.wrappers.foot.wrap {
-      inherit pkgs;
-      settings = defaultSettings;
-    };
-  };
-
   flake.nixosModules.foot = {
     config,
     lib,
     ...
   }: let
-    settings = flakeLib.users.mkOptionWithUserOverride {
+    settings = self.lib.users.mkOptionWithUserOverride {
       inherit lib;
       type = lib.types.attrsOf lib.types.anything;
       default = defaultSettings;
@@ -27,7 +18,7 @@ in {
       merge = lib.recursiveUpdate;
       description = "Foot terminal settings";
     };
-    server = flakeLib.users.mkOptionWithUserOverride {
+    server = self.lib.users.mkOptionWithUserOverride {
       inherit lib;
       type = lib.types.bool;
       default = true;
@@ -36,7 +27,7 @@ in {
     };
   in {
     imports = [
-      (flakeLib.users.mkUserFeature {
+      (self.lib.users.mkUserFeature {
         inherit lib;
         name = "foot";
         description = "Foot Terminal";
@@ -76,16 +67,23 @@ in {
       })
     ];
 
-    config.persistence.users = flakeLib.users.mkUserPersistence {
+    config.persistence.users = self.lib.users.mkUserPersistence {
       inherit lib config;
       userEnabled = userName:
-        flakeLib.users.resolveUserOption {
+        self.lib.users.resolveUserOption {
           inherit lib;
           global = config.foot.enable;
           users = config.foot.users;
           inherit userName;
         };
       data.directories = [".config/foot"];
+    };
+  };
+
+  perSystem = {pkgs, ...}: {
+    packages.foot = inputs.wrapper-modules.wrappers.foot.wrap {
+      inherit pkgs;
+      settings = defaultSettings;
     };
   };
 }

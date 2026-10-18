@@ -1,13 +1,5 @@
-{
-  inputs,
-  self,
-  ...
-}: {
-  flake.nixosModules.noctalia-greeter = {
-    config,
-    lib,
-    ...
-  }: {
+{inputs, ...}: {
+  flake.nixosModules.noctalia-greeter = {...}: {
     imports = [inputs.noctalia-greeter.nixosModules.default];
 
     config = {

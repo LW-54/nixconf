@@ -1,10 +1,4 @@
-{
-  config,
-  self,
-  ...
-}: let
-  flakeLib = config.flake.lib;
-in {
+{self, ...}: {
   flake.nixosModules.direnv = {
     config,
     lib,
@@ -19,7 +13,7 @@ in {
         nix-direnv.enable = true;
       };
 
-      persistence.users = flakeLib.users.mkUserPersistence {
+      persistence.users = self.lib.users.mkUserPersistence {
         inherit lib config;
         cache.directories = [".cache/direnv"];
       };

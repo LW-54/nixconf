@@ -1,10 +1,4 @@
-{
-  config,
-  self,
-  ...
-}: let
-  flakeLib = config.flake.lib;
-in {
+{self, ...}: {
   flake.nixosModules.vivaldi = {
     config,
     lib,
@@ -13,7 +7,7 @@ in {
     cfg = config.vivaldi;
   in {
     imports = [
-      (flakeLib.users.mkUserFeature {
+      (self.lib.users.mkUserFeature {
         inherit lib;
         name = "vivaldi";
         description = "Vivaldi Browser";
@@ -25,10 +19,10 @@ in {
       })
     ];
 
-    config.persistence.users = flakeLib.users.mkUserPersistence {
+    config.persistence.users = self.lib.users.mkUserPersistence {
       inherit lib config;
       userEnabled = userName:
-        flakeLib.users.resolveUserOption {
+        self.lib.users.resolveUserOption {
           inherit lib;
           global = cfg.enable;
           users = cfg.users;

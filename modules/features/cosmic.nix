@@ -1,10 +1,4 @@
-{
-  config,
-  self,
-  ...
-}: let
-  flakeLib = config.flake.lib;
-in {
+{self, ...}: {
   flake.nixosModules.cosmic = {
     config,
     lib,
@@ -19,7 +13,7 @@ in {
       services.desktopManager.cosmic.enable = config.cosmic.enable;
       services.displayManager.cosmic-greeter.enable = config.cosmic.greeter.enable;
 
-      persistence.users = flakeLib.users.mkUserPersistence {
+      persistence.users = self.lib.users.mkUserPersistence {
         inherit lib config;
         userEnabled = _: config.services.desktopManager.cosmic.enable;
         data = {
