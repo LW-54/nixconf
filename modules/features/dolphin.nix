@@ -11,7 +11,7 @@
         inherit lib;
         name = "dolphin";
         description = "Dolphin File Manager";
-        package = pkgs: self.packages.${pkgs.stdenv.hostPlatform.system}.dolphin;
+        package = pkgs: self.packages.${pkgs.system}.dolphin;
       })
     ];
 

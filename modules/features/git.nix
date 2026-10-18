@@ -33,7 +33,7 @@ in {
     };
   in {
     options.git.prebuildGithubSsh = lib.mkEnableOption "prebuilding the GitHub SSH development shell" // {default = true;};
-    config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
+    config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.system}.github-ssh;
 
     imports = [
       (self.lib.users.mkFeature {
@@ -60,7 +60,11 @@ in {
     ];
   };
 
-  perSystem = {pkgs, ...}: {
+  perSystem = {
+    pkgs,
+    self',
+    ...
+  }: {
     packages.git = inputs.wrapper-modules.wrappers.git.wrap {
       inherit pkgs;
       settings = defaultSettings;
@@ -68,6 +72,7 @@ in {
 
     devShells.github-ssh = self.lib.bitwarden.mkShell {
       inherit pkgs;
+      bw = self'.packages.bw;
       shellHook = ''
         umask 077
         github_ssh_key="$(mktemp "''${TMPDIR:-/tmp}/github-ssh.XXXXXX")"

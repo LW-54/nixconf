@@ -53,13 +53,7 @@
         </keyboard>
       </labwc_config>
     '';
-    defaultEnvironment = ''
-      XKB_DEFAULT_LAYOUT=fr
-      XKB_DEFAULT_VARIANT=
-      XKB_DEFAULT_OPTIONS=
-      XCURSOR_THEME=Adwaita
-      XCURSOR_SIZE=24
-    '';
+    defaultEnvironment = "";
   in {
     options.labwc = {
       rc = lib.mkOption {
@@ -96,8 +90,12 @@
     };
 
     config = {
-      programs.labwc.enable = true;
-      environment.systemPackages = [pkgs.adwaita-icon-theme];
+      programs.uwsm.waylandCompositors.labwc = {
+        prettyName = "Labwc";
+        comment = "Labwc managed by UWSM";
+        binPath = lib.getExe pkgs.labwc;
+      };
+      environment.systemPackages = [pkgs.labwc];
 
       users.home =
         lib.mapAttrs (

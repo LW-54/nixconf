@@ -21,7 +21,7 @@ in {
     config = {
       sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
       system.extraDependencies = lib.concatLists [
-        (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.stdenv.hostPlatform.system}.sops-admin)
+        (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin)
         (lib.optional cfg.prebuildHostShell (self.lib.sops.mkHostShell {
           inherit pkgs;
           keyFile = config.sops.age.keyFile;
@@ -30,9 +30,14 @@ in {
     };
   };
 
-  perSystem = {pkgs, ...}: {
+  perSystem = {
+    pkgs,
+    self',
+    ...
+  }: {
     devShells.sops-admin = self.lib.bitwarden.mkShell {
       inherit pkgs;
+      bw = self'.packages.bw;
       packages = [pkgs.age pkgs.sops];
       shellHook = self.lib.bitwarden.mkValue {
         itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";

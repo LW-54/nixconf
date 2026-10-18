@@ -9,7 +9,7 @@
     pkgs,
     ...
   }: {
-    environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.bw];
+    environment.systemPackages = [self.packages.${pkgs.system}.bw];
 
     persistence.users = self.lib.users.mkPersistence {
       inherit lib config;
@@ -60,14 +60,18 @@
     };
   };
 
-  flake.lib.bitwarden.mkShell = args @ {pkgs, ...}:
+  flake.lib.bitwarden.mkShell = args @ {
+    pkgs,
+    bw,
+    ...
+  }:
     pkgs.mkShell (
       builtins.removeAttrs args ["pkgs"]
       // {
         packages =
           (args.packages or [])
           ++ [
-            self.packages.${pkgs.stdenv.hostPlatform.system}.bw
+            bw
             pkgs.jq
           ];
       }

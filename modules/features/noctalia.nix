@@ -64,7 +64,6 @@
       shell = {
         corner_radius_scale = 0.0;
         font_family = "JetBrains Mono";
-        greeter_sync.auto_sync = true;
         launch_apps_as_systemd_services = true;
       };
       theme = {

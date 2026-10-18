@@ -4,6 +4,7 @@
       self.nixosModules.users
       self.nixosModules.persistence
       self.nixosModules.secrets
+      self.nixosModules.wc
     ];
   };
 }

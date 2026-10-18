@@ -13,14 +13,7 @@
 /*
 
 
-keyring
-autostart
-noctalia and labwc config
-uwsm
-systemd
-cachix watcher stoping
-empty trash
-also look into the trash 1000 files
+keyring?
 
 creat contracts
 
@@ -30,7 +23,11 @@ updates
 monitoring
 ressource allocation
 
+bunq
 uchiyomi
 better ttyd
+rss
+
+keybinds contract
 */
 

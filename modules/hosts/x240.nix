@@ -2,7 +2,10 @@
   inputs,
   self,
   ...
-}: {
+}: let
+  cores = 4;
+  keyboardLayout = "fr";
+in {
   flake.nixosConfigurations.x240 = inputs.nixpkgs.lib.nixosSystem {
     modules = [self.nixosModules.x240];
   };
@@ -51,12 +54,12 @@
     ];
 
     config = {
-      console.keyMap = "fr";
+      console.keyMap = keyboardLayout;
       networking.hostName = "x240";
       networking.networkmanager.enable = true;
       nix.settings = {
-        build-cores = 3;
-        cores = 3;
+        build-cores = cores - 1;
+        cores = cores - 1;
       };
       system.configurationRevision = self.rev or self.dirtyRev or "unknown";
       system.stateVersion = "25.11";
@@ -76,26 +79,16 @@
     imports = [
       self.nixosModules.fonts
       self.nixosModules.labwc
-      self.nixosModules.uwsm
       self.nixosModules.noctalia
-      self.nixosModules.noctalia-greeter
+      self.nixosModules.audio
+      self.nixosModules.cursor
+      self.nixosModules.greetd
       self.nixosModules.x240-desktop-features
     ];
 
-    config = {
-      security.rtkit.enable = true;
-      services.displayManager.defaultSession = "labwc-uwsm";
-      services.pipewire = {
-        enable = true;
-        alsa.enable = true;
-        alsa.support32Bit = true;
-        pulse.enable = true;
-      };
-      services.pulseaudio.enable = false;
-      services.xserver.xkb = {
-        layout = "fr";
-        variant = "";
-      };
+    config.services.xserver.xkb = {
+      layout = keyboardLayout;
+      variant = "";
     };
   };
 
