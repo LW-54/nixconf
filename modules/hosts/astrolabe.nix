@@ -2,9 +2,7 @@
   inputs,
   self,
   ...
-}: let
-  domain = "adje.app";
-in {
+}: {
   flake.nixosConfigurations.astrolabe = inputs.nixpkgs.lib.nixosSystem {
     modules = [self.nixosModules.astrolabe];
   };
@@ -21,31 +19,38 @@ in {
 
   flake.nixosModules.astrolabe-packages = {pkgs, ...}: {
     environment.systemPackages = with pkgs; [
-      git
       nano
       rsync
       btop
     ];
   };
 
-  flake.nixosModules.astrolabe-hardware = {
-    modulesPath,
-    lib,
-    ...
-  }: {
+  flake.nixosModules.astrolabe-services = {...}: {
     imports = [
-      (modulesPath + "/installer/scan/not-detected.nix")
-      (modulesPath + "/profiles/qemu-guest.nix")
+      self.nixosModules.caddy
+      self.nixosModules.restic
+      self.nixosModules.vaultwarden
+      self.nixosModules.ttyd
     ];
 
     config = {
-      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-      boot.loader.grub = {
-        enable = true;
-        efiSupport = true;
-        efiInstallAsRemovable = true;
-        device = "/dev/sda";
-      };
+      services.reverseProxy.domain = "adje.app";
+      services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
+    };
+  };
+
+  flake.nixosModules.astrolabe-system = {
+    imports = [
+      self.nixosModules.contracts
+      self.nixosModules.nix
+      self.nixosModules.locale
+      self.nixosModules.ssh
+      self.nixosModules.git
+    ];
+
+    config = {
+      networking.hostName = "astrolabe";
+      system.stateVersion = "25.11";
     };
   };
 
@@ -66,53 +71,24 @@ in {
       };
   };
 
-  flake.nixosModules.astrolabe-system = {
+  flake.nixosModules.astrolabe-hardware = {
+    modulesPath,
+    lib,
+    ...
+  }: {
     imports = [
-      self.nixosModules.contracts
-      self.nixosModules.nix
-      self.nixosModules.locale
-      self.nixosModules.ssh
-      self.nixosModules.git
+      (modulesPath + "/installer/scan/not-detected.nix")
+      (modulesPath + "/profiles/qemu-guest.nix")
     ];
 
     config = {
-      networking.hostName = "astrolabe";
-      system.stateVersion = "25.11";
-
-      # Users
-      security.sudo.wheelNeedsPassword = false;
-      users.defaultPasswordHash = false;
-      users.account.lw = {
-        isNormalUser = true;
-        description = "Leonard Wilson";
-        extraGroups = ["wheel"];
-      };
-
-      # Machine features
-      nix.cachixWatchStore = false;
-      git.prebuildGithubSsh = false;
-    };
-  };
-
-  flake.nixosModules.astrolabe-services = {...}: {
-    imports = [
-      self.nixosModules.caddy
-      self.nixosModules.restic
-      self.nixosModules.vaultwarden
-      self.nixosModules.ttyd
-    ];
-
-    config = {
-      services.reverseProxy = {
+      nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
+      boot.loader.grub = {
         enable = true;
-        domain = domain;
+        efiSupport = true;
+        efiInstallAsRemovable = true;
+        device = "/dev/sda";
       };
-
-      backup.enable = true;
-      services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
-
-      services.vaultwarden-server.enable = true;
-      services.ttyd-web.enable = true;
     };
   };
 }

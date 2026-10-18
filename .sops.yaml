@@ -14,33 +14,43 @@ tags:
     age:
       - *x240_key
 
-  server: &server
+  servers: &servers
     <<: *base
     age:
       - *astrolabe_key
 
-  all_hosts: &all_hosts
+  host_x240: &host_x240
+    <<: *base
+    age:
+      - *x240_key
+
+  host_astrolabe: &host_astrolabe
+    <<: *base
+    age:
+      - *astrolabe_key
+
+  all: &all
     <<: *base
     age:
       - *x240_key
       - *astrolabe_key
 
 creation_rules:
-  - path_regex: ^secrets/recovery/.*$
+  - path_regex: ^secrets/admin/.*$
     key_groups:
       - *base
-  - path_regex: ^secrets/ssh/.*$
+  - path_regex: ^secrets/hosts/x240/.*$
     key_groups:
-      - *all_hosts
-  - path_regex: ^secrets/backup/.*$
+      - *host_x240
+  - path_regex: ^secrets/hosts/astrolabe/.*$
     key_groups:
-      - *server
+      - *host_astrolabe
   - path_regex: ^secrets/services/.*$
     key_groups:
-      - *server
-  - path_regex: ^secrets/hosts/astrolabe(/.*)?$
-    key_groups:
-      - *server
-  - path_regex: ^secrets/.*$
+      - *servers
+  - path_regex: ^secrets/wifi/.*$
     key_groups:
       - *personal
+  - path_regex: ^secrets/.*$
+    key_groups:
+      - *all

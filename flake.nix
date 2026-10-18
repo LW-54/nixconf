@@ -25,5 +25,8 @@ better ttyd
 rss
 
 keybinds contract
+
+defaults for domain and retic repo
+hettznerbox
 */
 

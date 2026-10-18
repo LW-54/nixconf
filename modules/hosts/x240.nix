@@ -37,6 +37,7 @@ in {
       self.nixosModules.git
       self.nixosModules.tack
       self.nixosModules.bw
+      self.nixosModules.ssh
     ];
   };
 

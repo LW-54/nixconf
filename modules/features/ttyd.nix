@@ -13,7 +13,7 @@
       else null;
   in {
     options.services.ttyd-web = {
-      enable = lib.mkEnableOption "ttyd web terminal server";
+      enable = lib.mkEnableOption "ttyd web terminal server" // {default = true;};
 
       subdomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;

@@ -1,12 +1,9 @@
 {...}: {
-  flake.nixosModules.backup = {
-    lib,
-    ...
-  }: {
+  flake.nixosModules.backup = {lib, ...}: {
     key = "contracts-backup";
 
     options.backup = {
-      enable = lib.mkEnableOption "system backup automation";
+      enable = lib.mkEnableOption "system backup automation" // {default = true;};
 
       paths = lib.mkOption {
         type = lib.types.listOf lib.types.path;

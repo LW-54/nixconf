@@ -1,24 +1,19 @@
-{
-  self,
-  ...
-}: let
-  knownKeys = {
-    master = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOmdqlhZ0Pl74W0tNTu/L2iDziaIgafdo8LuTn2Ui/Cg master-key";
-  };
-in {
-  flake.lib.ssh = {
-    inherit knownKeys;
-  };
-
+{self, ...}: {
   flake.nixosModules.ssh = {
     config,
     lib,
+    pkgs,
     ...
   }: let
     cfg = config.services.ssh;
+    hostKeySecretPath = ../../secrets/hosts/${config.networking.hostName}/ssh.yaml;
+    hasHostKeySecret = builtins.pathExists hostKeySecretPath;
+    publicKeys = ["master" "astrolabe" "x240"];
   in {
     options.services.ssh = {
       enable = lib.mkEnableOption "standard SSH configuration" // {default = true;};
+
+      prebuildMasterSsh = lib.mkEnableOption "prebuilding the master SSH development shell" // {default = true;};
 
       listenPort = lib.mkOption {
         type = lib.types.port;
@@ -34,13 +29,17 @@ in {
 
       authorizedKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [knownKeys.master];
-        description = "Default SSH authorized public keys for administrative access.";
+        default = [];
+        description = "Additional SSH authorized public keys for administrative access.";
       };
 
       authorizeForUsers = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = ["root" "lw"];
+        type = lib.types.nullOr (lib.types.listOf lib.types.str);
+        default = null;
+        apply = users:
+          if users == null
+          then ["root"] ++ lib.optional (config.users ? account && config.users.account ? lw) "lw"
+          else users;
         description = "List of user accounts that should receive the authorizedKeys.";
       };
     };
@@ -57,17 +56,56 @@ in {
 
       networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [cfg.listenPort];
 
-      programs.ssh.knownHosts = {
-        "github.com" = {
-          publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
+      # Expose public keys in SOPS
+      sops.secrets =
+        lib.listToAttrs (map (name: {
+            name = "ssh/public/${name}";
+            value = {
+              sopsFile = ../../secrets/ssh/public.yaml;
+              key = name;
+              mode = "0444";
+            };
+          })
+          publicKeys)
+        // lib.optionalAttrs hasHostKeySecret {
+          "ssh/host-key" = {
+            sopsFile = hostKeySecretPath;
+            key = "ed25519";
+            mode = "0600";
+          };
         };
+
+      # Provision host SSH key from SOPS if missing or different
+      systemd.services.provision-ssh-host-key = lib.mkIf hasHostKeySecret {
+        description = "Provision SSH host key from SOPS if missing or different";
+        wantedBy = ["sshd.service"];
+        before = ["sshd.service"];
+        after = ["sops-nix.service"];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+        };
+        script = ''
+          if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.sops.secrets."ssh/host-key".path}; then
+            mkdir -p /etc/ssh
+            install -m 600 ${config.sops.secrets."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
+            ${pkgs.openssh}/bin/ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key > /etc/ssh/ssh_host_ed25519_key.pub
+            chmod 644 /etc/ssh/ssh_host_ed25519_key.pub
+            if [ -d /persist/system ]; then
+              mkdir -p /persist/system/etc/ssh
+              cp -p /etc/ssh/ssh_host_ed25519_key /persist/system/etc/ssh/ssh_host_ed25519_key
+              cp -p /etc/ssh/ssh_host_ed25519_key.pub /persist/system/etc/ssh/ssh_host_ed25519_key.pub
+            fi
+          fi
+        '';
       };
 
-      # Allow referencing public key by name via SOPS secret
-      sops.secrets."ssh/master-pubkey" = {
-        sopsFile = ../../secrets/ssh/master.yaml;
-        key = "publicKey";
-      };
+      system.extraDependencies = lib.optional cfg.prebuildMasterSsh self.devShells.${pkgs.system}.master-ssh;
+
+      services.openssh.extraConfig = lib.optionalString (cfg.authorizeForUsers != []) ''
+        Match User ${lib.concatStringsSep "," cfg.authorizeForUsers}
+            AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.sops.secrets."ssh/public/master".path}
+      '';
 
       users.users = lib.genAttrs cfg.authorizeForUsers (_: {
         openssh.authorizedKeys.keys = cfg.authorizedKeys;
@@ -101,10 +139,7 @@ in {
           jqFilter = ".sshKey.privateKey // .notes";
         }} > "''${master_ssh_key}"
 
-        export SSH_AUTH_SOCK=""
-        export GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -i ''${master_ssh_key}"
         ssh-add "''${master_ssh_key}" 2>/dev/null || true
-        printf 'Master SSH key loaded into session from Bitwarden.\n'
       '';
     };
   };

@@ -12,7 +12,7 @@
       else null;
   in {
     options.services.vaultwarden-server = {
-      enable = lib.mkEnableOption "Vaultwarden password manager server";
+      enable = lib.mkEnableOption "Vaultwarden password manager server" // {default = true;};
 
       subdomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;

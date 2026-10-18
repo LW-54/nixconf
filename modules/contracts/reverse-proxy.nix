@@ -1,12 +1,9 @@
 {...}: {
-  flake.nixosModules.reverse-proxy = {
-    lib,
-    ...
-  }: {
+  flake.nixosModules.reverse-proxy = {lib, ...}: {
     key = "contracts-reverse-proxy";
 
     options.services.reverseProxy = {
-      enable = lib.mkEnableOption "system reverse proxy";
+      enable = lib.mkEnableOption "system reverse proxy" // {default = true;};
 
       domain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
