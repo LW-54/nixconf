@@ -13,7 +13,7 @@
       services.desktopManager.cosmic.enable = config.cosmic.enable;
       services.displayManager.cosmic-greeter.enable = config.cosmic.greeter.enable;
 
-      persistence.users = self.lib.users.mkUserPersistence {
+      persistence.users = self.lib.users.mkPersistence {
         inherit lib config;
         userEnabled = _: config.services.desktopManager.cosmic.enable;
         data = {

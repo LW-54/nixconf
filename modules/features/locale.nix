@@ -35,7 +35,7 @@
     };
   in {
     imports = [
-      (self.lib.users.mkUserFeature {
+      (self.lib.users.mkFeature {
         inherit lib;
         name = "locale";
         description = "locale configuration";
@@ -56,7 +56,7 @@
           };
         };
 
-        userModule = {
+        home = {
           cfg,
           user,
           lib,

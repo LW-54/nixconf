@@ -13,7 +13,7 @@
         nix-direnv.enable = true;
       };
 
-      persistence.users = self.lib.users.mkUserPersistence {
+      persistence.users = self.lib.users.mkPersistence {
         inherit lib config;
         cache.directories = [".cache/direnv"];
       };

@@ -11,7 +11,7 @@
   }: {
     environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.bw];
 
-    persistence.users = self.lib.users.mkUserPersistence {
+    persistence.users = self.lib.users.mkPersistence {
       inherit lib config;
       data.directories = [".config/Bitwarden CLI"];
     };
@@ -25,7 +25,7 @@
     cfg = config.bitwarden-desktop;
   in {
     imports = [
-      (self.lib.users.mkUserFeature {
+      (self.lib.users.mkFeature {
         inherit lib;
         name = "bitwarden-desktop";
         description = "Bitwarden Desktop";
@@ -33,16 +33,10 @@
       })
     ];
 
-    config.persistence.users = self.lib.users.mkUserPersistence {
+    config.persistence.users = self.lib.users.mkPersistence {
       inherit lib config;
-      userEnabled = userName:
-        self.lib.users.resolveUserOption {
-          inherit lib;
-          global = cfg.enable;
-          users = cfg.users;
-          inherit userName;
-          path = ["enable"];
-        };
+      global = cfg.enable;
+      userOverrides = cfg.users;
       data.directories = [".config/Bitwarden"];
       cache.directories = [".cache/com.bitwarden.desktop"];
     };

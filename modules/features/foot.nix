@@ -10,24 +10,33 @@ in {
     lib,
     ...
   }: let
-    settings = self.lib.users.mkOptionWithUserOverride {
-      inherit lib;
-      type = lib.types.attrsOf lib.types.anything;
-      default = defaultSettings;
-      userDefault = {};
-      merge = lib.recursiveUpdate;
-      description = "Foot terminal settings";
+    settings = {
+      global = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        default = defaultSettings;
+        description = "Foot terminal settings";
+      };
+      user = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        default = {};
+        description = "Per-user Foot terminal settings.";
+      };
     };
-    server = self.lib.users.mkOptionWithUserOverride {
-      inherit lib;
-      type = lib.types.bool;
-      default = true;
-      userDefault = null;
-      description = "Foot server mode";
+    server = {
+      global = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Foot server mode";
+      };
+      user = lib.mkOption {
+        type = lib.types.nullOr lib.types.bool;
+        default = null;
+        description = "Per-user Foot server mode.";
+      };
     };
   in {
     imports = [
-      (self.lib.users.mkUserFeature {
+      (self.lib.users.mkFeature {
         inherit lib;
         name = "foot";
         description = "Foot Terminal";
@@ -38,7 +47,7 @@ in {
         userOptions.settings = settings.user;
         userOptions.server.enable = server.user;
 
-        userModule = {
+        home = {
           cfg,
           user,
           lib,
@@ -53,7 +62,7 @@ in {
           servicePath = "${pkgs.foot}/share/systemd/user/foot-server.service";
           socketPath = "${pkgs.foot}/share/systemd/user/foot-server.socket";
         in {
-          xdg.config.files."foot/foot.ini" = {
+          xdg.config."foot/foot.ini" = {
             generator = lib.generators.toINI {};
             value = lib.recursiveUpdate cfg.settings (user.settings or {});
           };
@@ -67,15 +76,10 @@ in {
       })
     ];
 
-    config.persistence.users = self.lib.users.mkUserPersistence {
+    config.persistence.users = self.lib.users.mkPersistence {
       inherit lib config;
-      userEnabled = userName:
-        self.lib.users.resolveUserOption {
-          inherit lib;
-          global = config.foot.enable;
-          users = config.foot.users;
-          inherit userName;
-        };
+      global = config.foot.enable;
+      userOverrides = config.foot.users;
       data.directories = [".config/foot"];
     };
   };

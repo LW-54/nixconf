@@ -2,166 +2,229 @@
   flake.nixosModules.users = {
     config,
     lib,
+    options,
     ...
   }: let
-    cfg = config.users.defaultUser;
-  in {
-    options.users.defaultUser = {
-      enable =
-        lib.mkEnableOption "the default local user"
-        // {
-          default = true;
+    file = lib.types.submodule ({config, ...}: {
+      freeformType = lib.types.attrsOf lib.types.anything;
+      options = {
+        source = lib.mkOption {
+          type = lib.types.nullOr lib.types.anything;
+          default = null;
+          description = "Source for a managed home file.";
         };
 
-      name = lib.mkOption {
-        type = lib.types.str;
-        default = "lw";
-        description = "Username created when no host-specific user is declared.";
+        text = lib.mkOption {
+          type = lib.types.nullOr lib.types.lines;
+          default = null;
+          description = "Text content for a managed home file.";
+        };
+
+        executable = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether a managed home file is executable.";
+        };
+
+        force = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = "Whether the backend may replace an unmanaged file.";
+        };
+      };
+      config.assertions = [
+        {
+          assertion = config.source == null || config.text == null;
+          message = "A home file must define either source or text, not both.";
+        }
+      ];
+    });
+
+    files = lib.types.attrsOf file;
+    xdg = lib.types.submodule {
+      options = {
+        cache = lib.mkOption {
+          type = files;
+          default = {};
+        };
+        config = lib.mkOption {
+          type = files;
+          default = {};
+        };
+        data = lib.mkOption {
+          type = files;
+          default = {};
+        };
+        state = lib.mkOption {
+          type = files;
+          default = {};
+        };
       };
     };
+  in {
+    options.users.account = lib.mkOption {
+      type = options.users.users.type;
+      default = {};
+      apply = accounts:
+        if accounts == {}
+        then
+          (self.lib.users.create {
+            inherit lib;
+            name = "lw";
+            account = {
+              isNormalUser = true;
+              description = "lw's account";
+              extraGroups = ["wheel" "networkmanager"];
+              hashedPasswordFile = config.sops.secrets.default-user-password-hash.path;
+            };
+          }).users.account
+        else accounts;
+      description = "Native NixOS user account declarations.";
+    };
 
-    imports = [
-      self.nixosModules.hjem
-    ];
+    options.users.home = lib.mkOption {
+      type = lib.types.nullOr (lib.types.attrsOf (lib.types.submodule {
+        freeformType = lib.types.attrsOf lib.types.anything;
+        options = {
+          enable = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Whether a home backend manages this user's home.";
+          };
 
-    config = lib.mkIf cfg.enable {
-      users.users.${cfg.name} = {
-        isNormalUser = lib.mkDefault true;
-        description = lib.mkDefault "${cfg.name}'s account";
-        extraGroups = lib.mkDefault ["wheel" "networkmanager"];
-        hashedPasswordFile = config.sops.secrets.default-user-password-hash.path;
-      };
+          packages = lib.mkOption {
+            type = lib.types.listOf lib.types.package;
+            default = [];
+            description = "Packages declared for this user's home environment.";
+          };
 
+          files = lib.mkOption {
+            type = files;
+            default = {};
+            description = "Files declared for this user's home environment.";
+          };
+
+          xdg = lib.mkOption {
+            type = xdg;
+            default = {};
+            description = "Files declared in the user's XDG home directories.";
+          };
+
+          environment.sessionVariables = lib.mkOption {
+            type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
+            default = {};
+            description = "Session variables declared for the user's home.";
+          };
+
+          systemd.services = lib.mkOption {
+            type = lib.types.attrsOf (lib.types.attrsOf lib.types.anything);
+            default = {};
+            description = "Per-user systemd services declared for the home.";
+          };
+        };
+      }));
+      default = null;
+      apply = homes:
+        if homes == null
+        then
+          if config.users.account ? lw
+          then {lw = {};}
+          else {}
+        else homes;
+      description = "Backend-neutral declarative home data keyed by username.";
+    };
+
+    config = {
+      assertions = [
+        {
+          assertion =
+            lib.all
+            (userName: config.users.account ? ${userName})
+            (builtins.attrNames config.users.home);
+          message = "Every users.home declaration must have a matching users.account declaration.";
+        }
+      ];
       sops.secrets.default-user-password-hash = {
         sopsFile = ../../secrets/users/default.yaml;
         key = "passwordHash";
         neededForUsers = true;
       };
-
-      hjem.users.${cfg.name}.enable = lib.mkDefault true;
-
-      persistence.users.${cfg.name}.data.directories = [
-        "nixconf"
-        "Documents"
-        "Downloads"
-        "Projects"
-        ".ssh"
-      ];
+      users.users = config.users.account;
     };
   };
 
-  flake.lib.users.mkOptionWithUserOverride = {
+  flake.lib.users.create = {
     lib,
-    type,
-    default,
-    userType ? lib.types.nullOr type,
-    userDefault ? null,
-    merge ? (global: user:
-      if user == null
-      then global
-      else user),
-    description ? "value",
-  }: {
-    global = lib.mkOption {inherit type default description;};
-    user = lib.mkOption {
-      type = userType;
-      default = userDefault;
-      description = "Per-user override for ${description}.";
+    name,
+    account,
+    home ? null,
+    persistence ? null,
+  }:
+    {
+      users =
+        {
+          account.${name} = account;
+        }
+        // lib.optionalAttrs (home != null) {
+          home.${name} = home;
+        };
+    }
+    // lib.optionalAttrs (persistence != null) {
+      persistence.users.${name} = persistence;
     };
-    resolve = globalValue: userValue: merge globalValue userValue;
-  };
 
-  flake.lib.users.resolveUserOption = {
-    lib,
-    global,
-    users,
-    userName,
-    path ? ["enable"],
-  }: let
-    override = lib.attrByPath ([userName] ++ path) null users;
-  in
-    if override == null
-    then global
-    else override;
-
-  flake.lib.users.normalUsers = {
-    lib,
-    users,
-  }:
-    lib.filterAttrs (_: user: user.isNormalUser or false) users;
-
-  flake.lib.users.assertUsersExist = {
-    lib,
-    config,
-    feature,
-    users,
-  }:
-    lib.mapAttrsToList (userName: _: {
-      assertion = config.users.users ? ${userName};
-      message = "${feature}.users.${userName} refers to an unknown user.";
-    })
-    users;
-
-  flake.lib.users.mkUserPersistence = {
-    lib,
-    config,
-    users ? config.users.users,
-    userEnabled ? (_: true),
-    data ? {},
-    cache ? {},
-  }:
-    lib.mapAttrs (_: _: {inherit data cache;})
-    (lib.filterAttrs (userName: _: userEnabled userName)
-      (lib.filterAttrs (_: user: user.isNormalUser or false) users));
-
-  flake.lib.users.mkHjemUserProjection = {
+  flake.lib.users.mkFeatureOptions = {
     lib,
     name,
     description,
-    userOptions ? {},
-    userEnabled ? (_: true),
-    userModule ? ({...}: {}),
-  }: {
-    config,
-    pkgs,
-    ...
-  }: let
-    cfg = lib.getAttrFromPath [name] config;
-    userCfg = userName: lib.attrByPath [userName] {} cfg.users;
-  in {
-    options.${name}.users = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.submodule {options = userOptions;});
-      default = {};
-      description = "Per-user ${description} configuration.";
-    };
-    config = {
-      assertions =
-        lib.mapAttrsToList (userName: _: {
-          assertion = config.users.users ? ${userName};
-          message = "${name}.users.${userName} refers to an unknown user.";
-        })
-        cfg.users;
-      hjem.extraModules = [
-        ({name, ...}: let
-          args = {
-            inherit name cfg config lib pkgs;
-            user = userCfg name;
-          };
-        in
-          lib.mkIf (userEnabled args) (userModule args))
-      ];
-    };
-  };
-
-  flake.lib.users.mkUserFeature = {
-    lib,
-    name,
-    description,
-    package ? (_: null),
     defaultEnable ? true,
     featureOptions ? {},
     userOptions ? {},
-    userModule ? ({...}: {}),
+  }:
+    assert lib.assertMsg (!(featureOptions ? enable)) "users.mkFeatureOptions reserves the feature option `enable`.";
+    assert lib.assertMsg (!(featureOptions ? users)) "users.mkFeatureOptions reserves the feature option `users`.";
+    assert lib.assertMsg (!(userOptions ? enable)) "users.mkFeatureOptions reserves the per-user option `enable`."; {
+      options.${name} =
+        featureOptions
+        // {
+          enable = lib.mkEnableOption description // {default = defaultEnable;};
+          users = lib.mkOption {
+            type = lib.types.attrsOf (lib.types.submodule {
+              options =
+                {
+                  enable = lib.mkOption {
+                    type = lib.types.nullOr lib.types.bool;
+                    default = null;
+                    description = "Whether this user receives ${description}, overriding ${name}.enable.";
+                  };
+                }
+                // userOptions;
+            });
+            default = {};
+            description = "Per-user ${description} configuration.";
+          };
+        };
+    };
+
+  flake.lib.users.mkHome = {
+    lib,
+    name,
+    package ? (_: null),
+    home ? ({...}: {}),
+    globalEnable ? null,
+    userEnabled ? ({
+      cfg,
+      user,
+      ...
+    }: let
+      override = lib.attrByPath ["enable"] null user;
+    in
+      if override == null
+      then
+        if globalEnable == null
+        then cfg.enable
+        else globalEnable
+      else override),
   }: {
     config,
     pkgs,
@@ -169,66 +232,89 @@
   }: let
     cfg = lib.getAttrFromPath [name] config;
     packageValue = package pkgs;
-    userEnable = lib.mkOption {
-      type = lib.types.nullOr lib.types.bool;
-      default = null;
-      description = "Whether this user receives ${description}, overriding ${name}.enable.";
+    userConfig = userName: lib.attrByPath [userName] {} cfg.users;
+    userArgs = userName: {
+      inherit cfg config lib name pkgs userName;
+      user = userConfig userName;
     };
   in {
-    imports = [
-      ({
-        config,
-        pkgs,
-        ...
-      }: let
-        userCfg = userName: lib.attrByPath [userName] {} cfg.users;
-        userEnabled = userName: let
-          override = lib.attrByPath [userName "enable"] null cfg.users;
-        in
-          if override == null
-          then cfg.enable
-          else override;
-      in {
-        options.${name}.users = lib.mkOption {
-          type = lib.types.attrsOf (lib.types.submodule {
-            options = {enable = userEnable;} // userOptions;
-          });
-          default = {};
-          description = "Per-user ${description} configuration.";
-        };
+    config.users.home = lib.mapAttrs (
+      userName: _: let
+        args = userArgs userName;
+      in
+        {
+          packages = lib.optional (!cfg.enable && packageValue != null) packageValue;
+        }
+        // home args
+    ) (lib.filterAttrs (userName: _: userEnabled (userArgs userName)) config.users.account);
+  };
 
-        config = {
-          assertions =
-            lib.mapAttrsToList (userName: _: {
-              assertion = config.users.users ? ${userName};
-              message = "${name}.users.${userName} refers to an unknown user.";
-            })
-            cfg.users;
-          hjem.extraModules = [
-            ({name, ...}:
-              lib.mkIf (userEnabled name) (lib.mkMerge [
-                {
-                  packages =
-                    lib.optional
-                    (!cfg.enable && packageValue != null)
-                    packageValue;
-                }
-                (userModule {
-                  inherit name cfg config lib pkgs;
-                  user = userCfg name;
-                })
-              ]))
-          ];
-        };
+  flake.lib.users.mkPersistence = {
+    lib,
+    config,
+    users ? config.users.account,
+    userEnabled ? null,
+    global ? null,
+    userOverrides ? {},
+    data ? {},
+    cache ? {},
+  }: let
+    enabled =
+      if userEnabled != null
+      then userEnabled
+      else if global != null
+      then
+        self.lib.users.mkUserEnabled {
+          inherit lib global;
+          users = userOverrides;
+        }
+      else (_: true);
+  in
+    lib.mapAttrs (_: _: {inherit data cache;})
+    (lib.filterAttrs (userName: user:
+      (user.isNormalUser or false)
+      && enabled userName)
+    users);
+
+  flake.lib.users.mkUserEnabled = {
+    lib,
+    global,
+    users,
+    path ? ["enable"],
+  }: userName: let
+    override = lib.attrByPath ([userName] ++ path) null users;
+  in
+    if override == null
+    then global
+    else override;
+
+  flake.lib.users.mkFeature = {
+    lib,
+    name,
+    description,
+    package ? (_: null),
+    defaultEnable ? true,
+    featureOptions ? {},
+    userOptions ? {},
+    home ? ({...}: {}),
+  }: {
+    config,
+    pkgs,
+    ...
+  }: let
+    cfg = lib.getAttrFromPath [name] config;
+    packageValue = package pkgs;
+  in {
+    imports = [
+      (self.lib.users.mkFeatureOptions {
+        inherit lib name description defaultEnable featureOptions userOptions;
+      })
+      (self.lib.users.mkHome {
+        inherit lib name package home;
+        globalEnable = cfg.enable;
       })
     ];
-    options.${name} =
-      featureOptions
-      // {
-        enable = lib.mkEnableOption description // {default = defaultEnable;};
-      };
     config.environment.systemPackages =
-      lib.mkIf
-      (cfg.enable && packageValue != null) [packageValue];
+      lib.mkIf (cfg.enable && packageValue != null) [packageValue];
   };
 }

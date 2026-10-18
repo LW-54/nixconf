@@ -1,5 +1,9 @@
 {inputs, ...}: {
-  flake.nixosModules.nix = {config, ...}: {
+  flake.nixosModules.nix = {
+    config,
+    lib,
+    ...
+  }: {
     imports = [
       inputs.nix-index-database.nixosModules.nix-index
     ];
@@ -18,6 +22,7 @@
         extra-trusted-public-keys = [
           "lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o="
         ];
+        trusted-users = lib.attrNames (lib.filterAttrs (_: user: lib.elem "wheel" (user.extraGroups or [])) config.users.account);
       };
 
       optimise.automatic = true;
@@ -34,6 +39,7 @@
       cacheName = "lw-54";
       cachixTokenFile = config.sops.secrets.cachix-token.path;
     };
+    systemd.services.cachix-watch-store-agent.serviceConfig.KillMode = lib.mkForce "control-group";
     nixpkgs.config.allowUnfree = true;
   };
 }

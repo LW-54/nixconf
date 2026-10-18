@@ -19,20 +19,24 @@ in {
     ...
   }: let
     cfg = config.git;
-    settings = self.lib.users.mkOptionWithUserOverride {
-      inherit lib;
-      type = lib.types.attrsOf lib.types.anything;
-      default = defaultSettings;
-      userDefault = {};
-      merge = lib.recursiveUpdate;
-      description = "Git settings";
+    settings = {
+      global = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        default = defaultSettings;
+        description = "Git settings";
+      };
+      user = lib.mkOption {
+        type = lib.types.attrsOf lib.types.anything;
+        default = {};
+        description = "Per-user Git settings.";
+      };
     };
   in {
     options.git.prebuildGithubSsh = lib.mkEnableOption "prebuilding the GitHub SSH development shell" // {default = true;};
     config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
 
     imports = [
-      (self.lib.users.mkUserFeature {
+      (self.lib.users.mkFeature {
         inherit lib;
         name = "git";
         description = "Git";
@@ -41,13 +45,13 @@ in {
         featureOptions.settings = settings.global;
         userOptions.settings = settings.user;
 
-        userModule = {
+        home = {
           cfg,
           user,
           lib,
           ...
         }: {
-          xdg.config.files."git/config" = {
+          xdg.config."git/config" = {
             generator = lib.generators.toINI {};
             value = lib.recursiveUpdate cfg.settings (user.settings or {});
           };

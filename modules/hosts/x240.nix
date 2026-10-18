@@ -37,9 +37,14 @@
     ];
   };
 
-  flake.nixosModules.x240-system = {config, ...}: {
+  flake.nixosModules.x240-system = {
+    config,
+    lib,
+    ...
+  }: {
     imports = [
       self.nixosModules.contracts
+      self.nixosModules.hjem
       self.nixosModules.nix
       self.nixosModules.locale
       self.nixosModules.x240-system-features
@@ -52,7 +57,6 @@
       nix.settings = {
         build-cores = 3;
         cores = 3;
-        trusted-users = [config.users.defaultUser.name];
       };
       system.configurationRevision = self.rev or self.dirtyRev or "unknown";
       system.stateVersion = "25.11";

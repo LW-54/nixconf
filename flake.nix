@@ -21,14 +21,6 @@ systemd
 cachix watcher stoping
 empty trash
 also look into the trash 1000 files
-trusted users nixsettings
-
-refactor default user and hjem/users split
-lib move
-
-improve bitwarden shell (pkgs.mkShell wrapper for dependencies and maybe think about removing the jq dependency)
-devshells pkg inheritence
-
 
 creat contracts
 

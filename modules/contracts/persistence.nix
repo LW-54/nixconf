@@ -1,5 +1,10 @@
 {...}: {
-  flake.nixosModules.persistence = {lib, ...}: let
+  flake.nixosModules.persistence = {
+    config,
+    lib,
+    options,
+    ...
+  }: let
     entries = lib.types.listOf (lib.types.either lib.types.str (lib.types.attrsOf lib.types.anything));
 
     scope = subject: {
@@ -55,5 +60,26 @@
         };
       }
       // scope "as absolute system paths under `/persist/system`";
+
+    config = lib.mkMerge [
+      {
+        assertions = lib.optional (options.users ? account) {
+          assertion =
+            lib.all
+            (userName: config.users.account ? ${userName})
+            (builtins.attrNames config.persistence.users);
+          message = "Every persistence.users declaration must have a matching users.account declaration.";
+        };
+      }
+      (lib.mkIf (options.users ? account && builtins.attrNames config.users.account == ["lw"]) {
+        persistence.users.lw.data.directories = [
+          "nixconf"
+          "Documents"
+          "Downloads"
+          "Projects"
+          ".ssh"
+        ];
+      })
+    ];
   };
 }

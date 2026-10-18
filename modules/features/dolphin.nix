@@ -7,7 +7,7 @@
     cfg = config.dolphin;
   in {
     imports = [
-      (self.lib.users.mkUserFeature {
+      (self.lib.users.mkFeature {
         inherit lib;
         name = "dolphin";
         description = "Dolphin File Manager";
@@ -15,15 +15,10 @@
       })
     ];
 
-    config.persistence.users = self.lib.users.mkUserPersistence {
+    config.persistence.users = self.lib.users.mkPersistence {
       inherit lib config;
-      userEnabled = userName:
-        self.lib.users.resolveUserOption {
-          inherit lib;
-          global = cfg.enable;
-          users = cfg.users;
-          inherit userName;
-        };
+      global = cfg.enable;
+      userOverrides = cfg.users;
       data = {
         directories = [".local/share/dolphin"];
         files = [".config/dolphinrc"];

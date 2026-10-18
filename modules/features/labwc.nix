@@ -61,27 +61,6 @@
       XCURSOR_SIZE=24
     '';
   in {
-    imports = [
-      (self.lib.users.mkHjemUserProjection {
-        inherit lib;
-        name = "labwc";
-        description = "Labwc";
-        userOptions = {
-          rc = lib.mkOption {
-            type = lib.types.nullOr lib.types.lines;
-            default = null;
-            description = "Labwc rc.xml content for this user.";
-          };
-
-          environment = lib.mkOption {
-            type = lib.types.nullOr lib.types.lines;
-            default = null;
-            description = "Labwc environment variables for this user.";
-          };
-        };
-      })
-    ];
-
     options.labwc = {
       rc = lib.mkOption {
         type = lib.types.lines;
@@ -94,37 +73,51 @@
         default = defaultEnvironment;
         description = "Global Labwc environment inherited by users.";
       };
+
+      users = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            rc = lib.mkOption {
+              type = lib.types.nullOr lib.types.lines;
+              default = null;
+              description = "Labwc rc.xml content for this user.";
+            };
+
+            environment = lib.mkOption {
+              type = lib.types.nullOr lib.types.lines;
+              default = null;
+              description = "Labwc environment variables for this user.";
+            };
+          };
+        });
+        default = {};
+        description = "Per-user Labwc overrides.";
+      };
     };
 
     config = {
       programs.labwc.enable = true;
       environment.systemPackages = [pkgs.adwaita-icon-theme];
 
-      hjem.extraModules = [
-        ({name, ...}: let
-          user = lib.attrByPath [name] {} cfg.users;
-          userRc = user.rc or null;
-          userEnvironment = user.environment or null;
-          rc =
-            if userRc == null
-            then cfg.rc
-            else userRc;
-          environment =
-            if userEnvironment == null
-            then cfg.environment
-            else userEnvironment;
-        in {
-          files =
-            (lib.optionalAttrs (rc != null) {
-              ".config/labwc/rc.xml".text = rc;
-            })
-            // (lib.optionalAttrs (environment != null) {
-              ".config/labwc/environment".text = environment;
-            });
-        })
-      ];
+      users.home =
+        lib.mapAttrs (
+          userName: _: let
+            user = lib.attrByPath [userName] {} cfg.users;
+            rc = user.rc or cfg.rc;
+            environment = user.environment or cfg.environment;
+          in {
+            files =
+              (lib.optionalAttrs (rc != null) {
+                ".config/labwc/rc.xml".text = rc;
+              })
+              // (lib.optionalAttrs (environment != null) {
+                ".config/labwc/environment".text = environment;
+              });
+          }
+        )
+        config.users.account;
 
-      persistence.users = self.lib.users.mkUserPersistence {
+      persistence.users = self.lib.users.mkPersistence {
         inherit lib config;
         data.directories = [".config/labwc"];
       };
