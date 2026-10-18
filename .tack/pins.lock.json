@@ -1,5 +1,6 @@
 {
   "$declared": {
+    "antigravity-nix": "github:jacopone/antigravity-nix",
     "disko": "github:nix-community/disko",
     "flake-parts": "github:hercules-ci/flake-parts",
     "helium": "github:oxcl/nix-flake-helium-browser",
@@ -13,6 +14,14 @@
     "systems": "github:nix-systems/default",
     "tack": "github:manic-systems/tack",
     "wrapper-modules": "github:nix-community/nix-wrapper-modules"
+  },
+  "antigravity-nix": {
+    "type": "github",
+    "owner": "jacopone",
+    "repo": "antigravity-nix",
+    "rev": "61504dd3571135860cd9c6fceb801649fc6020c6",
+    "narHash": "sha256-EiF9y1seS/kvzh4/o/3ckuVy1GqSOw0KZ50S0THpU74=",
+    "lastModified": 1792307592
   },
   "disko": {
     "type": "github",
