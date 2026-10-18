@@ -11,11 +11,7 @@
     inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree ./modules);
 }
 /*
-
-
 keyring?
-
-creat contracts
 
 caddy ? should it be tool independent ?
 restic ? toold dependence and integration with persistance ?
