@@ -62,6 +62,12 @@
       };
     };
   in {
+    options.users.defaultPasswordHash = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether to provision the default user password hash from SOPS.";
+    };
+
     options.users.account = lib.mkOption {
       type = options.users.users.type;
       default = {};
@@ -71,12 +77,15 @@
           (self.lib.users.create {
             inherit lib;
             name = "lw";
-            account = {
-              isNormalUser = true;
-              description = "lw's account";
-              extraGroups = ["wheel" "networkmanager"];
-              hashedPasswordFile = config.sops.secrets.default-user-password-hash.path;
-            };
+            account =
+              {
+                isNormalUser = true;
+                description = "lw's account";
+                extraGroups = ["wheel" "networkmanager"];
+              }
+              // lib.optionalAttrs config.users.defaultPasswordHash {
+                hashedPasswordFile = config.sops.secrets.default-user-password-hash.path;
+              };
           }).users.account
         else accounts;
       description = "Native NixOS user account declarations.";
@@ -144,10 +153,12 @@
           message = "Every users.home declaration must have a matching users.account declaration.";
         }
       ];
-      sops.secrets.default-user-password-hash = {
-        sopsFile = ../../secrets/users/default.yaml;
-        key = "passwordHash";
-        neededForUsers = true;
+      sops.secrets = lib.mkIf config.users.defaultPasswordHash {
+        default-user-password-hash = {
+          sopsFile = ../../secrets/users/default.yaml;
+          key = "passwordHash";
+          neededForUsers = true;
+        };
       };
       users.users = config.users.account;
     };
