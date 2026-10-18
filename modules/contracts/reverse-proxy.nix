@@ -1,4 +1,4 @@
-{...}: {
+{lib, ...}: {
   flake.nixosModules.reverse-proxy = {lib, ...}: {
     key = "contracts-reverse-proxy";
 
@@ -38,5 +38,55 @@
         description = "Virtual host configurations mapped to upstream targets.";
       };
     };
+  };
+
+  flake.lib.reverse-proxy = {
+    mkOptions = {
+      subdomain ? null,
+      port ? 80,
+      address ? "127.0.0.1",
+      basicAuth ? null,
+    }: {
+      subdomain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = subdomain;
+        description = "Subdomain prefix for reverse proxy";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = port;
+        description = "Local service port";
+      };
+
+      address = lib.mkOption {
+        type = lib.types.str;
+        default = address;
+        description = "Local service bind address";
+      };
+
+      basicAuth = lib.mkOption {
+        type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
+        default = basicAuth;
+        description = "Basic auth credentials for the reverse-proxied service";
+      };
+    };
+
+    mkConfig = {
+      config,
+      cfg,
+    }: let
+      domain = config.services.reverseProxy.domain;
+      fqdn =
+        if cfg.subdomain != null && domain != null
+        then "${cfg.subdomain}.${domain}"
+        else null;
+    in
+      lib.mkIf (config.services.reverseProxy.enable && fqdn != null) {
+        services.reverseProxy.hosts.${fqdn} = {
+          upstream = "${cfg.address}:${toString cfg.port}";
+          inherit (cfg) basicAuth;
+        };
+      };
   };
 }

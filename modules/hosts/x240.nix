@@ -87,9 +87,9 @@ in {
       self.nixosModules.x240-desktop-features
     ];
 
-    config.services.xserver.xkb = {
-      layout = keyboardLayout;
-      variant = "";
+    config.environment.sessionVariables = {
+      XKB_DEFAULT_LAYOUT = keyboardLayout;
+      XKB_DEFAULT_VARIANT = "";
     };
   };
 
