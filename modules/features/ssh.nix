@@ -8,7 +8,20 @@
     cfg = config.services.ssh;
     hostKeySecretPath = ../../secrets/hosts/${config.networking.hostName}/ssh.yaml;
     hasHostKeySecret = builtins.pathExists hostKeySecretPath;
-    publicKeys = ["master" "astrolabe" "x240"];
+    publicKeysFile = ../../secrets/ssh/public.yaml;
+    publicKeys =
+      if builtins.pathExists publicKeysFile
+      then let
+        lines = lib.splitString "\n" (builtins.readFile publicKeysFile);
+        getKey = line: let
+          m = builtins.match "^([a-zA-Z0-9_.-]+):.*" line;
+        in
+          if m != null && builtins.head m != "sops"
+          then builtins.head m
+          else null;
+      in
+        lib.unique (builtins.filter (x: x != null) (map getKey lines))
+      else ["master"];
   in {
     options.services.ssh = {
       enable = lib.mkEnableOption "standard SSH configuration" // {default = true;};

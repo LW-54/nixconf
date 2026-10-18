@@ -13,8 +13,6 @@
 /*
 keyring?
 
-caddy ? should it be tool independent ?
-restic ? toold dependence and integration with persistance ?
 updates
 monitoring
 ressource allocation
@@ -25,8 +23,6 @@ better ttyd
 rss
 
 keybinds contract
-
-defaults for domain and retic repo
 hettznerbox
 */
 
