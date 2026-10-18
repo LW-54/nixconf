@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  lib ? inputs.nixpkgs.lib,
+  ...
+}: {
   flake.nixosModules.disko = inputs.disko.nixosModules.disko;
 
   flake.lib.disko.mkLayout = {
@@ -18,41 +22,43 @@
           type = "disk";
           content = {
             type = "gpt";
-            partitions = {
-              bios = {
-                name = "BIOS";
-                size = biosBootSize;
-                type = "EF02";
-              };
-              esp = {
-                name = "ESP";
-                size = espSize;
-                type = "EF00";
-                content = {
-                  type = "filesystem";
-                  format = "vfat";
-                  mountpoint = "/boot";
+            partitions =
+              {
+                bios = {
+                  name = "BIOS";
+                  size = biosBootSize;
+                  type = "EF02";
+                  priority = 1;
                 };
-              };
-              swap =
-                if swapSize == null
-                then null
-                else {
+                esp = {
+                  name = "ESP";
+                  size = espSize;
+                  type = "EF00";
+                  priority = 2;
+                  content = {
+                    type = "filesystem";
+                    format = "vfat";
+                    mountpoint = "/boot";
+                  };
+                };
+                root = {
+                  name = "root";
+                  size = persistSize;
+                  content = {
+                    type = "lvm_pv";
+                    vg = "system";
+                  };
+                };
+              }
+              // (lib.optionalAttrs (swapSize != null) {
+                swap = {
                   size = swapSize;
                   content = {
                     type = "swap";
                     resumeDevice = swapResume;
                   };
                 };
-              root = {
-                name = "root";
-                size = persistSize;
-                content = {
-                  type = "lvm_pv";
-                  vg = "system";
-                };
-              };
-            };
+              });
           };
         };
         lvm_vg.system = {

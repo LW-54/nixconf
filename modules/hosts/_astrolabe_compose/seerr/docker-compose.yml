@@ -1,0 +1,26 @@
+services:
+    seerr:
+        image: ghcr.io/seerr-team/seerr:latest
+        container_name: seerr
+        restart: unless-stopped
+        ports:
+            - "5055:5055"
+        volumes:
+            - /opt/docker-data/seerr/config:/app/config
+
+    cli_debrid:
+        image: godver3/cli_debrid:latest
+        container_name: cli_debrid
+        restart: unless-stopped
+        ports:
+            - "5000:5000"
+        volumes:
+            # Changed /app to /user on the right side of the colon
+            - /opt/docker-data/seerr/cli_debrid/config:/user/config
+            - /opt/docker-data/seerr/cli_debrid/db_content:/user/db_content
+            - /opt/docker-data/seerr/cli_debrid/logs:/user/logs
+            - /opt/docker-data/seerr/cli_debrid/autobase_storage_v4:/user/autobase_storage_v4
+            # This media link stays exactly the same
+            - /opt/docker-data/media:/media
+        depends_on:
+            - seerr

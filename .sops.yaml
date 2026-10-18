@@ -1,6 +1,7 @@
 keys:
   admin: &admin_key age1yph7kqs5wq2hf4edt2f648en0unpjak7nps9u5v8r43ev9fvsewsmuahjk
   x240: &x240_key age14fnlmar7dt4nzu3dayql669mavuvd5epn0vrplg76jwpesq3dvnqr6d9zy
+  astrolabe: &astrolabe_key age173rv8hnu7sa66u8583hyp0pjuwzjxsfepr4cmtxzeklazpq5la9szp35hk
 
 tags:
   base: &base
@@ -13,10 +14,19 @@ tags:
     age:
       - *x240_key
 
+  server: &server
+    <<: *base
+    age:
+      - *astrolabe_key
+
 creation_rules:
   - path_regex: ^secrets/recovery/.*$
     key_groups:
       - *base
+  - path_regex: ^secrets/hosts/astrolabe(/.*)?$
+    key_groups:
+      - *server
   - path_regex: ^secrets/.*$
     key_groups:
       - *personal
+

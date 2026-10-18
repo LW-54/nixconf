@@ -1,0 +1,46 @@
+services:
+    jellyfin:
+        image: jellyfin/jellyfin:latest
+        container_name: jellyfin
+        restart: unless-stopped
+        ports:
+            - "8096:8096"
+        volumes:
+            - /opt/docker-data/jellyfin/jellyfin-config:/config
+            - /opt/docker-data/jellyfin/jellyfin-cache:/cache
+            - /opt/docker-data/media/symlinks:/media/symlinks:ro
+            - /opt/docker-data/media/zurg:/media/zurg:ro,rslave
+        depends_on:
+            - rclone
+
+    zurg:
+        image: ghcr.io/debridmediamanager/zurg-testing:latest
+        container_name: zurg
+        restart: unless-stopped
+        ports:
+            - "9999:9999"
+        volumes:
+            - /run/secrets/zurg_config:/app/config.yml:ro
+            - /opt/docker-data/jellyfin/zurg-data:/app/data
+            - /etc/zurg_webhook.sh:/app/webhook.sh:ro
+
+    rclone:
+        image: rclone/rclone:latest
+        container_name: rclone
+        restart: unless-stopped
+        cap_add:
+            - SYS_ADMIN
+        devices:
+            - /dev/fuse
+        security_opt:
+            - apparmor:unconfined
+        environment:
+            - RCLONE_CONFIG_ZURG_TYPE=webdav
+            - RCLONE_CONFIG_ZURG_URL=http://zurg:9999/dav
+            - RCLONE_CONFIG_ZURG_VENDOR=other
+        command: "mount zurg: /data --allow-non-empty --allow-other --dir-cache-time 10s --vfs-cache-mode full --vfs-cache-max-size 10G"
+        volumes:
+            # Rclone outputs directly into the zurg subfolder
+            - /opt/docker-data/media/zurg:/data:shared
+        depends_on:
+            - zurg
