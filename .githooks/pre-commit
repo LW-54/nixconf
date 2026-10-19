@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Regenerate architecture diagram in README.md
+if command -v nix >/dev/null 2>&1; then
+  echo "Regenerating architecture diagram in README.md..."
+  nix run .#diagrams -- --readme
+
+  if ! git diff --quiet README.md; then
+    git add README.md
+    echo "README.md architecture diagram updated and staged."
+  fi
+fi

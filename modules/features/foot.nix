@@ -8,79 +8,73 @@ in {
   flake.nixosModules.foot = {
     config,
     lib,
+    pkgs,
     ...
   }: let
-    settings = {
-      global = lib.mkOption {
+    cfg = config.foot;
+    servicePath = "${pkgs.foot}/share/systemd/user/foot-server.service";
+    socketPath = "${pkgs.foot}/share/systemd/user/foot-server.socket";
+  in {
+    options.foot = {
+      enable = lib.mkEnableOption "Foot Terminal" // {default = true;};
+      settings = lib.mkOption {
         type = lib.types.attrsOf lib.types.anything;
         default = defaultSettings;
-        description = "Foot terminal settings";
+        description = "Foot terminal settings.";
       };
-      user = lib.mkOption {
-        type = lib.types.attrsOf lib.types.anything;
+      users = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            enable = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = "Whether Foot configuration is enabled for this user.";
+            };
+            settings = lib.mkOption {
+              type = lib.types.attrsOf lib.types.anything;
+              default = {};
+              description = "User-specific Foot configuration settings overriding global defaults.";
+            };
+          };
+        });
         default = {};
-        description = "Per-user Foot terminal settings.";
+        description = "Per-user Foot configuration overrides.";
       };
-    };
-    server = {
-      global = lib.mkOption {
+      server.enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Foot server mode";
-      };
-      user = lib.mkOption {
-        type = lib.types.nullOr lib.types.bool;
-        default = null;
-        description = "Per-user Foot server mode.";
+        description = "Whether to enable Foot server mode.";
       };
     };
-  in {
-    imports = [
-      (self.lib.users.mkFeature {
-        inherit lib;
-        name = "foot";
-        description = "Foot Terminal";
-        package = pkgs: pkgs.foot;
 
-        featureOptions.settings = settings.global;
-        featureOptions.server.enable = server.global;
-        userOptions.settings = settings.user;
-        userOptions.server.enable = server.user;
+    config = lib.mkIf cfg.enable {
+      environment.systemPackages = [pkgs.foot];
 
-        home = {
-          cfg,
-          user,
-          lib,
-          pkgs,
-          ...
-        }: let
-          serverOverride = lib.attrByPath ["server" "enable"] null user;
-          serverEnabled =
-            if serverOverride == null
-            then cfg.server.enable
-            else serverOverride;
-          servicePath = "${pkgs.foot}/share/systemd/user/foot-server.service";
-          socketPath = "${pkgs.foot}/share/systemd/user/foot-server.socket";
-        in {
+      home.shared = {
+        xdg.config."foot/foot.ini" = {
+          generator = lib.generators.toINI {};
+          value = cfg.settings;
+        };
+
+        files = lib.mkIf cfg.server.enable {
+          ".config/systemd/user/foot-server.service".source = servicePath;
+          ".config/systemd/user/foot-server.socket".source = socketPath;
+          ".config/systemd/user/graphical-session.target.wants/foot-server.socket".source = socketPath;
+        };
+      };
+
+      home.users = lib.mapAttrs (userName: uCfg:
+        lib.mkIf (uCfg.enable != false) {
           xdg.config."foot/foot.ini" = {
             generator = lib.generators.toINI {};
-            value = lib.recursiveUpdate cfg.settings (user.settings or {});
+            value = lib.recursiveUpdate cfg.settings uCfg.settings;
           };
+        })
+      cfg.users;
 
-          files = lib.mkIf serverEnabled {
-            ".config/systemd/user/foot-server.service".source = servicePath;
-            ".config/systemd/user/foot-server.socket".source = socketPath;
-            ".config/systemd/user/graphical-session.target.wants/foot-server.socket".source = socketPath;
-          };
-        };
-      })
-    ];
-
-    config.persistence.users = self.lib.users.mkPersistence {
-      inherit lib config;
-      global = config.foot.enable;
-      userOverrides = config.foot.users;
-      data.directories = [".config/foot"];
+      persistence.users = self.lib.user.forNormalUsers config (_: _: {
+        data.directories = [".config/foot"];
+      });
     };
   };
 

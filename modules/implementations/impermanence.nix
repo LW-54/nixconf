@@ -51,29 +51,29 @@
   in {
     imports = [inputs.impermanence.nixosModules.impermanence];
 
-    persistence.enable = true;
+    config = {
+      assertions =
+        lib.mapAttrsToList (userName: user: {
+          assertion = lib.all isRelativeEntry (
+            user.data.directories
+            ++ user.data.files
+            ++ user.cache.directories
+            ++ user.cache.files
+          );
+          message = "persistence.users.${userName} entries must be relative paths (or impermanence attribute sets), because they are mapped to /home/${userName}.";
+        })
+        cfg.users;
 
-    assertions =
-      lib.mapAttrsToList (userName: user: {
-        assertion = lib.all isRelativeEntry (
-          user.data.directories
-          ++ user.data.files
-          ++ user.cache.directories
-          ++ user.cache.files
-        );
-        message = "persistence.users.${userName} entries must be relative paths (or impermanence attribute sets), because they are mapped to /home/${userName}.";
-      })
-      cfg.users;
+      programs.fuse.userAllowOther = lib.mkIf cfg.enable true;
+      boot.tmp.cleanOnBoot = lib.mkIf cfg.enable true;
+      fileSystems."/persist".neededForBoot = lib.mkIf cfg.enable true;
 
-    programs.fuse.userAllowOther = lib.mkIf cfg.enable true;
-    boot.tmp.cleanOnBoot = lib.mkIf cfg.enable true;
-    fileSystems."/persist".neededForBoot = lib.mkIf cfg.enable true;
-
-    environment.persistence = lib.mkIf cfg.enable (
-      lib.mkMerge (
-        [systemPersistence]
-        ++ map mkUserPersistence (builtins.attrNames cfg.users)
-      )
-    );
+      environment.persistence = lib.mkIf cfg.enable (
+        lib.mkMerge (
+          [systemPersistence]
+          ++ map mkUserPersistence (builtins.attrNames cfg.users)
+        )
+      );
+    };
   };
 }

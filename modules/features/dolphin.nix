@@ -2,27 +2,22 @@
   flake.nixosModules.dolphin = {
     config,
     lib,
+    pkgs,
     ...
   }: let
     cfg = config.dolphin;
   in {
-    imports = [
-      (self.lib.users.mkFeature {
-        inherit lib;
-        name = "dolphin";
-        description = "Dolphin File Manager";
-        package = pkgs: self.packages.${pkgs.system}.dolphin;
-      })
-    ];
+    options.dolphin.enable = lib.mkEnableOption "Dolphin File Manager" // {default = true;};
 
-    config.persistence.users = self.lib.users.mkPersistence {
-      inherit lib config;
-      global = cfg.enable;
-      userOverrides = cfg.users;
-      data = {
-        directories = [".local/share/dolphin"];
-        files = [".config/dolphinrc"];
-      };
+    config = lib.mkIf cfg.enable {
+      environment.systemPackages = [self.packages.${pkgs.system}.dolphin];
+
+      persistence.users = lib.mapAttrs (_: _: {
+        data = {
+          directories = [".local/share/dolphin"];
+          files = [".config/dolphinrc"];
+        };
+      }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
     };
   };
 

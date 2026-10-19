@@ -25,5 +25,9 @@ rss
 
 keybinds contract
 hettznerbox
+
+diagram pre commit hook instead of action
+meta
+docs
 */
 

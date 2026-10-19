@@ -16,6 +16,8 @@
         end = ["tray" "keyboard_layout" "battery" "network" "bluetooth" "session"];
         margin_ends = 0;
         radius = 0;
+        radius_bottom_left = 5;
+        radius_bottom_right = 5;
         scale = 0.9;
         start = ["launcher" "workspaces"];
         thickness = 30;
@@ -62,7 +64,7 @@
         };
       };
       shell = {
-        corner_radius_scale = 0.0;
+        corner_radius_scale = 0.75;
         font_family = "JetBrains Mono";
         launch_apps_as_systemd_services = true;
       };
@@ -161,16 +163,13 @@
         })
       ];
 
-      persistence.users = self.lib.users.mkPersistence {
-        inherit lib config;
-        global = cfg.enable;
-        userOverrides = cfg.users;
+      persistence.users = lib.mapAttrs (_: _: {
         data.directories = [
           ".config/noctalia"
           ".local/state/noctalia"
           "Pictures/Wallpapers"
         ];
-      };
+      }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
     };
   };
 }

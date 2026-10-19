@@ -46,10 +46,10 @@
     '';
   in {
     options.services.wifi-eduroam = {
-      sopsFile = lib.mkOption {
+      secretFile = lib.mkOption {
         type = lib.types.path;
         default = ../../secrets/wifi/wifi_eduroam.yaml;
-        description = "SOPS file containing the eduroam username and password.";
+        description = "Encrypted file containing the eduroam username and password.";
       };
 
       usernameKey = lib.mkOption {
@@ -67,13 +67,15 @@
       networking.networkmanager.enable = true;
       environment.etc."ssl/certs/eduroam-harica-root-ca.pem".source = caCertificate;
 
-      sops.secrets.${usernameSecret} = {
-        inherit (cfg) sopsFile;
-        key = cfg.usernameKey;
-      };
-      sops.secrets.${passwordSecret} = {
-        inherit (cfg) sopsFile;
-        key = cfg.passwordKey;
+      secrets.files = {
+        ${usernameSecret} = {
+          file = cfg.secretFile;
+          key = cfg.usernameKey;
+        };
+        ${passwordSecret} = {
+          file = cfg.secretFile;
+          key = cfg.passwordKey;
+        };
       };
 
       sops.templates."wifi-eduroam-networkmanager" = {

@@ -11,10 +11,15 @@
       {
         enable = lib.mkEnableOption "ttyd web terminal server" // {default = true;};
       }
-      // self.lib."reverse-proxy".mkOptions {
+      // self.lib.reverse-proxy.mkOption {
         subdomain = "ttyd";
         port = 7681;
         basicAuth = {admin = "$2a$14$vYmK17NeNy4sdgvOm6SAheSigD5Lnus70w8aJfQgLBceSG0hlVrPK";};
+      }
+      // self.lib.resources.mkOption {
+        profile = "standard";
+        memory.high = "256M";
+        memory.max = "512M";
       }
       // {
         user = lib.mkOption {
@@ -22,13 +27,19 @@
           default = null;
           apply = user:
             if user == null
-            then lib.head (lib.attrNames config.users.account)
+            then let
+              normalNames = builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+            in
+              if normalNames != []
+              then builtins.head normalNames
+              else "root"
             else user;
           description = "System user to run ttyd and session as";
         };
       };
 
-    config = lib.mkIf cfg.enable ({
+    config = lib.mkIf cfg.enable (lib.mkMerge [
+      {
         environment.systemPackages = [pkgs.ttyd];
 
         systemd.services.ttyd-web = {
@@ -43,6 +54,11 @@
           };
         };
       }
-      // self.lib."reverse-proxy".mkConfig {inherit config cfg;});
+      (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+      (self.lib.resources.mkConfig {
+        inherit config cfg;
+        serviceName = "ttyd-web";
+      })
+    ]);
   };
 }

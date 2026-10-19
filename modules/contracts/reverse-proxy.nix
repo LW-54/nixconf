@@ -1,47 +1,71 @@
-{lib, ...}: {
-  flake.nixosModules.reverse-proxy = {lib, ...}: {
-    key = "contracts-reverse-proxy";
+{lib, ...}: let
+  /**
+  Type validating Fully Qualified Domain Names (FQDN) matching standard internet hostname format.
+  */
+  fqdn = lib.types.mkOptionType {
+    name = "fqdn";
+    description = "Fully qualified domain name";
+    check = x: builtins.isString x && builtins.match "^([a-zA-Z0-9][-a-zA-Z0-9]*\\.)+[a-zA-Z]{2,}$" x != null;
+    merge = lib.options.mergeOneOption;
+  };
 
-    options.services.reverseProxy = {
-      enable = lib.mkEnableOption "system reverse proxy" // {default = true;};
-
-      domain = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "Base domain name for reverse-proxied services (e.g. adje.app).";
+  hostSubmodule = lib.types.submodule {
+    options = {
+      upstream = lib.mkOption {
+        type = lib.types.str;
+        example = "127.0.0.1:8222";
+        description = ''
+          Target upstream socket, host, or IP address and port where the service
+          is listening and accepting proxied HTTP/WebSocket connections.
+        '';
       };
 
-      hosts = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.submodule {
-          options = {
-            upstream = lib.mkOption {
-              type = lib.types.str;
-              example = "127.0.0.1:8222";
-              description = "Upstream address:port to proxy requests to.";
-            };
+      basicAuth = lib.mkOption {
+        type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
+        default = null;
+        example = {admin = "$2a$14$...";};
+        description = ''
+          Optional map of usernames to bcrypt-hashed password strings for
+          HTTP Basic Authentication enforcement at the proxy boundary.
+        '';
+      };
 
-            basicAuth = lib.mkOption {
-              type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
-              default = null;
-              example = {admin = "$2a$14$...";};
-              description = "Attribute set of username to bcrypt hashed password.";
-            };
-
-            extraConfig = lib.mkOption {
-              type = lib.types.lines;
-              default = "";
-              description = "Extra reverse proxy directives.";
-            };
-          };
-        });
-        default = {};
-        description = "Virtual host configurations mapped to upstream targets.";
+      extraConfig = lib.mkOption {
+        type = lib.types.lines;
+        default = "";
+        description = ''
+          Raw backend-specific configuration directives injected directly
+          into the virtual host definition (e.g. custom headers or timeouts).
+        '';
       };
     };
   };
+in {
+  mkContract.reverse-proxy = {
+    options = {
+      enable = lib.mkEnableOption "system reverse proxy contract" // {default = true;};
 
-  flake.lib.reverse-proxy = {
-    mkOptions = {
+      domain = lib.mkOption {
+        type = lib.types.nullOr fqdn;
+        default = null;
+        example = "adje.app";
+        description = ''
+          Base root domain name used for virtual host construction.
+          Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`.
+        '';
+      };
+
+      hosts = lib.mkOption {
+        type = lib.types.attrsOf hostSubmodule;
+        default = {};
+        description = ''
+          Attribute set of virtual host fully-qualified domain names (FQDN)
+          mapped to upstream backend endpoints and proxy policies.
+        '';
+      };
+    };
+
+    mkOption = {
       subdomain ? null,
       port ? 80,
       address ? "127.0.0.1",
@@ -76,17 +100,23 @@
       config,
       cfg,
     }: let
-      domain = config.services.reverseProxy.domain;
+      domain = config.reverse-proxy.domain or null;
+      enable = config.reverse-proxy.enable or false;
       fqdn =
         if cfg.subdomain != null && domain != null
         then "${cfg.subdomain}.${domain}"
         else null;
     in
-      lib.mkIf (config.services.reverseProxy.enable && fqdn != null) {
-        services.reverseProxy.hosts.${fqdn} = {
+      lib.mkIf (enable && fqdn != null) {
+        reverse-proxy.hosts.${fqdn} = {
           upstream = "${cfg.address}:${toString cfg.port}";
           inherit (cfg) basicAuth;
         };
       };
+
+    types = {
+      host = hostSubmodule;
+      inherit fqdn;
+    };
   };
 }

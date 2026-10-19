@@ -4,8 +4,6 @@
   ...
 }: let
   defaultSettings = {
-    user.name = "LW-54";
-    user.email = "leonardwilsonb@gmail.com";
     pull.rebase = true;
     fetch.prune = true;
     push.autoSetupRemote = true;
@@ -16,48 +14,66 @@ in {
     config,
     lib,
     pkgs,
+    options,
     ...
   }: let
     cfg = config.git;
-    settings = {
-      global = lib.mkOption {
-        type = lib.types.attrsOf lib.types.anything;
-        default = defaultSettings;
-        description = "Git settings";
-      };
-      user = lib.mkOption {
+  in {
+    options.git = {
+      enable = lib.mkEnableOption "Git version control" // {default = true;};
+      settings = lib.mkOption {
         type = lib.types.attrsOf lib.types.anything;
         default = {};
-        description = "Per-user Git settings.";
+        description = "Global Git configuration settings.";
       };
+      users = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            enable = lib.mkOption {
+              type = lib.types.nullOr lib.types.bool;
+              default = null;
+              description = "Whether Git configuration is enabled for this user.";
+            };
+            settings = lib.mkOption {
+              type = lib.types.attrsOf lib.types.anything;
+              default = {};
+              description = "User-specific Git configuration settings overriding global defaults.";
+            };
+          };
+        });
+        default = {};
+        description = "Per-user Git configuration overrides.";
+      };
+      prebuildGithubSsh = lib.mkEnableOption "prebuilding the GitHub SSH development shell" // {default = true;};
     };
-  in {
-    options.git.prebuildGithubSsh = lib.mkEnableOption "prebuilding the GitHub SSH development shell" // {default = true;};
-    config.system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.system}.github-ssh;
 
-    imports = [
-      (self.lib.users.mkFeature {
-        inherit lib;
-        name = "git";
-        description = "Git";
-        package = pkgs: pkgs.git;
+    config = lib.mkIf cfg.enable {
+      git.settings = lib.mapAttrs (_: lib.mkDefault) defaultSettings;
+      environment.systemPackages = [pkgs.git];
+      system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.system}.github-ssh;
 
-        featureOptions.settings = settings.global;
-        userOptions.settings = settings.user;
+      home.shared.xdg.config."git/config" = {
+        generator = lib.generators.toINI {};
+        value = cfg.settings;
+      };
 
-        home = {
-          cfg,
-          user,
-          lib,
-          ...
-        }: {
+      home.users = lib.mapAttrs (userName: uCfg:
+        lib.mkIf (uCfg.enable != false) {
           xdg.config."git/config" = {
             generator = lib.generators.toINI {};
-            value = lib.recursiveUpdate cfg.settings (user.settings or {});
+            value = lib.recursiveUpdate cfg.settings uCfg.settings;
           };
+        })
+      cfg.users;
+
+      # Configure Git settings for the default user if active
+      git.users = lib.mkIf (config.default-user.enable or false) {
+        ${config.default-user.username}.settings.user = {
+          name = config.default-user.githubUsername;
+          email = config.default-user.email;
         };
-      })
-    ];
+      };
+    };
   };
 
   perSystem = {
@@ -67,7 +83,14 @@ in {
   }: {
     packages.git = inputs.wrapper-modules.wrappers.git.wrap {
       inherit pkgs;
-      settings = defaultSettings;
+      settings =
+        defaultSettings
+        // {
+          user = {
+            name = self.lib.lw.githubUsername;
+            email = self.lib.lw.email;
+          };
+        };
     };
 
     devShells.github-ssh = self.lib.bitwarden.mkShell {

@@ -1,27 +1,20 @@
-{self, ...}: {
+{...}: {
   flake.nixosModules.vscode = {
     config,
     lib,
+    pkgs,
     ...
   }: let
     cfg = config.vscode;
   in {
-    imports = [
-      (self.lib.users.mkFeature {
-        inherit lib;
-        name = "vscode";
-        description = "Visual Studio Code";
-        package = pkgs: pkgs.vscode;
-      })
-    ];
+    options.vscode.enable = lib.mkEnableOption "Visual Studio Code" // {default = true;};
 
-    config.persistence.users = self.lib.users.mkPersistence {
-      inherit lib config;
-      global = cfg.enable;
-      userOverrides = cfg.users;
-      data = {
-        directories = [".config/Code" ".vscode"];
-      };
+    config = lib.mkIf cfg.enable {
+      environment.systemPackages = [pkgs.vscode];
+
+      persistence.users = lib.mapAttrs (_: _: {
+        data.directories = [".config/Code" ".vscode"];
+      }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
     };
   };
 }

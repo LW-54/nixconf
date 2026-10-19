@@ -1,13 +1,19 @@
 {
   inputs,
   self,
+  config,
   ...
 }: let
   cores = 4;
   keyboardLayout = "fr";
 in {
   flake.nixosConfigurations.x240 = inputs.nixpkgs.lib.nixosSystem {
-    modules = [self.nixosModules.x240];
+    specialArgs = {
+      inherit self inputs;
+    };
+    modules = [
+      self.nixosModules.x240
+    ];
   };
 
   flake.nixosModules.x240 = {...}: {
@@ -38,6 +44,7 @@ in {
       self.nixosModules.tack
       self.nixosModules.bw
       self.nixosModules.ssh
+      self.nixosModules.cgroups
     ];
   };
 
@@ -48,6 +55,8 @@ in {
   }: {
     imports = [
       self.nixosModules.contracts
+      self.nixosModules.sops
+      self.nixosModules.lw
       self.nixosModules.hjem
       self.nixosModules.nix
       self.nixosModules.locale
@@ -73,11 +82,13 @@ in {
       self.nixosModules.foot
       self.nixosModules.vivaldi
       self.nixosModules.vscode
+      self.nixosModules.antigravity-ide
     ];
   };
 
   flake.nixosModules.x240-desktop = {...}: {
     imports = [
+      self.nixosModules.uwsm
       self.nixosModules.fonts
       self.nixosModules.labwc
       self.nixosModules.noctalia
@@ -87,9 +98,12 @@ in {
       self.nixosModules.x240-desktop-features
     ];
 
-    config.environment.sessionVariables = {
-      XKB_DEFAULT_LAYOUT = keyboardLayout;
-      XKB_DEFAULT_VARIANT = "";
+    config = {
+      wayland.enable = true;
+      environment.sessionVariables = {
+        XKB_DEFAULT_LAYOUT = keyboardLayout;
+        XKB_DEFAULT_VARIANT = "";
+      };
     };
   };
 

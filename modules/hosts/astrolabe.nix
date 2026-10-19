@@ -4,7 +4,12 @@
   ...
 }: {
   flake.nixosConfigurations.astrolabe = inputs.nixpkgs.lib.nixosSystem {
-    modules = [self.nixosModules.astrolabe];
+    specialArgs = {
+      inherit self inputs;
+    };
+    modules = [
+      self.nixosModules.astrolabe
+    ];
   };
 
   flake.nixosModules.astrolabe = {...}: {
@@ -34,7 +39,7 @@
     ];
 
     config = {
-      services.reverseProxy.domain = "adje.app";
+      reverse-proxy.domain = "adje.app";
       services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
     };
   };
@@ -42,6 +47,9 @@
   flake.nixosModules.astrolabe-system = {
     imports = [
       self.nixosModules.contracts
+      self.nixosModules.sops
+      self.nixosModules.lw
+      self.nixosModules.cgroups
       self.nixosModules.nix
       self.nixosModules.locale
       self.nixosModules.ssh

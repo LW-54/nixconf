@@ -11,34 +11,28 @@
   }: {
     environment.systemPackages = [self.packages.${pkgs.system}.bw];
 
-    persistence.users = self.lib.users.mkPersistence {
-      inherit lib config;
+    persistence.users = lib.mapAttrs (_: _: {
       data.directories = [".config/Bitwarden CLI"];
-    };
+    }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
   };
 
   flake.nixosModules.bitwarden-desktop = {
     config,
     lib,
+    pkgs,
     ...
   }: let
     cfg = config.bitwarden-desktop;
   in {
-    imports = [
-      (self.lib.users.mkFeature {
-        inherit lib;
-        name = "bitwarden-desktop";
-        description = "Bitwarden Desktop";
-        package = pkgs: pkgs.bitwarden-desktop;
-      })
-    ];
+    options.bitwarden-desktop.enable = lib.mkEnableOption "Bitwarden Desktop" // {default = true;};
 
-    config.persistence.users = self.lib.users.mkPersistence {
-      inherit lib config;
-      global = cfg.enable;
-      userOverrides = cfg.users;
-      data.directories = [".config/Bitwarden"];
-      cache.directories = [".cache/com.bitwarden.desktop"];
+    config = lib.mkIf cfg.enable {
+      environment.systemPackages = [pkgs.bitwarden-desktop];
+
+      persistence.users = lib.mapAttrs (_: _: {
+        data.directories = [".config/Bitwarden"];
+        cache.directories = [".cache/com.bitwarden.desktop"];
+      }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
     };
   };
 

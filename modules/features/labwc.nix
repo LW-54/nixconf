@@ -90,35 +90,36 @@
     };
 
     config = {
-      programs.uwsm.waylandCompositors.labwc = {
+      wayland.compositors.labwc = {
         prettyName = "Labwc";
-        comment = "Labwc managed by UWSM";
+        comment = "Labwc Wayland compositor";
         binPath = lib.getExe pkgs.labwc;
       };
       environment.systemPackages = [pkgs.labwc];
 
-      users.home =
-        lib.mapAttrs (
-          userName: _: let
-            user = lib.attrByPath [userName] {} cfg.users;
-            rc = user.rc or cfg.rc;
-            environment = user.environment or cfg.environment;
-          in {
-            files =
-              (lib.optionalAttrs (rc != null) {
-                ".config/labwc/rc.xml".text = rc;
-              })
-              // (lib.optionalAttrs (environment != null) {
-                ".config/labwc/environment".text = environment;
-              });
-          }
-        )
-        config.users.account;
+      home.shared.xdg.config =
+        (lib.optionalAttrs (cfg.rc != null) {
+          "labwc/rc.xml".text = cfg.rc;
+        })
+        // (lib.optionalAttrs (cfg.environment != null) {
+          "labwc/environment".text = cfg.environment;
+        });
 
-      persistence.users = self.lib.users.mkPersistence {
-        inherit lib config;
+      home.users =
+        lib.mapAttrs (userName: uCfg: {
+          xdg.config =
+            (lib.optionalAttrs (uCfg.rc != null) {
+              "labwc/rc.xml".text = uCfg.rc;
+            })
+            // (lib.optionalAttrs (uCfg.environment != null) {
+              "labwc/environment".text = uCfg.environment;
+            });
+        })
+        cfg.users;
+
+      persistence.users = self.lib.user.forNormalUsers config (_: _: {
         data.directories = [".config/labwc"];
-      };
+      });
     };
   };
 }

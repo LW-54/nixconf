@@ -2,6 +2,7 @@
   flake.nixosModules.nix = {
     config,
     lib,
+    pkgs,
     ...
   }: {
     imports = [
@@ -17,9 +18,9 @@
     config = {
       programs.nix-index-database.comma.enable = true;
 
-      sops.secrets = lib.mkIf config.nix.cachixWatchStore {
+      secrets.files = lib.mkIf config.nix.cachixWatchStore {
         cachix-token = {
-          sopsFile = ../../secrets/cachix/cachix.yaml;
+          file = ../../secrets/cachix/cachix.yaml;
           key = "token";
         };
       };
@@ -32,7 +33,7 @@
           extra-trusted-public-keys = [
             "lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o="
           ];
-          trusted-users = lib.attrNames (lib.filterAttrs (_: user: lib.elem "wheel" (user.extraGroups or [])) config.users.account);
+          trusted-users = ["root" "@wheel"];
         };
 
         optimise.automatic = true;
@@ -47,10 +48,11 @@
       services.cachix-watch-store = lib.mkIf config.nix.cachixWatchStore {
         enable = true;
         cacheName = "lw-54";
-        cachixTokenFile = config.sops.secrets.cachix-token.path;
+        cachixTokenFile = config.secrets.files.cachix-token.path;
       };
       systemd.services.cachix-watch-store-agent.serviceConfig.KillMode = lib.mkIf config.nix.cachixWatchStore (lib.mkForce "control-group");
       nixpkgs.config.allowUnfree = true;
+      environment.systemPackages = [pkgs.nixd];
     };
   };
 }

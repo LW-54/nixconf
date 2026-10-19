@@ -13,10 +13,9 @@
         nix-direnv.enable = true;
       };
 
-      persistence.users = self.lib.users.mkPersistence {
-        inherit lib config;
+      persistence.users = lib.mapAttrs (_: _: {
         cache.directories = [".cache/direnv"];
-      };
+      }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
     };
   };
 }

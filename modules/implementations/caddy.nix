@@ -1,14 +1,12 @@
-{self, ...}: {
+{...}: {
   flake.nixosModules.caddy = {
     config,
     lib,
     ...
   }: let
-    cfg = config.services.reverseProxy;
+    cfg = config.reverse-proxy;
   in {
-    imports = [self.nixosModules.reverse-proxy];
-
-    config = lib.mkIf cfg.enable {
+    config = lib.mkIf (cfg.enable or false) {
       services.caddy = {
         enable = true;
         virtualHosts =
@@ -30,9 +28,16 @@
 
       networking.firewall.allowedTCPPorts = [80 443];
 
-      persistence.directories = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+      persistence.directories = lib.mkIf (config.persistence.enable or false) [
         "/var/lib/caddy"
       ];
+
+      resources.services.caddy = lib.mkIf (config.resources.enable or false) {
+        profile = "critical";
+        memory.low = "32M";
+        memory.high = "256M";
+        memory.max = "512M";
+      };
     };
   };
 }

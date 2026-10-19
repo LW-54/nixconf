@@ -47,12 +47,8 @@
       };
 
       authorizeForUsers = lib.mkOption {
-        type = lib.types.nullOr (lib.types.listOf lib.types.str);
-        default = null;
-        apply = users:
-          if users == null
-          then ["root"] ++ lib.optional (config.users ? account && config.users.account ? lw) "lw"
-          else users;
+        type = lib.types.listOf lib.types.str;
+        default = ["root"] ++ lib.optional (config.default-user.enable or false) config.default-user.username;
         description = "List of user accounts that should receive the authorizedKeys.";
       };
     };
@@ -69,12 +65,12 @@
 
       networking.firewall.allowedTCPPorts = lib.mkIf cfg.openFirewall [cfg.listenPort];
 
-      # Expose public keys in SOPS
-      sops.secrets =
+      # Expose public keys in secrets
+      secrets.files =
         lib.listToAttrs (map (name: {
             name = "ssh/public/${name}";
             value = {
-              sopsFile = ../../secrets/ssh/public.yaml;
+              file = ../../secrets/ssh/public.yaml;
               key = name;
               mode = "0444";
             };
@@ -82,15 +78,15 @@
           publicKeys)
         // lib.optionalAttrs hasHostKeySecret {
           "ssh/host-key" = {
-            sopsFile = hostKeySecretPath;
+            file = hostKeySecretPath;
             key = "ed25519";
             mode = "0600";
           };
         };
 
-      # Provision host SSH key from SOPS if missing or different
+      # Provision host SSH key from secrets if missing or different
       systemd.services.provision-ssh-host-key = lib.mkIf hasHostKeySecret {
-        description = "Provision SSH host key from SOPS if missing or different";
+        description = "Provision SSH host key from secrets if missing or different";
         wantedBy = ["sshd.service"];
         before = ["sshd.service"];
         after = ["sops-nix.service"];
@@ -99,9 +95,9 @@
           RemainAfterExit = true;
         };
         script = ''
-          if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.sops.secrets."ssh/host-key".path}; then
+          if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
             mkdir -p /etc/ssh
-            install -m 600 ${config.sops.secrets."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
+            install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
             ${pkgs.openssh}/bin/ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key > /etc/ssh/ssh_host_ed25519_key.pub
             chmod 644 /etc/ssh/ssh_host_ed25519_key.pub
             if [ -d /persist/system ]; then
@@ -117,7 +113,7 @@
 
       services.openssh.extraConfig = lib.optionalString (cfg.authorizeForUsers != []) ''
         Match User ${lib.concatStringsSep "," cfg.authorizeForUsers}
-            AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.sops.secrets."ssh/public/master".path}
+            AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
       '';
 
       users.users = lib.genAttrs cfg.authorizeForUsers (_: {

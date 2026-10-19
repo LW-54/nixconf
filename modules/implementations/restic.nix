@@ -1,4 +1,4 @@
-{self, ...}: {
+{...}: {
   flake.nixosModules.restic = {
     config,
     lib,
@@ -7,8 +7,6 @@
     cfg = config.backup;
     resticCfg = config.services.resticBackup;
   in {
-    imports = [self.nixosModules.backup];
-
     options.services.resticBackup = {
       repository = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -30,14 +28,16 @@
     };
 
     config = lib.mkIf (cfg.enable && resticCfg.repository != null) {
-      sops.secrets.restic-env = lib.mkIf (resticCfg.environmentFile == null) {
-        sopsFile = ../../secrets/backup/restic.yaml;
-        key = "env";
-      };
+      secrets.files = {
+        restic-env = lib.mkIf (resticCfg.environmentFile == null) {
+          file = ../../secrets/backup/restic.yaml;
+          key = "env";
+        };
 
-      sops.secrets.restic-password = lib.mkIf (resticCfg.passwordFile == null) {
-        sopsFile = ../../secrets/backup/restic.yaml;
-        key = "password";
+        restic-password = lib.mkIf (resticCfg.passwordFile == null) {
+          file = ../../secrets/backup/restic.yaml;
+          key = "password";
+        };
       };
 
       services.restic.backups.main = {
@@ -45,16 +45,25 @@
         environmentFile =
           if resticCfg.environmentFile != null
           then resticCfg.environmentFile
-          else config.sops.secrets.restic-env.path;
+          else config.secrets.files.restic-env.path;
         passwordFile =
           if resticCfg.passwordFile != null
           then resticCfg.passwordFile
-          else config.sops.secrets.restic-password.path;
+          else config.secrets.files.restic-password.path;
         paths = cfg.paths;
         exclude = cfg.exclude;
         pruneOpts = cfg.pruneOpts;
         timerConfig = cfg.timerConfig;
         initialize = true;
+      };
+
+      resources.services.restic-backups-main = lib.mkIf (config.resources.enable or false) {
+        profile = "background";
+        memory.high = "512M";
+        battery = {
+          throttleOnBattery = true;
+          pauseOnBattery = true;
+        };
       };
     };
   };
