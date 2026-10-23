@@ -52,13 +52,16 @@
     };
   });
 in {
-  mkContract.secrets = {
+  contract.secrets = {
+    description = "Declarative encrypted secrets provisioning, filesystem mounting, and permission management.";
+
     options = {
       enable = lib.mkEnableOption "system secrets management contract" // {default = true;};
 
       defaultFile = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
+        example = lib.literalExpression "./secrets/secrets.yaml";
         description = ''
           Default YAML/JSON file containing encrypted secrets for this host.
           Can be overridden on a per-secret basis by consumer features.
@@ -68,6 +71,11 @@ in {
       files = lib.mkOption {
         type = lib.types.attrsOf secretSubmodule;
         default = {};
+        example = {
+          "service/env" = {
+            owner = "root";
+          };
+        };
         description = ''
           Attribute set of declarative secret items required by system services.
           Mapped to the active secrets provider implementation (e.g. SOPS).

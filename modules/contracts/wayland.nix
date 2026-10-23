@@ -18,7 +18,9 @@
     };
   });
 in {
-  mkContract.wayland = {
+  contract.wayland = {
+    description = "Wayland compositor registration, session targets, and graphical environment management.";
+
     options = {
       enable =
         lib.mkEnableOption "Wayland session management contract"
@@ -33,6 +35,12 @@ in {
       compositors = lib.mkOption {
         type = lib.types.attrsOf compositorSubmodule;
         default = {};
+        example = {
+          labwc = {
+            prettyName = "Labwc";
+            binPath = "/run/current-system/sw/bin/labwc";
+          };
+        };
         description = "Declarative Wayland compositor registrations managed by the session manager.";
       };
     };

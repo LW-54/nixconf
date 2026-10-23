@@ -25,9 +25,18 @@ rss
 
 keybinds contract
 hettznerbox
+utilise google storage
+gemini scheduled
+generate iso s for hosts
+mini live usb host (inspired by sonic)
 
-diagram pre commit hook instead of action
-meta
-docs
+
+primitives abstraction
+Flake Schemas
+docs docs
+lib in diagrams
+make TO DO work correctly
+make more clickable
+LSP support
 */
 

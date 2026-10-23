@@ -158,13 +158,18 @@
     };
   });
 in {
-  mkContract.home = {
+  contract.home = {
+    description = "Declarative user home dotfile tree, XDG directory specifications, and session environment.";
+
     options = {
       enable = lib.mkEnableOption "declarative user home dotfile and environment contract" // {default = true;};
 
       shared = lib.mkOption {
         type = userHomeSubmodule;
         default = {};
+        example = {
+          files.".config/starship.toml".text = "";
+        };
         description = ''
           Shared dotfile tree and environment configurations applied across all managed users.
         '';
@@ -173,6 +178,11 @@ in {
       users = lib.mkOption {
         type = lib.types.attrsOf userHomeSubmodule;
         default = {};
+        example = {
+          lw = {
+            files.".gitconfig".text = "[user]\n  name = Lewis";
+          };
+        };
         description = ''
           Per-user dotfile tree and environment configurations mapped to active backend interpreters (e.g. Hjem).
         '';

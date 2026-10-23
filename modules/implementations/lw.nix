@@ -1,17 +1,50 @@
 {...}: let
   lwIdentity = {
-    username = "lw";
-    githubUsername = "LW-54";
-    email = "leonardwilsonb@gmail.com";
+    username = {
+      docstring = ''
+        Primary login username for user account lw.
+
+        # Type
+        ```
+        username :: String
+        ```
+      '';
+      value = "lw";
+    };
+
+    githubUsername = {
+      docstring = ''
+        Primary GitHub account username for user account lw.
+
+        # Type
+        ```
+        githubUsername :: String
+        ```
+      '';
+      value = "LW-54";
+    };
+
+    email = {
+      docstring = ''
+        Primary email address for user account lw.
+
+        # Type
+        ```
+        email :: String
+        ```
+      '';
+      value = "leonardwilsonb@gmail.com";
+    };
   };
 in {
-  flake.lib = {
-    lw = lwIdentity;
-    default-user = lwIdentity;
-  };
-
-  flake.nixosModules = rec {
-    lw = {
+  /**
+  Primary human user account orchestration and identity provisioning.
+  */
+  implementation.lw = {
+    contract = "default-user";
+    description = "Primary human user account orchestration and identity provisioning.";
+    lib = lwIdentity;
+    module = {
       config,
       lib,
       ...
@@ -20,7 +53,9 @@ in {
     in {
       config = lib.mkIf cfg.enable {
         default-user = {
-          inherit (lwIdentity) username githubUsername email;
+          username = lwIdentity.username.value;
+          githubUsername = lwIdentity.githubUsername.value;
+          email = lwIdentity.email.value;
         };
 
         secrets.files.default-user-password-hash = {
@@ -50,7 +85,5 @@ in {
         };
       };
     };
-
-    default-user = lw;
   };
 }

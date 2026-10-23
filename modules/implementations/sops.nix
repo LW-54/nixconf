@@ -5,40 +5,91 @@
 }: let
   defaultAgeKeyFile = "/persist/sops-nix/key.txt";
 in {
-  flake.nixosModules.sops = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    cfg = config.sops;
-  in {
-    imports = [inputs.sops-nix.nixosModules.sops];
+  /**
+  Age-encrypted secrets management and filesystem projection via SOPS-nix.
+  */
+  implementation.sops = {
+    contract = "secrets";
+    description = "Declarative encrypted secrets provisioning using SOPS and age keys.";
+    lib = {
+      mkHostShell = {
+        docstring = ''
+          Constructs a developer shell configured to decrypt host SOPS secrets with the host's age key.
 
-    options.sops.prebuildAdminShell = lib.mkEnableOption "prebuilding the SOPS admin development shell" // {default = true;};
-    options.sops.prebuildHostShell = lib.mkEnableOption "prebuilding the SOPS host development shell" // {default = true;};
+          # Inputs
 
-    config = lib.mkIf (config.secrets.enable or false) {
-      sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
-      sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
+          `pkgs`
+          : Nixpkgs package set.
 
-      sops.secrets =
-        lib.mapAttrs (_: s: {
-          sopsFile =
-            if s.file != null
-            then s.file
-            else config.sops.defaultSopsFile;
-          inherit (s) key owner group mode neededForUsers;
-        })
-        config.secrets.files;
+          `keyFile`
+          : Path to the age private key file on the host (default: `/persist/sops-nix/key.txt`).
 
-      system.extraDependencies = lib.concatLists [
-        (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin)
-        (lib.optional cfg.prebuildHostShell (self.lib.sops.mkHostShell {
-          inherit pkgs;
-          keyFile = config.sops.age.keyFile;
-        }))
-      ];
+          # Type
+
+          ```
+          mkHostShell :: { pkgs, keyFile ? Path } -> Derivation
+          ```
+
+          # Examples
+
+          ```nix
+          self.lib.sops.mkHostShell { inherit pkgs; }
+          ```
+        '';
+        value = {
+          pkgs,
+          keyFile ? defaultAgeKeyFile,
+        }:
+          pkgs.mkShell {
+            packages = [pkgs.age pkgs.sops];
+            meta.description = "Host-level development shell configured to decrypt local host SOPS secrets.";
+            shellHook = let
+              keyFileArg = pkgs.lib.escapeShellArg keyFile;
+            in ''
+              SOPS_AGE_KEY="$(${pkgs.coreutils}/bin/cat ${keyFileArg} 2>/dev/null ||
+                { command -v sudo >/dev/null 2>&1 && sudo ${pkgs.coreutils}/bin/cat ${keyFileArg}; } ||
+                { printf 'Unable to read the SOPS age key file: %s\n' ${keyFileArg} >&2; exit 1; }
+              )" || exit 1
+              export SOPS_AGE_KEY
+            '';
+          };
+      };
+    };
+    module = {
+      config,
+      lib,
+      pkgs,
+      ...
+    }: let
+      cfg = config.sops;
+    in {
+      imports = [inputs.sops-nix.nixosModules.sops];
+
+      options.sops.prebuildAdminShell = lib.mkEnableOption "prebuilding the SOPS admin development shell" // {default = true;};
+      options.sops.prebuildHostShell = lib.mkEnableOption "prebuilding the SOPS host development shell" // {default = true;};
+
+      config = lib.mkIf (config.secrets.enable or false) {
+        sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
+        sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
+
+        sops.secrets =
+          lib.mapAttrs (_: s: {
+            sopsFile =
+              if s.file != null
+              then s.file
+              else config.sops.defaultSopsFile;
+            inherit (s) key owner group mode neededForUsers;
+          })
+          config.secrets.files;
+
+        system.extraDependencies = lib.concatLists [
+          (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin)
+          (lib.optional cfg.prebuildHostShell (self.lib.sops.mkHostShell {
+            inherit pkgs;
+            keyFile = config.sops.age.keyFile;
+          }))
+        ];
+      };
     };
   };
 
@@ -51,6 +102,7 @@ in {
       inherit pkgs;
       bw = self'.packages.bw;
       packages = [pkgs.age pkgs.sops];
+      meta.description = "Administrative secret editing shell with Bitwarden-authenticated master SOPS age key.";
       shellHook = self.lib.bitwarden.mkValue {
         itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";
         variable = "SOPS_AGE_KEY";
@@ -60,38 +112,4 @@ in {
 
     devShells.sops-host = self.lib.sops.mkHostShell {inherit pkgs;};
   };
-
-  /**
-  Constructs a developer shell configured to decrypt host SOPS secrets with the host's age key.
-
-  # Inputs
-
-  `pkgs`
-  : Nixpkgs package set.
-
-  `keyFile`
-  : Path to the age private key file on the host (default: `/persist/sops-nix/key.txt`).
-
-  # Type
-
-  ```
-  mkHostShell :: { pkgs, keyFile ? Path } -> Derivation
-  ```
-  */
-  flake.lib.sops.mkHostShell = {
-    pkgs,
-    keyFile ? defaultAgeKeyFile,
-  }:
-    pkgs.mkShell {
-      packages = [pkgs.age pkgs.sops];
-      shellHook = let
-        keyFileArg = pkgs.lib.escapeShellArg keyFile;
-      in ''
-        SOPS_AGE_KEY="$(${pkgs.coreutils}/bin/cat ${keyFileArg} 2>/dev/null ||
-          { command -v sudo >/dev/null 2>&1 && sudo ${pkgs.coreutils}/bin/cat ${keyFileArg}; } ||
-          { printf 'Unable to read the SOPS age key file: %s\n' ${keyFileArg} >&2; exit 1; }
-        )" || exit 1
-        export SOPS_AGE_KEY
-      '';
-    };
 }

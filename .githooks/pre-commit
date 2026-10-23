@@ -1,13 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Regenerate architecture diagram in README.md
-if command -v nix >/dev/null 2>&1; then
-  echo "Regenerating architecture diagram in README.md..."
-  nix run .#diagrams -- --readme
-
-  if ! git diff --quiet README.md; then
-    git add README.md
-    echo "README.md architecture diagram updated and staged."
-  fi
+if ! command -v nix >/dev/null 2>&1; then
+  exit 0
 fi
+
+echo "==> [pre-commit] Formatting Nix files with nix fmt..."
+nix fmt .
+
+# Stage any modified Nix files if changes are present
+if git diff --name-only | grep -q '\.nix$'; then
+  git add -u '*.nix'
+  echo "==> [pre-commit] Formatted Nix files staged."
+fi
+
+echo "==> [pre-commit] Synchronizing documentation suite..."
+nix run .#docs -- --write
+
+# Stage updated README.md and docs/ files if changes are present
+if ! git diff --quiet README.md docs/; then
+  git add README.md docs/
+  echo "==> [pre-commit] Documentation suite updated and staged."
+fi
+
+echo "==> [pre-commit] Validating documentation compliance (--strict)..."
+nix run .#docs -- --check --strict
+
+echo "==> [pre-commit] Validating Nix flake checks..."
+nix flake check
+
+echo "==> [pre-commit] All pre-commit checks passed successfully!"

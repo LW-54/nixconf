@@ -13,7 +13,7 @@
     options = {
       upstream = lib.mkOption {
         type = lib.types.str;
-        example = "127.0.0.1:8222";
+        example = "127.0.0.1:8080";
         description = ''
           Target upstream socket, host, or IP address and port where the service
           is listening and accepting proxied HTTP/WebSocket connections.
@@ -41,7 +41,9 @@
     };
   };
 in {
-  mkContract.reverse-proxy = {
+  contract.reverse-proxy = {
+    description = "Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.";
+
     options = {
       enable = lib.mkEnableOption "system reverse proxy contract" // {default = true;};
 
@@ -58,6 +60,11 @@ in {
       hosts = lib.mkOption {
         type = lib.types.attrsOf hostSubmodule;
         default = {};
+        example = {
+          "vault.example.com" = {
+            upstream = "127.0.0.1:8222";
+          };
+        };
         description = ''
           Attribute set of virtual host fully-qualified domain names (FQDN)
           mapped to upstream backend endpoints and proxy policies.

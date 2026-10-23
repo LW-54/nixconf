@@ -1,5 +1,12 @@
 {lib, ...}: let
-  # Predefined profile archetypes
+  /**
+  Predefined systemd cgroup resource allocation profile archetypes (critical, standard, background, batch).
+
+  # Type
+  ```
+  profiles :: AttrSet
+  ```
+  */
   profiles = {
     critical = {
       slice = "production";
@@ -52,7 +59,14 @@
     };
   };
 
-  # Default slice pool configurations
+  /**
+  Default systemd slice hierarchy configurations and resource budget definitions.
+
+  # Type
+  ```
+  defaultSlices :: AttrSet
+  ```
+  */
   defaultSlices = {
     system = {
       description = "Core system services and emergency administrative access";
@@ -378,7 +392,9 @@
     };
   });
 in {
-  mkContract.resources = {
+  contract.resources = {
+    description = "System resource limits, cgroup slices, memory/CPU quotas, and power-aware throttling.";
+
     options = {
       enable = lib.mkEnableOption "system resource allocation contract" // {default = true;};
 
@@ -396,6 +412,11 @@ in {
       slices = lib.mkOption {
         type = lib.types.attrsOf sliceSubmodule;
         default = {};
+        example = {
+          services = {
+            cpu.weight = 100;
+          };
+        };
         description = ''
           Attribute set of hierarchical systemd slice definitions mapping directly
           to Linux cgroups v2 resource controllers (CPU, memory, IO, and task counts).
@@ -405,6 +426,11 @@ in {
       services = lib.mkOption {
         type = lib.types.attrsOf serviceSubmodule;
         default = {};
+        example = {
+          vaultwarden = {
+            profile = "standard";
+          };
+        };
         description = ''
           Attribute set of per-service resource policies and constraints
           mapped directly to individual systemd service unit configurations.
@@ -545,8 +571,30 @@ in {
       inherit byteSize cgroupWeight;
     };
 
-    extraLib = {
-      inherit profiles defaultSlices;
+    lib = {
+      profiles = {
+        docstring = ''
+          Predefined systemd cgroup resource allocation profile archetypes (critical, standard, background, batch).
+
+          # Type
+          ```
+          profiles :: AttrSet
+          ```
+        '';
+        value = profiles;
+      };
+
+      defaultSlices = {
+        docstring = ''
+          Default systemd slice hierarchy configurations and resource budget definitions.
+
+          # Type
+          ```
+          defaultSlices :: AttrSet
+          ```
+        '';
+        value = defaultSlices;
+      };
     };
   };
 }

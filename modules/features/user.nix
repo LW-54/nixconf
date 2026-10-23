@@ -1,55 +1,85 @@
-{lib, ...}: {
-  flake.lib.user = {
-    /**
-    Filters `config.users.users` down to normal human user accounts (`isNormalUser = true`).
+{lib, ...}: let
+  normalUsers = config: lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users;
+  normalUserNames = config: builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+  forNormalUsers = config: f:
+    lib.mapAttrs (userName: user: f userName user) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+in {
+  feature.user = {
+    description = "Normal user account helper functions and querying utilities.";
+    lib = {
+      normalUsers = {
+        docstring = ''
+          Filters `config.users.users` down to normal human user accounts (`isNormalUser = true`).
 
-    # Inputs
+          # Inputs
 
-    `config`
-    : Evaluated NixOS system configuration.
+          `config`
+          : Evaluated NixOS system configuration.
 
-    # Type
+          # Type
 
-    ```
-    normalUsers :: Config -> AttrSet
-    ```
-    */
-    normalUsers = config: lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users;
+          ```
+          normalUsers :: Config -> AttrSet
+          ```
 
-    /**
-    Returns list of usernames for all normal users on the system.
+          # Examples
+          ```nix
+          normalUsers config
+          ```
+        '';
+        value = normalUsers;
+      };
 
-    # Inputs
+      normalUserNames = {
+        docstring = ''
+          Returns list of usernames for all normal users on the system.
 
-    `config`
-    : Evaluated NixOS system configuration.
+          # Inputs
 
-    # Type
+          `config`
+          : Evaluated NixOS system configuration.
 
-    ```
-    normalUserNames :: Config -> [String]
-    ```
-    */
-    normalUserNames = config: builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          # Type
 
-    /**
-    Maps an attribute set generation function across all normal users.
+          ```
+          normalUserNames :: Config -> [String]
+          ```
 
-    # Inputs
+          # Examples
+          ```nix
+          normalUserNames config
+          ```
+        '';
+        value = normalUserNames;
+      };
 
-    `config`
-    : Evaluated NixOS system configuration.
+      forNormalUsers = {
+        docstring = ''
+          Maps an attribute set generation function across all normal users.
 
-    `f`
-    : Function `(userName -> userAttrs -> AttrSet)`.
+          # Inputs
 
-    # Type
+          `config`
+          : Evaluated NixOS system configuration.
 
-    ```
-    forNormalUsers :: Config -> (String -> AttrSet -> AttrSet) -> AttrSet
-    ```
-    */
-    forNormalUsers = config: f:
-      lib.mapAttrs (userName: user: f userName user) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          `f`
+          : Function `(userName -> userAttrs -> AttrSet)`.
+
+          # Type
+
+          ```
+          forNormalUsers :: Config -> (String -> AttrSet -> AttrSet) -> AttrSet
+          ```
+
+          # Examples
+          ```nix
+          forNormalUsers config (userName: user: {
+            data.directories = [".config/example"];
+          })
+          ```
+        '';
+        value = forNormalUsers;
+      };
+    };
   };
 }

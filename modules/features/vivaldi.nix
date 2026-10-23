@@ -1,26 +1,31 @@
 {...}: {
-  flake.nixosModules.vivaldi = {
-    config,
-    lib,
-    pkgs,
-    ...
-  }: let
-    cfg = config.vivaldi;
-  in {
-    options.vivaldi.enable = lib.mkEnableOption "Vivaldi Browser" // {default = true;};
+  feature.vivaldi = {
+    description = "Vivaldi web browser with Widevine and proprietary media codecs.";
+    modules = {
+      vivaldi = {
+        config,
+        lib,
+        pkgs,
+        ...
+      }: let
+        cfg = config.vivaldi;
+      in {
+        options.vivaldi.enable = lib.mkEnableOption "Vivaldi Browser" // {default = true;};
 
-    config = lib.mkIf cfg.enable {
-      environment.systemPackages = [
-        (pkgs.vivaldi.override {
-          proprietaryCodecs = true;
-          enableWidevine = true;
-        })
-      ];
+        config = lib.mkIf cfg.enable {
+          environment.systemPackages = [
+            (pkgs.vivaldi.override {
+              proprietaryCodecs = true;
+              enableWidevine = true;
+            })
+          ];
 
-      persistence.users = lib.mapAttrs (_: _: {
-        data.directories = [".config/vivaldi"];
-        cache.directories = [".cache/vivaldi"];
-      }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          persistence.users = lib.mapAttrs (_: _: {
+            data.directories = [".config/vivaldi"];
+            cache.directories = [".cache/vivaldi"];
+          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+        };
+      };
     };
   };
 }

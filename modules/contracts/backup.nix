@@ -1,11 +1,14 @@
 {lib, ...}: {
-  mkContract.backup = {
+  contract.backup = {
+    description = "Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules.";
+
     options = {
       enable = lib.mkEnableOption "system backup automation contract" // {default = true;};
 
       paths = lib.mkOption {
         type = lib.types.listOf lib.types.path;
         default = [];
+        example = ["/var/lib/example-service"];
         description = ''
           List of absolute filesystem directory or file paths to include in the backup snapshot.
           Aggregated across all active service modules via `mkConfig`.
@@ -15,6 +18,7 @@
       exclude = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [];
+        example = ["**/.cache"];
         description = ''
           List of glob patterns, file paths, or directories to explicitly exclude
           from backup snapshots (e.g. cache directories, transient sockets).
@@ -47,16 +51,39 @@
       };
     };
 
-    extraLib = {
+    lib = {
       defaultTimerConfig = {
-        OnCalendar = "04:00";
-        Persistent = true;
+        docstring = ''
+          Default systemd timer configuration for automated backup operations.
+          Executes daily at 04:00 with persistent timer catch-up.
+
+          # Type
+          ```
+          defaultTimerConfig :: AttrSet
+          ```
+        '';
+        value = {
+          OnCalendar = "04:00";
+          Persistent = true;
+        };
       };
-      defaultPruneOpts = [
-        "--keep-daily 7"
-        "--keep-weekly 4"
-        "--keep-monthly 12"
-      ];
+
+      defaultPruneOpts = {
+        docstring = ''
+          Default snapshot retention rules passed to the restic prune command.
+          Preserves 7 daily, 4 weekly, and 12 monthly snapshots.
+
+          # Type
+          ```
+          defaultPruneOpts :: [String]
+          ```
+        '';
+        value = [
+          "--keep-daily 7"
+          "--keep-weekly 4"
+          "--keep-monthly 12"
+        ];
+      };
     };
   };
 }
