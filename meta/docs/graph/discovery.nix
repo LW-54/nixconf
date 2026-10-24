@@ -31,12 +31,17 @@
     then (builtins.head matches).i
     else 1;
 
-  resolveFeatureRelativePath = name:
-    if name == "wifi-eduroam"
+  resolveFeatureRelativePath = name: let
+    repoRoot = ./../../../.;
+    directRel = "modules/features/${name}.nix";
+  in
+    if builtins.pathExists (repoRoot + "/${directRel}")
+    then directRel
+    else if name == "wifi-eduroam" && builtins.pathExists (repoRoot + "/modules/features/wifi.nix")
     then "modules/features/wifi.nix"
-    else if name == "vscode"
+    else if name == "vscode" && builtins.pathExists (repoRoot + "/modules/features/vcode.nix")
     then "modules/features/vcode.nix"
-    else "modules/features/${name}.nix";
+    else directRel;
 
   # Extract Disko ASCII tree dynamically from evaluated host configuration
   generateDiskTree = hostConfig: let

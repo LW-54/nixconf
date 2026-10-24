@@ -22,6 +22,11 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__default_user(["default-user"]):::contractNode
+        contract__home(["home"]):::contractNode
+        contract__persistence(["persistence"]):::contractNode
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__secrets(["secrets"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
@@ -39,6 +44,7 @@ flowchart TD
         feature__antigravity["antigravity"]:::featureNode
         feature__audio["audio"]:::featureNode
         feature__bitwarden["bitwarden"]:::featureNode
+        feature__cosmic["cosmic"]:::featureNode
         feature__cursor["cursor"]:::featureNode
         feature__direnv["direnv"]:::featureNode
         feature__disko["disko"]:::featureNode
@@ -47,6 +53,7 @@ flowchart TD
         feature__foot["foot"]:::featureNode
         feature__git["git"]:::featureNode
         feature__greetd["greetd"]:::featureNode
+        feature__helium["helium"]:::featureNode
         feature__labwc["labwc"]:::featureNode
         feature__locale["locale"]:::featureNode
         feature__nix["nix"]:::featureNode
@@ -60,6 +67,14 @@ flowchart TD
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
     end
 
+    subgraph Libraries["Libraries"]
+        lib__default_user(["lib: default-user"]):::libNode
+        lib__home(["lib: home"]):::libNode
+        lib__lw(["lib: lw"]):::libNode
+        lib__persistence(["lib: persistence"]):::libNode
+        lib__secrets(["lib: secrets"]):::libNode
+    end
+
     subgraph ContractOptions["Contract Options"]
         opt__default_user_email[/"default-user.email: string"/]:::optNode
         opt__default_user_enable[/"default-user.enable: boolean"/]:::optNode
@@ -67,6 +82,33 @@ flowchart TD
         opt__default_user_githubUsername[/"default-user.githubUsername: string"/]:::optNode
         opt__default_user_modules[/"default-user.modules: list of module"/]:::optNode
         opt__default_user_username[/"default-user.username: string"/]:::optNode
+        opt__home_enable[/"home.enable: boolean"/]:::optNode
+        opt__home_shared[/"home.shared: submodule"/]:::optNode
+        opt__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
+        opt__persistence_directories[/"persistence.directories: list of (string or attribute set of anything)"/]:::optNode
+        opt__persistence_enable[/"persistence.enable: boolean"/]:::optNode
+        opt__persistence_files[/"persistence.files: list of (string or attribute set of anything)"/]:::optNode
+        opt__persistence_users[/"persistence.users: attribute set of (submodule)"/]:::optNode
+        opt__secrets_defaultFile[/"secrets.defaultFile: null or absolute path"/]:::optNode
+        opt__secrets_enable[/"secrets.enable: boolean"/]:::optNode
+        opt__secrets_files[/"secrets.files: attribute set of (submodule)"/]:::optNode
+    end
+
+    subgraph ContractTypes["Contract Types"]
+        type__home_file{{"home.file"}}:::typeNode
+        type__home_files{{"home.files"}}:::typeNode
+        type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
+        type__home_userHome{{"home.userHome"}}:::typeNode
+        type__home_xdg{{"home.xdg"}}:::typeNode
+        type__persistence_entries{{"persistence.entries"}}:::typeNode
+        type__persistence_user{{"persistence.user"}}:::typeNode
+        type__secrets_secret{{"secrets.secret"}}:::typeNode
+    end
+
+    subgraph OtherNodes["Other Entities"]
+        fn__lw_email["lw.email"]
+        fn__lw_githubUsername["lw.githubUsername"]
+        fn__lw_username["lw.username"]
     end
 
 
@@ -109,13 +151,81 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
+    impl__caddy -.->|"implements"| contract__reverse_proxy
+    impl__hjem -.->|"implements"| contract__home
+    impl__impermanence -.->|"implements"| contract__persistence
     impl__lw -.->|"implements"| contract__default_user
+    impl__sops -.->|"implements"| contract__secrets
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
+    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
+    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
+    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
+    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
+    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
+    feature__foot -->|"consumes (persistence.users)"| contract__persistence
+    feature__git -->|"consumes"| contract__default_user
+    feature__git -->|"consumes (home.users, home.shared)"| contract__home
+    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
+    feature__helium -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
+    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
+    feature__nix -->|"consumes (secrets.files)"| contract__secrets
+    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
+    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
+    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
+    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
+    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
+    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
+    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
+    impl__hjem -->|"consumes (home.enable)"| contract__home
+    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (home.users)"| contract__home
+    impl__lw -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
+    impl__restic -->|"consumes (secrets.files)"| contract__secrets
+    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__default_user -.->|"provides"| lib__default_user
+    contract__home -.->|"provides"| lib__home
+    contract__persistence -.->|"provides"| lib__persistence
+    contract__secrets -.->|"provides"| lib__secrets
+    impl__lw -.->|"provides"| lib__lw
     contract__default_user --- opt__default_user_email
     contract__default_user --- opt__default_user_enable
     contract__default_user --- opt__default_user_fullName
     contract__default_user --- opt__default_user_githubUsername
     contract__default_user --- opt__default_user_modules
     contract__default_user --- opt__default_user_username
+    contract__home --- opt__home_enable
+    contract__home --- opt__home_shared
+    contract__home --- opt__home_users
+    contract__persistence --- opt__persistence_directories
+    contract__persistence --- opt__persistence_enable
+    contract__persistence --- opt__persistence_files
+    contract__persistence --- opt__persistence_users
+    contract__secrets --- opt__secrets_defaultFile
+    contract__secrets --- opt__secrets_enable
+    contract__secrets --- opt__secrets_files
+    contract__home --- type__home_file
+    contract__home --- type__home_files
+    contract__home --- type__home_relativeHomePath
+    contract__home --- type__home_userHome
+    contract__home --- type__home_xdg
+    contract__persistence --- type__persistence_entries
+    contract__persistence --- type__persistence_user
+    contract__secrets --- type__secrets_secret
+    lib__lw -->|"exports"| fn__lw_email
+    lib__lw -->|"exports"| fn__lw_githubUsername
+    lib__lw -->|"exports"| fn__lw_username
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -167,4 +277,55 @@ Hosts enabling this provider to fulfill the [`default-user`](../contracts/defaul
 
 Capability contracts configured by this implementation:
 
-*No external contracts consumed by this implementation.*
+<details>
+<summary><code><a href="../contracts/home.md">home</a></code></summary>
+
+Configures options: `home.users`
+
+```nix
+home.users.${cfg.username} = {};
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
+
+Configures options: `persistence.users`
+
+```nix
+persistence.users.${cfg.username} = {
+  data.directories = [
+    "nixconf"
+    "Documents"
+    "Downloads"
+    "Projects"
+    ".ssh"
+    ".gnupg"
+  ];
+};
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
+
+Configures options: `secrets.files.default-user-password-hash`, `secrets.files`
+
+```nix
+secrets.files.default-user-password-hash = {
+  file = ../../secrets/users/default.yaml;
+  key = "passwordHash";
+  neededForUsers = true;
+};
+
+hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+
+hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+```
+
+</details>
+

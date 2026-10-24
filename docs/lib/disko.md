@@ -42,7 +42,7 @@ When consuming this flake as an input in another `flake.nix`:
 <a id="mkLayout"></a>
 ### `mkLayout`
 
-Constructs a standard Disko disk configuration with EFI system partition, BIOS boot partition, and Btrfs subvolumes (@, @nix, @persist, @swap).
+Constructs a standard Disko disk configuration with EFI system partition, BIOS boot partition, LVM volume group, Btrfs subvolumes, and ephemeral tmpfs root.
 
 
 

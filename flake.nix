@@ -44,10 +44,8 @@ mini live usb host (inspired by sonic)
 sops public secrets provisioning
 non conflicting ports provisioning
 LSP support
+.sops.yaml in secrets
 
-Flake Schemas
-expose options.flake. ...
-declare relationships
 hard coded docs
 docs docs docs pass
 lib in diagrams

@@ -18,8 +18,21 @@ flowchart TD
         feature__user["user"]:::featureNode
     end
 
+    subgraph Libraries["Libraries"]
+        lib__user(["lib: user"]):::libNode
+    end
+
+    subgraph Functions["Library Functions"]
+        fn__user_forNormalUsers(["user.forNormalUsers"]):::fnNode
+        fn__user_normalUserNames(["user.normalUserNames"]):::fnNode
+        fn__user_normalUsers(["user.normalUsers"]):::fnNode
+    end
 
 
+    feature__user -.->|"provides"| lib__user
+    lib__user -->|"exports"| fn__user_forNormalUsers
+    lib__user -->|"exports"| fn__user_normalUserNames
+    lib__user -->|"exports"| fn__user_normalUsers
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;

@@ -83,7 +83,7 @@
   }: let
     # 1. Dynamic scan on Host configurations
     hostConsumes = lib.concatMap (hName: let
-      hostFile = ./../../../hosts/${hName}.nix;
+      hostFile = ./../../../modules/hosts/${hName}.nix;
       hostContent =
         if builtins.pathExists hostFile
         then builtins.readFile hostFile
@@ -97,12 +97,8 @@
 
     # 2. Dynamic scan on Feature modules
     featConsumes = lib.concatMap (fName: let
-      fAbs =
-        if fName == "wifi-eduroam"
-        then ./../../../features/wifi.nix
-        else if fName == "vscode"
-        then ./../../../features/vcode.nix
-        else ./../../../features/${fName}.nix;
+      fRel = discovery.resolveFeatureRelativePath fName;
+      fAbs = ./../../../. + "/${fRel}";
       fContent =
         if builtins.pathExists fAbs
         then builtins.readFile fAbs
@@ -116,7 +112,7 @@
 
     # 3. Dynamic scan on Implementation providers
     implConsumes = lib.concatMap (iName: let
-      iAbs = ./../../../implementations/${iName}.nix;
+      iAbs = ./../../../modules/implementations/${iName}.nix;
       iContent =
         if builtins.pathExists iAbs
         then builtins.readFile iAbs
@@ -145,12 +141,37 @@
       };
     })
     allRaw;
+
+  /**
+  Builds PROVIDES edges from primitives (contracts, implementations, features) to exported library nodes.
+  */
+  buildProvidesEdges = {
+    contracts,
+    implementations,
+    features,
+    libs,
+  }: let
+    libNames = builtins.attrNames libs;
+    mkEdge = srcKind: name: {
+      id = "${srcKind}-${name}-provides-lib-${name}";
+      source = "${srcKind}:${name}";
+      target = "lib:${name}";
+      kind = "PROVIDES";
+      properties = {};
+    };
+
+    contractProvides = map (mkEdge "contract") (lib.filter (c: (contracts.${c}.lib or {}) != {} || (contracts.${c}.types or {}) != {} || (contracts.${c}.mkOption or null) != null) (lib.intersectLists libNames (builtins.attrNames contracts)));
+    implProvides = map (mkEdge "impl") (lib.filter (i: (implementations.${i}.lib or {}) != {}) (lib.intersectLists libNames (builtins.attrNames implementations)));
+    featProvides = map (mkEdge "feature") (lib.filter (f: (features.${f}.lib or {}) != {}) (lib.intersectLists libNames (builtins.attrNames features)));
+  in
+    contractProvides ++ implProvides ++ featProvides;
 in {
   internal.docs.graph.edges = {
     inherit
       buildImportEdges
       buildImplementsEdges
       buildConsumesEdges
+      buildProvidesEdges
       ;
   };
 }

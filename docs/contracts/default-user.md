@@ -21,10 +21,23 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__default_user(["default-user"]):::contractNode
+        contract__home(["home"]):::contractNode
+        contract__persistence(["persistence"]):::contractNode
+        contract__secrets(["secrets"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
         impl__lw["lw"]:::implNode
+    end
+
+    subgraph Features["Features"]
+        feature__git["git"]:::featureNode
+        feature__ssh["ssh"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__default_user(["lib: default-user"]):::libNode
+        lib__lw(["lib: lw"]):::libNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -36,16 +49,39 @@ flowchart TD
         opt__default_user_username[/"default-user.username: string"/]:::optNode
     end
 
+    subgraph Functions["Library Functions"]
+        fn__default_user_forDefaultUser(["default-user.forDefaultUser"]):::fnNode
+        fn__default_user_mkConfig(["default-user.mkConfig"]):::fnNode
+        fn__default_user_mkOption(["default-user.mkOption"]):::fnNode
+    end
+
 
     host__astrolabe -->|"imports"| impl__lw
+    host__astrolabe -->|"imports"| feature__git
+    host__astrolabe -->|"imports"| feature__ssh
     host__x240 -->|"imports"| impl__lw
+    host__x240 -->|"imports"| feature__git
+    host__x240 -->|"imports"| feature__ssh
     impl__lw -.->|"implements"| contract__default_user
+    feature__git -->|"consumes"| contract__default_user
+    feature__git -->|"consumes (home.users, home.shared)"| contract__home
+    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
+    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
+    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
+    impl__lw -->|"consumes (home.users)"| contract__home
+    impl__lw -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
+    contract__default_user -.->|"provides"| lib__default_user
+    impl__lw -.->|"provides"| lib__lw
     contract__default_user --- opt__default_user_email
     contract__default_user --- opt__default_user_enable
     contract__default_user --- opt__default_user_fullName
     contract__default_user --- opt__default_user_githubUsername
     contract__default_user --- opt__default_user_modules
     contract__default_user --- opt__default_user_username
+    lib__default_user -->|"exports"| fn__default_user_forDefaultUser
+    lib__default_user -->|"exports"| fn__default_user_mkConfig
+    lib__default_user -->|"exports"| fn__default_user_mkOption
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -110,4 +146,31 @@ Modules configuring options under the `default-user` contract capability:
 
 ### Features
 
-*No features configure this contract.*
+<details>
+<summary><code><a href="../features/git.md">git</a></code></summary>
+
+Configures options: `default-user.email`, `default-user.enable`, `default-user.githubUsername`, `default-user.username`
+
+```nix
+git.users = lib.mkIf (config.default-user.enable or false) {
+  ${config.default-user.username}.settings.user = {
+    name = config.default-user.githubUsername;
+    email = config.default-user.email;
+  };
+};
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/ssh.md">ssh</a></code></summary>
+
+Configures options: `default-user.enable`, `default-user.username`
+
+```nix
+default = ["root"] ++ lib.optional (config.default-user.enable or false) config.default-user.username;
+```
+
+</details>
+

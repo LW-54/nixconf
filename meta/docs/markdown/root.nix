@@ -18,7 +18,7 @@
 
     topologyMermaid = mermaidLib.renderMermaid (graphLib.filterGraph {
         nodeFilter = n: builtins.elem n.kind ["host" "contract" "impl" "feature" "lib"];
-        edgeFilter = e: builtins.elem e.kind ["IMPORTS" "IMPLEMENTS" "CONSUMES" "EXPORTS"];
+        edgeFilter = e: builtins.elem e.kind ["IMPORTS" "IMPLEMENTS" "CONSUMES" "EXPORTS" "PROVIDES"];
       }
       graph);
 

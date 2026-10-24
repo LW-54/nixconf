@@ -22,6 +22,8 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__persistence(["persistence"]):::contractNode
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
@@ -39,6 +41,7 @@ flowchart TD
         feature__antigravity["antigravity"]:::featureNode
         feature__audio["audio"]:::featureNode
         feature__bitwarden["bitwarden"]:::featureNode
+        feature__cosmic["cosmic"]:::featureNode
         feature__cursor["cursor"]:::featureNode
         feature__direnv["direnv"]:::featureNode
         feature__disko["disko"]:::featureNode
@@ -47,6 +50,7 @@ flowchart TD
         feature__foot["foot"]:::featureNode
         feature__git["git"]:::featureNode
         feature__greetd["greetd"]:::featureNode
+        feature__helium["helium"]:::featureNode
         feature__labwc["labwc"]:::featureNode
         feature__locale["locale"]:::featureNode
         feature__nix["nix"]:::featureNode
@@ -58,6 +62,10 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__persistence(["lib: persistence"]):::libNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -112,7 +120,32 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
+    impl__caddy -.->|"implements"| contract__reverse_proxy
     impl__impermanence -.->|"implements"| contract__persistence
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
+    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
+    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
+    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
+    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
+    feature__foot -->|"consumes (persistence.users)"| contract__persistence
+    feature__helium -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
+    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
+    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
+    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
+    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (persistence.users)"| contract__persistence
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__persistence -.->|"provides"| lib__persistence
     contract__persistence --- opt__persistence_directories
     contract__persistence --- opt__persistence_enable
     contract__persistence --- opt__persistence_files
@@ -165,4 +198,14 @@ Hosts enabling this provider to fulfill the [`persistence`](../contracts/persist
 
 Capability contracts configured by this implementation:
 
-*No external contracts consumed by this implementation.*
+<details>
+<summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
+
+Configures options: `persistence.users`
+
+```nix
+message = "persistence.users.${userName} entries must be relative paths (or impermanence attribute sets), because they are mapped to /home/${userName}.";
+```
+
+</details>
+

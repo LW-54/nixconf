@@ -20,10 +20,22 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__backup(["backup"]):::contractNode
+        contract__persistence(["persistence"]):::contractNode
+        contract__resources(["resources"]):::contractNode
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__secrets(["secrets"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
         impl__restic["restic"]:::implNode
+    end
+
+    subgraph Features["Features"]
+        feature__vaultwarden["vaultwarden"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__backup(["lib: backup"]):::libNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -34,14 +46,37 @@ flowchart TD
         opt__backup_timerConfig[/"backup.timerConfig: attribute set of anything"/]:::optNode
     end
 
+    subgraph Functions["Library Functions"]
+        fn__backup_mkConfig(["backup.mkConfig"]):::fnNode
+        fn__backup_mkOption(["backup.mkOption"]):::fnNode
+    end
+
+    subgraph OtherNodes["Other Entities"]
+        fn__backup_defaultPruneOpts["backup.defaultPruneOpts"]
+        fn__backup_defaultTimerConfig["backup.defaultTimerConfig"]
+    end
+
 
     host__astrolabe -->|"imports"| impl__restic
+    host__astrolabe -->|"imports"| feature__vaultwarden
     impl__restic -.->|"implements"| contract__backup
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
+    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
+    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
+    impl__restic -->|"consumes (secrets.files)"| contract__secrets
+    contract__backup -.->|"provides"| lib__backup
     contract__backup --- opt__backup_enable
     contract__backup --- opt__backup_exclude
     contract__backup --- opt__backup_paths
     contract__backup --- opt__backup_pruneOpts
     contract__backup --- opt__backup_timerConfig
+    lib__backup -->|"exports"| fn__backup_defaultPruneOpts
+    lib__backup -->|"exports"| fn__backup_defaultTimerConfig
+    lib__backup -->|"exports"| fn__backup_mkConfig
+    lib__backup -->|"exports"| fn__backup_mkOption
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -106,4 +141,18 @@ Modules configuring options under the `backup` contract capability:
 
 ### Features
 
-*No features configure this contract.*
+<details>
+<summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
+
+Configures options: `backup.enable`
+
+```nix
+// self.lib.backup.mkOption {
+  paths = ["/var/lib/vaultwarden"];
+};
+
+(self.lib.backup.mkConfig {inherit config cfg;})
+```
+
+</details>
+

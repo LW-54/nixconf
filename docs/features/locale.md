@@ -19,6 +19,12 @@ flowchart TD
         host__x240["x240"]:::hostNode
     end
 
+    subgraph Contracts["Contracts"]
+        contract__home(["home"]):::contractNode
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
+    end
+
     subgraph Implementations["Implementations"]
         impl__caddy["caddy"]:::implNode
         impl__cgroups["cgroups"]:::implNode
@@ -42,6 +48,7 @@ flowchart TD
         feature__foot["foot"]:::featureNode
         feature__git["git"]:::featureNode
         feature__greetd["greetd"]:::featureNode
+        feature__helium["helium"]:::featureNode
         feature__labwc["labwc"]:::featureNode
         feature__locale["locale"]:::featureNode
         feature__nix["nix"]:::featureNode
@@ -53,6 +60,24 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__home(["lib: home"]):::libNode
+    end
+
+    subgraph ContractOptions["Contract Options"]
+        opt__home_enable[/"home.enable: boolean"/]:::optNode
+        opt__home_shared[/"home.shared: submodule"/]:::optNode
+        opt__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
+    end
+
+    subgraph ContractTypes["Contract Types"]
+        type__home_file{{"home.file"}}:::typeNode
+        type__home_files{{"home.files"}}:::typeNode
+        type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
+        type__home_userHome{{"home.userHome"}}:::typeNode
+        type__home_xdg{{"home.xdg"}}:::typeNode
     end
 
 
@@ -95,6 +120,31 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
+    impl__caddy -.->|"implements"| contract__reverse_proxy
+    impl__hjem -.->|"implements"| contract__home
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
+    feature__git -->|"consumes (home.users, home.shared)"| contract__home
+    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
+    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    impl__hjem -->|"consumes (home.enable)"| contract__home
+    impl__lw -->|"consumes (home.users)"| contract__home
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__home -.->|"provides"| lib__home
+    contract__home --- opt__home_enable
+    contract__home --- opt__home_shared
+    contract__home --- opt__home_users
+    contract__home --- type__home_file
+    contract__home --- type__home_files
+    contract__home --- type__home_relativeHomePath
+    contract__home --- type__home_userHome
+    contract__home --- type__home_xdg
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -137,4 +187,17 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 Capability contracts configured by this feature:
 
-*No contracts consumed by this feature.*
+<details>
+<summary><code><a href="../contracts/home.md">home</a></code></summary>
+
+Configures options: `home.shared.sessionVariables`, `home.shared`
+
+```nix
+home.shared.sessionVariables =
+  {
+    LANG = cfg.defaultLocale;
+  }
+```
+
+</details>
+

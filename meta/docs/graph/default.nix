@@ -353,6 +353,10 @@
       inherit hosts features implementations contractNames validOptionPaths;
     };
 
+    providesEdges = edges.buildProvidesEdges {
+      inherit contracts implementations features libs;
+    };
+
     libHasSymbolEdges = lib.concatMap (
       ns: let
         l = libs.${ns};
@@ -391,11 +395,38 @@
       importEdges
       ++ implementsEdges
       ++ consumesEdges
+      ++ providesEdges
       ++ contractHasOptionEdges
       ++ contractHasTypeEdges
       ++ libHasSymbolEdges;
 
-    allTodos = symbolTodos ++ contractOptionTodos;
+    primitiveTodos =
+      (lib.concatMap (name:
+        spec.validatePrimitive {
+          kind = "host";
+          inherit name;
+          primitive = hosts.${name};
+        }) (builtins.attrNames hosts))
+      ++ (lib.concatMap (name:
+        spec.validatePrimitive {
+          kind = "contract";
+          inherit name;
+          primitive = contracts.${name};
+        }) (builtins.attrNames contracts))
+      ++ (lib.concatMap (name:
+        spec.validatePrimitive {
+          kind = "implementation";
+          inherit name;
+          primitive = implementations.${name};
+        }) (builtins.attrNames implementations))
+      ++ (lib.concatMap (name:
+        spec.validatePrimitive {
+          kind = "feature";
+          inherit name;
+          primitive = features.${name};
+        }) (builtins.attrNames features));
+
+    allTodos = symbolTodos ++ contractOptionTodos ++ primitiveTodos;
   in
     assert strict -> allTodos == []; {
       format = "LabeledPropertyGraph/v1";

@@ -4,7 +4,7 @@
   ...
 }: let
   /**
-  Constructs a standard Disko disk configuration with EFI system partition, BIOS boot partition, and Btrfs subvolumes (@, @nix, @persist, @swap).
+  Constructs a standard Disko disk configuration with EFI system partition, BIOS boot partition, LVM volume group, Btrfs subvolumes, and ephemeral tmpfs root.
 
   # Inputs
 
@@ -61,57 +61,69 @@
             type = "gpt";
             partitions =
               {
-                ESP = {
+                bios = {
+                  name = "BIOS";
+                  size = biosBootSize;
+                  type = "EF02";
+                  priority = 1;
+                };
+                esp = {
+                  name = "ESP";
                   size = espSize;
                   type = "EF00";
+                  priority = 2;
                   content = {
                     type = "filesystem";
                     format = "vfat";
                     mountpoint = "/boot";
-                    mountOptions = ["umask=0077"];
+                  };
+                };
+                root = {
+                  name = "root";
+                  size = persistSize;
+                  content = {
+                    type = "lvm_pv";
+                    vg = "system";
                   };
                 };
               }
-              // (lib.optionalAttrs (biosBootSize != null) {
-                biosBoot = {
-                  size = biosBootSize;
-                  type = "EF02";
-                };
-              })
-              // {
-                root = {
-                  size = "100%";
+              // (lib.optionalAttrs (swapSize != null) {
+                swap = {
+                  size = swapSize;
                   content = {
-                    type = "btrfs";
-                    extraArgs = ["-f"];
-                    subvolumes =
-                      {
-                        "@" = {
-                          mountpoint = "/";
-                          mountOptions = ["compress=zstd" "noatime"];
-                        };
-                        "@nix" = {
-                          mountpoint = "/nix";
-                          mountOptions = ["compress=zstd" "noatime"];
-                        };
-                        "@persist" = {
-                          mountpoint = "/persist";
-                          mountOptions = ["compress=zstd" "noatime"];
-                        };
-                      }
-                      // (lib.optionalAttrs (swapSize != null) {
-                        "@swap" = {
-                          mountpoint = "/swap";
-                          swap.swapfile.size = swapSize;
-                        };
-                      });
+                    type = "swap";
+                    resumeDevice = swapResume;
                   };
                 };
-              };
+              });
           };
         };
+        lvm_vg.system = {
+          type = "lvm_vg";
+          lvs.root = {
+            size = "100%FREE";
+            content = {
+              type = filesystem;
+              extraArgs = ["-f"];
+              subvolumes = {
+                "/root" = {};
+                "/persist" = {
+                  mountOptions = ["subvol=persist" "noatime" "compress=zstd:1"];
+                  mountpoint = "/persist";
+                };
+                "/nix" = {
+                  mountOptions = ["subvol=nix" "noatime" "compress=zstd:1"];
+                  mountpoint = "/nix";
+                };
+              };
+            };
+          };
+        };
+        nodev."/" = {
+          fsType = "tmpfs";
+          mountOptions = ["size=25%" "mode=755"];
+        };
       };
-      boot.resumeDevice = lib.mkIf swapResume "/dev/disk/by-partlabel/disk-main-root";
     };
 in {
   feature.disko = {
@@ -122,7 +134,7 @@ in {
     lib = {
       mkLayout = {
         docstring = ''
-          Constructs a standard Disko disk configuration with EFI system partition, BIOS boot partition, and Btrfs subvolumes (@, @nix, @persist, @swap).
+          Constructs a standard Disko disk configuration with EFI system partition, BIOS boot partition, LVM volume group, Btrfs subvolumes, and ephemeral tmpfs root.
 
           # Inputs
 

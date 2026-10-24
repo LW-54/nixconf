@@ -169,6 +169,62 @@ flowchart TD
     impl__restic -.->|"implements"| contract__backup
     impl__sops -.->|"implements"| contract__secrets
     impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
+    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
+    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
+    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
+    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
+    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
+    feature__foot -->|"consumes (persistence.users)"| contract__persistence
+    feature__git -->|"consumes"| contract__default_user
+    feature__git -->|"consumes (home.users, home.shared)"| contract__home
+    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
+    feature__helium -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
+    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
+    feature__nix -->|"consumes (secrets.files)"| contract__secrets
+    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
+    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
+    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
+    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
+    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
+    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
+    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
+    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
+    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
+    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
+    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
+    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
+    impl__hjem -->|"consumes (home.enable)"| contract__home
+    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (home.users)"| contract__home
+    impl__lw -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
+    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
+    impl__restic -->|"consumes (secrets.files)"| contract__secrets
+    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__backup -.->|"provides"| lib__backup
+    contract__default_user -.->|"provides"| lib__default_user
+    contract__home -.->|"provides"| lib__home
+    contract__persistence -.->|"provides"| lib__persistence
+    contract__resources -.->|"provides"| lib__resources
+    contract__reverse_proxy -.->|"provides"| lib__reverse_proxy
+    contract__secrets -.->|"provides"| lib__secrets
+    contract__wayland -.->|"provides"| lib__wayland
+    impl__lw -.->|"provides"| lib__lw
+    impl__sops -.->|"provides"| lib__sops
+    feature__bitwarden -.->|"provides"| lib__bitwarden
+    feature__disko -.->|"provides"| lib__disko
+    feature__user -.->|"provides"| lib__user
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;

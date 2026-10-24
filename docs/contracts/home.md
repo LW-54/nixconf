@@ -15,15 +15,34 @@ Declarative user home dotfile tree, XDG directory specifications, and session en
 ```mermaid
 flowchart TD
     subgraph Hosts["Hosts"]
+        host__astrolabe["astrolabe"]:::hostNode
         host__x240["x240"]:::hostNode
     end
 
     subgraph Contracts["Contracts"]
+        contract__default_user(["default-user"]):::contractNode
         contract__home(["home"]):::contractNode
+        contract__persistence(["persistence"]):::contractNode
+        contract__secrets(["secrets"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
         impl__hjem["hjem"]:::implNode
+        impl__lw["lw"]:::implNode
+    end
+
+    subgraph Features["Features"]
+        feature__foot["foot"]:::featureNode
+        feature__git["git"]:::featureNode
+        feature__helium["helium"]:::featureNode
+        feature__labwc["labwc"]:::featureNode
+        feature__locale["locale"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__home(["lib: home"]):::libNode
+        lib__lw(["lib: lw"]):::libNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -40,9 +59,40 @@ flowchart TD
         type__home_xdg{{"home.xdg"}}:::typeNode
     end
 
+    subgraph Functions["Library Functions"]
+        fn__home_mkConfig(["home.mkConfig"]):::fnNode
+        fn__home_mkOption(["home.mkOption"]):::fnNode
+    end
 
+
+    host__astrolabe -->|"imports"| impl__lw
+    host__astrolabe -->|"imports"| feature__git
+    host__astrolabe -->|"imports"| feature__locale
     host__x240 -->|"imports"| impl__hjem
+    host__x240 -->|"imports"| impl__lw
+    host__x240 -->|"imports"| feature__foot
+    host__x240 -->|"imports"| feature__git
+    host__x240 -->|"imports"| feature__labwc
+    host__x240 -->|"imports"| feature__locale
     impl__hjem -.->|"implements"| contract__home
+    impl__lw -.->|"implements"| contract__default_user
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
+    feature__foot -->|"consumes (persistence.users)"| contract__persistence
+    feature__git -->|"consumes"| contract__default_user
+    feature__git -->|"consumes (home.users, home.shared)"| contract__home
+    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
+    feature__helium -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
+    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
+    impl__hjem -->|"consumes (home.enable)"| contract__home
+    impl__lw -->|"consumes (home.users)"| contract__home
+    impl__lw -->|"consumes (persistence.users)"| contract__persistence
+    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
+    contract__home -.->|"provides"| lib__home
+    impl__lw -.->|"provides"| lib__lw
     contract__home --- opt__home_enable
     contract__home --- opt__home_shared
     contract__home --- opt__home_users
@@ -51,6 +101,8 @@ flowchart TD
     contract__home --- type__home_relativeHomePath
     contract__home --- type__home_userHome
     contract__home --- type__home_xdg
+    lib__home -->|"exports"| fn__home_mkConfig
+    lib__home -->|"exports"| fn__home_mkOption
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -115,8 +167,160 @@ Modules configuring options under the `home` contract capability:
 
 ### Implementations
 
-*No implementations configure this contract.*
+<details>
+<summary><code><a href="../implementations/hjem.md">hjem</a></code></summary>
+
+Configures options: `home.enable`
+
+```nix
+enable = home.enable;
+
+packages = homeCfg.shared.packages ++ home.packages;
+
+files = mapFiles (homeCfg.shared.files // home.files);
+
+cache.files = mapFiles (homeCfg.shared.xdg.cache // home.xdg.cache);
+
+config.files = mapFiles (homeCfg.shared.xdg.config // home.xdg.config);
+
+data.files = mapFiles (homeCfg.shared.xdg.data // home.xdg.data);
+
+state.files = mapFiles (homeCfg.shared.xdg.state // home.xdg.state);
+
+environment.sessionVariables = homeCfg.shared.sessionVariables // home.sessionVariables;
+
+systemd.services = homeCfg.shared.systemd.services // home.systemd.services;
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/lw.md">lw</a></code></summary>
+
+Configures options: `home.users`
+
+```nix
+home.users.${cfg.username} = {};
+```
+
+</details>
+
 
 ### Features
 
-*No features configure this contract.*
+<details>
+<summary><code><a href="../features/foot.md">foot</a></code></summary>
+
+Configures options: `home.shared`, `home.users`
+
+```nix
+home.shared = {
+  xdg.config."foot/foot.ini" = {
+    generator = lib.generators.toINI {};
+    value = cfg.settings;
+  };
+
+  files = lib.mkIf cfg.server.enable {
+    ".config/systemd/user/foot-server.service".source = servicePath;
+    ".config/systemd/user/foot-server.socket".source = socketPath;
+    ".config/systemd/user/graphical-session.target.wants/foot-server.socket".source = socketPath;
+  };
+};
+
+home.users = lib.mapAttrs (userName: uCfg:
+  lib.mkIf (uCfg.enable != false) {
+    xdg.config."foot/foot.ini" = {
+      generator = lib.generators.toINI {};
+      value = lib.recursiveUpdate cfg.settings uCfg.settings;
+    };
+  })
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/git.md">git</a></code></summary>
+
+Configures options: `home.users`, `home.shared`
+
+```nix
+home.shared.xdg.config."git/config" = {
+  generator = lib.generators.toINI {};
+  value = cfg.settings;
+};
+
+home.users = lib.mapAttrs (userName: uCfg:
+  lib.mkIf (uCfg.enable != false) {
+    xdg.config."git/config" = {
+      generator = lib.generators.toINI {};
+      value = lib.recursiveUpdate cfg.settings uCfg.settings;
+    };
+  })
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/helium.md">helium</a></code></summary>
+
+Configures options: `home.shared`, `home.users`
+
+```nix
+home.shared = lib.mkIf (cfg.flags != []) {
+  files = {
+    ".config/helium-browser-flags.conf".text = lib.concatStringsSep "\n" cfg.flags;
+  };
+};
+
+home.users = lib.mapAttrs (userName: uCfg:
+  lib.mkIf (uCfg.flags != null) {
+    files.".config/helium-browser-flags.conf".text = lib.concatStringsSep "\n" uCfg.flags;
+  })
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/labwc.md">labwc</a></code></summary>
+
+Configures options: `home.shared.xdg.config`, `home.users`, `home.shared`
+
+```nix
+home.shared.xdg.config =
+  (lib.optionalAttrs (cfg.rc != null) {
+    "labwc/rc.xml".text = cfg.rc;
+  })
+
+home.users =
+  lib.mapAttrs (userName: uCfg: {
+    xdg.config =
+      (lib.optionalAttrs (uCfg.rc != null) {
+        "labwc/rc.xml".text = uCfg.rc;
+      })
+      // (lib.optionalAttrs (uCfg.environment != null) {
+        "labwc/environment".text = uCfg.environment;
+      });
+  })
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/locale.md">locale</a></code></summary>
+
+Configures options: `home.shared.sessionVariables`, `home.shared`
+
+```nix
+home.shared.sessionVariables =
+  {
+    LANG = cfg.defaultLocale;
+  }
+```
+
+</details>
+

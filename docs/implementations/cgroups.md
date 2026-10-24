@@ -22,6 +22,8 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__resources(["resources"]):::contractNode
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
@@ -58,6 +60,10 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__resources(["lib: resources"]):::libNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -114,7 +120,21 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
+    impl__caddy -.->|"implements"| contract__reverse_proxy
     impl__cgroups -.->|"implements"| contract__resources
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
+    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
+    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__resources -.->|"provides"| lib__resources
     contract__resources --- opt__resources_defaultSlices_enable
     contract__resources --- opt__resources_enable
     contract__resources --- opt__resources_services
@@ -169,4 +189,14 @@ Hosts enabling this provider to fulfill the [`resources`](../contracts/resources
 
 Capability contracts configured by this implementation:
 
-*No external contracts consumed by this implementation.*
+<details>
+<summary><code><a href="../contracts/resources.md">resources</a></code></summary>
+
+Configures options: `resources.enable`
+
+```nix
+profiles = self.lib.resources.profiles;
+```
+
+</details>
+

@@ -71,6 +71,10 @@ in {
           hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
         };
 
+        users.users.root = {
+          hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+        };
+
         home.users.${cfg.username} = {};
 
         persistence.users.${cfg.username} = {

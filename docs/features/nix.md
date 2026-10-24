@@ -19,6 +19,12 @@ flowchart TD
         host__x240["x240"]:::hostNode
     end
 
+    subgraph Contracts["Contracts"]
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__secrets(["secrets"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
+    end
+
     subgraph Implementations["Implementations"]
         impl__caddy["caddy"]:::implNode
         impl__cgroups["cgroups"]:::implNode
@@ -53,6 +59,20 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__secrets(["lib: secrets"]):::libNode
+    end
+
+    subgraph ContractOptions["Contract Options"]
+        opt__secrets_defaultFile[/"secrets.defaultFile: null or absolute path"/]:::optNode
+        opt__secrets_enable[/"secrets.enable: boolean"/]:::optNode
+        opt__secrets_files[/"secrets.files: attribute set of (submodule)"/]:::optNode
+    end
+
+    subgraph ContractTypes["Contract Types"]
+        type__secrets_secret{{"secrets.secret"}}:::typeNode
     end
 
 
@@ -95,6 +115,26 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
+    impl__caddy -.->|"implements"| contract__reverse_proxy
+    impl__sops -.->|"implements"| contract__secrets
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__nix -->|"consumes (secrets.files)"| contract__secrets
+    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
+    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
+    impl__restic -->|"consumes (secrets.files)"| contract__secrets
+    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__secrets -.->|"provides"| lib__secrets
+    contract__secrets --- opt__secrets_defaultFile
+    contract__secrets --- opt__secrets_enable
+    contract__secrets --- opt__secrets_files
+    contract__secrets --- type__secrets_secret
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -137,4 +177,21 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 Capability contracts configured by this feature:
 
-*No contracts consumed by this feature.*
+<details>
+<summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
+
+Configures options: `secrets.files`
+
+```nix
+secrets.files = lib.mkIf config.nix.cachixWatchStore {
+  cachix-token = {
+    file = ../../secrets/cachix/cachix.yaml;
+    key = "token";
+  };
+};
+
+cachixTokenFile = config.secrets.files.cachix-token.path;
+```
+
+</details>
+

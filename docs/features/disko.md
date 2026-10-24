@@ -19,6 +19,11 @@ flowchart TD
         host__x240["x240"]:::hostNode
     end
 
+    subgraph Contracts["Contracts"]
+        contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
+    end
+
     subgraph Implementations["Implementations"]
         impl__caddy["caddy"]:::implNode
         impl__cgroups["cgroups"]:::implNode
@@ -53,6 +58,14 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__disko(["lib: disko"]):::libNode
+    end
+
+    subgraph Functions["Library Functions"]
+        fn__disko_mkLayout(["disko.mkLayout"]):::fnNode
     end
 
 
@@ -95,6 +108,16 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
+    impl__caddy -.->|"implements"| contract__reverse_proxy
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
+    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    feature__disko -.->|"provides"| lib__disko
+    lib__disko -->|"exports"| fn__disko_mkLayout
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;

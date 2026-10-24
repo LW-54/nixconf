@@ -3,6 +3,7 @@
     "antigravity-nix": "github:jacopone/antigravity-nix",
     "disko": "github:nix-community/disko",
     "flake-parts": "github:hercules-ci/flake-parts",
+    "flake-schemas": "github:DeterminateSystems/flake-schemas",
     "helium": "github:oxcl/nix-flake-helium-browser",
     "hjem": "github:feel-co/hjem",
     "impermanence": "github:nix-community/impermanence",
@@ -38,6 +39,14 @@
     "rev": "024633cd702b10285db5cb19b40ad48d2399ba60",
     "narHash": "sha256-zTwuwezD0w3hpga6a6P8emidzAZFyWqlNeRBlpWOOl8=",
     "lastModified": 1790898470
+  },
+  "flake-schemas": {
+    "type": "github",
+    "owner": "DeterminateSystems",
+    "repo": "flake-schemas",
+    "rev": "6cc9bd98891b1fc6bb2b8cb3277df8bc72799ca6",
+    "narHash": "sha256-HiRPtA0spK+Dkgbhz/1zW9glXxNVB+L4Rj2VYmdawb8=",
+    "lastModified": 1780327564
   },
   "helium": {
     "type": "github",

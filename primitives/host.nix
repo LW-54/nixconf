@@ -1,10 +1,26 @@
 {
   lib,
   option,
+  output,
   ...
 }: {
   primitive.host = {
-    description = "Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.";
+    schema = option.schema {
+      what = "NixOS host configuration";
+      doc = "Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.";
+      checks = {
+        hasConfiguration = inst: {
+          valid = inst ? configuration;
+          message = "Host definition must declare a 'configuration' module.";
+        };
+      };
+    };
+
+    relationships = {
+      feature = "imports";
+      implementation = "imports";
+      contract = "consumes";
+    };
 
     options = {
       configuration = lib.mkOption {
@@ -35,42 +51,29 @@
       self,
       config,
       ...
-    }: {
-      flake.nixosConfigurations =
-        lib.mapAttrs (
-          name: host:
-            inputs.nixpkgs.lib.nixosSystem {
-              specialArgs =
-                {
-                  inherit self inputs;
+    }:
+      lib.mkMerge [
+        (output.packages instances)
+        (output.devShells instances)
+        (output.lib instances)
+        (output.nixosModules instances)
+        {
+          flake.nixosConfigurations =
+            lib.mapAttrs (
+              name: host:
+                inputs.nixpkgs.lib.nixosSystem {
+                  specialArgs =
+                    {
+                      inherit self inputs;
+                    }
+                    // host.specialArgs;
+                  modules = [
+                    config.flake.nixosModules.${name}
+                  ];
                 }
-                // host.specialArgs;
-              modules = [
-                config.flake.nixosModules.${name}
-              ];
-            }
-        )
-        instances;
-
-      flake.nixosModules = lib.mkMerge (
-        lib.mapAttrsToList (
-          name: host:
-            {
-              ${name} = host.configuration;
-            }
-            // (lib.mapAttrs' (
-                subName: subMod: let
-                  cleanSub =
-                    if lib.hasPrefix "${name}-" subName
-                    then subName
-                    else "${name}-${subName}";
-                in
-                  lib.nameValuePair cleanSub subMod
-              )
-              host.subModules)
-        )
-        instances
-      );
-    };
+            )
+            instances;
+        }
+      ];
   };
 }

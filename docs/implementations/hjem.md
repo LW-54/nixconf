@@ -21,6 +21,7 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__home(["home"]):::contractNode
+        contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
@@ -44,6 +45,7 @@ flowchart TD
         feature__foot["foot"]:::featureNode
         feature__git["git"]:::featureNode
         feature__greetd["greetd"]:::featureNode
+        feature__helium["helium"]:::featureNode
         feature__labwc["labwc"]:::featureNode
         feature__locale["locale"]:::featureNode
         feature__nix["nix"]:::featureNode
@@ -53,6 +55,10 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+    end
+
+    subgraph Libraries["Libraries"]
+        lib__home(["lib: home"]):::libNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -97,6 +103,18 @@ flowchart TD
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
     impl__hjem -.->|"implements"| contract__home
+    impl__uwsm -.->|"implements"| contract__wayland
+    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
+    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
+    feature__git -->|"consumes (home.users, home.shared)"| contract__home
+    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
+    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
+    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
+    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
+    impl__hjem -->|"consumes (home.enable)"| contract__home
+    impl__lw -->|"consumes (home.users)"| contract__home
+    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
+    contract__home -.->|"provides"| lib__home
     contract__home --- opt__home_enable
     contract__home --- opt__home_shared
     contract__home --- opt__home_users
@@ -150,4 +168,30 @@ Hosts enabling this provider to fulfill the [`home`](../contracts/home.md) contr
 
 Capability contracts configured by this implementation:
 
-*No external contracts consumed by this implementation.*
+<details>
+<summary><code><a href="../contracts/home.md">home</a></code></summary>
+
+Configures options: `home.enable`
+
+```nix
+enable = home.enable;
+
+packages = homeCfg.shared.packages ++ home.packages;
+
+files = mapFiles (homeCfg.shared.files // home.files);
+
+cache.files = mapFiles (homeCfg.shared.xdg.cache // home.xdg.cache);
+
+config.files = mapFiles (homeCfg.shared.xdg.config // home.xdg.config);
+
+data.files = mapFiles (homeCfg.shared.xdg.data // home.xdg.data);
+
+state.files = mapFiles (homeCfg.shared.xdg.state // home.xdg.state);
+
+environment.sessionVariables = homeCfg.shared.sessionVariables // home.sessionVariables;
+
+systemd.services = homeCfg.shared.systemd.services // home.systemd.services;
+```
+
+</details>
+

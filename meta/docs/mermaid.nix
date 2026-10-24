@@ -77,6 +77,8 @@
     in "    ${src} -->|\"${escapeLabel optLabel}\"| ${tgt}"
     else if kind == "EXPORTS"
     then "    ${src} -->|\"exports\"| ${tgt}"
+    else if kind == "PROVIDES"
+    then "    ${src} -.->|\"provides\"| ${tgt}"
     else if kind == "HAS_OPTION"
     then "    ${src} --- ${tgt}"
     else if kind == "HAS_TYPE"
