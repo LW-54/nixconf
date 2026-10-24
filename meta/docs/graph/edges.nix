@@ -18,7 +18,7 @@
   in
     lib.concatMap (hName: let
       h = hosts.${hName};
-      hostFile = ./../../../hosts/${hName}.nix;
+      hostFile = ./../../../modules/hosts/${hName}.nix;
       hostContent =
         if builtins.pathExists hostFile
         then builtins.readFile hostFile
@@ -29,7 +29,7 @@
         target = "impl:${implName}";
         kind = "IMPORTS";
         properties = {};
-      }) (lib.filter (i: lib.hasInfix "nixosModules.${i}" hostContent || builtins.elem (config.flake.nixosModules.${i} or null) h.modules) implNames);
+      }) (lib.filter (i: lib.hasInfix "nixosModules.${i}" hostContent || builtins.elem (config.flake.nixosModules.${i} or null) (h.modules or [])) implNames);
 
       featImports =
         map (featName: {
@@ -50,7 +50,7 @@
                     else m;
                 in
                   lib.hasInfix "nixosModules.${act}" hostContent
-                  || builtins.elem (config.flake.nixosModules.${act} or null) h.modules
+                  || builtins.elem (config.flake.nixosModules.${act} or null) (h.modules or [])
               ) (builtins.attrNames features.${f}.modules)
           )
           featNames

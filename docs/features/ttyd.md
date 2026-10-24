@@ -18,11 +18,6 @@ flowchart TD
         host__astrolabe["astrolabe"]:::hostNode
     end
 
-    subgraph Contracts["Contracts"]
-        contract__resources(["resources"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-    end
-
     subgraph Implementations["Implementations"]
         impl__caddy["caddy"]:::implNode
         impl__cgroups["cgroups"]:::implNode
@@ -42,25 +37,6 @@ flowchart TD
         feature__vaultwarden["vaultwarden"]:::featureNode
     end
 
-    subgraph ContractOptions["Contract Options"]
-        opt__resources_defaultSlices_enable[/"resources.defaultSlices.enable: boolean"/]:::optNode
-        opt__resources_enable[/"resources.enable: boolean"/]:::optNode
-        opt__resources_services[/"resources.services: attribute set of (submodule)"/]:::optNode
-        opt__resources_slices[/"resources.slices: attribute set of (submodule)"/]:::optNode
-        opt__reverse_proxy_domain[/"reverse-proxy.domain: null or (Fully qualified domain name)"/]:::optNode
-        opt__reverse_proxy_enable[/"reverse-proxy.enable: boolean"/]:::optNode
-        opt__reverse_proxy_hosts[/"reverse-proxy.hosts: attribute set of (submodule)"/]:::optNode
-    end
-
-    subgraph ContractTypes["Contract Types"]
-        type__resources_byteSize{{"resources.byteSize"}}:::typeNode
-        type__resources_cgroupWeight{{"resources.cgroupWeight"}}:::typeNode
-        type__resources_service{{"resources.service"}}:::typeNode
-        type__resources_slice{{"resources.slice"}}:::typeNode
-        type__reverse_proxy_fqdn{{"reverse-proxy.fqdn"}}:::typeNode
-        type__reverse_proxy_host{{"reverse-proxy.host"}}:::typeNode
-    end
-
 
     host__astrolabe -->|"imports"| impl__caddy
     host__astrolabe -->|"imports"| impl__cgroups
@@ -75,29 +51,6 @@ flowchart TD
     host__astrolabe -->|"imports"| feature__ssh
     host__astrolabe -->|"imports"| feature__ttyd
     host__astrolabe -->|"imports"| feature__vaultwarden
-    impl__caddy -.->|"implements"| contract__reverse_proxy
-    impl__cgroups -.->|"implements"| contract__resources
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    contract__resources --- opt__resources_defaultSlices_enable
-    contract__resources --- opt__resources_enable
-    contract__resources --- opt__resources_services
-    contract__resources --- opt__resources_slices
-    contract__reverse_proxy --- opt__reverse_proxy_domain
-    contract__reverse_proxy --- opt__reverse_proxy_enable
-    contract__reverse_proxy --- opt__reverse_proxy_hosts
-    contract__resources --- type__resources_byteSize
-    contract__resources --- type__resources_cgroupWeight
-    contract__resources --- type__resources_service
-    contract__resources --- type__resources_slice
-    contract__reverse_proxy --- type__reverse_proxy_fqdn
-    contract__reverse_proxy --- type__reverse_proxy_host
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -140,41 +93,4 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 Capability contracts configured by this feature:
 
-<details>
-<summary><code><a href="../contracts/resources.md">resources</a></code></summary>
-
-Configures options: `resources.enable`
-
-```nix
-// self.lib.resources.mkOption {
-  profile = "standard";
-  memory.high = "256M";
-  memory.max = "512M";
-}
-
-(self.lib.resources.mkConfig {
-  inherit config cfg;
-  serviceName = "ttyd-web";
-})
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../contracts/reverse-proxy.md">reverse-proxy</a></code></summary>
-
-Configures options: `reverse-proxy.enable`
-
-```nix
-// self.lib.reverse-proxy.mkOption {
-  subdomain = "ttyd";
-  port = 7681;
-  basicAuth = {admin = "$2a$14$vYmK17NeNy4sdgvOm6SAheSigD5Lnus70w8aJfQgLBceSG0hlVrPK";};
-}
-
-(self.lib.reverse-proxy.mkConfig {inherit config cfg;})
-```
-
-</details>
-
+*No contracts consumed by this feature.*

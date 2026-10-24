@@ -1,6 +1,6 @@
 # Implementations Documentation
 
-Concrete capability providers declared via `options.implementation` in [`modules/meta/primitives/implementation.nix`](../modules/meta/primitives/implementation.nix).
+Concrete capability providers declared via `options.implementation` in [`primitives/implementation.nix`](../primitives/implementation.nix).
 
 [← Back to Main README](../README.md)
 

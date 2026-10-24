@@ -20,24 +20,11 @@ flowchart TD
     end
 
     subgraph Contracts["Contracts"]
-        contract__backup(["backup"]):::contractNode
-        contract__default_user(["default-user"]):::contractNode
-        contract__home(["home"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__resources(["resources"]):::contractNode
         contract__secrets(["secrets"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
-        impl__lw["lw"]:::implNode
-        impl__restic["restic"]:::implNode
         impl__sops["sops"]:::implNode
-    end
-
-    subgraph Features["Features"]
-        feature__nix["nix"]:::featureNode
-        feature__ssh["ssh"]:::featureNode
-        feature__wifi_eduroam["wifi-eduroam"]:::featureNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -51,30 +38,9 @@ flowchart TD
     end
 
 
-    host__astrolabe -->|"imports"| impl__lw
-    host__astrolabe -->|"imports"| impl__restic
     host__astrolabe -->|"imports"| impl__sops
-    host__astrolabe -->|"imports"| feature__nix
-    host__astrolabe -->|"imports"| feature__ssh
-    host__x240 -->|"imports"| impl__lw
     host__x240 -->|"imports"| impl__sops
-    host__x240 -->|"imports"| feature__nix
-    host__x240 -->|"imports"| feature__ssh
-    host__x240 -->|"imports"| feature__wifi_eduroam
-    impl__lw -.->|"implements"| contract__default_user
-    impl__restic -.->|"implements"| contract__backup
     impl__sops -.->|"implements"| contract__secrets
-    feature__nix -->|"consumes (secrets.files)"| contract__secrets
-    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
-    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
     contract__secrets --- opt__secrets_defaultFile
     contract__secrets --- opt__secrets_enable
     contract__secrets --- opt__secrets_files
@@ -139,150 +105,8 @@ Modules configuring options under the `secrets` contract capability:
 
 ### Implementations
 
-<details>
-<summary><code><a href="../implementations/lw.md">lw</a></code></summary>
-
-Configures options: `secrets.files.default-user-password-hash`, `secrets.files`
-
-```nix
-secrets.files.default-user-password-hash = {
-  file = ../../secrets/users/default.yaml;
-  key = "passwordHash";
-  neededForUsers = true;
-};
-
-hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../implementations/restic.md">restic</a></code></summary>
-
-Configures options: `secrets.files`
-
-```nix
-secrets.files = {
-  restic-env = lib.mkIf (resticCfg.environmentFile == null) {
-    file = ../../secrets/backup/restic.yaml;
-    key = "env";
-  };
-
-  restic-password = lib.mkIf (resticCfg.passwordFile == null) {
-    file = ../../secrets/backup/restic.yaml;
-    key = "password";
-  };
-};
-
-else config.secrets.files.restic-env.path;
-
-else config.secrets.files.restic-password.path;
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../implementations/sops.md">sops</a></code></summary>
-
-Configures options: `secrets.defaultFile`, `secrets.enable`, `secrets.files`
-
-```nix
-meta.description = "Host-level development shell configured to decrypt local host SOPS secrets.";
-
-config = lib.mkIf (config.secrets.enable or false) {
-  sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
-  sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
-
-  sops.secrets =
-    lib.mapAttrs (_: s: {
-      sopsFile =
-        if s.file != null
-        then s.file
-        else config.sops.defaultSopsFile;
-      inherit (s) key owner group mode neededForUsers;
-    })
-    config.secrets.files;
-
-  system.extraDependencies = lib.concatLists [
-    (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin)
-    (lib.optional cfg.prebuildHostShell (self.lib.sops.mkHostShell {
-      inherit pkgs;
-      keyFile = config.sops.age.keyFile;
-    }))
-  ];
-};
-```
-
-</details>
-
+*No implementations configure this contract.*
 
 ### Features
 
-<details>
-<summary><code><a href="../features/nix.md">nix</a></code></summary>
-
-Configures options: `secrets.files`
-
-```nix
-secrets.files = lib.mkIf config.nix.cachixWatchStore {
-  cachix-token = {
-    file = ../../secrets/cachix/cachix.yaml;
-    key = "token";
-  };
-};
-
-cachixTokenFile = config.secrets.files.cachix-token.path;
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../features/ssh.md">ssh</a></code></summary>
-
-Configures options: `secrets.files`
-
-```nix
-secrets.files =
-  lib.listToAttrs (map (name: {
-      name = "ssh/public/${name}";
-      value = {
-        file = ../../secrets/ssh/public.yaml;
-        key = name;
-        mode = "0444";
-      };
-    })
-    publicKeys)
-
-if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
-
-install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
-
-AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../features/wifi-eduroam.md">wifi-eduroam</a></code></summary>
-
-Configures options: `secrets.files`
-
-```nix
-secrets.files = {
-  ${usernameSecret} = {
-    file = cfg.secretFile;
-    key = cfg.usernameKey;
-  };
-  ${passwordSecret} = {
-    file = cfg.secretFile;
-    key = cfg.passwordKey;
-  };
-};
-```
-
-</details>
-
+*No features configure this contract.*

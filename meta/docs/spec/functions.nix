@@ -36,7 +36,7 @@
     name = "docsSpec.recordTodo";
     f = core.recordTodo;
     doc = null;
-    file = "modules/meta/docs/spec/core.nix";
+    file = "meta/docs/spec/core.nix";
     line = 10;
   }
   ```

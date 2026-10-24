@@ -21,9 +21,7 @@ flowchart TD
     end
 
     subgraph Contracts["Contracts"]
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
         contract__secrets(["secrets"]):::contractNode
-        contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
@@ -112,21 +110,7 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
-    impl__caddy -.->|"implements"| contract__reverse_proxy
     impl__sops -.->|"implements"| contract__secrets
-    impl__uwsm -.->|"implements"| contract__wayland
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    feature__nix -->|"consumes (secrets.files)"| contract__secrets
-    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
     contract__secrets --- opt__secrets_defaultFile
     contract__secrets --- opt__secrets_enable
     contract__secrets --- opt__secrets_files
@@ -184,37 +168,4 @@ Hosts enabling this provider to fulfill the [`secrets`](../contracts/secrets.md)
 
 Capability contracts configured by this implementation:
 
-<details>
-<summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
-
-Configures options: `secrets.defaultFile`, `secrets.enable`, `secrets.files`
-
-```nix
-meta.description = "Host-level development shell configured to decrypt local host SOPS secrets.";
-
-config = lib.mkIf (config.secrets.enable or false) {
-  sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
-  sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
-
-  sops.secrets =
-    lib.mapAttrs (_: s: {
-      sopsFile =
-        if s.file != null
-        then s.file
-        else config.sops.defaultSopsFile;
-      inherit (s) key owner group mode neededForUsers;
-    })
-    config.secrets.files;
-
-  system.extraDependencies = lib.concatLists [
-    (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin)
-    (lib.optional cfg.prebuildHostShell (self.lib.sops.mkHostShell {
-      inherit pkgs;
-      keyFile = config.sops.age.keyFile;
-    }))
-  ];
-};
-```
-
-</details>
-
+*No external contracts consumed by this implementation.*

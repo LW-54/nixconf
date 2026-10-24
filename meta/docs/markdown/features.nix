@@ -171,7 +171,7 @@
   in ''
     # Features Documentation
 
-    Reusable system services and applications declared via `options.feature` in [`modules/meta/primitives/feature.nix`](../modules/meta/primitives/feature.nix).
+    Reusable system services and applications declared via `options.feature` in [`primitives/feature.nix`](../primitives/feature.nix).
 
     [← Back to Main README](../README.md)
 

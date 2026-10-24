@@ -20,22 +20,11 @@ flowchart TD
     end
 
     subgraph Contracts["Contracts"]
-        contract__backup(["backup"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
         contract__resources(["resources"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
-        impl__caddy["caddy"]:::implNode
         impl__cgroups["cgroups"]:::implNode
-        impl__restic["restic"]:::implNode
-    end
-
-    subgraph Features["Features"]
-        feature__ttyd["ttyd"]:::featureNode
-        feature__vaultwarden["vaultwarden"]:::featureNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -53,27 +42,9 @@ flowchart TD
     end
 
 
-    host__astrolabe -->|"imports"| impl__caddy
     host__astrolabe -->|"imports"| impl__cgroups
-    host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| feature__ttyd
-    host__astrolabe -->|"imports"| feature__vaultwarden
     host__x240 -->|"imports"| impl__cgroups
-    impl__caddy -.->|"implements"| contract__reverse_proxy
     impl__cgroups -.->|"implements"| contract__resources
-    impl__restic -.->|"implements"| contract__backup
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
     contract__resources --- opt__resources_defaultSlices_enable
     contract__resources --- opt__resources_enable
     contract__resources --- opt__resources_services
@@ -148,94 +119,8 @@ Modules configuring options under the `resources` contract capability:
 
 ### Implementations
 
-<details>
-<summary><code><a href="../implementations/caddy.md">caddy</a></code></summary>
-
-Configures options: `resources.services.caddy`, `resources.enable`, `resources.services`
-
-```nix
-resources.services.caddy = lib.mkIf (config.resources.enable or false) {
-  profile = "critical";
-  memory.low = "32M";
-  memory.high = "256M";
-  memory.max = "512M";
-};
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../implementations/cgroups.md">cgroups</a></code></summary>
-
-Configures options: `resources.enable`
-
-```nix
-profiles = self.lib.resources.profiles;
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../implementations/restic.md">restic</a></code></summary>
-
-Configures options: `resources.services.restic-backups-main`, `resources.enable`, `resources.services`
-
-```nix
-resources.services.restic-backups-main = lib.mkIf (config.resources.enable or false) {
-  profile = "background";
-  memory.high = "512M";
-  battery = {
-    throttleOnBattery = true;
-    pauseOnBattery = true;
-  };
-};
-```
-
-</details>
-
+*No implementations configure this contract.*
 
 ### Features
 
-<details>
-<summary><code><a href="../features/ttyd.md">ttyd</a></code></summary>
-
-Configures options: `resources.enable`
-
-```nix
-// self.lib.resources.mkOption {
-  profile = "standard";
-  memory.high = "256M";
-  memory.max = "512M";
-}
-
-(self.lib.resources.mkConfig {
-  inherit config cfg;
-  serviceName = "ttyd-web";
-})
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
-
-Configures options: `resources.enable`
-
-```nix
-// self.lib.resources.mkOption {
-  profile = "critical";
-  memory.guarantee = "64M";
-  memory.limit = "512M";
-}
-
-(self.lib.resources.mkConfig {
-  inherit config cfg;
-  serviceName = "vaultwarden";
-})
-```
-
-</details>
-
+*No features configure this contract.*

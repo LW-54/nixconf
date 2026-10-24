@@ -20,18 +20,10 @@ flowchart TD
 
     subgraph Contracts["Contracts"]
         contract__backup(["backup"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__resources(["resources"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
         impl__restic["restic"]:::implNode
-    end
-
-    subgraph Features["Features"]
-        feature__vaultwarden["vaultwarden"]:::featureNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -44,15 +36,7 @@ flowchart TD
 
 
     host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| feature__vaultwarden
     impl__restic -.->|"implements"| contract__backup
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
     contract__backup --- opt__backup_enable
     contract__backup --- opt__backup_exclude
     contract__backup --- opt__backup_paths
@@ -122,18 +106,4 @@ Modules configuring options under the `backup` contract capability:
 
 ### Features
 
-<details>
-<summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
-
-Configures options: `backup.enable`
-
-```nix
-// self.lib.backup.mkOption {
-  paths = ["/var/lib/vaultwarden"];
-};
-
-(self.lib.backup.mkConfig {inherit config cfg;})
-```
-
-</details>
-
+*No features configure this contract.*

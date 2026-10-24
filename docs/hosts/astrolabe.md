@@ -24,7 +24,6 @@ flowchart TD
     subgraph Contracts["Contracts"]
         contract__backup(["backup"]):::contractNode
         contract__default_user(["default-user"]):::contractNode
-        contract__home(["home"]):::contractNode
         contract__persistence(["persistence"]):::contractNode
         contract__resources(["resources"]):::contractNode
         contract__reverse_proxy(["reverse-proxy"]):::contractNode
@@ -48,17 +47,6 @@ flowchart TD
         feature__ssh["ssh"]:::featureNode
         feature__ttyd["ttyd"]:::featureNode
         feature__vaultwarden["vaultwarden"]:::featureNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__reverse_proxy_domain[/"reverse-proxy.domain: null or (Fully qualified domain name)"/]:::optNode
-        opt__reverse_proxy_enable[/"reverse-proxy.enable: boolean"/]:::optNode
-        opt__reverse_proxy_hosts[/"reverse-proxy.hosts: attribute set of (submodule)"/]:::optNode
-    end
-
-    subgraph ContractTypes["Contract Types"]
-        type__reverse_proxy_fqdn{{"reverse-proxy.fqdn"}}:::typeNode
-        type__reverse_proxy_host{{"reverse-proxy.host"}}:::typeNode
     end
 
 
@@ -90,35 +78,6 @@ flowchart TD
     impl__lw -.->|"implements"| contract__default_user
     impl__restic -.->|"implements"| contract__backup
     impl__sops -.->|"implements"| contract__secrets
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__git -->|"consumes"| contract__default_user
-    feature__git -->|"consumes (home.users, home.shared)"| contract__home
-    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
-    feature__nix -->|"consumes (secrets.files)"| contract__secrets
-    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
-    contract__reverse_proxy --- opt__reverse_proxy_domain
-    contract__reverse_proxy --- opt__reverse_proxy_enable
-    contract__reverse_proxy --- opt__reverse_proxy_hosts
-    contract__reverse_proxy --- type__reverse_proxy_fqdn
-    contract__reverse_proxy --- type__reverse_proxy_host
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;

@@ -313,16 +313,17 @@
     hosts,
   }: let
     knownPrimitiveFiles = {
-      "host" = "modules/meta/primitives/host.nix";
-      "contract" = "modules/meta/primitives/contract.nix";
-      "implementation" = "modules/meta/primitives/implementation.nix";
-      "feature" = "modules/meta/primitives/feature.nix";
-      "lib" = "modules/meta/primitives/lib.nix";
-      "docsSpec" = "modules/meta/docs/spec/default.nix";
-      "docsParser" = "modules/meta/docs/parser.nix";
-      "docsGraph" = "modules/meta/docs/graph/default.nix";
-      "docsMermaid" = "modules/meta/docs/mermaid.nix";
-      "docsMarkdown" = "modules/meta/docs/markdown/default.nix";
+      "primitive" = "primitives/primitive.nix";
+      "host" = "primitives/host.nix";
+      "contract" = "primitives/contract.nix";
+      "implementation" = "primitives/implementation.nix";
+      "feature" = "primitives/feature.nix";
+      "lib" = "primitives/lib.nix";
+      "docsSpec" = "meta/docs/spec/default.nix";
+      "docsParser" = "meta/docs/parser.nix";
+      "docsGraph" = "meta/docs/graph/default.nix";
+      "docsMermaid" = "meta/docs/mermaid.nix";
+      "docsMarkdown" = "meta/docs/markdown/default.nix";
     };
 
     inferredRel =
@@ -345,9 +346,9 @@
       then cleanFilePath pos.file
       else if inferredRel != null
       then inferredRel
-      else "modules/meta/primitives/lib.nix";
+      else "primitives/lib.nix";
 
-    repoRoot = ./../../../../.;
+    repoRoot = ./../../../.;
     absFile = repoRoot + "/${relFile}";
 
     foundLine =

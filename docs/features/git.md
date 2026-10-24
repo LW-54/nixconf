@@ -19,13 +19,6 @@ flowchart TD
         host__x240["x240"]:::hostNode
     end
 
-    subgraph Contracts["Contracts"]
-        contract__default_user(["default-user"]):::contractNode
-        contract__home(["home"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__wayland(["wayland"]):::contractNode
-    end
-
     subgraph Implementations["Implementations"]
         impl__caddy["caddy"]:::implNode
         impl__cgroups["cgroups"]:::implNode
@@ -49,7 +42,6 @@ flowchart TD
         feature__foot["foot"]:::featureNode
         feature__git["git"]:::featureNode
         feature__greetd["greetd"]:::featureNode
-        feature__helium["helium"]:::featureNode
         feature__labwc["labwc"]:::featureNode
         feature__locale["locale"]:::featureNode
         feature__nix["nix"]:::featureNode
@@ -61,26 +53,6 @@ flowchart TD
         feature__vivaldi["vivaldi"]:::featureNode
         feature__vscode["vscode"]:::featureNode
         feature__wifi_eduroam["wifi-eduroam"]:::featureNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__default_user_email[/"default-user.email: string"/]:::optNode
-        opt__default_user_enable[/"default-user.enable: boolean"/]:::optNode
-        opt__default_user_fullName[/"default-user.fullName: null or string"/]:::optNode
-        opt__default_user_githubUsername[/"default-user.githubUsername: string"/]:::optNode
-        opt__default_user_modules[/"default-user.modules: list of module"/]:::optNode
-        opt__default_user_username[/"default-user.username: string"/]:::optNode
-        opt__home_enable[/"home.enable: boolean"/]:::optNode
-        opt__home_shared[/"home.shared: submodule"/]:::optNode
-        opt__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
-    end
-
-    subgraph ContractTypes["Contract Types"]
-        type__home_file{{"home.file"}}:::typeNode
-        type__home_files{{"home.files"}}:::typeNode
-        type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
-        type__home_userHome{{"home.userHome"}}:::typeNode
-        type__home_xdg{{"home.xdg"}}:::typeNode
     end
 
 
@@ -123,39 +95,6 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
-    impl__caddy -.->|"implements"| contract__reverse_proxy
-    impl__hjem -.->|"implements"| contract__home
-    impl__lw -.->|"implements"| contract__default_user
-    impl__uwsm -.->|"implements"| contract__wayland
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
-    feature__git -->|"consumes"| contract__default_user
-    feature__git -->|"consumes (home.users, home.shared)"| contract__home
-    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
-    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
-    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__hjem -->|"consumes (home.enable)"| contract__home
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
-    contract__default_user --- opt__default_user_email
-    contract__default_user --- opt__default_user_enable
-    contract__default_user --- opt__default_user_fullName
-    contract__default_user --- opt__default_user_githubUsername
-    contract__default_user --- opt__default_user_modules
-    contract__default_user --- opt__default_user_username
-    contract__home --- opt__home_enable
-    contract__home --- opt__home_shared
-    contract__home --- opt__home_users
-    contract__home --- type__home_file
-    contract__home --- type__home_files
-    contract__home --- type__home_relativeHomePath
-    contract__home --- type__home_userHome
-    contract__home --- type__home_xdg
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -204,42 +143,4 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 Capability contracts configured by this feature:
 
-<details>
-<summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
-
-Configures options: `default-user.email`, `default-user.enable`, `default-user.githubUsername`, `default-user.username`
-
-```nix
-git.users = lib.mkIf (config.default-user.enable or false) {
-  ${config.default-user.username}.settings.user = {
-    name = config.default-user.githubUsername;
-    email = config.default-user.email;
-  };
-};
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../contracts/home.md">home</a></code></summary>
-
-Configures options: `home.users`, `home.shared`
-
-```nix
-home.shared.xdg.config."git/config" = {
-  generator = lib.generators.toINI {};
-  value = cfg.settings;
-};
-
-home.users = lib.mapAttrs (userName: uCfg:
-  lib.mkIf (uCfg.enable != false) {
-    xdg.config."git/config" = {
-      generator = lib.generators.toINI {};
-      value = lib.recursiveUpdate cfg.settings uCfg.settings;
-    };
-  })
-```
-
-</details>
-
+*No contracts consumed by this feature.*

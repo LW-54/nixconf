@@ -1,6 +1,6 @@
 # Contracts Documentation
 
-Pure capability interfaces declared via `options.contract` in [`modules/meta/primitives/contract.nix`](../modules/meta/primitives/contract.nix).
+Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](../primitives/contract.nix).
 
 [← Back to Main README](../README.md)
 

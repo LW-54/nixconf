@@ -18,9 +18,9 @@
     lib.mapAttrs' (name: host: let
       nodeId = "host:${name}";
       hConfig = hostConfigs.${name};
-      sysArch = host.system;
+      sysArch = hConfig.pkgs.system or "x86_64-linux";
       stateVer = hConfig.config.system.stateVersion or "25.11";
-      hostFile = ./../../../hosts/${name}.nix;
+      hostFile = ./../../../modules/hosts/${name}.nix;
       hostContent =
         if builtins.pathExists hostFile
         then builtins.readFile hostFile
@@ -31,7 +31,7 @@
         lib.filter (
           implName:
             lib.hasInfix "nixosModules.${implName}" hostContent
-            || builtins.elem (config.flake.nixosModules.${implName} or null) host.modules
+            || builtins.elem (config.flake.nixosModules.${implName} or null) (host.modules or [])
         )
         implNames;
 
@@ -59,7 +59,7 @@
                   else mName;
               in
                 lib.hasInfix "nixosModules.${actualName}" hostContent
-                || builtins.elem (config.flake.nixosModules.${actualName} or null) host.modules
+                || builtins.elem (config.flake.nixosModules.${actualName} or null) (host.modules or [])
             ) (builtins.attrNames feat.modules)
         )
         features;
@@ -228,14 +228,14 @@
       importingHosts =
         lib.filter (
           hName: let
-            hostFile = ./../../../hosts/${hName}.nix;
+            hostFile = ./../../../modules/hosts/${hName}.nix;
             hostContent =
               if builtins.pathExists hostFile
               then builtins.readFile hostFile
               else "";
           in
             lib.hasInfix "nixosModules.${name}" hostContent
-            || builtins.elem (config.flake.nixosModules.${name} or null) hosts.${hName}.modules
+            || builtins.elem (config.flake.nixosModules.${name} or null) (hosts.${hName}.modules or [])
         )
         hostNames;
       explicitPkgs = builtins.attrNames (
@@ -296,7 +296,7 @@
       importingHosts =
         lib.filter (
           hName: let
-            hostFile = ./../../../hosts/${hName}.nix;
+            hostFile = ./../../../modules/hosts/${hName}.nix;
             hostContent =
               if builtins.pathExists hostFile
               then builtins.readFile hostFile
@@ -306,7 +306,7 @@
             || builtins.any (
               mName:
                 lib.hasInfix "nixosModules.${mName}" hostContent
-                || builtins.elem (config.flake.nixosModules.${mName} or null) hosts.${hName}.modules
+                || builtins.elem (config.flake.nixosModules.${mName} or null) (hosts.${hName}.modules or [])
             )
             modNames
         )
@@ -374,18 +374,18 @@
       importingHosts =
         lib.filter (
           hName: let
-            hostFile = ./../../../hosts/${hName}.nix;
+            hostFile = ./../../../modules/hosts/${hName}.nix;
             hostContent =
               if builtins.pathExists hostFile
               then builtins.readFile hostFile
               else "";
           in
             lib.hasInfix "nixosModules.${name}" hostContent
-            || builtins.elem (config.flake.nixosModules.${name} or null) hosts.${hName}.modules
+            || builtins.elem (config.flake.nixosModules.${name} or null) (hosts.${hName}.modules or [])
         )
         hostNames;
       hostConfigurations = lib.genAttrs importingHosts (hName: let
-        hostFile = ./../../../hosts/${hName}.nix;
+        hostFile = ./../../../modules/hosts/${hName}.nix;
         hostContent =
           if builtins.pathExists hostFile
           then builtins.readFile hostFile

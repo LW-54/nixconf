@@ -4,14 +4,15 @@
 in {
   host.x240 = {
     description = "ThinkPad Laptop Workstation (Desktop graphical workstation).";
-    system = "x86_64-linux";
-    modules = [
-      self.nixosModules.x240-hardware
-      self.nixosModules.x240-disk
-      self.nixosModules.x240-system
-      self.nixosModules.x240-desktop
-      self.nixosModules.x240-packages
-    ];
+    configuration = {
+      imports = [
+        self.nixosModules.x240-hardware
+        self.nixosModules.x240-disk
+        self.nixosModules.x240-system
+        self.nixosModules.x240-desktop
+        self.nixosModules.x240-packages
+      ];
+    };
     subModules = {
       x240-packages = {pkgs, ...}: {
         environment.systemPackages = with pkgs; [

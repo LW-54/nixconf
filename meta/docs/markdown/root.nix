@@ -117,14 +117,30 @@
 
     - **`flake-parts`**: Hercules CI modular framework (`mkFlake`) partitioning options, per-system packages, devshells, and automated checks.
 
-    - **`import-tree`**: Automated dendritic module discovery that recursively scans and imports all `.nix` files under `modules/` as top-level flake-parts modules.
+    - **`import-tree`**: Automated dendritic module discovery that recursively scans and imports all `.nix` files under `primitives/`, `meta/`, and `modules/` as top-level flake-parts modules.
 
     ## Configuration Catalog
 
     <details>
+    <summary><h3>Primitives</h3></summary>
+
+    Foundational abstractions governing components across the repository, declared in [`primitives/`](primitives/). See [Primitives Documentation](docs/PRIMITIVES.md) for full specifications.
+
+    | Primitive | Description | Source File |
+    | :--- | :--- | :--- |
+    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive.nix`](primitives/primitive.nix) |
+    | **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host.nix`](primitives/host.nix) |
+    | **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract.nix`](primitives/contract.nix) |
+    | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](primitives/implementation.nix) |
+    | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](primitives/feature.nix) |
+    | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](primitives/lib.nix) |
+
+    </details>
+
+    <details>
     <summary><h3>Hosts</h3></summary>
 
-    Master registry of target hosts declared via `options.host` in [`modules/meta/primitives/host.nix`](modules/meta/primitives/host.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
+    Master registry of target hosts declared via `options.host` in [`primitives/host.nix`](primitives/host.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
 
     | Host | Description | System | Docs |
     | :--- | :--- | :--- | :--- |
@@ -205,7 +221,7 @@
     <details>
     <summary><h3>Contracts</h3></summary>
 
-    Pure capability interfaces declared via `options.contract` in [`modules/meta/primitives/contract.nix`](modules/meta/primitives/contract.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full capability specifications.
+    Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](primitives/contract.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full capability specifications.
 
     | Contract | Description | Implementations | Docs |
     | :--- | :--- | :--- | :--- |
@@ -216,7 +232,7 @@
     <details>
     <summary><h3>Implementations</h3></summary>
 
-    Concrete contract providers declared via `options.implementation` in [`modules/meta/primitives/implementation.nix`](modules/meta/primitives/implementation.nix). See [Implementations Documentation](docs/IMPLEMENTATIONS.md) for provider assignments.
+    Concrete contract providers declared via `options.implementation` in [`primitives/implementation.nix`](primitives/implementation.nix). See [Implementations Documentation](docs/IMPLEMENTATIONS.md) for provider assignments.
 
     | Implementation | Description | Contract | Docs |
     | :--- | :--- | :--- | :--- |
@@ -227,7 +243,7 @@
     <details>
     <summary><h3>Features</h3></summary>
 
-    Reusable system services and applications declared via `options.feature` in [`modules/meta/primitives/feature.nix`](modules/meta/primitives/feature.nix). See [Features Documentation](docs/FEATURES.md) for exported outputs.
+    Reusable system services and applications declared via `options.feature` in [`primitives/feature.nix`](primitives/feature.nix). See [Features Documentation](docs/FEATURES.md) for exported outputs.
 
     | Feature | Description | Docs |
     | :--- | :--- | :--- |
@@ -238,7 +254,7 @@
     <details>
     <summary><h3>Libraries</h3></summary>
 
-    Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`modules/meta/primitives/lib.nix`](modules/meta/primitives/lib.nix). See [Library Documentation](docs/LIB.md) for full function signatures and docstrings.
+    Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`primitives/lib.nix`](primitives/lib.nix). See [Library Documentation](docs/LIB.md) for full function signatures and docstrings.
 
     | Library Namespace | Description | Docs |
     | :--- | :--- | :--- |
@@ -339,12 +355,12 @@
 
     The documentation generator is implemented as a pure-Nix evaluation pipeline structured into modular components:
 
-    - [`modules/meta/docs/spec/`](../modules/meta/docs/spec): Formal schemas, node types, edge kinds, and verification assertions.
-    - [`modules/meta/docs/parser.nix`](../modules/meta/docs/parser.nix): RFC 145 docstring parser extracting summaries, argument inputs, types, and examples.
-    - [`modules/meta/docs/graph/`](../modules/meta/docs/graph): LPG property graph builder synthesizing `nixconf.json`.
-    - [`modules/meta/docs/mermaid.nix`](../modules/meta/docs/mermaid.nix): Declarative Mermaid diagram visualizer with custom styling.
-    - [`modules/meta/docs/markdown/`](../modules/meta/docs/markdown): Markdown synthesizers generating the repository documentation suite.
-    - [`modules/meta/docs/cli.nix`](../modules/meta/docs/cli.nix): CLI application wrapper providing `nix run .#docs`.
+    - [`meta/docs/spec/`](../meta/docs/spec): Formal schemas, node types, edge kinds, and verification assertions.
+    - [`meta/docs/parser.nix`](../meta/docs/parser.nix): RFC 145 docstring parser extracting summaries, argument inputs, types, and examples.
+    - [`meta/docs/graph/`](../meta/docs/graph): LPG property graph builder synthesizing `nixconf.json`.
+    - [`meta/docs/mermaid.nix`](../meta/docs/mermaid.nix): Declarative Mermaid diagram visualizer with custom styling.
+    - [`meta/docs/markdown/`](../meta/docs/markdown): Markdown synthesizers generating the repository documentation suite.
+    - [`meta/docs/cli.nix`](../meta/docs/cli.nix): CLI application wrapper providing `nix run .#docs`.
 
     ## Command Reference
 
@@ -362,12 +378,39 @@
     nix run .#docs -- --json
     ```
   '';
+
+  renderPrimitivesIndex = {graph}: ''
+    # Primitives Architecture & Catalog
+
+    Foundational abstractions governing components across the repository, declared in [`primitives/`](../primitives/).
+
+    [← Back to Main README](../README.md)
+
+    ## Overview
+
+    A primitive defines the grammar, options schema, and export lifecycle for a class of system components. The repository defines 6 symmetrical primitives evaluated across a two-pass module pipeline:
+
+    | Primitive | Description | Source File | Documentation |
+    | :--- | :--- | :--- | :--- |
+    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive.nix`](../primitives/primitive.nix) | [Primitives Catalog](PRIMITIVES.md) |
+    | **`host`** | Declarative target host machines binding hardware, platform, and enabled features. | [`primitives/host.nix`](../primitives/host.nix) | [Hosts Documentation](HOSTS.md) |
+    | **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract.nix`](../primitives/contract.nix) | [Contracts Documentation](CONTRACTS.md) |
+    | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](../primitives/implementation.nix) | [Implementations Documentation](IMPLEMENTATIONS.md) |
+    | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](../primitives/feature.nix) | [Features Documentation](FEATURES.md) |
+    | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](../primitives/lib.nix) | [Library Documentation](LIB.md) |
+
+    ## Two-Pass Evaluation Pipeline
+
+    1. **Pass 1 (`primitives/`)**: Evaluates primitive declarations using `lib.evalModules`. Injects `option` constructors and `export` helpers via `_module.args`. Resolves `options.primitive` and synthesizes Pass 2 options and export hooks.
+    2. **Pass 2 (`meta/` + `modules/`)**: Evaluates domain infrastructure instances (`hosts/`, `contracts/`, `implementations/`, `features/`) and meta-tooling (`parts.nix`, `docs/`) with zero cyclic dependencies.
+  '';
 in {
   internal.docs.markdown.root = {
     inherit
       renderReadme
       renderTodoIndex
       renderDocsGuide
+      renderPrimitivesIndex
       ;
   };
 }

@@ -1,6 +1,6 @@
 # Library Documentation
 
-Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`modules/meta/primitives/lib.nix`](../modules/meta/primitives/lib.nix).
+Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`primitives/lib.nix`](../primitives/lib.nix).
 
 [← Back to Main README](../README.md)
 
@@ -51,6 +51,7 @@ lib.math = {
 | [`flake.lib.home`](lib/home.md) | Library helpers and constructors for the 'home' capability contract. | [`mkConfig`](lib/home.md#mkConfig), [`mkOption`](lib/home.md#mkOption) | [More →](lib/home.md) |
 | [`flake.lib.lw`](lib/lw.md) | Primary human user account orchestration and identity provisioning. | [`email`](lib/lw.md#email), [`githubUsername`](lib/lw.md#githubUsername), [`username`](lib/lw.md#username) | [More →](lib/lw.md) |
 | [`flake.lib.persistence`](lib/persistence.md) | Library helpers and constructors for the 'persistence' capability contract. | [`entries`](lib/persistence.md#entries), [`mkConfig`](lib/persistence.md#mkConfig), [`mkOption`](lib/persistence.md#mkOption) | [More →](lib/persistence.md) |
+| [`flake.lib.primitive`](lib/primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [`option`](lib/primitive.md#option), [`output`](lib/primitive.md#output), [`unwrapLib`](lib/primitive.md#unwrapLib) | [More →](lib/primitive.md) |
 | [`flake.lib.resources`](lib/resources.md) | Library helpers and constructors for the 'resources' capability contract. | [`defaultSlices`](lib/resources.md#defaultSlices), [`mkConfig`](lib/resources.md#mkConfig), [`mkOption`](lib/resources.md#mkOption), [`profiles`](lib/resources.md#profiles) | [More →](lib/resources.md) |
 | [`flake.lib.reverse-proxy`](lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' capability contract. | [`mkConfig`](lib/reverse-proxy.md#mkConfig), [`mkOption`](lib/reverse-proxy.md#mkOption) | [More →](lib/reverse-proxy.md) |
 | [`flake.lib.secrets`](lib/secrets.md) | Library helpers and constructors for the 'secrets' capability contract. | [`mkConfig`](lib/secrets.md#mkConfig), [`mkOption`](lib/secrets.md#mkOption) | [More →](lib/secrets.md) |

@@ -112,6 +112,7 @@ flowchart TD
         lib__home(["lib: home"]):::libNode
         lib__lw(["lib: lw"]):::libNode
         lib__persistence(["lib: persistence"]):::libNode
+        lib__primitive(["lib: primitive"]):::libNode
         lib__resources(["lib: resources"]):::libNode
         lib__reverse_proxy(["lib: reverse-proxy"]):::libNode
         lib__secrets(["lib: secrets"]):::libNode
@@ -168,49 +169,6 @@ flowchart TD
     impl__restic -.->|"implements"| contract__backup
     impl__sops -.->|"implements"| contract__secrets
     impl__uwsm -.->|"implements"| contract__wayland
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
-    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
-    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
-    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
-    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
-    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
-    feature__foot -->|"consumes (persistence.users)"| contract__persistence
-    feature__git -->|"consumes"| contract__default_user
-    feature__git -->|"consumes (home.users, home.shared)"| contract__home
-    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
-    feature__helium -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
-    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
-    feature__nix -->|"consumes (secrets.files)"| contract__secrets
-    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
-    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
-    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
-    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__hjem -->|"consumes (home.enable)"| contract__home
-    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -251,14 +209,30 @@ The repository infrastructure is structured around four foundational components:
 
 - **`flake-parts`**: Hercules CI modular framework (`mkFlake`) partitioning options, per-system packages, devshells, and automated checks.
 
-- **`import-tree`**: Automated dendritic module discovery that recursively scans and imports all `.nix` files under `modules/` as top-level flake-parts modules.
+- **`import-tree`**: Automated dendritic module discovery that recursively scans and imports all `.nix` files under `primitives/`, `meta/`, and `modules/` as top-level flake-parts modules.
 
 ## Configuration Catalog
 
 <details>
+<summary><h3>Primitives</h3></summary>
+
+Foundational abstractions governing components across the repository, declared in [`primitives/`](primitives/). See [Primitives Documentation](docs/PRIMITIVES.md) for full specifications.
+
+| Primitive | Description | Source File |
+| :--- | :--- | :--- |
+| **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive.nix`](primitives/primitive.nix) |
+| **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host.nix`](primitives/host.nix) |
+| **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract.nix`](primitives/contract.nix) |
+| **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](primitives/implementation.nix) |
+| **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](primitives/feature.nix) |
+| **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](primitives/lib.nix) |
+
+</details>
+
+<details>
 <summary><h3>Hosts</h3></summary>
 
-Master registry of target hosts declared via `options.host` in [`modules/meta/primitives/host.nix`](modules/meta/primitives/host.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
+Master registry of target hosts declared via `options.host` in [`primitives/host.nix`](primitives/host.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
 
 | Host | Description | System | Docs |
 | :--- | :--- | :--- | :--- |
@@ -340,7 +314,7 @@ nixos-rebuild switch --flake .#<HOST> --target-host root@<TARGET-IP>
 <details>
 <summary><h3>Contracts</h3></summary>
 
-Pure capability interfaces declared via `options.contract` in [`modules/meta/primitives/contract.nix`](modules/meta/primitives/contract.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full capability specifications.
+Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](primitives/contract.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full capability specifications.
 
 | Contract | Description | Implementations | Docs |
 | :--- | :--- | :--- | :--- |
@@ -358,7 +332,7 @@ Pure capability interfaces declared via `options.contract` in [`modules/meta/pri
 <details>
 <summary><h3>Implementations</h3></summary>
 
-Concrete contract providers declared via `options.implementation` in [`modules/meta/primitives/implementation.nix`](modules/meta/primitives/implementation.nix). See [Implementations Documentation](docs/IMPLEMENTATIONS.md) for provider assignments.
+Concrete contract providers declared via `options.implementation` in [`primitives/implementation.nix`](primitives/implementation.nix). See [Implementations Documentation](docs/IMPLEMENTATIONS.md) for provider assignments.
 
 | Implementation | Description | Contract | Docs |
 | :--- | :--- | :--- | :--- |
@@ -376,7 +350,7 @@ Concrete contract providers declared via `options.implementation` in [`modules/m
 <details>
 <summary><h3>Features</h3></summary>
 
-Reusable system services and applications declared via `options.feature` in [`modules/meta/primitives/feature.nix`](modules/meta/primitives/feature.nix). See [Features Documentation](docs/FEATURES.md) for exported outputs.
+Reusable system services and applications declared via `options.feature` in [`primitives/feature.nix`](primitives/feature.nix). See [Features Documentation](docs/FEATURES.md) for exported outputs.
 
 | Feature | Description | Docs |
 | :--- | :--- | :--- |
@@ -411,7 +385,7 @@ Reusable system services and applications declared via `options.feature` in [`mo
 <details>
 <summary><h3>Libraries</h3></summary>
 
-Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`modules/meta/primitives/lib.nix`](modules/meta/primitives/lib.nix). See [Library Documentation](docs/LIB.md) for full function signatures and docstrings.
+Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`primitives/lib.nix`](primitives/lib.nix). See [Library Documentation](docs/LIB.md) for full function signatures and docstrings.
 
 | Library Namespace | Description | Docs |
 | :--- | :--- | :--- |
@@ -422,6 +396,7 @@ Pure reusable helper functions, data types, calculations, and presets declared v
 | [`flake.lib.home`](docs/lib/home.md) | Library helpers and constructors for the 'home' capability contract. | [More →](docs/lib/home.md) |
 | [`flake.lib.lw`](docs/lib/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](docs/lib/lw.md) |
 | [`flake.lib.persistence`](docs/lib/persistence.md) | Library helpers and constructors for the 'persistence' capability contract. | [More →](docs/lib/persistence.md) |
+| [`flake.lib.primitive`](docs/lib/primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [More →](docs/lib/primitive.md) |
 | [`flake.lib.resources`](docs/lib/resources.md) | Library helpers and constructors for the 'resources' capability contract. | [More →](docs/lib/resources.md) |
 | [`flake.lib.reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' capability contract. | [More →](docs/lib/reverse-proxy.md) |
 | [`flake.lib.secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' capability contract. | [More →](docs/lib/secrets.md) |

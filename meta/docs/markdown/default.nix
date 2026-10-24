@@ -118,6 +118,7 @@
     indexFiles = {
       "README.md" = rootMod.renderReadme {inherit graph;};
       "docs/DOCS.md" = rootMod.renderDocsGuide {inherit graph;};
+      "docs/PRIMITIVES.md" = rootMod.renderPrimitivesIndex {inherit graph;};
       "docs/HOSTS.md" = hostsMod.renderHostsIndex {inherit graph;};
       "docs/CONTRACTS.md" = contractsMod.renderContractsIndex {inherit graph;};
       "docs/IMPLEMENTATIONS.md" = implsMod.renderImplementationsIndex {inherit graph;};

@@ -18,10 +18,6 @@ flowchart TD
         host__x240["x240"]:::hostNode
     end
 
-    subgraph Contracts["Contracts"]
-        contract__wayland(["wayland"]):::contractNode
-    end
-
     subgraph Implementations["Implementations"]
         impl__cgroups["cgroups"]:::implNode
         impl__hjem["hjem"]:::implNode
@@ -81,10 +77,6 @@ flowchart TD
     host__x240 -->|"imports"| feature__vivaldi
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
-    impl__uwsm -.->|"implements"| contract__wayland
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;

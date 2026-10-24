@@ -161,7 +161,7 @@
   in ''
     # Library Documentation
 
-    Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`modules/meta/primitives/lib.nix`](../modules/meta/primitives/lib.nix).
+    Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`primitives/lib.nix`](../primitives/lib.nix).
 
     [← Back to Main README](../README.md)
 

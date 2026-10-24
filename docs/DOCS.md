@@ -8,12 +8,12 @@ Pure-Nix documentation generation architecture, Labeled Property Graph (LPG) IR,
 
 The documentation generator is implemented as a pure-Nix evaluation pipeline structured into modular components:
 
-- [`modules/meta/docs/spec/`](../modules/meta/docs/spec): Formal schemas, node types, edge kinds, and verification assertions.
-- [`modules/meta/docs/parser.nix`](../modules/meta/docs/parser.nix): RFC 145 docstring parser extracting summaries, argument inputs, types, and examples.
-- [`modules/meta/docs/graph/`](../modules/meta/docs/graph): LPG property graph builder synthesizing `nixconf.json`.
-- [`modules/meta/docs/mermaid.nix`](../modules/meta/docs/mermaid.nix): Declarative Mermaid diagram visualizer with custom styling.
-- [`modules/meta/docs/markdown/`](../modules/meta/docs/markdown): Markdown synthesizers generating the repository documentation suite.
-- [`modules/meta/docs/cli.nix`](../modules/meta/docs/cli.nix): CLI application wrapper providing `nix run .#docs`.
+- [`meta/docs/spec/`](../meta/docs/spec): Formal schemas, node types, edge kinds, and verification assertions.
+- [`meta/docs/parser.nix`](../meta/docs/parser.nix): RFC 145 docstring parser extracting summaries, argument inputs, types, and examples.
+- [`meta/docs/graph/`](../meta/docs/graph): LPG property graph builder synthesizing `nixconf.json`.
+- [`meta/docs/mermaid.nix`](../meta/docs/mermaid.nix): Declarative Mermaid diagram visualizer with custom styling.
+- [`meta/docs/markdown/`](../meta/docs/markdown): Markdown synthesizers generating the repository documentation suite.
+- [`meta/docs/cli.nix`](../meta/docs/cli.nix): CLI application wrapper providing `nix run .#docs`.
 
 ## Command Reference
 

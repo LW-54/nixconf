@@ -30,17 +30,18 @@
     primitive,
   }: let
     id = "${kind}:${name}";
-    file = "modules/${
-      if kind == "host"
-      then "hosts/${name}.nix"
+    file =
+      if kind == "primitive"
+      then "primitives/primitive.nix"
+      else if kind == "host"
+      then "modules/hosts/${name}.nix"
       else if kind == "contract"
-      then "contracts/${name}.nix"
+      then "modules/contracts/${name}.nix"
       else if kind == "impl"
-      then "implementations/${name}.nix"
+      then "modules/implementations/${name}.nix"
       else if kind == "feature"
-      then "features/${name}.nix"
-      else "meta/primitives/lib.nix"
-    }";
+      then "modules/features/${name}.nix"
+      else "primitives/lib.nix";
     desc = primitive.description or "";
   in
     if desc == ""

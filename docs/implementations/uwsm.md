@@ -92,9 +92,6 @@ flowchart TD
     host__x240 -->|"imports"| feature__vscode
     host__x240 -->|"imports"| feature__wifi_eduroam
     impl__uwsm -.->|"implements"| contract__wayland
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
     contract__wayland --- opt__wayland_compositors
     contract__wayland --- opt__wayland_enable
     contract__wayland --- type__wayland_compositor
@@ -143,23 +140,4 @@ Hosts enabling this provider to fulfill the [`wayland`](../contracts/wayland.md)
 
 Capability contracts configured by this implementation:
 
-<details>
-<summary><code><a href="../contracts/wayland.md">wayland</a></code></summary>
-
-Configures options: `wayland.compositors`, `wayland.enable`
-
-```nix
-config = lib.mkIf (config.wayland.enable or false) {
-  programs.uwsm = {
-    enable = true;
-    waylandCompositors =
-      lib.mapAttrs (_: c: {
-        inherit (c) prettyName comment binPath;
-      })
-      config.wayland.compositors;
-  };
-};
-```
-
-</details>
-
+*No external contracts consumed by this implementation.*

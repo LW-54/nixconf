@@ -19,29 +19,11 @@ flowchart TD
     end
 
     subgraph Contracts["Contracts"]
-        contract__backup(["backup"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__resources(["resources"]):::contractNode
         contract__reverse_proxy(["reverse-proxy"]):::contractNode
     end
 
     subgraph Implementations["Implementations"]
         impl__caddy["caddy"]:::implNode
-        impl__cgroups["cgroups"]:::implNode
-        impl__impermanence["impermanence"]:::implNode
-        impl__lw["lw"]:::implNode
-        impl__restic["restic"]:::implNode
-        impl__sops["sops"]:::implNode
-    end
-
-    subgraph Features["Features"]
-        feature__disko["disko"]:::featureNode
-        feature__git["git"]:::featureNode
-        feature__locale["locale"]:::featureNode
-        feature__nix["nix"]:::featureNode
-        feature__ssh["ssh"]:::featureNode
-        feature__ttyd["ttyd"]:::featureNode
-        feature__vaultwarden["vaultwarden"]:::featureNode
     end
 
     subgraph ContractOptions["Contract Options"]
@@ -57,36 +39,7 @@ flowchart TD
 
 
     host__astrolabe -->|"imports"| impl__caddy
-    host__astrolabe -->|"imports"| impl__cgroups
-    host__astrolabe -->|"imports"| impl__impermanence
-    host__astrolabe -->|"imports"| impl__lw
-    host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| impl__sops
-    host__astrolabe -->|"imports"| feature__disko
-    host__astrolabe -->|"imports"| feature__git
-    host__astrolabe -->|"imports"| feature__locale
-    host__astrolabe -->|"imports"| feature__nix
-    host__astrolabe -->|"imports"| feature__ssh
-    host__astrolabe -->|"imports"| feature__ttyd
-    host__astrolabe -->|"imports"| feature__vaultwarden
     impl__caddy -.->|"implements"| contract__reverse_proxy
-    impl__cgroups -.->|"implements"| contract__resources
-    impl__impermanence -.->|"implements"| contract__persistence
-    impl__restic -.->|"implements"| contract__backup
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
     contract__reverse_proxy --- opt__reverse_proxy_domain
     contract__reverse_proxy --- opt__reverse_proxy_enable
     contract__reverse_proxy --- opt__reverse_proxy_hosts
@@ -149,17 +102,7 @@ Modules configuring options under the `reverse-proxy` contract capability:
 
 ### Hosts
 
-<details>
-<summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
-
-Configures options: `reverse-proxy.domain`
-
-```nix
-reverse-proxy.domain = "adje.app";
-```
-
-</details>
-
+*No hosts configure this contract directly.*
 
 ### Implementations
 
@@ -167,39 +110,4 @@ reverse-proxy.domain = "adje.app";
 
 ### Features
 
-<details>
-<summary><code><a href="../features/ttyd.md">ttyd</a></code></summary>
-
-Configures options: `reverse-proxy.enable`
-
-```nix
-// self.lib.reverse-proxy.mkOption {
-  subdomain = "ttyd";
-  port = 7681;
-  basicAuth = {admin = "$2a$14$vYmK17NeNy4sdgvOm6SAheSigD5Lnus70w8aJfQgLBceSG0hlVrPK";};
-}
-
-(self.lib.reverse-proxy.mkConfig {inherit config cfg;})
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
-
-Configures options: `reverse-proxy.domain`
-
-```nix
-// self.lib.reverse-proxy.mkOption {
-  subdomain = "vaultwarden";
-  port = 8222;
-}
-
-domain = config.reverse-proxy.domain or null;
-
-(self.lib.reverse-proxy.mkConfig {inherit config cfg;})
-```
-
-</details>
-
+*No features configure this contract.*

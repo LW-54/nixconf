@@ -1,6 +1,6 @@
 # Hosts Documentation
 
-Master host target registry declared via `options.host` in [`modules/meta/primitives/host.nix`](../modules/meta/primitives/host.nix).
+Master host target registry declared via `options.host` in [`primitives/host.nix`](../primitives/host.nix).
 
 [← Back to Main README](../README.md)
 
