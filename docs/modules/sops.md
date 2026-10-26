@@ -17,14 +17,14 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
 ```nix
-  self.nixosModules.sops
-  self.nixosModules.lw
-  self.nixosModules.cgroups
-  self.nixosModules.nix
-  self.nixosModules.locale
-  self.nixosModules.ssh
-  self.nixosModules.git
-];
+          self.nixosModules.sops
+          self.nixosModules.lw
+          self.nixosModules.cgroups
+          self.nixosModules.nix
+          self.nixosModules.locale
+          self.nixosModules.ssh
+          self.nixosModules.git
+        ];
 ```
 
 </details>
@@ -34,13 +34,13 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.sops
-  self.nixosModules.lw
-  self.nixosModules.hjem
-  self.nixosModules.nix
-  self.nixosModules.locale
-  self.nixosModules.x240-system-features
-];
+          self.nixosModules.sops
+          self.nixosModules.lw
+          self.nixosModules.hjem
+          self.nixosModules.nix
+          self.nixosModules.locale
+          self.nixosModules.x240-system-features
+        ];
 ```
 
 </details>

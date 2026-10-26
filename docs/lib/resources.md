@@ -1,6 +1,6 @@
 # Library Namespace: `flake.lib.resources`
 
-Library helpers and constructors for the 'resources' capability contract.
+Library helpers and constructors for the 'resources' contract.
 
 [← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
 
@@ -15,7 +15,7 @@ Within repository modules, NixOS configurations, or packages, access functions d
 ```nix
 { self, lib, pkgs, ... }: {
   # Access helpers directly from self.lib.resources
-  example = self.lib.resources.defaultSlices;
+  example = self.lib.resources.mkConfig;
 }
 ```
 
@@ -32,36 +32,17 @@ When consuming this flake as an input in another `flake.nix`:
 
   outputs = { self, nixpkgs, nixconf, ... }: {
     # Access exported helpers from inputs.nixconf.lib.resources
-    example = nixconf.lib.resources.defaultSlices;
+    example = nixconf.lib.resources.mkConfig;
   };
 }
 ```
 
 ## Exported Symbols
 
-<a id="defaultSlices"></a>
-### `defaultSlices`
-
-Default systemd slice hierarchy configurations and resource budget definitions.
-
-
-
-
-
-#### Type
-
-```
-defaultSlices :: AttrSet
-```
-
-
-
-
-
 <a id="mkConfig"></a>
 ### `mkConfig`
 
-Auto-derived configuration binding helper for the 'resources' capability contract.
+Auto-derived configuration binding helper for the 'resources' contract.
 
 
 
@@ -90,7 +71,7 @@ resources.mkConfig { inherit config cfg; }
 <a id="mkOption"></a>
 ### `mkOption`
 
-Auto-derived option constructor for the 'resources' capability contract.
+Auto-derived option constructor for the 'resources' contract.
 
 
 
@@ -117,6 +98,25 @@ resources.mkOption :: AttrSet -> AttrSet
 ```nix
 resources.mkOption { ... }
 ```
+
+
+
+<a id="defaultSlices"></a>
+### `defaultSlices`
+
+Default systemd slice hierarchy configurations and resource budget definitions.
+
+
+
+
+
+#### Type
+
+```
+defaultSlices :: AttrSet
+```
+
+
 
 
 

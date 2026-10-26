@@ -1,6 +1,6 @@
 # Library Namespace: `flake.lib.backup`
 
-Library helpers and constructors for the 'backup' capability contract.
+Library helpers and constructors for the 'backup' contract.
 
 [← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
 
@@ -15,7 +15,7 @@ Within repository modules, NixOS configurations, or packages, access functions d
 ```nix
 { self, lib, pkgs, ... }: {
   # Access helpers directly from self.lib.backup
-  example = self.lib.backup.defaultPruneOpts;
+  example = self.lib.backup.mkConfig;
 }
 ```
 
@@ -32,12 +32,67 @@ When consuming this flake as an input in another `flake.nix`:
 
   outputs = { self, nixpkgs, nixconf, ... }: {
     # Access exported helpers from inputs.nixconf.lib.backup
-    example = nixconf.lib.backup.defaultPruneOpts;
+    example = nixconf.lib.backup.mkConfig;
   };
 }
 ```
 
 ## Exported Symbols
+
+<a id="mkConfig"></a>
+### `mkConfig`
+
+Auto-derived configuration binding helper for the 'backup' contract.
+
+
+
+#### Inputs
+
+- `cfg`: Configuration binding parameter for the 'backup' contract.
+- `config`: Configuration binding parameter for the 'backup' contract.
+
+
+#### Type
+
+```
+backup.mkConfig :: AttrSet -> AttrSet
+```
+
+
+#### Examples
+
+```nix
+backup.mkConfig { inherit config cfg; }
+```
+
+
+
+<a id="mkOption"></a>
+### `mkOption`
+
+Auto-derived option constructor for the 'backup' contract.
+
+
+
+#### Inputs
+
+- `args`: Service-specific options to include.
+
+
+#### Type
+
+```
+backup.mkOption :: AttrSet -> AttrSet
+```
+
+
+#### Examples
+
+```nix
+backup.mkOption { ... }
+```
+
+
 
 <a id="defaultPruneOpts"></a>
 ### `defaultPruneOpts`
@@ -76,60 +131,5 @@ defaultTimerConfig :: AttrSet
 ```
 
 
-
-
-
-<a id="mkConfig"></a>
-### `mkConfig`
-
-Auto-derived configuration binding helper for the 'backup' capability contract.
-
-
-
-#### Inputs
-
-- `cfg`: Configuration binding parameter for the 'backup' contract.
-- `config`: Configuration binding parameter for the 'backup' contract.
-
-
-#### Type
-
-```
-backup.mkConfig :: AttrSet -> AttrSet
-```
-
-
-#### Examples
-
-```nix
-backup.mkConfig { inherit config cfg; }
-```
-
-
-
-<a id="mkOption"></a>
-### `mkOption`
-
-Auto-derived option constructor for the 'backup' capability contract.
-
-
-
-#### Inputs
-
-- `args`: Service-specific options to include.
-
-
-#### Type
-
-```
-backup.mkOption :: AttrSet -> AttrSet
-```
-
-
-#### Examples
-
-```nix
-backup.mkOption { ... }
-```
 
 

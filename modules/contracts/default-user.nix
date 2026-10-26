@@ -3,7 +3,7 @@
     description = "Default primary user account identification, credentials, and configuration injection.";
 
     options = {
-      enable = lib.mkEnableOption "system default user capability contract" // {default = true;};
+      enable = lib.mkEnableOption "system default user contract" // {default = true;};
 
       username = lib.mkOption {
         type = lib.types.str;

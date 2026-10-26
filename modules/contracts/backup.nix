@@ -3,7 +3,7 @@
     description = "Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules.";
 
     options = {
-      enable = lib.mkEnableOption "system backup automation contract" // {default = true;};
+      enable = lib.mkEnableOption "system backup automation contract";
 
       paths = lib.mkOption {
         type = lib.types.listOf lib.types.path;

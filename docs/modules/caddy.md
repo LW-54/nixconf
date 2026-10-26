@@ -17,11 +17,11 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
 ```nix
-  self.nixosModules.caddy
-  self.nixosModules.restic
-  self.nixosModules.vaultwarden
-  self.nixosModules.ttyd
-];
+          self.nixosModules.caddy
+          self.nixosModules.restic
+          self.nixosModules.vaultwarden
+          self.nixosModules.ttyd
+        ];
 ```
 
 </details>

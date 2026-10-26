@@ -1,6 +1,6 @@
 # Library Namespace: `flake.lib.secrets`
 
-Library helpers and constructors for the 'secrets' capability contract.
+Library helpers and constructors for the 'secrets' contract.
 
 [← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
 
@@ -42,7 +42,7 @@ When consuming this flake as an input in another `flake.nix`:
 <a id="mkConfig"></a>
 ### `mkConfig`
 
-Auto-derived configuration binding helper for the 'secrets' capability contract.
+Auto-derived configuration binding helper for the 'secrets' contract.
 
 
 
@@ -71,7 +71,7 @@ secrets.mkConfig { inherit config cfg; }
 <a id="mkOption"></a>
 ### `mkOption`
 
-Auto-derived option constructor for the 'secrets' capability contract.
+Auto-derived option constructor for the 'secrets' contract.
 
 
 

@@ -162,7 +162,7 @@ in {
     description = "Declarative user home dotfile tree, XDG directory specifications, and session environment.";
 
     options = {
-      enable = lib.mkEnableOption "declarative user home dotfile and environment contract" // {default = true;};
+      enable = lib.mkEnableOption "declarative user home dotfile and environment contract";
 
       shared = lib.mkOption {
         type = userHomeSubmodule;

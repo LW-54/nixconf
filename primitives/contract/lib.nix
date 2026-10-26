@@ -82,7 +82,7 @@
     // (lib.optionalAttrs (mkOption != null) {
       mkOption = {
         docstring = ''
-          Auto-derived option constructor for the '${name}' capability contract.
+          Auto-derived option constructor for the '${name}' contract.
 
           # Inputs
 
@@ -105,7 +105,7 @@
     // (lib.optionalAttrs (mkConfig != null) {
       mkConfig = {
         docstring = ''
-          Auto-derived configuration binding helper for the '${name}' capability contract.
+          Auto-derived configuration binding helper for the '${name}' contract.
 
           # Inputs
 
@@ -128,5 +128,8 @@
 in {
   _module.args = {
     inherit deriveContractSymbols;
+    contractLib = {
+      inherit deriveContractSymbols;
+    };
   };
 }

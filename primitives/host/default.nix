@@ -1,7 +1,9 @@
 {
+  check,
   lib,
   option,
   output,
+  hostLib,
   ...
 }: {
   primitive.host = {
@@ -9,18 +11,41 @@
       what = "NixOS host configuration";
       doc = "Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.";
       checks = {
-        hasConfiguration = inst: {
-          valid = inst ? configuration;
-          message = "Host definition must declare a 'configuration' module.";
-        };
+        hasConfiguration = check.hasAttr "configuration";
+        validSymbols = check.validSymbols;
       };
     };
 
-    relationships = {
-      feature = "imports";
-      implementation = "imports";
-      contract = "consumes";
-    };
+    relationships = {};
+
+    schemas = {
+      name,
+      instance,
+      config,
+      ...
+    }:
+      {
+        configuration = {
+          what = "NixOS system configuration";
+          shortDescription = "Root configuration module for host ${name}.";
+          evalChecks = {
+            hasConfiguration = instance ? configuration;
+          };
+        };
+      }
+      // (hostLib.checkContractFulfillment {
+        inherit name config;
+        host = instance;
+      })
+      // (lib.mapAttrs (
+        subName: subDef: {
+          what = "host submodule";
+          shortDescription = "Host configuration submodule '${subName}'.";
+          evalChecks = {
+            isValidSubmodule = builtins.isFunction subDef || builtins.isAttrs subDef || builtins.isPath subDef;
+          };
+        }
+      ) (instance.subModules or {}));
 
     options = {
       configuration = lib.mkOption {
@@ -53,10 +78,7 @@
       ...
     }:
       lib.mkMerge [
-        (output.packages instances)
-        (output.devShells instances)
-        (output.lib instances)
-        (output.nixosModules instances)
+        (output.standard instances)
         {
           flake.nixosConfigurations =
             lib.mapAttrs (
@@ -73,6 +95,10 @@
                 }
             )
             instances;
+
+          flake.lib.host = {
+            inherit (hostLib) collectHostImportedModules;
+          };
         }
       ];
   };

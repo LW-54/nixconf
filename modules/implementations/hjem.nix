@@ -38,10 +38,15 @@
         inputs.hjem.nixosModules.default
       ];
 
-      config = lib.mkIf homeCfg.enable {
-        hjem.clobberByDefault = true;
-        hjem.users = lib.mapAttrs mapHome homeCfg.users;
-      };
+      config = lib.mkMerge [
+        {
+          home.enable = lib.mkDefault true;
+        }
+        (lib.mkIf homeCfg.enable {
+          hjem.clobberByDefault = true;
+          hjem.users = lib.mapAttrs mapHome homeCfg.users;
+        })
+      ];
     };
   };
 }

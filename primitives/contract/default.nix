@@ -1,23 +1,44 @@
 {
   lib,
+  check,
   option,
   output,
-  deriveContractSymbols,
+  contractLib,
   ...
 }: {
   primitive.contract = {
     schema = option.schema {
-      what = "Architectural capability contract";
-      doc = "Pure capability interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.";
+      what = "Architectural contract";
+      doc = "Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.";
       checks = {
-        hasOptions = inst: {
-          valid = inst ? options && builtins.isAttrs inst.options;
-          message = "Contract must declare an attribute set of 'options'.";
-        };
+        hasOptions = check.hasAttrs "options";
+        validOptions = check.validOptions;
       };
     };
 
     relationships = {};
+
+    schemas = name: c:
+      (lib.mapAttrs (
+        optPath: opt: {
+          what = "NixOS option";
+          shortDescription = opt.description or "";
+          evalChecks.validOption =
+            (check.validOption {
+              path = optPath;
+              option = opt;
+              isContract = true;
+            })
+            == [];
+        }
+      ) (check.flattenOptions name c.options))
+      // (lib.mapAttrs (
+        typeName: typeDef: {
+          what = "custom-type";
+          shortDescription = typeDef.description or "Type definition ${typeName}.";
+          evalChecks.hasDescription = (typeDef.description or "") != "";
+        }
+      ) (c.types or {}));
 
     options = {
       options = lib.mkOption {
@@ -40,9 +61,7 @@
       };
 
       packages = option.packages;
-
       devShells = option.devShells;
-
       lib = option.lib;
     };
 
@@ -72,8 +91,8 @@
           lib =
             lib.mapAttrs (
               name: c: {
-                description = "Library helpers and constructors for the '${name}' capability contract.";
-                symbols = (deriveContractSymbols name c) // c.lib;
+                description = "Library helpers and constructors for the '${name}' contract.";
+                symbols = (contractLib.deriveContractSymbols name c) // c.lib;
               }
             )
             instances;

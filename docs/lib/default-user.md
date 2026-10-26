@@ -1,6 +1,6 @@
 # Library Namespace: `flake.lib.default-user`
 
-Library helpers and constructors for the 'default-user' capability contract.
+Library helpers and constructors for the 'default-user' contract.
 
 [← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
 
@@ -72,7 +72,7 @@ forDefaultUser config (user: {
 <a id="mkConfig"></a>
 ### `mkConfig`
 
-Auto-derived configuration binding helper for the 'default-user' capability contract.
+Auto-derived configuration binding helper for the 'default-user' contract.
 
 
 
@@ -100,7 +100,7 @@ default-user.mkConfig { inherit config cfg; }
 <a id="mkOption"></a>
 ### `mkOption`
 
-Auto-derived option constructor for the 'default-user' capability contract.
+Auto-derived option constructor for the 'default-user' contract.
 
 
 

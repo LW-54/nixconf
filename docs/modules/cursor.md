@@ -17,10 +17,10 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.cursor
-  self.nixosModules.greetd
-  self.nixosModules.x240-desktop-features
-];
+          self.nixosModules.cursor
+          self.nixosModules.greetd
+          self.nixosModules.x240-desktop-features
+        ];
 ```
 
 </details>

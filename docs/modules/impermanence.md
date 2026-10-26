@@ -17,8 +17,8 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
 ```nix
-  self.nixosModules.impermanence
-];
+          self.nixosModules.impermanence
+        ];
 ```
 
 </details>
@@ -28,8 +28,8 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.impermanence
-];
+          self.nixosModules.impermanence
+        ];
 ```
 
 </details>

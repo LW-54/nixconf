@@ -23,7 +23,6 @@
     };
 }
 /*
-keyring?
 system?
 
 updates
@@ -45,11 +44,22 @@ sops public secrets provisioning
 non conflicting ports provisioning
 LSP support
 .sops.yaml in secrets
+test if bootable
+graph cli
+interactive graph ui
+meta/monitoring
 
 hard coded docs
 docs docs docs pass
 lib in diagrams
 make TO DO work correctly
 make more clickable
+
+graph
+query
+rendering
+docs
+
+antikythera
 */
 

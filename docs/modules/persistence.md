@@ -1,13 +1,13 @@
 # Module: `persistence`
 
-Capability contract interface defining 'persistence' option schemas and custom types.
+Contract interface defining 'persistence' option schemas and custom types.
 
 [← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
 
 ## Metadata
 
 - **Module Attribute**: `flake.nixosModules.persistence`
-- **Description**: Capability contract interface defining 'persistence' option schemas and custom types.
+- **Description**: Contract interface defining 'persistence' option schemas and custom types.
 
 ## Importing Hosts
 

@@ -15,94 +15,150 @@ Declarative user home dotfile tree, XDG directory specifications, and session en
 ```mermaid
 flowchart TD
     subgraph Hosts["Hosts"]
-        host__astrolabe["astrolabe"]:::hostNode
-        host__x240["x240"]:::hostNode
+        urn__nixconf__onto__host__astrolabe["astrolabe"]:::hostNode
+        urn__nixconf__onto__host__x240["x240"]:::hostNode
     end
 
     subgraph Contracts["Contracts"]
-        contract__default_user(["default-user"]):::contractNode
-        contract__home(["home"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
-        contract__wayland(["wayland"]):::contractNode
-    end
-
-    subgraph Implementations["Implementations"]
-        impl__hjem["hjem"]:::implNode
-        impl__lw["lw"]:::implNode
+        urn__nixconf__onto__contract__backup(["backup"]):::contractNode
+        urn__nixconf__onto__contract__default_user(["default-user"]):::contractNode
+        urn__nixconf__onto__contract__home(["home"]):::contractNode
+        urn__nixconf__onto__contract__persistence(["persistence"]):::contractNode
+        urn__nixconf__onto__contract__resources(["resources"]):::contractNode
+        urn__nixconf__onto__contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        urn__nixconf__onto__contract__secrets(["secrets"]):::contractNode
+        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Features["Features"]
-        feature__foot["foot"]:::featureNode
-        feature__git["git"]:::featureNode
-        feature__helium["helium"]:::featureNode
-        feature__labwc["labwc"]:::featureNode
-        feature__locale["locale"]:::featureNode
-    end
-
-    subgraph Libraries["Libraries"]
-        lib__home(["lib: home"]):::libNode
-        lib__lw(["lib: lw"]):::libNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__home_enable[/"home.enable: boolean"/]:::optNode
-        opt__home_shared[/"home.shared: submodule"/]:::optNode
-        opt__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__onto__feature__foot["foot"]:::featureNode
+        urn__nixconf__onto__feature__git["git"]:::featureNode
+        urn__nixconf__onto__feature__labwc["labwc"]:::featureNode
+        urn__nixconf__onto__feature__locale["locale"]:::featureNode
     end
 
     subgraph ContractTypes["Contract Types"]
-        type__home_file{{"home.file"}}:::typeNode
-        type__home_files{{"home.files"}}:::typeNode
-        type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
-        type__home_userHome{{"home.userHome"}}:::typeNode
-        type__home_xdg{{"home.xdg"}}:::typeNode
+        urn__nixconf__ast__type__home_file{{"home.file"}}:::typeNode
+        urn__nixconf__ast__type__home_files{{"home.files"}}:::typeNode
+        urn__nixconf__ast__type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
+        urn__nixconf__ast__type__home_userHome{{"home.userHome"}}:::typeNode
+        urn__nixconf__ast__type__home_xdg{{"home.xdg"}}:::typeNode
     end
 
-    subgraph Functions["Library Functions"]
-        fn__home_mkConfig(["home.mkConfig"]):::fnNode
-        fn__home_mkOption(["home.mkOption"]):::fnNode
+    subgraph OtherNodes["Other Entities"]
+        urn__nixconf__ast__module__foot["foot"]
+        urn__nixconf__ast__module__git["git"]
+        urn__nixconf__ast__module__hjem["hjem"]
+        urn__nixconf__ast__module__labwc["labwc"]
+        urn__nixconf__ast__module__locale["locale"]
+        urn__nixconf__ast__module__lw["lw"]
+        urn__nixconf__ast__option__home_enable[/"home.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__home_shared[/"home.shared: submodule"/]:::optNode
+        urn__nixconf__ast__option__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__drv__devShell__github_ssh["shell: github-ssh"]:::shellNode
+        urn__nixconf__drv__package__foot["pkg: foot"]:::pkgNode
+        urn__nixconf__drv__package__git["pkg: git"]:::pkgNode
+        urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
+        urn__nixconf__onto__implementation__lw["lw"]:::implNode
+        urn__nixconf__onto__primitive__contract["contract"]
+        urn__nixconf__onto__primitive__feature["feature"]
+        urn__nixconf__onto__primitive__implementation["implementation"]
     end
 
 
-    host__astrolabe -->|"imports"| impl__lw
-    host__astrolabe -->|"imports"| feature__git
-    host__astrolabe -->|"imports"| feature__locale
-    host__x240 -->|"imports"| impl__hjem
-    host__x240 -->|"imports"| impl__lw
-    host__x240 -->|"imports"| feature__foot
-    host__x240 -->|"imports"| feature__git
-    host__x240 -->|"imports"| feature__labwc
-    host__x240 -->|"imports"| feature__locale
-    impl__hjem -.->|"implements"| contract__home
-    impl__lw -.->|"implements"| contract__default_user
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
-    feature__foot -->|"consumes (persistence.users)"| contract__persistence
-    feature__git -->|"consumes"| contract__default_user
-    feature__git -->|"consumes (home.users, home.shared)"| contract__home
-    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
-    feature__helium -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
-    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
-    impl__hjem -->|"consumes (home.enable)"| contract__home
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    contract__home -.->|"provides"| lib__home
-    impl__lw -.->|"provides"| lib__lw
-    contract__home --- opt__home_enable
-    contract__home --- opt__home_shared
-    contract__home --- opt__home_users
-    contract__home --- type__home_file
-    contract__home --- type__home_files
-    contract__home --- type__home_relativeHomePath
-    contract__home --- type__home_userHome
-    contract__home --- type__home_xdg
-    lib__home -->|"exports"| fn__home_mkConfig
-    lib__home -->|"exports"| fn__home_mkOption
+    urn__nixconf__ast__module__foot -->|"dependsOn"| urn__nixconf__drv__package__foot
+    urn__nixconf__ast__module__foot ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__foot ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__foot -->|"writes"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__foot -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__git -->|"dependsOn"| urn__nixconf__drv__package__git
+    urn__nixconf__ast__module__git ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__git ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_enable
+    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__hjem -->|"writes"| urn__nixconf__ast__option__home_enable
+    urn__nixconf__ast__module__labwc ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__labwc ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__labwc -->|"writes"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__labwc -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__locale ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__locale -->|"writes"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__locale -->|"writes"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__option__home_shared -.->|"typedBy"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_shared -.->|"typedBy"| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__ast__option__home_users -.->|"typedBy"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_users -.->|"typedBy"| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_enable
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_shared
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_users
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_file
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_files
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_relativeHomePath
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_userHome
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__feature__foot -->|"outputs"| urn__nixconf__ast__module__foot
+    urn__nixconf__onto__feature__foot -->|"outputs"| urn__nixconf__drv__package__foot
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__ast__module__git
+    urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__drv__devShell__github_ssh
+    urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__drv__package__git
+    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"outputs"| urn__nixconf__ast__module__labwc
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__locale -->|"outputs"| urn__nixconf__ast__module__locale
+    urn__nixconf__onto__feature__locale -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__host__astrolabe -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__implementation__hjem -->|"outputs"| urn__nixconf__ast__module__hjem
+    urn__nixconf__onto__implementation__hjem -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -->|"outputs"| urn__nixconf__ast__module__lw
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__git
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__lw
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -122,7 +178,7 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 | Option Path | Type | Default | Example | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `options.home.enable` | `boolean` | `1` | `1` | Whether to enable declarative user home dotfile and environment contract. |
+| `options.home.enable` | `boolean` | `` | `1` | Whether to enable declarative user home dotfile and environment contract. |
 | `options.home.shared` | `submodule` | `{ ... }` | `{ ... }` | Shared dotfile tree and environment configurations applied across all managed users. |
 | `options.home.users` | `attribute set of (submodule)` | `{ ... }` | `{ ... }` | Per-user dotfile tree and environment configurations mapped to active backend interpreters (e.g. Hjem). |
 
@@ -170,26 +226,13 @@ Modules configuring options under the `home` contract capability:
 <details>
 <summary><code><a href="../implementations/hjem.md">hjem</a></code></summary>
 
-Configures options: `home.enable`
+Configures options: *general contract configuration*
 
 ```nix
-enable = home.enable;
+config = {
 
-packages = homeCfg.shared.packages ++ home.packages;
+};
 
-files = mapFiles (homeCfg.shared.files // home.files);
-
-cache.files = mapFiles (homeCfg.shared.xdg.cache // home.xdg.cache);
-
-config.files = mapFiles (homeCfg.shared.xdg.config // home.xdg.config);
-
-data.files = mapFiles (homeCfg.shared.xdg.data // home.xdg.data);
-
-state.files = mapFiles (homeCfg.shared.xdg.state // home.xdg.state);
-
-environment.sessionVariables = homeCfg.shared.sessionVariables // home.sessionVariables;
-
-systemd.services = homeCfg.shared.systemd.services // home.systemd.services;
 ```
 
 </details>
@@ -198,10 +241,13 @@ systemd.services = homeCfg.shared.systemd.services // home.systemd.services;
 <details>
 <summary><code><a href="../implementations/lw.md">lw</a></code></summary>
 
-Configures options: `home.users`
+Configures options: *general contract configuration*
 
 ```nix
-home.users.${cfg.username} = {};
+config = {
+
+};
+
 ```
 
 </details>
@@ -212,29 +258,28 @@ home.users.${cfg.username} = {};
 <details>
 <summary><code><a href="../features/foot.md">foot</a></code></summary>
 
-Configures options: `home.shared`, `home.users`
+Configures options: *general contract configuration*
 
 ```nix
-home.shared = {
-  xdg.config."foot/foot.ini" = {
-    generator = lib.generators.toINI {};
-    value = cfg.settings;
-  };
+config = {
 
-  files = lib.mkIf cfg.server.enable {
-    ".config/systemd/user/foot-server.service".source = servicePath;
-    ".config/systemd/user/foot-server.socket".source = socketPath;
-    ".config/systemd/user/graphical-session.target.wants/foot-server.socket".source = socketPath;
-  };
 };
 
-home.users = lib.mapAttrs (userName: uCfg:
-  lib.mkIf (uCfg.enable != false) {
-    xdg.config."foot/foot.ini" = {
-      generator = lib.generators.toINI {};
-      value = lib.recursiveUpdate cfg.settings uCfg.settings;
-    };
-  })
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/foot.md">foot</a></code></summary>
+
+Configures options: *general contract configuration*
+
+```nix
+config = {
+
+};
+
 ```
 
 </details>
@@ -243,42 +288,28 @@ home.users = lib.mapAttrs (userName: uCfg:
 <details>
 <summary><code><a href="../features/git.md">git</a></code></summary>
 
-Configures options: `home.users`, `home.shared`
+Configures options: *general contract configuration*
 
 ```nix
-home.shared.xdg.config."git/config" = {
-  generator = lib.generators.toINI {};
-  value = cfg.settings;
+config = {
+
 };
 
-home.users = lib.mapAttrs (userName: uCfg:
-  lib.mkIf (uCfg.enable != false) {
-    xdg.config."git/config" = {
-      generator = lib.generators.toINI {};
-      value = lib.recursiveUpdate cfg.settings uCfg.settings;
-    };
-  })
 ```
 
 </details>
 
 
 <details>
-<summary><code><a href="../features/helium.md">helium</a></code></summary>
+<summary><code><a href="../features/git.md">git</a></code></summary>
 
-Configures options: `home.shared`, `home.users`
+Configures options: *general contract configuration*
 
 ```nix
-home.shared = lib.mkIf (cfg.flags != []) {
-  files = {
-    ".config/helium-browser-flags.conf".text = lib.concatStringsSep "\n" cfg.flags;
-  };
+config = {
+
 };
 
-home.users = lib.mapAttrs (userName: uCfg:
-  lib.mkIf (uCfg.flags != null) {
-    files.".config/helium-browser-flags.conf".text = lib.concatStringsSep "\n" uCfg.flags;
-  })
 ```
 
 </details>
@@ -287,24 +318,28 @@ home.users = lib.mapAttrs (userName: uCfg:
 <details>
 <summary><code><a href="../features/labwc.md">labwc</a></code></summary>
 
-Configures options: `home.shared.xdg.config`, `home.users`, `home.shared`
+Configures options: *general contract configuration*
 
 ```nix
-home.shared.xdg.config =
-  (lib.optionalAttrs (cfg.rc != null) {
-    "labwc/rc.xml".text = cfg.rc;
-  })
+config = {
 
-home.users =
-  lib.mapAttrs (userName: uCfg: {
-    xdg.config =
-      (lib.optionalAttrs (uCfg.rc != null) {
-        "labwc/rc.xml".text = uCfg.rc;
-      })
-      // (lib.optionalAttrs (uCfg.environment != null) {
-        "labwc/environment".text = uCfg.environment;
-      });
-  })
+};
+
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/labwc.md">labwc</a></code></summary>
+
+Configures options: *general contract configuration*
+
+```nix
+config = {
+
+};
+
 ```
 
 </details>
@@ -313,13 +348,13 @@ home.users =
 <details>
 <summary><code><a href="../features/locale.md">locale</a></code></summary>
 
-Configures options: `home.shared.sessionVariables`, `home.shared`
+Configures options: *general contract configuration*
 
 ```nix
-home.shared.sessionVariables =
-  {
-    LANG = cfg.defaultLocale;
-  }
+config = {
+
+};
+
 ```
 
 </details>

@@ -17,14 +17,14 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.direnv
-  self.nixosModules.wifi-eduroam
-  self.nixosModules.git
-  self.nixosModules.tack
-  self.nixosModules.bw
-  self.nixosModules.ssh
-  self.nixosModules.cgroups
-];
+          self.nixosModules.direnv
+          self.nixosModules.wifi-eduroam
+          self.nixosModules.git
+          self.nixosModules.tack
+          self.nixosModules.bw
+          self.nixosModules.ssh
+          self.nixosModules.cgroups
+        ];
 ```
 
 </details>

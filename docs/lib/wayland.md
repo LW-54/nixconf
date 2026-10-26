@@ -1,6 +1,6 @@
 # Library Namespace: `flake.lib.wayland`
 
-Library helpers and constructors for the 'wayland' capability contract.
+Library helpers and constructors for the 'wayland' contract.
 
 [← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
 
@@ -42,7 +42,7 @@ When consuming this flake as an input in another `flake.nix`:
 <a id="mkConfig"></a>
 ### `mkConfig`
 
-Auto-derived configuration binding helper for the 'wayland' capability contract.
+Auto-derived configuration binding helper for the 'wayland' contract.
 
 
 
@@ -70,7 +70,7 @@ wayland.mkConfig { inherit config cfg; }
 <a id="mkOption"></a>
 ### `mkOption`
 
-Auto-derived option constructor for the 'wayland' capability contract.
+Auto-derived option constructor for the 'wayland' contract.
 
 
 

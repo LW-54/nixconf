@@ -1,30 +1,37 @@
 {lib, ...}: let
   /**
   Sanitizes an arbitrary node identifier into a valid Mermaid identifier.
-
-  # Inputs
-
-  `id`
-  : Raw identifier string containing punctuation or spaces.
-
-  # Type
-  ```
-  sanitizeId :: String -> String
-  ```
-
-  # Examples
-  ```nix
-  sanitizeId "contract:reverse-proxy"
-  ```
   */
-  sanitizeId = id: builtins.replaceStrings [":" "-" "." "/" "@" "~" " "] ["__" "_" "_" "_" "_" "_" "_"] id;
+  sanitizeIdFn = id: builtins.replaceStrings [":" "-" "." "/" "@" "~" " "] ["__" "_" "_" "_" "_" "_" "_"] id;
+
+  sanitizeId = {
+    docstring = ''
+      Sanitizes an arbitrary node identifier into a valid Mermaid identifier.
+
+      # Inputs
+
+      `id`
+      : Raw identifier string containing punctuation or spaces.
+
+      # Type
+      ```
+      sanitizeId :: String -> String
+      ```
+
+      # Examples
+      ```nix
+      sanitizeId "contract:reverse-proxy"
+      ```
+    '';
+    value = sanitizeIdFn;
+  };
 
   # Format label escaping quotes
   escapeLabel = s: builtins.replaceStrings ["\""] ["'"] s;
 
   # Node rendering helper
   renderNode = node: let
-    v = sanitizeId node.id;
+    v = sanitizeIdFn node.id;
     name = node.name;
     props = node.properties or {};
   in
@@ -32,13 +39,13 @@
     then "        ${v}[\"${escapeLabel name}\"]:::hostNode"
     else if node.kind == "contract"
     then "        ${v}([\"${escapeLabel name}\"]):::contractNode"
-    else if node.kind == "impl"
+    else if node.kind == "impl" || node.kind == "implementation"
     then "        ${v}[\"${escapeLabel name}\"]:::implNode"
     else if node.kind == "feature"
     then "        ${v}[\"${escapeLabel name}\"]:::featureNode"
     else if node.kind == "lib"
     then "        ${v}([\"lib: ${escapeLabel name}\"]):::libNode"
-    else if node.kind == "opt"
+    else if node.kind == "opt" || node.kind == "option"
     then let
       t = props.type or "";
       typeStr =
@@ -48,20 +55,20 @@
     in "        ${v}[/\"${escapeLabel name}${typeStr}\"/]:::optNode"
     else if node.kind == "type"
     then "        ${v}{{\"${escapeLabel name}\"}}:::typeNode"
-    else if node.kind == "fn"
+    else if node.kind == "fn" || node.kind == "function"
     then "        ${v}([\"${escapeLabel name}\"]):::fnNode"
-    else if node.kind == "pkg"
+    else if node.kind == "pkg" || node.kind == "package"
     then "        ${v}[\"pkg: ${escapeLabel name}\"]:::pkgNode"
-    else if node.kind == "shell"
+    else if node.kind == "shell" || node.kind == "devShell"
     then "        ${v}[\"shell: ${escapeLabel name}\"]:::shellNode"
     else "        ${v}[\"${escapeLabel name}\"]";
 
   # Edge rendering helper with quoted labels to prevent parse errors
   renderEdge = edge: let
-    src = sanitizeId edge.source;
-    tgt = sanitizeId edge.target;
-    kind = edge.kind;
-    props = edge.properties or {};
+    src = sanitizeIdFn edge.source;
+    tgt = sanitizeIdFn edge.target;
+    kind = lib.toUpper (edge.relation or (edge.kind or ""));
+    props = edge.properties or (edge.meta or {});
   in
     if kind == "IMPORTS"
     then "    ${src} -->|\"imports\"| ${tgt}"
@@ -69,83 +76,84 @@
     then "    ${src} -.->|\"implements\"| ${tgt}"
     else if kind == "CONSUMES"
     then let
-      opts = props.optionsWritten or [];
+      opts =
+        props.optionsWritten or (
+          if edge ? qualifier && edge.qualifier != null
+          then [edge.qualifier]
+          else []
+        );
       optLabel =
         if builtins.length opts > 0 && builtins.length opts <= 3
         then "consumes (${lib.concatStringsSep ", " opts})"
         else "consumes";
     in "    ${src} -->|\"${escapeLabel optLabel}\"| ${tgt}"
-    else if kind == "EXPORTS"
-    then "    ${src} -->|\"exports\"| ${tgt}"
+    else if kind == "OUTPUTS" || kind == "EXPORTS"
+    then "    ${src} -->|\"outputs\"| ${tgt}"
     else if kind == "PROVIDES"
     then "    ${src} -.->|\"provides\"| ${tgt}"
-    else if kind == "HAS_OPTION"
+    else if kind == "WRITES"
+    then "    ${src} -->|\"writes\"| ${tgt}"
+    else if kind == "READS"
+    then "    ${src} -.->|\"reads\"| ${tgt}"
+    else if kind == "FLOWS_TO" || kind == "FLOWSTO"
+    then "    ${src} ==>|\"flowsTo\"| ${tgt}"
+    else if kind == "DECLARES" || kind == "HAS_OPTION" || kind == "HAS_TYPE" || kind == "CONTAINS"
     then "    ${src} --- ${tgt}"
-    else if kind == "HAS_TYPE"
-    then "    ${src} --- ${tgt}"
+    else if kind == "TYPED_BY" || kind == "TYPEDBY"
+    then "    ${src} -.->|\"typedBy\"| ${tgt}"
+    else if kind == "DEPENDS_ON" || kind == "DEPENDSON"
+    then "    ${src} -->|\"dependsOn\"| ${tgt}"
     else if kind == "REFERENCES"
     then "    ${src} -.->|\"references\"| ${tgt}"
-    else "    ${src} -->|\"${escapeLabel kind}\"| ${tgt}";
+    else "    ${src} -->|\"${escapeLabel (edge.relation or (edge.kind or ""))}\"| ${tgt}";
 
-  # Decoupled 5-node conceptual architecture diagram
-  renderConceptualDiagram = ''
-    ```mermaid
-    flowchart TD
-        Host["Host"]
-        Implementation["Implementation"]
-        Feature["Feature"]
-        Contract["Contract"]
-        Library["Library"]
+  renderConceptualDiagram = {
+    docstring = ''
+      Conceptual 5-node architecture diagram template rendered in Mermaid syntax.
 
-        Host -->|"imports"| Implementation
-        Host -->|"imports"| Feature
-        Host -->|"consumes"| Contract
-        Implementation -.->|"implements"| Contract
-        Implementation -->|"consumes"| Contract
-        Feature -->|"consumes"| Contract
-        Contract -.->|"provides"| Library
-        Implementation -.->|"provides"| Library
-        Feature -.->|"provides"| Library
+      # Type
+      ```
+      renderConceptualDiagram :: String
+      ```
+    '';
+    value = ''
+      ```mermaid
+      flowchart TD
+          Host["Host"]
+          Implementation["Implementation"]
+          Feature["Feature"]
+          Contract["Contract"]
+          Library["Library"]
 
-        classDef default fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
-        classDef contract fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
-        classDef impl fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
-        classDef feat fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4;
-        classDef lib fill:#181825,stroke:#94e2d5,stroke-width:2px,color:#cdd6f4;
+          Host -->|"imports"| Implementation
+          Host -->|"imports"| Feature
+          Host -->|"consumes"| Contract
+          Implementation -.->|"implements"| Contract
+          Implementation -->|"consumes"| Contract
+          Feature -->|"consumes"| Contract
+          Contract -.->|"provides"| Library
+          Implementation -.->|"provides"| Library
+          Feature -.->|"provides"| Library
 
-        class Host default;
-        class Contract contract;
-        class Implementation impl;
-        class Feature feat;
-        class Library lib;
-    ```
-  '';
+          classDef default fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
+          classDef contract fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
+          classDef impl fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
+          classDef feat fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4;
+          classDef lib fill:#181825,stroke:#94e2d5,stroke-width:2px,color:#cdd6f4;
+
+          class Host default;
+          class Contract contract;
+          class Implementation impl;
+          class Feature feat;
+          class Library lib;
+      ```
+    '';
+  };
 
   /**
   Renders a typed graph data structure into formatted Mermaid flowchart syntax.
-
-  # Inputs
-
-  `args`
-  : Graph attribute set or options containing graph, direction, raw, and subgraphs.
-
-  # Type
-  ```
-  renderMermaid :: AttrSet -> String
-  ```
-
-  # Examples
-  ```nix
-  renderMermaid {
-    graph = {
-      nodes = {};
-      edges = [];
-    };
-    direction = "TD";
-  }
-  ```
   */
-  renderMermaid = args: let
+  renderMermaidFn = args: let
     opts =
       if args ? nodes && args ? edges
       then {graph = args;}
@@ -247,12 +255,43 @@
       ```mermaid
       ${content}```
     '';
+
+  renderMermaid = {
+    docstring = ''
+      Renders a typed graph data structure into formatted Mermaid flowchart syntax.
+
+      # Inputs
+
+      `args`
+      : Graph attribute set or options containing graph, direction, raw, and subgraphs.
+
+      # Type
+      ```
+      renderMermaid :: AttrSet -> String
+      ```
+
+      # Examples
+      ```nix
+      renderMermaid {
+        graph = {
+          nodes = {};
+          edges = [];
+        };
+        direction = "TD";
+      }
+      ```
+    '';
+    value = renderMermaidFn;
+  };
 in {
-  flake.lib.docsMermaid = {
-    inherit
-      renderMermaid
-      renderConceptualDiagram
-      sanitizeId
-      ;
+  lib.docsMermaid = {
+    description = "Declarative Mermaid flowchart diagram visualizer with custom styling.";
+    symbols = {
+      inherit
+        renderMermaid
+        renderConceptualDiagram
+        sanitizeId
+        ;
+    };
   };
 }

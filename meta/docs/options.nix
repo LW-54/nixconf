@@ -1,48 +1,9 @@
 {lib, ...}: {
   options.internal.docs = {
-    spec = {
-      core = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "Core specification helpers and shared formatting utilities.";
-      };
-      functions = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "RFC 145 function validation specification.";
-      };
-      options = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "NixOS option documentation and guideline specification.";
-      };
-      primitives = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "Core primitive schema verification specification.";
-      };
-      meta = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "Flake package, devshell, and module metadata specification.";
-      };
-    };
-    graph = {
-      discovery = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "Dynamic code and runtime inspection utilities.";
-      };
-      nodes = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "LPG graph node constructors.";
-      };
-      edges = lib.mkOption {
-        type = lib.types.raw;
-        default = {};
-        description = "LPG graph edge constructors.";
-      };
+    trees = lib.mkOption {
+      type = lib.types.raw;
+      default = {};
+      description = "Disko and Impermanence ASCII tree generators for host documentation.";
     };
     markdown = {
       shared = lib.mkOption {

@@ -15,68 +15,80 @@ Automated snapshot backup configuration, inclusion paths, exclusions, and retent
 ```mermaid
 flowchart TD
     subgraph Hosts["Hosts"]
-        host__astrolabe["astrolabe"]:::hostNode
+        urn__nixconf__onto__host__astrolabe["astrolabe"]:::hostNode
     end
 
     subgraph Contracts["Contracts"]
-        contract__backup(["backup"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__resources(["resources"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
-    end
-
-    subgraph Implementations["Implementations"]
-        impl__restic["restic"]:::implNode
+        urn__nixconf__onto__contract__backup(["backup"]):::contractNode
+        urn__nixconf__onto__contract__default_user(["default-user"]):::contractNode
+        urn__nixconf__onto__contract__home(["home"]):::contractNode
+        urn__nixconf__onto__contract__persistence(["persistence"]):::contractNode
+        urn__nixconf__onto__contract__resources(["resources"]):::contractNode
+        urn__nixconf__onto__contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        urn__nixconf__onto__contract__secrets(["secrets"]):::contractNode
+        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Features["Features"]
-        feature__vaultwarden["vaultwarden"]:::featureNode
-    end
-
-    subgraph Libraries["Libraries"]
-        lib__backup(["lib: backup"]):::libNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__backup_enable[/"backup.enable: boolean"/]:::optNode
-        opt__backup_exclude[/"backup.exclude: list of string"/]:::optNode
-        opt__backup_paths[/"backup.paths: list of absolute path"/]:::optNode
-        opt__backup_pruneOpts[/"backup.pruneOpts: list of string"/]:::optNode
-        opt__backup_timerConfig[/"backup.timerConfig: attribute set of anything"/]:::optNode
-    end
-
-    subgraph Functions["Library Functions"]
-        fn__backup_mkConfig(["backup.mkConfig"]):::fnNode
-        fn__backup_mkOption(["backup.mkOption"]):::fnNode
+        urn__nixconf__onto__feature__vaultwarden["vaultwarden"]:::featureNode
     end
 
     subgraph OtherNodes["Other Entities"]
-        fn__backup_defaultPruneOpts["backup.defaultPruneOpts"]
-        fn__backup_defaultTimerConfig["backup.defaultTimerConfig"]
+        urn__nixconf__ast__module__restic["restic"]
+        urn__nixconf__ast__module__vaultwarden["vaultwarden"]
+        urn__nixconf__ast__option__backup_enable[/"backup.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__backup_exclude[/"backup.exclude: list of string"/]:::optNode
+        urn__nixconf__ast__option__backup_paths[/"backup.paths: list of absolute path"/]:::optNode
+        urn__nixconf__ast__option__backup_pruneOpts[/"backup.pruneOpts: list of string"/]:::optNode
+        urn__nixconf__ast__option__backup_timerConfig[/"backup.timerConfig: attribute set of anything"/]:::optNode
+        urn__nixconf__onto__implementation__restic["restic"]:::implNode
+        urn__nixconf__onto__primitive__contract["contract"]
+        urn__nixconf__onto__primitive__feature["feature"]
+        urn__nixconf__onto__primitive__implementation["implementation"]
     end
 
 
-    host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| feature__vaultwarden
-    impl__restic -.->|"implements"| contract__backup
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    contract__backup -.->|"provides"| lib__backup
-    contract__backup --- opt__backup_enable
-    contract__backup --- opt__backup_exclude
-    contract__backup --- opt__backup_paths
-    contract__backup --- opt__backup_pruneOpts
-    contract__backup --- opt__backup_timerConfig
-    lib__backup -->|"exports"| fn__backup_defaultPruneOpts
-    lib__backup -->|"exports"| fn__backup_defaultTimerConfig
-    lib__backup -->|"exports"| fn__backup_mkConfig
-    lib__backup -->|"exports"| fn__backup_mkOption
+    urn__nixconf__ast__module__restic -.->|"reads"| urn__nixconf__ast__option__backup_enable
+    urn__nixconf__ast__module__restic -.->|"reads"| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__restic -.->|"reads"| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__restic -.->|"reads"| urn__nixconf__ast__option__backup_pruneOpts
+    urn__nixconf__ast__module__restic -.->|"reads"| urn__nixconf__ast__option__backup_timerConfig
+    urn__nixconf__ast__module__restic -->|"writes"| urn__nixconf__ast__option__backup_enable
+    urn__nixconf__ast__module__vaultwarden ==>|"flowsTo"| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden ==>|"flowsTo"| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden -->|"writes"| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__vaultwarden -->|"writes"| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__onto__contract__backup --- urn__nixconf__ast__option__backup_enable
+    urn__nixconf__onto__contract__backup --- urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__onto__contract__backup --- urn__nixconf__ast__option__backup_paths
+    urn__nixconf__onto__contract__backup --- urn__nixconf__ast__option__backup_pruneOpts
+    urn__nixconf__onto__contract__backup --- urn__nixconf__ast__option__backup_timerConfig
+    urn__nixconf__onto__feature__vaultwarden -->|"outputs"| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__implementation__restic -->|"outputs"| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__restic
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -96,7 +108,7 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 | Option Path | Type | Default | Example | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `options.backup.enable` | `boolean` | `1` | `1` | Whether to enable system backup automation contract. |
+| `options.backup.enable` | `boolean` | `` | `1` | Whether to enable system backup automation contract. |
 | `options.backup.exclude` | `list of string` | `[ ... ]` | `[ ... ]` | List of glob patterns, file paths, or directories to explicitly exclude from backup snapshots (e.g. cache directories, transient sockets). |
 | `options.backup.paths` | `list of absolute path` | `[ ... ]` | `[ ... ]` | List of absolute filesystem directory or file paths to include in the backup snapshot. Aggregated across all active service modules via `mkConfig`. |
 | `options.backup.pruneOpts` | `list of string` | `[ ... ]` | *none* | Command-line argument rules passed to the backup backend pruning command to enforce snapshot retention and prevent unbounded remote storage usage. |
@@ -115,8 +127,6 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 | :--- | :--- | :--- |
 | [`flake.lib.backup.defaultPruneOpts`](../lib/backup.md#defaultPruneOpts) | Contract option constructor / binding helper | [More →](../lib/backup.md#defaultPruneOpts) |
 | [`flake.lib.backup.defaultTimerConfig`](../lib/backup.md#defaultTimerConfig) | Contract option constructor / binding helper | [More →](../lib/backup.md#defaultTimerConfig) |
-| [`flake.lib.backup.mkConfig`](../lib/backup.md#mkConfig) | Contract option constructor / binding helper | [More →](../lib/backup.md#mkConfig) |
-| [`flake.lib.backup.mkOption`](../lib/backup.md#mkOption) | Contract option constructor / binding helper | [More →](../lib/backup.md#mkOption) |
 
 
 ## Implementations
@@ -137,21 +147,48 @@ Modules configuring options under the `backup` contract capability:
 
 ### Implementations
 
-*No implementations configure this contract.*
+<details>
+<summary><code><a href="../implementations/restic.md">restic</a></code></summary>
+
+Configures options: *general contract configuration*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+
 
 ### Features
 
 <details>
 <summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
 
-Configures options: `backup.enable`
+Configures options: *general contract configuration*
 
 ```nix
-// self.lib.backup.mkOption {
-  paths = ["/var/lib/vaultwarden"];
+config = {
+
 };
 
-(self.lib.backup.mkConfig {inherit config cfg;})
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
+
+Configures options: *general contract configuration*
+
+```nix
+config = {
+
+};
+
 ```
 
 </details>

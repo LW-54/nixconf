@@ -15,92 +15,130 @@ System resource limits, cgroup slices, memory/CPU quotas, and power-aware thrott
 ```mermaid
 flowchart TD
     subgraph Hosts["Hosts"]
-        host__astrolabe["astrolabe"]:::hostNode
-        host__x240["x240"]:::hostNode
+        urn__nixconf__onto__host__astrolabe["astrolabe"]:::hostNode
+        urn__nixconf__onto__host__x240["x240"]:::hostNode
     end
 
     subgraph Contracts["Contracts"]
-        contract__backup(["backup"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__resources(["resources"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
-    end
-
-    subgraph Implementations["Implementations"]
-        impl__caddy["caddy"]:::implNode
-        impl__cgroups["cgroups"]:::implNode
-        impl__restic["restic"]:::implNode
+        urn__nixconf__onto__contract__backup(["backup"]):::contractNode
+        urn__nixconf__onto__contract__default_user(["default-user"]):::contractNode
+        urn__nixconf__onto__contract__home(["home"]):::contractNode
+        urn__nixconf__onto__contract__persistence(["persistence"]):::contractNode
+        urn__nixconf__onto__contract__resources(["resources"]):::contractNode
+        urn__nixconf__onto__contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        urn__nixconf__onto__contract__secrets(["secrets"]):::contractNode
+        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Features["Features"]
-        feature__ttyd["ttyd"]:::featureNode
-        feature__vaultwarden["vaultwarden"]:::featureNode
-    end
-
-    subgraph Libraries["Libraries"]
-        lib__resources(["lib: resources"]):::libNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__resources_defaultSlices_enable[/"resources.defaultSlices.enable: boolean"/]:::optNode
-        opt__resources_enable[/"resources.enable: boolean"/]:::optNode
-        opt__resources_services[/"resources.services: attribute set of (submodule)"/]:::optNode
-        opt__resources_slices[/"resources.slices: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__onto__feature__ttyd["ttyd"]:::featureNode
+        urn__nixconf__onto__feature__vaultwarden["vaultwarden"]:::featureNode
     end
 
     subgraph ContractTypes["Contract Types"]
-        type__resources_byteSize{{"resources.byteSize"}}:::typeNode
-        type__resources_cgroupWeight{{"resources.cgroupWeight"}}:::typeNode
-        type__resources_service{{"resources.service"}}:::typeNode
-        type__resources_slice{{"resources.slice"}}:::typeNode
-    end
-
-    subgraph Functions["Library Functions"]
-        fn__resources_mkConfig(["resources.mkConfig"]):::fnNode
-        fn__resources_mkOption(["resources.mkOption"]):::fnNode
+        urn__nixconf__ast__type__resources_byteSize{{"resources.byteSize"}}:::typeNode
+        urn__nixconf__ast__type__resources_cgroupWeight{{"resources.cgroupWeight"}}:::typeNode
+        urn__nixconf__ast__type__resources_service{{"resources.service"}}:::typeNode
+        urn__nixconf__ast__type__resources_slice{{"resources.slice"}}:::typeNode
     end
 
     subgraph OtherNodes["Other Entities"]
-        fn__resources_defaultSlices["resources.defaultSlices"]
-        fn__resources_profiles["resources.profiles"]
+        urn__nixconf__ast__module__caddy["caddy"]
+        urn__nixconf__ast__module__cgroups["cgroups"]
+        urn__nixconf__ast__module__restic["restic"]
+        urn__nixconf__ast__module__ttyd["ttyd"]
+        urn__nixconf__ast__module__vaultwarden["vaultwarden"]
+        urn__nixconf__ast__option__resources_defaultSlices_enable[/"resources.defaultSlices.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__resources_enable[/"resources.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__resources_services[/"resources.services: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__ast__option__resources_slices[/"resources.slices: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+        urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
+        urn__nixconf__onto__implementation__restic["restic"]:::implNode
+        urn__nixconf__onto__primitive__contract["contract"]
+        urn__nixconf__onto__primitive__feature["feature"]
+        urn__nixconf__onto__primitive__implementation["implementation"]
     end
 
 
-    host__astrolabe -->|"imports"| impl__caddy
-    host__astrolabe -->|"imports"| impl__cgroups
-    host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| feature__ttyd
-    host__astrolabe -->|"imports"| feature__vaultwarden
-    host__x240 -->|"imports"| impl__cgroups
-    impl__caddy -.->|"implements"| contract__reverse_proxy
-    impl__cgroups -.->|"implements"| contract__resources
-    impl__restic -.->|"implements"| contract__backup
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    contract__resources -.->|"provides"| lib__resources
-    contract__resources --- opt__resources_defaultSlices_enable
-    contract__resources --- opt__resources_enable
-    contract__resources --- opt__resources_services
-    contract__resources --- opt__resources_slices
-    contract__resources --- type__resources_byteSize
-    contract__resources --- type__resources_cgroupWeight
-    contract__resources --- type__resources_service
-    contract__resources --- type__resources_slice
-    lib__resources -->|"exports"| fn__resources_defaultSlices
-    lib__resources -->|"exports"| fn__resources_mkConfig
-    lib__resources -->|"exports"| fn__resources_mkOption
-    lib__resources -->|"exports"| fn__resources_profiles
+    urn__nixconf__ast__module__caddy ==>|"flowsTo"| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__caddy -->|"writes"| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_defaultSlices_enable
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_defaultSlices_enable
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_enable
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_enable
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_slices
+    urn__nixconf__ast__module__cgroups -.->|"reads"| urn__nixconf__ast__option__resources_slices
+    urn__nixconf__ast__module__restic ==>|"flowsTo"| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__restic -->|"writes"| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__ttyd ==>|"flowsTo"| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__ttyd ==>|"flowsTo"| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__ttyd -->|"writes"| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__vaultwarden ==>|"flowsTo"| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__vaultwarden ==>|"flowsTo"| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__vaultwarden ==>|"flowsTo"| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden ==>|"flowsTo"| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden -->|"writes"| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__option__resources_services -.->|"typedBy"| urn__nixconf__ast__type__resources_service
+    urn__nixconf__ast__option__resources_services -.->|"typedBy"| urn__nixconf__ast__type__resources_slice
+    urn__nixconf__ast__option__resources_slices -.->|"typedBy"| urn__nixconf__ast__type__resources_service
+    urn__nixconf__ast__option__resources_slices -.->|"typedBy"| urn__nixconf__ast__type__resources_slice
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__option__resources_defaultSlices_enable
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__option__resources_enable
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__option__resources_services
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__option__resources_slices
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__type__resources_byteSize
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__type__resources_cgroupWeight
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__type__resources_service
+    urn__nixconf__onto__contract__resources --- urn__nixconf__ast__type__resources_slice
+    urn__nixconf__onto__feature__ttyd -->|"outputs"| urn__nixconf__ast__module__ttyd
+    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -->|"outputs"| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__x240 -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__implementation__caddy -->|"outputs"| urn__nixconf__ast__module__caddy
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__cgroups -->|"outputs"| urn__nixconf__ast__module__cgroups
+    urn__nixconf__onto__implementation__cgroups -.->|"implements"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups -.->|"implements"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -->|"outputs"| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__restic
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -170,27 +208,13 @@ Modules configuring options under the `resources` contract capability:
 <details>
 <summary><code><a href="../implementations/caddy.md">caddy</a></code></summary>
 
-Configures options: `resources.services.caddy`, `resources.enable`, `resources.services`
+Configures options: *general contract configuration*
 
 ```nix
-resources.services.caddy = lib.mkIf (config.resources.enable or false) {
-  profile = "critical";
-  memory.low = "32M";
-  memory.high = "256M";
-  memory.max = "512M";
+config = {
+
 };
-```
 
-</details>
-
-
-<details>
-<summary><code><a href="../implementations/cgroups.md">cgroups</a></code></summary>
-
-Configures options: `resources.enable`
-
-```nix
-profiles = self.lib.resources.profiles;
 ```
 
 </details>
@@ -199,17 +223,13 @@ profiles = self.lib.resources.profiles;
 <details>
 <summary><code><a href="../implementations/restic.md">restic</a></code></summary>
 
-Configures options: `resources.services.restic-backups-main`, `resources.enable`, `resources.services`
+Configures options: *general contract configuration*
 
 ```nix
-resources.services.restic-backups-main = lib.mkIf (config.resources.enable or false) {
-  profile = "background";
-  memory.high = "512M";
-  battery = {
-    throttleOnBattery = true;
-    pauseOnBattery = true;
-  };
+config = {
+
 };
+
 ```
 
 </details>
@@ -220,19 +240,13 @@ resources.services.restic-backups-main = lib.mkIf (config.resources.enable or fa
 <details>
 <summary><code><a href="../features/ttyd.md">ttyd</a></code></summary>
 
-Configures options: `resources.enable`
+Configures options: *general contract configuration*
 
 ```nix
-// self.lib.resources.mkOption {
-  profile = "standard";
-  memory.high = "256M";
-  memory.max = "512M";
-}
+config = {
 
-(self.lib.resources.mkConfig {
-  inherit config cfg;
-  serviceName = "ttyd-web";
-})
+};
+
 ```
 
 </details>
@@ -241,19 +255,13 @@ Configures options: `resources.enable`
 <details>
 <summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
 
-Configures options: `resources.enable`
+Configures options: *general contract configuration*
 
 ```nix
-// self.lib.resources.mkOption {
-  profile = "critical";
-  memory.guarantee = "64M";
-  memory.limit = "512M";
-}
+config = {
 
-(self.lib.resources.mkConfig {
-  inherit config cfg;
-  serviceName = "vaultwarden";
-})
+};
+
 ```
 
 </details>

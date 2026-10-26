@@ -60,26 +60,52 @@
         description = "Flake schema specification (version 1) exported directly to flake.schemas.<primitive>.";
       };
 
+      schemas = lib.mkOption {
+        type = lib.types.raw;
+        default = null;
+        description = "Per-instance schema inventory children generator mapping instances to Determinate Systems flake.schemas v1 specifications and evalChecks.";
+      };
+
       relationships = lib.mkOption {
         type = lib.types.attrsOf (
           lib.types.coercedTo lib.types.str
-          (label: {inherit label;})
-          (lib.types.submodule ({name, ...}: {
+          (relation: {inherit relation;})
+          (lib.types.submodule ({
+            name,
+            config,
+            ...
+          }: {
             options = {
               target = lib.mkOption {
-                type = lib.types.enum (builtins.attrNames config.primitive);
+                type = lib.types.str;
                 default = name;
-                description = "Target primitive type (strictly checked against declared primitives).";
+                description = "Target primitive kind (e.g. 'contract').";
               };
-              label = lib.mkOption {
-                type = lib.types.enum ["implements" "consumes" "imports" "outputs"];
-                description = "Nature of relationship.";
+              relation = lib.mkOption {
+                type = lib.types.str;
+                default = "implements";
+                description = "Computer science relationship verb.";
+              };
+              attribute = lib.mkOption {
+                type = lib.types.str;
+                default = name;
+                description = "Instance attribute key storing the target identifier.";
+              };
+              resolve = lib.mkOption {
+                type = lib.types.raw;
+                default = inst: inst.${config.attribute} or null;
+                description = "Function extracting the target identifier from an instance.";
+              };
+              description = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = "Documentation for this architectural relationship.";
               };
             };
           }))
         );
         default = {};
-        description = "Architectural relationships with other primitives.";
+        description = "Explicit architectural relationships between primitive instances (e.g. implementation implements contract).";
       };
 
       options = lib.mkOption {

@@ -4,7 +4,7 @@
   options,
   ...
 }: let
-  graphLib = config.flake.lib.docsGraph;
+  graphLib = config.flake.lib.graph;
   mermaidLib = config.flake.lib.docsMermaid;
   shared = config.internal.docs.markdown.shared;
 
@@ -31,7 +31,7 @@
     implMermaid = mermaidLib.renderMermaid implNeighborhood;
 
     renderHost = h: let
-      hostNode = graph.nodes."host:${h}" or null;
+      hostNode = graph.nodes."urn:nixconf:onto:host:${h}" or (graph.nodes."host:${h}" or null);
       hDesc =
         if hostNode != null
         then hostNode.properties.description or ""
@@ -42,7 +42,7 @@
         else "x86_64-linux";
     in "- [`${h}`](../hosts/${h}.md) (`${hSys}`): ${hDesc}";
 
-    consumedEdges = builtins.filter (e: e.source == implNode.id && e.kind == "CONSUMES") graph.edges;
+    consumedEdges = builtins.filter (e: e.source == implNode.id && (e.kind == "CONSUMES" || e.relation == "CONSUMES")) graph.edges;
 
     renderConsumedContract = e: let
       cNode = graph.nodes.${e.target} or null;
@@ -50,7 +50,12 @@
         if cNode != null
         then cNode.name
         else e.target;
-      opts = e.properties.optionsWritten or [];
+      opts =
+        e.properties.optionsWritten or (
+          if e ? qualifier && e.qualifier != null
+          then [e.qualifier]
+          else []
+        );
       optsStr =
         if opts != []
         then lib.concatStringsSep ", " (map (o: "`${o}`") opts)
@@ -151,7 +156,7 @@
 
     ## Importing Hosts
 
-    Hosts enabling this provider to fulfill the [`${cName}`](../contracts/${cName}.md) contract capability:
+    Hosts enabling this provider to fulfill the [`${cName}`](../contracts/${cName}.md) contract:
 
     ${
       if importingHosts != []
@@ -161,7 +166,7 @@
 
     ## Consumed Contracts
 
-    Capability contracts configured by this implementation:
+    Contracts configured by this implementation:
 
     ${
       if consumedEdges != []
@@ -193,9 +198,9 @@
 
     ### Option Schema (`options.implementation.<name>`)
 
-    - `contract` (string, required): Name of the capability contract this module implements.
+    - `contract` (string, required): Name of the contract this module implements.
     - `description` (string, required): Formal description of how this provider satisfies the contract.
-    - `module` (deferredModule, required): NixOS module implementing the contract capability.
+    - `module` (deferredModule, required): NixOS module implementing the contract.
     - `packages` (raw, default: `{}`): Implementation package declarations or generator function.
     - `devShells` (raw, default: `{}`): Implementation development shells or generator function.
     - `lib` (attrsOf raw, default: `{}`): Exported library helpers and identity definitions on `flake.lib.<name>`.

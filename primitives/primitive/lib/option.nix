@@ -61,10 +61,11 @@
                   res = checkFn inst;
                 in
                   if builtins.isAttrs res && res ? valid
-                  then res
+                  then ({todos = [];} // res)
                   else {
                     valid = res;
                     message = "${what} '${name}' failed check '${chkName}'.";
+                    todos = [];
                   })
                 allChecks;
               in {
@@ -270,7 +271,7 @@
 
       contract = {
         docstring = ''
-          Pre-configured option constructor specifying the target capability contract implemented by an implementation provider.
+          Pre-configured option constructor specifying the target contract implemented by an implementation provider.
 
           # Inputs
 
@@ -282,7 +283,7 @@
           contract :: (String -> Option) | Option
           ```
         '';
-        value = mkDualOption "Name of the capability contract this module implements." (
+        value = mkDualOption "Name of the contract this module implements." (
           desc:
             lib.mkOption {
               type = lib.types.str;

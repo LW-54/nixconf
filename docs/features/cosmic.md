@@ -14,73 +14,66 @@ Next-generation COSMIC desktop environment and greeter.
 
 ```mermaid
 flowchart TD
-    subgraph Contracts["Contracts"]
-        contract__persistence(["persistence"]):::contractNode
-    end
-
-    subgraph Implementations["Implementations"]
-        impl__caddy["caddy"]:::implNode
-        impl__impermanence["impermanence"]:::implNode
-        impl__lw["lw"]:::implNode
-    end
-
     subgraph Features["Features"]
-        feature__antigravity["antigravity"]:::featureNode
-        feature__bitwarden["bitwarden"]:::featureNode
-        feature__cosmic["cosmic"]:::featureNode
-        feature__direnv["direnv"]:::featureNode
-        feature__dolphin["dolphin"]:::featureNode
-        feature__foot["foot"]:::featureNode
-        feature__helium["helium"]:::featureNode
-        feature__labwc["labwc"]:::featureNode
-        feature__noctalia["noctalia"]:::featureNode
-        feature__ssh["ssh"]:::featureNode
-        feature__vaultwarden["vaultwarden"]:::featureNode
-        feature__vivaldi["vivaldi"]:::featureNode
-        feature__vscode["vscode"]:::featureNode
+        urn__nixconf__onto__feature__antigravity["antigravity"]:::featureNode
+        urn__nixconf__onto__feature__audio["audio"]:::featureNode
+        urn__nixconf__onto__feature__bitwarden["bitwarden"]:::featureNode
+        urn__nixconf__onto__feature__cosmic["cosmic"]:::featureNode
+        urn__nixconf__onto__feature__cursor["cursor"]:::featureNode
+        urn__nixconf__onto__feature__direnv["direnv"]:::featureNode
+        urn__nixconf__onto__feature__disko["disko"]:::featureNode
+        urn__nixconf__onto__feature__dolphin["dolphin"]:::featureNode
+        urn__nixconf__onto__feature__fonts["fonts"]:::featureNode
+        urn__nixconf__onto__feature__foot["foot"]:::featureNode
+        urn__nixconf__onto__feature__git["git"]:::featureNode
+        urn__nixconf__onto__feature__greetd["greetd"]:::featureNode
+        urn__nixconf__onto__feature__helium["helium"]:::featureNode
+        urn__nixconf__onto__feature__labwc["labwc"]:::featureNode
+        urn__nixconf__onto__feature__locale["locale"]:::featureNode
+        urn__nixconf__onto__feature__nix["nix"]:::featureNode
+        urn__nixconf__onto__feature__noctalia["noctalia"]:::featureNode
+        urn__nixconf__onto__feature__ssh["ssh"]:::featureNode
+        urn__nixconf__onto__feature__tack["tack"]:::featureNode
+        urn__nixconf__onto__feature__ttyd["ttyd"]:::featureNode
+        urn__nixconf__onto__feature__user["user"]:::featureNode
+        urn__nixconf__onto__feature__vaultwarden["vaultwarden"]:::featureNode
+        urn__nixconf__onto__feature__vivaldi["vivaldi"]:::featureNode
+        urn__nixconf__onto__feature__vscode["vscode"]:::featureNode
+        urn__nixconf__onto__feature__wifi_eduroam["wifi-eduroam"]:::featureNode
     end
 
-    subgraph Libraries["Libraries"]
-        lib__persistence(["lib: persistence"]):::libNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__persistence_directories[/"persistence.directories: list of (string or attribute set of anything)"/]:::optNode
-        opt__persistence_enable[/"persistence.enable: boolean"/]:::optNode
-        opt__persistence_files[/"persistence.files: list of (string or attribute set of anything)"/]:::optNode
-        opt__persistence_users[/"persistence.users: attribute set of (submodule)"/]:::optNode
-    end
-
-    subgraph ContractTypes["Contract Types"]
-        type__persistence_entries{{"persistence.entries"}}:::typeNode
-        type__persistence_user{{"persistence.user"}}:::typeNode
+    subgraph OtherNodes["Other Entities"]
+        urn__nixconf__ast__module__cosmic["cosmic"]
+        urn__nixconf__onto__primitive__feature["feature"]
     end
 
 
-    impl__impermanence -.->|"implements"| contract__persistence
-    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
-    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
-    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
-    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
-    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
-    feature__foot -->|"consumes (persistence.users)"| contract__persistence
-    feature__helium -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
-    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
-    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    contract__persistence -.->|"provides"| lib__persistence
-    contract__persistence --- opt__persistence_directories
-    contract__persistence --- opt__persistence_enable
-    contract__persistence --- opt__persistence_files
-    contract__persistence --- opt__persistence_users
-    contract__persistence --- type__persistence_entries
-    contract__persistence --- type__persistence_user
+    urn__nixconf__onto__feature__cosmic -->|"outputs"| urn__nixconf__ast__module__cosmic
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__audio
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__cosmic
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__cursor
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__fonts
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__git
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__greetd
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__helium
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__tack
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__user
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__primitive__feature --- urn__nixconf__onto__feature__wifi_eduroam
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -121,28 +114,6 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 ## Consumed Contracts
 
-Capability contracts configured by this feature:
+Contracts configured by this feature:
 
-<details>
-<summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
-
-Configures options: `persistence.users`, `persistence.directories`
-
-```nix
-persistence.users = lib.mkIf config.cosmic.enable (lib.mapAttrs (_: _: {
-  data.directories = [
-    ".config/cosmic"
-    ".config/dconf"
-    ".local/state/cosmic"
-    ".local/state/cosmic-comp"
-  ];
-  cache.directories = [".cache/cosmic-settings"];
-}) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users));
-
-persistence.directories = lib.mkIf config.services.displayManager.cosmic-greeter.enable [
-  "/var/lib/cosmic-greeter"
-];
-```
-
-</details>
-
+*No contracts consumed by this feature.*

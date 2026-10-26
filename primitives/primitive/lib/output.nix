@@ -134,6 +134,107 @@
             instances;
         };
       };
+
+      schemas = {
+        docstring = ''
+          Helper generating Determinate Systems `flake.schemas` v1 declarations for primitive instances.
+
+          # Inputs
+
+          `kind`
+          : Primitive kind string (e.g. "contract", "feature", "host", "implementation", "lib").
+
+          `instances`
+          : Attribute set of primitive instances declared under `config.<primitive>`.
+
+          `children`
+          : Function `(name: instance: { ... })` returning an attribute set of schema inventory children.
+
+          # Type
+          ```
+          schemas :: AttrSet -> AttrSet
+          ```
+        '';
+        value = {
+          kind,
+          instances,
+          children ? (_: _: {}),
+        }: {
+          flake.schemas =
+            lib.mapAttrs' (
+              name: inst:
+                lib.nameValuePair "${kind}/${name}" {
+                  version = 1;
+                  doc = inst.description or "${kind} instance '${name}'.";
+                  inventory = _: {
+                    children = children name inst;
+                  };
+                }
+            )
+            instances;
+        };
+      };
+
+      childOutputs = {
+        docstring = ''
+          Helper creating schema inventory children for instance `packages` and `devShells`.
+
+          # Inputs
+
+          `name`
+          : Name of the primitive instance.
+
+          `inst`
+          : Instance attribute set.
+
+          # Type
+          ```
+          childOutputs :: String -> AttrSet -> AttrSet
+          ```
+        '';
+        value = name: inst:
+          (lib.optionalAttrs (inst.packages or null != null) {
+            packages = {
+              what = "Exported packages";
+              shortDescription = "Packages declared by '${name}'.";
+              evalChecks = {
+                isValid = builtins.isAttrs inst.packages || builtins.isFunction inst.packages;
+              };
+            };
+          })
+          // (lib.optionalAttrs (inst.devShells or null != null) {
+            devShells = {
+              what = "Exported devShells";
+              shortDescription = "DevShells declared by '${name}'.";
+              evalChecks = {
+                isValid = builtins.isAttrs inst.devShells || builtins.isFunction inst.devShells;
+              };
+            };
+          });
+      };
+
+      standard = {
+        docstring = ''
+          Standard output generator merging packages, devShells, lib, and nixosModules for primitive instances.
+
+          # Inputs
+
+          `instances`
+          : Attribute set of primitive instances declared under `config.<primitive>`.
+
+          # Type
+          ```
+          standard :: AttrSet -> AttrSet
+          ```
+        '';
+        value = instances:
+          lib.mkMerge [
+            (output.value.packages.value instances)
+            (output.value.devShells.value instances)
+            (output.value.lib.value instances)
+            (output.value.nixosModules.value instances)
+          ];
+      };
     };
   };
 in {

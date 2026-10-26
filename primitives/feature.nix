@@ -1,4 +1,5 @@
 {
+  check,
   lib,
   option,
   output,
@@ -9,21 +10,28 @@
       what = "System feature module set";
       doc = "Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.";
       checks = {
-        hasCapability = inst: {
-          valid =
-            (inst.modules or {})
-            != {}
-            || (inst.packages or {}) != {}
-            || (inst.devShells or {}) != {}
-            || (inst.lib or {}) != {};
-          message = "Feature must export at least one module, package, devShell, or library helper.";
-        };
+        hasOutputs = check.any [
+          (check.hasNonEmptyAttrs "modules")
+          (check.hasNonEmptyAttrs "packages")
+          (check.hasNonEmptyAttrs "devShells")
+          (check.hasNonEmptyAttrs "lib")
+        ];
+        validSymbols = check.validSymbols;
+        validMeta = check.validMeta;
       };
     };
 
-    relationships = {
-      contract = "consumes";
-    };
+    relationships = {};
+
+    schemas = name: feat:
+      (lib.mapAttrs (
+        modName: modDef: {
+          what = "NixOS module";
+          shortDescription = "Feature submodule '${modName}'.";
+          evalChecks.isValidModule = builtins.isFunction modDef || builtins.isAttrs modDef || builtins.isPath modDef;
+        }
+      ) (feat.modules or {}))
+      // (output.childOutputs name feat);
 
     options = {
       modules = option.modules;
@@ -33,12 +41,6 @@
       types = option.types;
     };
 
-    outputs = {instances, ...}:
-      lib.mkMerge [
-        (output.packages instances)
-        (output.devShells instances)
-        (output.lib instances)
-        (output.nixosModules instances)
-      ];
+    outputs = {instances, ...}: output.standard instances;
   };
 }

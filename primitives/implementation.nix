@@ -1,4 +1,5 @@
 {
+  check,
   lib,
   option,
   output,
@@ -14,16 +15,35 @@
           valid = inst ? contract && (self.contract ? ${inst.contract});
           message = "Implementation targets unknown contract '${inst.contract or "unknown"}'. Declared contracts: ${lib.concatStringsSep ", " (builtins.attrNames (self.contract or {}))}";
         };
-        hasModule = inst: {
-          valid = inst ? module;
-          message = "Implementation is missing required 'module' definition.";
-        };
+        hasModule = check.hasAttr "module";
+        validSymbols = check.validSymbols;
       };
     };
 
     relationships = {
-      contract = "implements";
+      contract = {
+        relation = "implements";
+        description = "Implementation fulfills contract interface.";
+      };
     };
+
+    schemas = {
+      name,
+      instance,
+      config,
+      ...
+    }:
+      {
+        contract = {
+          what = "Target contract";
+          shortDescription = "Implements contract '${instance.contract or "unknown"}'.";
+          evalChecks = {
+            validContract = instance ? contract && (config.contract ? ${instance.contract});
+            hasModule = instance ? module;
+          };
+        };
+      }
+      // (output.childOutputs name instance);
 
     options = {
       contract = option.contract;
@@ -33,16 +53,6 @@
       lib = option.lib;
     };
 
-    outputs = {
-      instances,
-      lib,
-      ...
-    }:
-      lib.mkMerge [
-        (output.packages instances)
-        (output.devShells instances)
-        (output.lib instances)
-        (output.nixosModules instances)
-      ];
+    outputs = {instances, ...}: output.standard instances;
   };
 }

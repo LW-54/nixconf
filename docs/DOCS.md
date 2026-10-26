@@ -8,7 +8,7 @@ Pure-Nix documentation generation architecture, Labeled Property Graph (LPG) IR,
 
 The documentation generator is implemented as a pure-Nix evaluation pipeline structured into modular components:
 
-- [`meta/docs/spec/`](../meta/docs/spec): Formal schemas, node types, edge kinds, and verification assertions.
+- [`primitives/primitive/lib/check.nix`](../primitives/primitive/lib/check.nix): Formal specification checks and verification assertions.
 - [`meta/docs/parser.nix`](../meta/docs/parser.nix): RFC 145 docstring parser extracting summaries, argument inputs, types, and examples.
 - [`meta/docs/graph/`](../meta/docs/graph): LPG property graph builder synthesizing `nixconf.json`.
 - [`meta/docs/mermaid.nix`](../meta/docs/mermaid.nix): Declarative Mermaid diagram visualizer with custom styling.
@@ -23,9 +23,6 @@ nix run .#docs -- --write
 
 # Verify that documentation suite is synchronized (non-blocking)
 nix run .#docs -- --check
-
-# Verify documentation with zero-debt enforcement
-nix run .#docs -- --check --strict
 
 # Inspect evaluated LPG property graph in JSON format
 nix run .#docs -- --json

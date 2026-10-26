@@ -15,7 +15,7 @@ Within repository modules, NixOS configurations, or packages, access functions d
 ```nix
 { self, lib, pkgs, ... }: {
   # Access helpers directly from self.lib.primitive
-  example = self.lib.primitive.option;
+  example = self.lib.primitive.unwrapLib;
 }
 ```
 
@@ -32,12 +32,71 @@ When consuming this flake as an input in another `flake.nix`:
 
   outputs = { self, nixpkgs, nixconf, ... }: {
     # Access exported helpers from inputs.nixconf.lib.primitive
-    example = nixconf.lib.primitive.option;
+    example = nixconf.lib.primitive.unwrapLib;
   };
 }
 ```
 
 ## Exported Symbols
+
+<a id="unwrapLib"></a>
+### `unwrapLib`
+
+Unwraps documented symbols from an attribute set, extracting `.value` if present or stripping `.docstring` metadata.
+
+
+
+#### Inputs
+
+- `attrs`: Attribute set containing documented symbol definitions.
+
+
+#### Type
+
+```
+unwrapLib :: AttrSet -> AttrSet
+```
+
+
+
+
+
+<a id="check"></a>
+### `check`
+
+Generic validation check constructors, predicates, and style specification verifiers.
+
+
+
+
+
+#### Type
+
+```
+check :: AttrSet
+
+# Values
+- `cleanMsg msg`: Normalizes multiline messages into single-line strings.
+- `recordTodo diag`: Standard diagnostic constructor emitting evaluation warnings.
+- `validOption args`: Validates individual NixOS option declarations.
+- `validOptions inst`: Validates all options in a contract or submodule tree.
+- `validFunction args`: Validates RFC 145 function docstrings and parameter drift.
+- `validDocstring args`: Validates symbol docstring summaries and signatures.
+- `validSymbols inst`: Validates all symbols in a library instance.
+- `validMeta inst`: Validates metadata descriptions on packages and shells.
+- `mkCheck predicate [message]`: Constructs a custom check from a predicate function.
+- `hasAttr attr [message]`: Validates that an attribute exists on the instance.
+- `hasAttrs attr [message]`: Validates that an attribute exists and is an attribute set.
+- `hasNonEmptyAttrs attr [message]`: Validates that an attribute is a non-empty attribute set.
+- `hasString attr [message]`: Validates that an attribute is a non-empty string.
+- `hasFunction attr [message]`: Validates that an attribute is a function.
+- `any checkList [message]`: Validates that at least one check passes.
+- `all checkList [message]`: Validates that all checks pass.
+```
+
+
+
+
 
 <a id="option"></a>
 ### `option`
@@ -77,22 +136,23 @@ output :: AttrSet
 
 
 
-<a id="unwrapLib"></a>
-### `unwrapLib`
+<a id="parser"></a>
+### `parser`
 
-Unwraps documented symbols from an attribute set, extracting `.value` if present or stripping `.docstring` metadata.
+Pure-Nix RFC 145 docstring parser utilities for functions and library symbols.
 
 
 
-#### Inputs
-
-- `attrs`: Attribute set containing documented symbol definitions.
 
 
 #### Type
 
 ```
-unwrapLib :: AttrSet -> AttrSet
+parser :: AttrSet
+
+# Values
+- `stripLeadingIndentation text`: Strips common indentation whitespace.
+- `parseDocstring rawComment`: Parses structured RFC 145 docstring sections.
 ```
 
 

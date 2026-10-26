@@ -17,10 +17,10 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.vivaldi
-  self.nixosModules.vscode
-  self.nixosModules.antigravity-ide
-];
+          self.nixosModules.vivaldi
+          self.nixosModules.vscode
+          self.nixosModules.antigravity-ide
+        ];
 ```
 
 </details>

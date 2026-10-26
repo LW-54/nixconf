@@ -86,7 +86,7 @@
   '';
 
   renderPackagesIndex = {graph}: let
-    pkgs = builtins.filter (n: n.kind == "pkg") (builtins.attrValues graph.nodes);
+    pkgs = builtins.filter (n: n.kind == "pkg" || n.kind == "package") (builtins.attrValues graph.nodes);
     pkgBlock = p: ''
       <a id="${p.name}"></a>
       ### `${p.name}`
@@ -110,7 +110,7 @@
   '';
 
   renderDevshellsIndex = {graph}: let
-    shells = builtins.filter (n: n.kind == "shell") (builtins.attrValues graph.nodes);
+    shells = builtins.filter (n: n.kind == "shell" || n.kind == "devShell") (builtins.attrValues graph.nodes);
     shellBlock = s: ''
       <a id="${s.name}"></a>
       ### `${s.name}`
@@ -139,7 +139,7 @@
     sublibGroups ? {},
   }: let
     sublibRow = s: let
-      libNode = graph.nodes."lib:${s}" or null;
+      libNode = graph.nodes."urn:nixconf:onto:lib:${s}" or (graph.nodes."lib:${s}" or null);
       desc =
         if libNode != null && libNode.properties ? description
         then libNode.properties.description
@@ -215,7 +215,7 @@
   }: let
     libNode =
       if graph != null
-      then graph.nodes."lib:${sublib}" or null
+      then graph.nodes."urn:nixconf:onto:lib:${sublib}" or (graph.nodes."lib:${sublib}" or null)
       else null;
     desc =
       if libNode != null && libNode.properties ? description

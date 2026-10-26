@@ -1,13 +1,13 @@
 <h1 align="center">❄️ nixconf</h1>
 
-<p align="center">Declarative multi-host infrastructure, capability contracts, and modular NixOS configuration repository powered by pure-Nix evaluation.</p>
+<p align="center">Declarative multi-host infrastructure, contracts, and modular NixOS configuration repository powered by pure-Nix evaluation.</p>
 
 ## Architecture Overview
 
 The repository architecture is governed by five first-class, symmetrical primitives:
 
 - **Hosts (`host`)**: Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.
-- **Contracts (`contract`)**: Pure capability interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
+- **Contracts (`contract`)**: Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
 - **Implementations (`implementation`)**: Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations.
 - **Features (`feature`)**: Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.
 - **Libraries (`lib`)**: Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository.
@@ -50,181 +50,181 @@ flowchart TD
 ```mermaid
 flowchart TD
     subgraph Hosts["Hosts"]
-        host__astrolabe["astrolabe"]:::hostNode
-        host__x240["x240"]:::hostNode
+        urn__nixconf__onto__host__astrolabe["astrolabe"]:::hostNode
+        urn__nixconf__onto__host__x240["x240"]:::hostNode
     end
 
     subgraph Contracts["Contracts"]
-        contract__backup(["backup"]):::contractNode
-        contract__default_user(["default-user"]):::contractNode
-        contract__home(["home"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__resources(["resources"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
-        contract__wayland(["wayland"]):::contractNode
-    end
-
-    subgraph Implementations["Implementations"]
-        impl__caddy["caddy"]:::implNode
-        impl__cgroups["cgroups"]:::implNode
-        impl__hjem["hjem"]:::implNode
-        impl__impermanence["impermanence"]:::implNode
-        impl__lw["lw"]:::implNode
-        impl__restic["restic"]:::implNode
-        impl__sops["sops"]:::implNode
-        impl__uwsm["uwsm"]:::implNode
+        urn__nixconf__onto__contract__backup(["backup"]):::contractNode
+        urn__nixconf__onto__contract__default_user(["default-user"]):::contractNode
+        urn__nixconf__onto__contract__home(["home"]):::contractNode
+        urn__nixconf__onto__contract__persistence(["persistence"]):::contractNode
+        urn__nixconf__onto__contract__resources(["resources"]):::contractNode
+        urn__nixconf__onto__contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        urn__nixconf__onto__contract__secrets(["secrets"]):::contractNode
+        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Features["Features"]
-        feature__antigravity["antigravity"]:::featureNode
-        feature__audio["audio"]:::featureNode
-        feature__bitwarden["bitwarden"]:::featureNode
-        feature__cosmic["cosmic"]:::featureNode
-        feature__cursor["cursor"]:::featureNode
-        feature__direnv["direnv"]:::featureNode
-        feature__disko["disko"]:::featureNode
-        feature__dolphin["dolphin"]:::featureNode
-        feature__fonts["fonts"]:::featureNode
-        feature__foot["foot"]:::featureNode
-        feature__git["git"]:::featureNode
-        feature__greetd["greetd"]:::featureNode
-        feature__helium["helium"]:::featureNode
-        feature__labwc["labwc"]:::featureNode
-        feature__locale["locale"]:::featureNode
-        feature__nix["nix"]:::featureNode
-        feature__noctalia["noctalia"]:::featureNode
-        feature__ssh["ssh"]:::featureNode
-        feature__tack["tack"]:::featureNode
-        feature__ttyd["ttyd"]:::featureNode
-        feature__user["user"]:::featureNode
-        feature__vaultwarden["vaultwarden"]:::featureNode
-        feature__vivaldi["vivaldi"]:::featureNode
-        feature__vscode["vscode"]:::featureNode
-        feature__wifi_eduroam["wifi-eduroam"]:::featureNode
+        urn__nixconf__onto__feature__antigravity["antigravity"]:::featureNode
+        urn__nixconf__onto__feature__audio["audio"]:::featureNode
+        urn__nixconf__onto__feature__bitwarden["bitwarden"]:::featureNode
+        urn__nixconf__onto__feature__cosmic["cosmic"]:::featureNode
+        urn__nixconf__onto__feature__cursor["cursor"]:::featureNode
+        urn__nixconf__onto__feature__direnv["direnv"]:::featureNode
+        urn__nixconf__onto__feature__disko["disko"]:::featureNode
+        urn__nixconf__onto__feature__dolphin["dolphin"]:::featureNode
+        urn__nixconf__onto__feature__fonts["fonts"]:::featureNode
+        urn__nixconf__onto__feature__foot["foot"]:::featureNode
+        urn__nixconf__onto__feature__git["git"]:::featureNode
+        urn__nixconf__onto__feature__greetd["greetd"]:::featureNode
+        urn__nixconf__onto__feature__helium["helium"]:::featureNode
+        urn__nixconf__onto__feature__labwc["labwc"]:::featureNode
+        urn__nixconf__onto__feature__locale["locale"]:::featureNode
+        urn__nixconf__onto__feature__nix["nix"]:::featureNode
+        urn__nixconf__onto__feature__noctalia["noctalia"]:::featureNode
+        urn__nixconf__onto__feature__ssh["ssh"]:::featureNode
+        urn__nixconf__onto__feature__tack["tack"]:::featureNode
+        urn__nixconf__onto__feature__ttyd["ttyd"]:::featureNode
+        urn__nixconf__onto__feature__user["user"]:::featureNode
+        urn__nixconf__onto__feature__vaultwarden["vaultwarden"]:::featureNode
+        urn__nixconf__onto__feature__vivaldi["vivaldi"]:::featureNode
+        urn__nixconf__onto__feature__vscode["vscode"]:::featureNode
+        urn__nixconf__onto__feature__wifi_eduroam["wifi-eduroam"]:::featureNode
     end
 
     subgraph Libraries["Libraries"]
-        lib__backup(["lib: backup"]):::libNode
-        lib__bitwarden(["lib: bitwarden"]):::libNode
-        lib__default_user(["lib: default-user"]):::libNode
-        lib__disko(["lib: disko"]):::libNode
-        lib__home(["lib: home"]):::libNode
-        lib__lw(["lib: lw"]):::libNode
-        lib__persistence(["lib: persistence"]):::libNode
-        lib__primitive(["lib: primitive"]):::libNode
-        lib__resources(["lib: resources"]):::libNode
-        lib__reverse_proxy(["lib: reverse-proxy"]):::libNode
-        lib__secrets(["lib: secrets"]):::libNode
-        lib__sops(["lib: sops"]):::libNode
-        lib__user(["lib: user"]):::libNode
-        lib__wayland(["lib: wayland"]):::libNode
+        urn__nixconf__onto__lib__backup(["lib: backup"]):::libNode
+        urn__nixconf__onto__lib__bitwarden(["lib: bitwarden"]):::libNode
+        urn__nixconf__onto__lib__default_user(["lib: default-user"]):::libNode
+        urn__nixconf__onto__lib__disko(["lib: disko"]):::libNode
+        urn__nixconf__onto__lib__docsMarkdown(["lib: docsMarkdown"]):::libNode
+        urn__nixconf__onto__lib__docsMermaid(["lib: docsMermaid"]):::libNode
+        urn__nixconf__onto__lib__docsParser(["lib: docsParser"]):::libNode
+        urn__nixconf__onto__lib__graph(["lib: graph"]):::libNode
+        urn__nixconf__onto__lib__home(["lib: home"]):::libNode
+        urn__nixconf__onto__lib__lw(["lib: lw"]):::libNode
+        urn__nixconf__onto__lib__persistence(["lib: persistence"]):::libNode
+        urn__nixconf__onto__lib__primitive(["lib: primitive"]):::libNode
+        urn__nixconf__onto__lib__resources(["lib: resources"]):::libNode
+        urn__nixconf__onto__lib__reverse_proxy(["lib: reverse-proxy"]):::libNode
+        urn__nixconf__onto__lib__secrets(["lib: secrets"]):::libNode
+        urn__nixconf__onto__lib__sops(["lib: sops"]):::libNode
+        urn__nixconf__onto__lib__user(["lib: user"]):::libNode
+        urn__nixconf__onto__lib__wayland(["lib: wayland"]):::libNode
+    end
+
+    subgraph OtherNodes["Other Entities"]
+        urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+        urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
+        urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
+        urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
+        urn__nixconf__onto__implementation__lw["lw"]:::implNode
+        urn__nixconf__onto__implementation__restic["restic"]:::implNode
+        urn__nixconf__onto__implementation__sops["sops"]:::implNode
+        urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
     end
 
 
-    host__astrolabe -->|"imports"| impl__caddy
-    host__astrolabe -->|"imports"| impl__cgroups
-    host__astrolabe -->|"imports"| impl__impermanence
-    host__astrolabe -->|"imports"| impl__lw
-    host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| impl__sops
-    host__astrolabe -->|"imports"| feature__disko
-    host__astrolabe -->|"imports"| feature__git
-    host__astrolabe -->|"imports"| feature__locale
-    host__astrolabe -->|"imports"| feature__nix
-    host__astrolabe -->|"imports"| feature__ssh
-    host__astrolabe -->|"imports"| feature__ttyd
-    host__astrolabe -->|"imports"| feature__vaultwarden
-    host__x240 -->|"imports"| impl__cgroups
-    host__x240 -->|"imports"| impl__hjem
-    host__x240 -->|"imports"| impl__impermanence
-    host__x240 -->|"imports"| impl__lw
-    host__x240 -->|"imports"| impl__sops
-    host__x240 -->|"imports"| impl__uwsm
-    host__x240 -->|"imports"| feature__antigravity
-    host__x240 -->|"imports"| feature__audio
-    host__x240 -->|"imports"| feature__bitwarden
-    host__x240 -->|"imports"| feature__cursor
-    host__x240 -->|"imports"| feature__direnv
-    host__x240 -->|"imports"| feature__disko
-    host__x240 -->|"imports"| feature__dolphin
-    host__x240 -->|"imports"| feature__fonts
-    host__x240 -->|"imports"| feature__foot
-    host__x240 -->|"imports"| feature__git
-    host__x240 -->|"imports"| feature__greetd
-    host__x240 -->|"imports"| feature__labwc
-    host__x240 -->|"imports"| feature__locale
-    host__x240 -->|"imports"| feature__nix
-    host__x240 -->|"imports"| feature__noctalia
-    host__x240 -->|"imports"| feature__ssh
-    host__x240 -->|"imports"| feature__tack
-    host__x240 -->|"imports"| feature__vivaldi
-    host__x240 -->|"imports"| feature__vscode
-    host__x240 -->|"imports"| feature__wifi_eduroam
-    impl__caddy -.->|"implements"| contract__reverse_proxy
-    impl__cgroups -.->|"implements"| contract__resources
-    impl__hjem -.->|"implements"| contract__home
-    impl__impermanence -.->|"implements"| contract__persistence
-    impl__lw -.->|"implements"| contract__default_user
-    impl__restic -.->|"implements"| contract__backup
-    impl__sops -.->|"implements"| contract__secrets
-    impl__uwsm -.->|"implements"| contract__wayland
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
-    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
-    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
-    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
-    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
-    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
-    feature__foot -->|"consumes (persistence.users)"| contract__persistence
-    feature__git -->|"consumes"| contract__default_user
-    feature__git -->|"consumes (home.users, home.shared)"| contract__home
-    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
-    feature__helium -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
-    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
-    feature__nix -->|"consumes (secrets.files)"| contract__secrets
-    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
-    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
-    feature__ttyd -->|"consumes (resources.enable)"| contract__resources
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (backup.enable)"| contract__backup
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (resources.enable)"| contract__resources
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
-    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
-    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__caddy -->|"consumes (resources.services.caddy, resources.enable, resources.services)"| contract__resources
-    impl__cgroups -->|"consumes (resources.enable)"| contract__resources
-    impl__hjem -->|"consumes (home.enable)"| contract__home
-    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    impl__restic -->|"consumes (resources.services.restic-backups-main, resources.enable, resources.services)"| contract__resources
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
-    contract__backup -.->|"provides"| lib__backup
-    contract__default_user -.->|"provides"| lib__default_user
-    contract__home -.->|"provides"| lib__home
-    contract__persistence -.->|"provides"| lib__persistence
-    contract__resources -.->|"provides"| lib__resources
-    contract__reverse_proxy -.->|"provides"| lib__reverse_proxy
-    contract__secrets -.->|"provides"| lib__secrets
-    contract__wayland -.->|"provides"| lib__wayland
-    impl__lw -.->|"provides"| lib__lw
-    impl__sops -.->|"provides"| lib__sops
-    feature__bitwarden -.->|"provides"| lib__bitwarden
-    feature__disko -.->|"provides"| lib__disko
-    feature__user -.->|"provides"| lib__user
+    urn__nixconf__onto__feature__antigravity -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__bitwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__direnv -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__dolphin -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__locale -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__nix -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__noctalia -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vivaldi -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vscode -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__wifi_eduroam -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__astrolabe -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__audio
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__cursor
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__fonts
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__greetd
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__tack
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__cgroups -.->|"implements"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups -.->|"implements"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__hjem -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__impermanence -.->|"implements"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__impermanence -.->|"implements"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops -.->|"implements"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__sops -.->|"implements"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -276,9 +276,9 @@ Foundational abstractions governing components across the repository, declared i
 
 | Primitive | Description | Source File |
 | :--- | :--- | :--- |
-| **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive.nix`](primitives/primitive.nix) |
-| **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host.nix`](primitives/host.nix) |
-| **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract.nix`](primitives/contract.nix) |
+| **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](primitives/primitive/default.nix) |
+| **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](primitives/host/default.nix) |
+| **`contract`** | Abstract contract interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](primitives/contract/default.nix) |
 | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](primitives/implementation.nix) |
 | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](primitives/feature.nix) |
 | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](primitives/lib.nix) |
@@ -288,7 +288,7 @@ Foundational abstractions governing components across the repository, declared i
 <details>
 <summary><h3>Hosts</h3></summary>
 
-Master registry of target hosts declared via `options.host` in [`primitives/host.nix`](primitives/host.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
+Master registry of target hosts declared via `options.host` in [`primitives/host/default.nix`](primitives/host/default.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
 
 | Host | Description | System | Docs |
 | :--- | :--- | :--- | :--- |
@@ -370,7 +370,7 @@ nixos-rebuild switch --flake .#<HOST> --target-host root@<TARGET-IP>
 <details>
 <summary><h3>Contracts</h3></summary>
 
-Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](primitives/contract.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full capability specifications.
+Pure contract interfaces declared via `options.contract` in [`primitives/contract/default.nix`](primitives/contract/default.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full contract specifications.
 
 | Contract | Description | Implementations | Docs |
 | :--- | :--- | :--- | :--- |
@@ -445,20 +445,24 @@ Pure reusable helper functions, data types, calculations, and presets declared v
 
 | Library Namespace | Description | Docs |
 | :--- | :--- | :--- |
-| [`flake.lib.backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' capability contract. | [More →](docs/lib/backup.md) |
+| [`flake.lib.backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' contract. | [More →](docs/lib/backup.md) |
 | [`flake.lib.bitwarden`](docs/lib/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/lib/bitwarden.md) |
-| [`flake.lib.default-user`](docs/lib/default-user.md) | Library helpers and constructors for the 'default-user' capability contract. | [More →](docs/lib/default-user.md) |
+| [`flake.lib.default-user`](docs/lib/default-user.md) | Library helpers and constructors for the 'default-user' contract. | [More →](docs/lib/default-user.md) |
 | [`flake.lib.disko`](docs/lib/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](docs/lib/disko.md) |
-| [`flake.lib.home`](docs/lib/home.md) | Library helpers and constructors for the 'home' capability contract. | [More →](docs/lib/home.md) |
+| [`flake.lib.docsMarkdown`](docs/lib/docsMarkdown.md) | Markdown documentation rendering engine for Nixconf architecture. | [More →](docs/lib/docsMarkdown.md) |
+| [`flake.lib.docsMermaid`](docs/lib/docsMermaid.md) | Declarative Mermaid flowchart diagram visualizer with custom styling. | [More →](docs/lib/docsMermaid.md) |
+| [`flake.lib.docsParser`](docs/lib/docsParser.md) | Pure-Nix RFC 145 docstring parser utilities for functions and library symbols. | [More →](docs/lib/docsParser.md) |
+| [`flake.lib.graph`](docs/lib/graph.md) | Canonical Semantic Code Property Graph (CPG) framework, algebraic calculus, and architectural projection functors. | [More →](docs/lib/graph.md) |
+| [`flake.lib.home`](docs/lib/home.md) | Library helpers and constructors for the 'home' contract. | [More →](docs/lib/home.md) |
 | [`flake.lib.lw`](docs/lib/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](docs/lib/lw.md) |
-| [`flake.lib.persistence`](docs/lib/persistence.md) | Library helpers and constructors for the 'persistence' capability contract. | [More →](docs/lib/persistence.md) |
+| [`flake.lib.persistence`](docs/lib/persistence.md) | Library helpers and constructors for the 'persistence' contract. | [More →](docs/lib/persistence.md) |
 | [`flake.lib.primitive`](docs/lib/primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [More →](docs/lib/primitive.md) |
-| [`flake.lib.resources`](docs/lib/resources.md) | Library helpers and constructors for the 'resources' capability contract. | [More →](docs/lib/resources.md) |
-| [`flake.lib.reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' capability contract. | [More →](docs/lib/reverse-proxy.md) |
-| [`flake.lib.secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' capability contract. | [More →](docs/lib/secrets.md) |
+| [`flake.lib.resources`](docs/lib/resources.md) | Library helpers and constructors for the 'resources' contract. | [More →](docs/lib/resources.md) |
+| [`flake.lib.reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |
+| [`flake.lib.secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' contract. | [More →](docs/lib/secrets.md) |
 | [`flake.lib.sops`](docs/lib/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](docs/lib/sops.md) |
 | [`flake.lib.user`](docs/lib/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/lib/user.md) |
-| [`flake.lib.wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' capability contract. | [More →](docs/lib/wayland.md) |
+| [`flake.lib.wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' contract. | [More →](docs/lib/wayland.md) |
 
 </details>
 
@@ -581,15 +585,15 @@ nix develop .#sops-host
 Comprehensive documentation is generated directly from Nix evaluation using the pure-Nix Labeled Property Graph (LPG) pipeline.
 
 - [Hosts Documentation](docs/HOSTS.md): Target host declarations, architecture specs, and hardware manifests.
-- [Contracts Documentation](docs/CONTRACTS.md): Pure capability interfaces, schema options, and custom types.
-- [Implementations Documentation](docs/IMPLEMENTATIONS.md): Provider implementations satisfying capability contracts.
+- [Contracts Documentation](docs/CONTRACTS.md): Pure contract interfaces, schema options, and custom types.
+- [Implementations Documentation](docs/IMPLEMENTATIONS.md): Provider implementations satisfying contracts.
 - [Features Documentation](docs/FEATURES.md): Modular system services, applications, and desktop environments.
 - [Modules Documentation](docs/MODULES.md): Directory of all exported NixOS modules.
 - [Packages Documentation](docs/PACKAGES.md): Executable packages exported across platforms.
 - [DevShells Documentation](docs/DEVSHELLS.md): Administrative and development shell environments.
 - [Library Documentation](docs/LIB.md): Flake library functions, type signatures, and RFC 145 docstrings.
+- [Semantic Code Property Graph Architecture](docs/GRAPH.md): Unified pure-Nix CPG merging AST, CFG, and PDG.
 - [Documentation Pipeline Reference](docs/DOCS.md): Pure-Nix LPG graph IR and documentation generator guide.
-- [Documentation Gaps & TODOs](docs/TODO.md): Automated repository-wide register tracking missing docstrings and documentation tasks.
 
 To re-generate or verify documentation integrity, use the `docs` CLI package:
 

@@ -8,6 +8,7 @@ in {
       imports = [
         self.nixosModules.x240-hardware
         self.nixosModules.x240-disk
+        self.nixosModules.contracts
         self.nixosModules.x240-system
         self.nixosModules.x240-desktop
         self.nixosModules.x240-packages
@@ -42,7 +43,6 @@ in {
         ...
       }: {
         imports = [
-          self.nixosModules.contracts
           self.nixosModules.sops
           self.nixosModules.lw
           self.nixosModules.hjem

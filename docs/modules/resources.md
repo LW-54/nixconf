@@ -1,13 +1,13 @@
 # Module: `resources`
 
-Capability contract interface defining 'resources' option schemas and custom types.
+Contract interface defining 'resources' option schemas and custom types.
 
 [← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
 
 ## Metadata
 
 - **Module Attribute**: `flake.nixosModules.resources`
-- **Description**: Capability contract interface defining 'resources' option schemas and custom types.
+- **Description**: Contract interface defining 'resources' option schemas and custom types.
 
 ## Importing Hosts
 

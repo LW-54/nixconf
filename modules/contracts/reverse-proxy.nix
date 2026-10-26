@@ -45,7 +45,7 @@ in {
     description = "Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.";
 
     options = {
-      enable = lib.mkEnableOption "system reverse proxy contract" // {default = true;};
+      enable = lib.mkEnableOption "system reverse proxy contract";
 
       domain = lib.mkOption {
         type = lib.types.nullOr fqdn;

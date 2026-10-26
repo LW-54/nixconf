@@ -17,11 +17,12 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.x240-disk
-  self.nixosModules.x240-system
-  self.nixosModules.x240-desktop
-  self.nixosModules.x240-packages
-];
+        self.nixosModules.x240-disk
+        self.nixosModules.contracts
+        self.nixosModules.x240-system
+        self.nixosModules.x240-desktop
+        self.nixosModules.x240-packages
+      ];
 ```
 
 </details>

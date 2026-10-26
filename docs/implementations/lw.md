@@ -16,216 +16,328 @@ Primary human user account orchestration and identity provisioning.
 ```mermaid
 flowchart TD
     subgraph Hosts["Hosts"]
-        host__astrolabe["astrolabe"]:::hostNode
-        host__x240["x240"]:::hostNode
+        urn__nixconf__onto__host__astrolabe["astrolabe"]:::hostNode
+        urn__nixconf__onto__host__x240["x240"]:::hostNode
     end
 
     subgraph Contracts["Contracts"]
-        contract__default_user(["default-user"]):::contractNode
-        contract__home(["home"]):::contractNode
-        contract__persistence(["persistence"]):::contractNode
-        contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        contract__secrets(["secrets"]):::contractNode
-        contract__wayland(["wayland"]):::contractNode
-    end
-
-    subgraph Implementations["Implementations"]
-        impl__caddy["caddy"]:::implNode
-        impl__cgroups["cgroups"]:::implNode
-        impl__hjem["hjem"]:::implNode
-        impl__impermanence["impermanence"]:::implNode
-        impl__lw["lw"]:::implNode
-        impl__restic["restic"]:::implNode
-        impl__sops["sops"]:::implNode
-        impl__uwsm["uwsm"]:::implNode
+        urn__nixconf__onto__contract__default_user(["default-user"]):::contractNode
+        urn__nixconf__onto__contract__home(["home"]):::contractNode
+        urn__nixconf__onto__contract__persistence(["persistence"]):::contractNode
+        urn__nixconf__onto__contract__reverse_proxy(["reverse-proxy"]):::contractNode
+        urn__nixconf__onto__contract__secrets(["secrets"]):::contractNode
+        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
     end
 
     subgraph Features["Features"]
-        feature__antigravity["antigravity"]:::featureNode
-        feature__audio["audio"]:::featureNode
-        feature__bitwarden["bitwarden"]:::featureNode
-        feature__cosmic["cosmic"]:::featureNode
-        feature__cursor["cursor"]:::featureNode
-        feature__direnv["direnv"]:::featureNode
-        feature__disko["disko"]:::featureNode
-        feature__dolphin["dolphin"]:::featureNode
-        feature__fonts["fonts"]:::featureNode
-        feature__foot["foot"]:::featureNode
-        feature__git["git"]:::featureNode
-        feature__greetd["greetd"]:::featureNode
-        feature__helium["helium"]:::featureNode
-        feature__labwc["labwc"]:::featureNode
-        feature__locale["locale"]:::featureNode
-        feature__nix["nix"]:::featureNode
-        feature__noctalia["noctalia"]:::featureNode
-        feature__ssh["ssh"]:::featureNode
-        feature__tack["tack"]:::featureNode
-        feature__ttyd["ttyd"]:::featureNode
-        feature__vaultwarden["vaultwarden"]:::featureNode
-        feature__vivaldi["vivaldi"]:::featureNode
-        feature__vscode["vscode"]:::featureNode
-        feature__wifi_eduroam["wifi-eduroam"]:::featureNode
-    end
-
-    subgraph Libraries["Libraries"]
-        lib__default_user(["lib: default-user"]):::libNode
-        lib__home(["lib: home"]):::libNode
-        lib__lw(["lib: lw"]):::libNode
-        lib__persistence(["lib: persistence"]):::libNode
-        lib__secrets(["lib: secrets"]):::libNode
-    end
-
-    subgraph ContractOptions["Contract Options"]
-        opt__default_user_email[/"default-user.email: string"/]:::optNode
-        opt__default_user_enable[/"default-user.enable: boolean"/]:::optNode
-        opt__default_user_fullName[/"default-user.fullName: null or string"/]:::optNode
-        opt__default_user_githubUsername[/"default-user.githubUsername: string"/]:::optNode
-        opt__default_user_modules[/"default-user.modules: list of module"/]:::optNode
-        opt__default_user_username[/"default-user.username: string"/]:::optNode
-        opt__home_enable[/"home.enable: boolean"/]:::optNode
-        opt__home_shared[/"home.shared: submodule"/]:::optNode
-        opt__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
-        opt__persistence_directories[/"persistence.directories: list of (string or attribute set of anything)"/]:::optNode
-        opt__persistence_enable[/"persistence.enable: boolean"/]:::optNode
-        opt__persistence_files[/"persistence.files: list of (string or attribute set of anything)"/]:::optNode
-        opt__persistence_users[/"persistence.users: attribute set of (submodule)"/]:::optNode
-        opt__secrets_defaultFile[/"secrets.defaultFile: null or absolute path"/]:::optNode
-        opt__secrets_enable[/"secrets.enable: boolean"/]:::optNode
-        opt__secrets_files[/"secrets.files: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__onto__feature__antigravity["antigravity"]:::featureNode
+        urn__nixconf__onto__feature__audio["audio"]:::featureNode
+        urn__nixconf__onto__feature__bitwarden["bitwarden"]:::featureNode
+        urn__nixconf__onto__feature__cursor["cursor"]:::featureNode
+        urn__nixconf__onto__feature__direnv["direnv"]:::featureNode
+        urn__nixconf__onto__feature__disko["disko"]:::featureNode
+        urn__nixconf__onto__feature__dolphin["dolphin"]:::featureNode
+        urn__nixconf__onto__feature__fonts["fonts"]:::featureNode
+        urn__nixconf__onto__feature__foot["foot"]:::featureNode
+        urn__nixconf__onto__feature__git["git"]:::featureNode
+        urn__nixconf__onto__feature__greetd["greetd"]:::featureNode
+        urn__nixconf__onto__feature__labwc["labwc"]:::featureNode
+        urn__nixconf__onto__feature__locale["locale"]:::featureNode
+        urn__nixconf__onto__feature__nix["nix"]:::featureNode
+        urn__nixconf__onto__feature__noctalia["noctalia"]:::featureNode
+        urn__nixconf__onto__feature__ssh["ssh"]:::featureNode
+        urn__nixconf__onto__feature__tack["tack"]:::featureNode
+        urn__nixconf__onto__feature__ttyd["ttyd"]:::featureNode
+        urn__nixconf__onto__feature__vaultwarden["vaultwarden"]:::featureNode
+        urn__nixconf__onto__feature__vivaldi["vivaldi"]:::featureNode
+        urn__nixconf__onto__feature__vscode["vscode"]:::featureNode
+        urn__nixconf__onto__feature__wifi_eduroam["wifi-eduroam"]:::featureNode
     end
 
     subgraph ContractTypes["Contract Types"]
-        type__home_file{{"home.file"}}:::typeNode
-        type__home_files{{"home.files"}}:::typeNode
-        type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
-        type__home_userHome{{"home.userHome"}}:::typeNode
-        type__home_xdg{{"home.xdg"}}:::typeNode
-        type__persistence_entries{{"persistence.entries"}}:::typeNode
-        type__persistence_user{{"persistence.user"}}:::typeNode
-        type__secrets_secret{{"secrets.secret"}}:::typeNode
+        urn__nixconf__ast__type__home_file{{"home.file"}}:::typeNode
+        urn__nixconf__ast__type__home_files{{"home.files"}}:::typeNode
+        urn__nixconf__ast__type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
+        urn__nixconf__ast__type__home_userHome{{"home.userHome"}}:::typeNode
+        urn__nixconf__ast__type__home_xdg{{"home.xdg"}}:::typeNode
+        urn__nixconf__ast__type__persistence_entries{{"persistence.entries"}}:::typeNode
+        urn__nixconf__ast__type__persistence_user{{"persistence.user"}}:::typeNode
+        urn__nixconf__ast__type__secrets_secret{{"secrets.secret"}}:::typeNode
     end
 
     subgraph OtherNodes["Other Entities"]
-        fn__lw_email["lw.email"]
-        fn__lw_githubUsername["lw.githubUsername"]
-        fn__lw_username["lw.username"]
+        urn__nixconf__ast__module__astrolabe["astrolabe"]
+        urn__nixconf__ast__module__astrolabe_disk["astrolabe-disk"]
+        urn__nixconf__ast__module__astrolabe_hardware["astrolabe-hardware"]
+        urn__nixconf__ast__module__astrolabe_packages["astrolabe-packages"]
+        urn__nixconf__ast__module__astrolabe_services["astrolabe-services"]
+        urn__nixconf__ast__module__astrolabe_system["astrolabe-system"]
+        urn__nixconf__ast__module__hjem["hjem"]
+        urn__nixconf__ast__module__impermanence["impermanence"]
+        urn__nixconf__ast__module__lw["lw"]
+        urn__nixconf__ast__module__sops["sops"]
+        urn__nixconf__ast__module__x240["x240"]
+        urn__nixconf__ast__module__x240_desktop["x240-desktop"]
+        urn__nixconf__ast__module__x240_desktop_features["x240-desktop-features"]
+        urn__nixconf__ast__module__x240_disk["x240-disk"]
+        urn__nixconf__ast__module__x240_hardware["x240-hardware"]
+        urn__nixconf__ast__module__x240_packages["x240-packages"]
+        urn__nixconf__ast__module__x240_system["x240-system"]
+        urn__nixconf__ast__module__x240_system_features["x240-system-features"]
+        urn__nixconf__ast__option__default_user_email[/"default-user.email: string"/]:::optNode
+        urn__nixconf__ast__option__default_user_enable[/"default-user.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__default_user_fullName[/"default-user.fullName: null or string"/]:::optNode
+        urn__nixconf__ast__option__default_user_githubUsername[/"default-user.githubUsername: string"/]:::optNode
+        urn__nixconf__ast__option__default_user_modules[/"default-user.modules: list of module"/]:::optNode
+        urn__nixconf__ast__option__default_user_username[/"default-user.username: string"/]:::optNode
+        urn__nixconf__ast__option__home_enable[/"home.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__home_shared[/"home.shared: submodule"/]:::optNode
+        urn__nixconf__ast__option__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__ast__option__persistence_directories[/"persistence.directories: list of (string or attribute set of anything)"/]:::optNode
+        urn__nixconf__ast__option__persistence_enable[/"persistence.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__persistence_files[/"persistence.files: list of (string or attribute set of anything)"/]:::optNode
+        urn__nixconf__ast__option__persistence_users[/"persistence.users: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile: null or absolute path"/]:::optNode
+        urn__nixconf__ast__option__secrets_enable[/"secrets.enable: boolean"/]:::optNode
+        urn__nixconf__ast__option__secrets_files[/"secrets.files: attribute set of (submodule)"/]:::optNode
+        urn__nixconf__eval__configuration__astrolabe["astrolabe"]
+        urn__nixconf__eval__configuration__x240["x240"]
+        urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+        urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
+        urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
+        urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
+        urn__nixconf__onto__implementation__lw["lw"]:::implNode
+        urn__nixconf__onto__implementation__restic["restic"]:::implNode
+        urn__nixconf__onto__implementation__sops["sops"]:::implNode
+        urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
+        urn__nixconf__onto__primitive__contract["contract"]
+        urn__nixconf__onto__primitive__host["host"]
+        urn__nixconf__onto__primitive__implementation["implementation"]
     end
 
 
-    host__astrolabe -->|"imports"| impl__caddy
-    host__astrolabe -->|"imports"| impl__cgroups
-    host__astrolabe -->|"imports"| impl__impermanence
-    host__astrolabe -->|"imports"| impl__lw
-    host__astrolabe -->|"imports"| impl__restic
-    host__astrolabe -->|"imports"| impl__sops
-    host__astrolabe -->|"imports"| feature__disko
-    host__astrolabe -->|"imports"| feature__git
-    host__astrolabe -->|"imports"| feature__locale
-    host__astrolabe -->|"imports"| feature__nix
-    host__astrolabe -->|"imports"| feature__ssh
-    host__astrolabe -->|"imports"| feature__ttyd
-    host__astrolabe -->|"imports"| feature__vaultwarden
-    host__x240 -->|"imports"| impl__cgroups
-    host__x240 -->|"imports"| impl__hjem
-    host__x240 -->|"imports"| impl__impermanence
-    host__x240 -->|"imports"| impl__lw
-    host__x240 -->|"imports"| impl__sops
-    host__x240 -->|"imports"| impl__uwsm
-    host__x240 -->|"imports"| feature__antigravity
-    host__x240 -->|"imports"| feature__audio
-    host__x240 -->|"imports"| feature__bitwarden
-    host__x240 -->|"imports"| feature__cursor
-    host__x240 -->|"imports"| feature__direnv
-    host__x240 -->|"imports"| feature__disko
-    host__x240 -->|"imports"| feature__dolphin
-    host__x240 -->|"imports"| feature__fonts
-    host__x240 -->|"imports"| feature__foot
-    host__x240 -->|"imports"| feature__git
-    host__x240 -->|"imports"| feature__greetd
-    host__x240 -->|"imports"| feature__labwc
-    host__x240 -->|"imports"| feature__locale
-    host__x240 -->|"imports"| feature__nix
-    host__x240 -->|"imports"| feature__noctalia
-    host__x240 -->|"imports"| feature__ssh
-    host__x240 -->|"imports"| feature__tack
-    host__x240 -->|"imports"| feature__vivaldi
-    host__x240 -->|"imports"| feature__vscode
-    host__x240 -->|"imports"| feature__wifi_eduroam
-    impl__caddy -.->|"implements"| contract__reverse_proxy
-    impl__hjem -.->|"implements"| contract__home
-    impl__impermanence -.->|"implements"| contract__persistence
-    impl__lw -.->|"implements"| contract__default_user
-    impl__sops -.->|"implements"| contract__secrets
-    impl__uwsm -.->|"implements"| contract__wayland
-    host__astrolabe -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    host__x240 -->|"consumes (wayland.enable)"| contract__wayland
-    feature__antigravity -->|"consumes (persistence.users)"| contract__persistence
-    feature__bitwarden -->|"consumes (persistence.users)"| contract__persistence
-    feature__cosmic -->|"consumes (persistence.users, persistence.directories)"| contract__persistence
-    feature__direnv -->|"consumes (persistence.users)"| contract__persistence
-    feature__dolphin -->|"consumes (persistence.users)"| contract__persistence
-    feature__foot -->|"consumes (home.shared, home.users)"| contract__home
-    feature__foot -->|"consumes (persistence.users)"| contract__persistence
-    feature__git -->|"consumes"| contract__default_user
-    feature__git -->|"consumes (home.users, home.shared)"| contract__home
-    feature__helium -->|"consumes (home.shared, home.users)"| contract__home
-    feature__helium -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (home.shared.xdg.config, home.users, home.shared)"| contract__home
-    feature__labwc -->|"consumes (persistence.users)"| contract__persistence
-    feature__labwc -->|"consumes (wayland.compositors.labwc, wayland.compositors)"| contract__wayland
-    feature__locale -->|"consumes (home.shared.sessionVariables, home.shared)"| contract__home
-    feature__nix -->|"consumes (secrets.files)"| contract__secrets
-    feature__noctalia -->|"consumes (persistence.users)"| contract__persistence
-    feature__ssh -->|"consumes (default-user.enable, default-user.username)"| contract__default_user
-    feature__ssh -->|"consumes (persistence.files, persistence.enable)"| contract__persistence
-    feature__ssh -->|"consumes (secrets.files)"| contract__secrets
-    feature__ttyd -->|"consumes (reverse-proxy.enable)"| contract__reverse_proxy
-    feature__vaultwarden -->|"consumes (persistence.enable)"| contract__persistence
-    feature__vaultwarden -->|"consumes (reverse-proxy.domain)"| contract__reverse_proxy
-    feature__vivaldi -->|"consumes (persistence.users)"| contract__persistence
-    feature__vscode -->|"consumes (persistence.users)"| contract__persistence
-    feature__wifi_eduroam -->|"consumes (secrets.files)"| contract__secrets
-    impl__caddy -->|"consumes (persistence.directories, persistence.enable)"| contract__persistence
-    impl__hjem -->|"consumes (home.enable)"| contract__home
-    impl__impermanence -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (home.users)"| contract__home
-    impl__lw -->|"consumes (persistence.users)"| contract__persistence
-    impl__lw -->|"consumes (secrets.files.default-user-password-hash, secrets.files)"| contract__secrets
-    impl__restic -->|"consumes (secrets.files)"| contract__secrets
-    impl__sops -->|"consumes (secrets.defaultFile, secrets.enable, secrets.files)"| contract__secrets
-    impl__uwsm -->|"consumes (wayland.compositors, wayland.enable)"| contract__wayland
-    contract__default_user -.->|"provides"| lib__default_user
-    contract__home -.->|"provides"| lib__home
-    contract__persistence -.->|"provides"| lib__persistence
-    contract__secrets -.->|"provides"| lib__secrets
-    impl__lw -.->|"provides"| lib__lw
-    contract__default_user --- opt__default_user_email
-    contract__default_user --- opt__default_user_enable
-    contract__default_user --- opt__default_user_fullName
-    contract__default_user --- opt__default_user_githubUsername
-    contract__default_user --- opt__default_user_modules
-    contract__default_user --- opt__default_user_username
-    contract__home --- opt__home_enable
-    contract__home --- opt__home_shared
-    contract__home --- opt__home_users
-    contract__persistence --- opt__persistence_directories
-    contract__persistence --- opt__persistence_enable
-    contract__persistence --- opt__persistence_files
-    contract__persistence --- opt__persistence_users
-    contract__secrets --- opt__secrets_defaultFile
-    contract__secrets --- opt__secrets_enable
-    contract__secrets --- opt__secrets_files
-    contract__home --- type__home_file
-    contract__home --- type__home_files
-    contract__home --- type__home_relativeHomePath
-    contract__home --- type__home_userHome
-    contract__home --- type__home_xdg
-    contract__persistence --- type__persistence_entries
-    contract__persistence --- type__persistence_user
-    contract__secrets --- type__secrets_secret
-    lib__lw -->|"exports"| fn__lw_email
-    lib__lw -->|"exports"| fn__lw_githubUsername
-    lib__lw -->|"exports"| fn__lw_username
+    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_enable
+    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__hjem -->|"writes"| urn__nixconf__ast__option__home_enable
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_enable
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_enable
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__impermanence -.->|"reads"| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_enable
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_enable
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_fullName
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_fullName
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_modules
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_modules
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__ast__module__lw -.->|"reads"| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|"reads"| urn__nixconf__ast__option__secrets_defaultFile
+    urn__nixconf__ast__module__sops -.->|"reads"| urn__nixconf__ast__option__secrets_defaultFile
+    urn__nixconf__ast__module__sops -.->|"reads"| urn__nixconf__ast__option__secrets_enable
+    urn__nixconf__ast__module__sops -.->|"reads"| urn__nixconf__ast__option__secrets_enable
+    urn__nixconf__ast__module__sops -.->|"reads"| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|"reads"| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__option__home_shared -.->|"typedBy"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_shared -.->|"typedBy"| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__ast__option__home_users -.->|"typedBy"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_users -.->|"typedBy"| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__ast__option__persistence_directories -.->|"typedBy"| urn__nixconf__ast__type__persistence_entries
+    urn__nixconf__ast__option__persistence_files -.->|"typedBy"| urn__nixconf__ast__type__persistence_entries
+    urn__nixconf__ast__option__persistence_users -.->|"typedBy"| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__ast__option__secrets_files -.->|"typedBy"| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_disk
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_hardware
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_packages
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_services
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__impermanence
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__lw
+    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__sops
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__hjem
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__impermanence
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__lw
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__sops
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_desktop
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_desktop_features
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_disk
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_hardware
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_system
+    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_system_features
+    urn__nixconf__onto__contract__default_user --- urn__nixconf__ast__option__default_user_email
+    urn__nixconf__onto__contract__default_user --- urn__nixconf__ast__option__default_user_enable
+    urn__nixconf__onto__contract__default_user --- urn__nixconf__ast__option__default_user_fullName
+    urn__nixconf__onto__contract__default_user --- urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__onto__contract__default_user --- urn__nixconf__ast__option__default_user_modules
+    urn__nixconf__onto__contract__default_user --- urn__nixconf__ast__option__default_user_username
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_enable
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_shared
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_users
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_file
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_files
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_relativeHomePath
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_userHome
+    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__contract__persistence --- urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__onto__contract__persistence --- urn__nixconf__ast__option__persistence_enable
+    urn__nixconf__onto__contract__persistence --- urn__nixconf__ast__option__persistence_files
+    urn__nixconf__onto__contract__persistence --- urn__nixconf__ast__option__persistence_users
+    urn__nixconf__onto__contract__persistence --- urn__nixconf__ast__type__persistence_entries
+    urn__nixconf__onto__contract__persistence --- urn__nixconf__ast__type__persistence_user
+    urn__nixconf__onto__contract__secrets --- urn__nixconf__ast__option__secrets_defaultFile
+    urn__nixconf__onto__contract__secrets --- urn__nixconf__ast__option__secrets_enable
+    urn__nixconf__onto__contract__secrets --- urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets --- urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__feature__antigravity -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__bitwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__direnv -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__dolphin -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__locale -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__nix -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__noctalia -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vivaldi -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vscode -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__wifi_eduroam -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_disk
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_hardware
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_packages
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_services
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__eval__configuration__astrolabe
+    urn__nixconf__onto__host__astrolabe -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_desktop
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_desktop_features
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_disk
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_hardware
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_system
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_system_features
+    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__eval__configuration__x240
+    urn__nixconf__onto__host__x240 -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__audio
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__cursor
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__fonts
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__greetd
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__tack
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__hjem -->|"outputs"| urn__nixconf__ast__module__hjem
+    urn__nixconf__onto__implementation__hjem -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__impermanence -->|"outputs"| urn__nixconf__ast__module__impermanence
+    urn__nixconf__onto__implementation__impermanence -.->|"implements"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__impermanence -.->|"implements"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|"outputs"| urn__nixconf__ast__module__lw
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__sops -->|"outputs"| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops -.->|"implements"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__sops -.->|"implements"| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__host --- urn__nixconf__onto__host__astrolabe
+    urn__nixconf__onto__primitive__host --- urn__nixconf__onto__host__x240
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__uwsm
 
 classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
 classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
@@ -268,22 +380,70 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`default-user`](../contracts/default-user.md) contract capability:
+Hosts enabling this provider to fulfill the [`default-user`](../contracts/default-user.md) contract:
 
 - [`astrolabe`](../hosts/astrolabe.md) (`x86_64-linux`): Headless VPS Server (adje.app public edge and core services).
 - [`x240`](../hosts/x240.md) (`x86_64-linux`): ThinkPad Laptop Workstation (Desktop graphical workstation).
 
 ## Consumed Contracts
 
-Capability contracts configured by this implementation:
+Contracts configured by this implementation:
+
+<details>
+<summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
+
+Configures options: *general capability bindings*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
+
+Configures options: *general capability bindings*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
+
+Configures options: *general capability bindings*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+
 
 <details>
 <summary><code><a href="../contracts/home.md">home</a></code></summary>
 
-Configures options: `home.users`
+Configures options: *general capability bindings*
 
 ```nix
-home.users.${cfg.username} = {};
+config = {
+
+};
+
 ```
 
 </details>
@@ -292,19 +452,13 @@ home.users.${cfg.username} = {};
 <details>
 <summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
 
-Configures options: `persistence.users`
+Configures options: *general capability bindings*
 
 ```nix
-persistence.users.${cfg.username} = {
-  data.directories = [
-    "nixconf"
-    "Documents"
-    "Downloads"
-    "Projects"
-    ".ssh"
-    ".gnupg"
-  ];
+config = {
+
 };
+
 ```
 
 </details>
@@ -313,18 +467,13 @@ persistence.users.${cfg.username} = {
 <details>
 <summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
 
-Configures options: `secrets.files.default-user-password-hash`, `secrets.files`
+Configures options: *general capability bindings*
 
 ```nix
-secrets.files.default-user-password-hash = {
-  file = ../../secrets/users/default.yaml;
-  key = "passwordHash";
-  neededForUsers = true;
+config = {
+
 };
 
-hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
-
-hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
 ```
 
 </details>

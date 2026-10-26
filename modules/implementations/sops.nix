@@ -91,25 +91,25 @@ in {
         ];
       };
     };
-  };
 
-  perSystem = {
-    pkgs,
-    self',
-    ...
-  }: {
-    devShells.sops-admin = self.lib.bitwarden.mkShell {
-      inherit pkgs;
-      bw = self'.packages.bw;
-      packages = [pkgs.age pkgs.sops];
-      meta.description = "Administrative secret editing shell with Bitwarden-authenticated master SOPS age key.";
-      shellHook = self.lib.bitwarden.mkValue {
-        itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";
-        variable = "SOPS_AGE_KEY";
-        jqFilter = ".notes | select(type == \"string\" and length > 0)";
+    devShells = {
+      pkgs,
+      self',
+      ...
+    }: {
+      sops-admin = self.lib.bitwarden.mkShell {
+        inherit pkgs;
+        bw = self'.packages.bw;
+        packages = [pkgs.age pkgs.sops];
+        meta.description = "Administrative secret editing shell with Bitwarden-authenticated master SOPS age key.";
+        shellHook = self.lib.bitwarden.mkValue {
+          itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";
+          variable = "SOPS_AGE_KEY";
+          jqFilter = ".notes | select(type == \"string\" and length > 0)";
+        };
       };
-    };
 
-    devShells.sops-host = self.lib.sops.mkHostShell {inherit pkgs;};
+      sops-host = self.lib.sops.mkHostShell {inherit pkgs;};
+    };
   };
 }

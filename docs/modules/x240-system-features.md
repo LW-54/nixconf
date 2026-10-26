@@ -1,13 +1,13 @@
 # Module: `x240-system-features`
 
-System services, networking utilities, and security toolchains for x240.
+Host configuration submodule for x240.
 
 [← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
 
 ## Metadata
 
 - **Module Attribute**: `flake.nixosModules.x240-system-features`
-- **Description**: System services, networking utilities, and security toolchains for x240.
+- **Description**: Host configuration submodule for x240.
 
 ## Importing Hosts
 
@@ -17,8 +17,8 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
 ```nix
-  self.nixosModules.x240-system-features
-];
+          self.nixosModules.x240-system-features
+        ];
 ```
 
 </details>

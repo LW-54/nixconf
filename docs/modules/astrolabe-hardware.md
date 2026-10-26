@@ -17,12 +17,12 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
 ```nix
-  self.nixosModules.astrolabe-hardware
-  self.nixosModules.astrolabe-disk
-  self.nixosModules.astrolabe-system
-  self.nixosModules.astrolabe-services
-  self.nixosModules.astrolabe-packages
-];
+        self.nixosModules.astrolabe-hardware
+        self.nixosModules.astrolabe-disk
+        self.nixosModules.astrolabe-system
+        self.nixosModules.astrolabe-services
+        self.nixosModules.astrolabe-packages
+      ];
 ```
 
 </details>

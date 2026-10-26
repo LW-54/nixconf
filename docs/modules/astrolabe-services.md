@@ -1,13 +1,13 @@
 # Module: `astrolabe-services`
 
-Daemon services, reverse-proxy ingress, and automated backups for astrolabe.
+Host configuration submodule for astrolabe.
 
 [← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
 
 ## Metadata
 
 - **Module Attribute**: `flake.nixosModules.astrolabe-services`
-- **Description**: Daemon services, reverse-proxy ingress, and automated backups for astrolabe.
+- **Description**: Host configuration submodule for astrolabe.
 
 ## Importing Hosts
 
@@ -17,9 +17,9 @@ Hosts that import this module into their system configurations:
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
 ```nix
-  self.nixosModules.astrolabe-services
-  self.nixosModules.astrolabe-packages
-];
+        self.nixosModules.astrolabe-services
+        self.nixosModules.astrolabe-packages
+      ];
 ```
 
 </details>

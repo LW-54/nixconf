@@ -3,7 +3,7 @@
   config,
   ...
 }: let
-  graphLib = config.flake.lib.docsGraph;
+  graphLib = config.flake.lib.graph;
   hostsMod = config.internal.docs.markdown.hosts;
   contractsMod = config.internal.docs.markdown.contracts;
   implsMod = config.internal.docs.markdown.implementations;
@@ -16,11 +16,11 @@
 
   # Inputs
 
+  `cpg`
+  : Evaluated Semantic Code Property Graph (optional).
+
   `graph`
   : Evaluated documentation graph (optional).
-
-  `strict`
-  : Whether to enforce strict mode (default: false).
 
   `system`
   : Target host platform system (default: "x86_64-linux").
@@ -32,15 +32,15 @@
   */
   generateAll = {
     system ? "x86_64-linux",
-    strict ? false,
+    cpg ? graphLib.buildCPG {inherit system;},
     graph ? graphLib.buildGraph {inherit system;},
   }: let
     hosts = builtins.filter (n: n.kind == "host") (builtins.attrValues graph.nodes);
     contracts = builtins.filter (n: n.kind == "contract") (builtins.attrValues graph.nodes);
-    impls = builtins.filter (n: n.kind == "impl") (builtins.attrValues graph.nodes);
+    impls = builtins.filter (n: n.kind == "impl" || n.kind == "implementation") (builtins.attrValues graph.nodes);
     features = builtins.filter (n: n.kind == "feature") (builtins.attrValues graph.nodes);
     modules = builtins.filter (n: n.kind == "module") (builtins.attrValues graph.nodes);
-    allSymbols = builtins.filter (n: n.kind == "fn" || n.kind == "symbol") (builtins.attrValues graph.nodes);
+    allSymbols = builtins.filter (n: n.kind == "fn" || n.kind == "function" || n.kind == "symbol") (builtins.attrValues graph.nodes);
 
     # Partition symbols by namespace
     getNamespace = sym: let
@@ -117,6 +117,7 @@
     # Top-level index files
     indexFiles = {
       "README.md" = rootMod.renderReadme {inherit graph;};
+      "docs/GRAPH.md" = rootMod.renderGraphDoc {inherit graph cpg;};
       "docs/DOCS.md" = rootMod.renderDocsGuide {inherit graph;};
       "docs/PRIMITIVES.md" = rootMod.renderPrimitivesIndex {inherit graph;};
       "docs/HOSTS.md" = hostsMod.renderHostsIndex {inherit graph;};
@@ -129,7 +130,6 @@
       "docs/LIB.md" = outputsMod.renderLibIndex {
         inherit graph sublibNames sublibGroups;
       };
-      "docs/TODO.md" = rootMod.renderTodoIndex {inherit graph;};
     };
   in
     indexFiles
@@ -139,11 +139,51 @@
     // featureFiles
     // moduleFiles
     // sublibFiles;
+  generateAllSym = {
+    docstring = ''
+      Generates all markdown documentation files for hosts, contracts, implementations, features, modules, and lib symbols.
+
+      # Inputs
+
+      `cpg`
+      : Evaluated Semantic Code Property Graph (optional).
+
+      `graph`
+      : Evaluated documentation graph (optional).
+
+      `system`
+      : Target host platform system (default: "x86_64-linux").
+
+      # Type
+      ```
+      generateAll :: AttrSet -> AttrSet
+      ```
+    '';
+    value = generateAll;
+  };
+
+  renderReadmeSym = {
+    docstring = ''
+      Renders the repository root README.md documentation file.
+
+      # Inputs
+
+      `graph`
+      : Evaluated documentation graph.
+
+      # Type
+      ```
+      renderReadme :: AttrSet -> String
+      ```
+    '';
+    value = rootMod.renderReadme;
+  };
 in {
-  flake.lib.docsMarkdown = {
-    inherit
-      generateAll
-      ;
-    renderReadme = rootMod.renderReadme;
+  lib.docsMarkdown = {
+    description = "Markdown documentation rendering engine for Nixconf architecture.";
+    symbols = {
+      generateAll = generateAllSym;
+      renderReadme = renderReadmeSym;
+    };
   };
 }

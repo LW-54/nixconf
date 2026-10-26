@@ -1,16 +1,16 @@
 # Contracts Documentation
 
-Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](../primitives/contract.nix).
+Pure abstract interfaces declared via `options.contract` in [`primitives/contract/default.nix`](../primitives/contract/default.nix).
 
 [← Back to Main README](../README.md)
 
 ## Primitive Specification
 
-Pure capability interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
+Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
 
 ### Option Schema (`options.contract.<name>`)
 
-- `description` (string, required): Formal description of the capability contract.
+- `description` (string, required): Formal description of the contract.
 - `options` (raw, required): NixOS option declarations defined for this contract.
 - `types` (attrsOf raw, default: `{}`): Custom submodule types exposed on `self.lib.<name>.types`.
 - `mkOption` (raw, default: `null`): Submodule option constructor for features.
@@ -22,15 +22,15 @@ Pure capability interfaces defining shared option schemas, custom types, and con
 ### Declaration Example (`contract.<name>`)
 
 ```nix
-contract.example-capability = {
-  description = "Abstract capability interface.";
+contract.example = {
+  description = "Abstract contract interface.";
   options = {
-    enable = lib.mkEnableOption "example capability";
+    enable = lib.mkEnableOption "example contract";
   };
 };
 ```
 
-## Capability Contracts Catalog
+## Contracts Catalog
 
 | Contract | Description | Implementations | Docs |
 | :--- | :--- | :--- | :--- |

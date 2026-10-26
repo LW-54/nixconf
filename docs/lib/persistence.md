@@ -1,6 +1,6 @@
 # Library Namespace: `flake.lib.persistence`
 
-Library helpers and constructors for the 'persistence' capability contract.
+Library helpers and constructors for the 'persistence' contract.
 
 [← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
 
@@ -15,7 +15,7 @@ Within repository modules, NixOS configurations, or packages, access functions d
 ```nix
 { self, lib, pkgs, ... }: {
   # Access helpers directly from self.lib.persistence
-  example = self.lib.persistence.entries;
+  example = self.lib.persistence.mkConfig;
 }
 ```
 
@@ -32,36 +32,17 @@ When consuming this flake as an input in another `flake.nix`:
 
   outputs = { self, nixpkgs, nixconf, ... }: {
     # Access exported helpers from inputs.nixconf.lib.persistence
-    example = nixconf.lib.persistence.entries;
+    example = nixconf.lib.persistence.mkConfig;
   };
 }
 ```
 
 ## Exported Symbols
 
-<a id="entries"></a>
-### `entries`
-
-List of directory or file paths to persist, either strings or custom bind-mount attribute sets.
-
-
-
-
-
-#### Type
-
-```
-entries :: Type
-```
-
-
-
-
-
 <a id="mkConfig"></a>
 ### `mkConfig`
 
-Auto-derived configuration binding helper for the 'persistence' capability contract.
+Auto-derived configuration binding helper for the 'persistence' contract.
 
 
 
@@ -89,7 +70,7 @@ persistence.mkConfig { inherit config cfg; }
 <a id="mkOption"></a>
 ### `mkOption`
 
-Auto-derived option constructor for the 'persistence' capability contract.
+Auto-derived option constructor for the 'persistence' contract.
 
 
 
@@ -110,5 +91,24 @@ persistence.mkOption :: AttrSet -> AttrSet
 ```nix
 persistence.mkOption { ... }
 ```
+
+
+
+<a id="entries"></a>
+### `entries`
+
+List of directory or file paths to persist, either strings or custom bind-mount attribute sets.
+
+
+
+
+
+#### Type
+
+```
+entries :: Type
+```
+
+
 
 

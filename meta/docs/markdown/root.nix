@@ -4,21 +4,21 @@
   options,
   ...
 }: let
-  graphLib = config.flake.lib.docsGraph;
+  graphLib = config.flake.lib.graph;
   mermaidLib = config.flake.lib.docsMermaid;
 
   renderReadme = {graph}: let
     hosts = builtins.filter (n: n.kind == "host") (builtins.attrValues graph.nodes);
     contracts = builtins.filter (n: n.kind == "contract") (builtins.attrValues graph.nodes);
-    impls = builtins.filter (n: n.kind == "impl") (builtins.attrValues graph.nodes);
+    impls = builtins.filter (n: n.kind == "impl" || n.kind == "implementation") (builtins.attrValues graph.nodes);
     features = builtins.filter (n: n.kind == "feature") (builtins.attrValues graph.nodes);
     libs = builtins.filter (n: n.kind == "lib") (builtins.attrValues graph.nodes);
-    pkgs = builtins.filter (n: n.kind == "pkg") (builtins.attrValues graph.nodes);
-    shells = builtins.filter (n: n.kind == "shell") (builtins.attrValues graph.nodes);
+    pkgs = builtins.filter (n: n.kind == "pkg" || n.kind == "package") (builtins.attrValues graph.nodes);
+    shells = builtins.filter (n: n.kind == "shell" || n.kind == "devShell") (builtins.attrValues graph.nodes);
 
     topologyMermaid = mermaidLib.renderMermaid (graphLib.filterGraph {
-        nodeFilter = n: builtins.elem n.kind ["host" "contract" "impl" "feature" "lib"];
-        edgeFilter = e: builtins.elem e.kind ["IMPORTS" "IMPLEMENTS" "CONSUMES" "EXPORTS" "PROVIDES"];
+        nodeFilter = n: builtins.elem n.kind ["host" "contract" "impl" "implementation" "feature" "lib"];
+        edgeFilter = e: builtins.elem (lib.toUpper (e.relation or (e.kind or ""))) ["IMPORTS" "IMPLEMENTS" "CONSUMES" "EXPORTS" "PROVIDES"];
       }
       graph);
 
@@ -73,7 +73,7 @@
   in ''
     <h1 align="center">❄️ nixconf</h1>
 
-    <p align="center">Declarative multi-host infrastructure, capability contracts, and modular NixOS configuration repository powered by pure-Nix evaluation.</p>
+    <p align="center">Declarative multi-host infrastructure, contracts, and modular NixOS configuration repository powered by pure-Nix evaluation.</p>
 
     ## Architecture Overview
 
@@ -128,9 +128,9 @@
 
     | Primitive | Description | Source File |
     | :--- | :--- | :--- |
-    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive.nix`](primitives/primitive.nix) |
-    | **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host.nix`](primitives/host.nix) |
-    | **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract.nix`](primitives/contract.nix) |
+    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](primitives/primitive/default.nix) |
+    | **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](primitives/host/default.nix) |
+    | **`contract`** | Abstract contract interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](primitives/contract/default.nix) |
     | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](primitives/implementation.nix) |
     | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](primitives/feature.nix) |
     | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](primitives/lib.nix) |
@@ -140,7 +140,7 @@
     <details>
     <summary><h3>Hosts</h3></summary>
 
-    Master registry of target hosts declared via `options.host` in [`primitives/host.nix`](primitives/host.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
+    Master registry of target hosts declared via `options.host` in [`primitives/host/default.nix`](primitives/host/default.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
 
     | Host | Description | System | Docs |
     | :--- | :--- | :--- | :--- |
@@ -221,7 +221,7 @@
     <details>
     <summary><h3>Contracts</h3></summary>
 
-    Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](primitives/contract.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full capability specifications.
+    Pure contract interfaces declared via `options.contract` in [`primitives/contract/default.nix`](primitives/contract/default.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full contract specifications.
 
     | Contract | Description | Implementations | Docs |
     | :--- | :--- | :--- | :--- |
@@ -285,15 +285,15 @@
     Comprehensive documentation is generated directly from Nix evaluation using the pure-Nix Labeled Property Graph (LPG) pipeline.
 
     - [Hosts Documentation](docs/HOSTS.md): Target host declarations, architecture specs, and hardware manifests.
-    - [Contracts Documentation](docs/CONTRACTS.md): Pure capability interfaces, schema options, and custom types.
-    - [Implementations Documentation](docs/IMPLEMENTATIONS.md): Provider implementations satisfying capability contracts.
+    - [Contracts Documentation](docs/CONTRACTS.md): Pure contract interfaces, schema options, and custom types.
+    - [Implementations Documentation](docs/IMPLEMENTATIONS.md): Provider implementations satisfying contracts.
     - [Features Documentation](docs/FEATURES.md): Modular system services, applications, and desktop environments.
     - [Modules Documentation](docs/MODULES.md): Directory of all exported NixOS modules.
     - [Packages Documentation](docs/PACKAGES.md): Executable packages exported across platforms.
     - [DevShells Documentation](docs/DEVSHELLS.md): Administrative and development shell environments.
     - [Library Documentation](docs/LIB.md): Flake library functions, type signatures, and RFC 145 docstrings.
+    - [Semantic Code Property Graph Architecture](docs/GRAPH.md): Unified pure-Nix CPG merging AST, CFG, and PDG.
     - [Documentation Pipeline Reference](docs/DOCS.md): Pure-Nix LPG graph IR and documentation generator guide.
-    - [Documentation Gaps & TODOs](docs/TODO.md): Automated repository-wide register tracking missing docstrings and documentation tasks.
 
     To re-generate or verify documentation integrity, use the `docs` CLI package:
 
@@ -307,43 +307,6 @@
     This project is licensed under the [MIT License](LICENSE).
   '';
 
-  renderTodoIndex = {graph}: let
-    todos = graph.diagnostics.todos or [];
-    todoTable =
-      if todos != []
-      then ''
-        | Severity | Target | Location | Diagnostic |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (t: let
-          k = t.kind or "TODO";
-          tgt = t.target or (t.id or "unknown");
-          loc =
-            if t ? file && t.file != null && t.file != "unknown"
-            then "`${t.file}:${toString (t.line or 1)}`"
-            else "*in-memory*";
-          msg = builtins.replaceStrings ["\n" "|"] [" " "\\|"] (t.message or "");
-          targetName =
-            if lib.hasPrefix "fn:" tgt
-            then "flake.lib." + lib.removePrefix "fn:" tgt
-            else if lib.hasPrefix "opt:" tgt
-            then "options." + lib.removePrefix "opt:" tgt
-            else tgt;
-        in "| `${k}` | `${targetName}` | ${loc} | ${msg} |")
-        todos}
-      ''
-      else "Zero documentation debt! All library functions, options, and interfaces are fully documented according to the documentation specification.";
-  in ''
-    # Documentation Gaps & TODOs
-
-    Repository-wide register tracking missing docstrings, undocumented symbols, and documentation tasks.
-
-    [← Back to Main README](../README.md)
-
-    ## Diagnostic Register
-
-    ${todoTable}
-  '';
-
   renderDocsGuide = {graph}: ''
     # Documentation Pipeline Reference
 
@@ -355,7 +318,7 @@
 
     The documentation generator is implemented as a pure-Nix evaluation pipeline structured into modular components:
 
-    - [`meta/docs/spec/`](../meta/docs/spec): Formal schemas, node types, edge kinds, and verification assertions.
+    - [`primitives/primitive/lib/check.nix`](../primitives/primitive/lib/check.nix): Formal specification checks and verification assertions.
     - [`meta/docs/parser.nix`](../meta/docs/parser.nix): RFC 145 docstring parser extracting summaries, argument inputs, types, and examples.
     - [`meta/docs/graph/`](../meta/docs/graph): LPG property graph builder synthesizing `nixconf.json`.
     - [`meta/docs/mermaid.nix`](../meta/docs/mermaid.nix): Declarative Mermaid diagram visualizer with custom styling.
@@ -371,11 +334,169 @@
     # Verify that documentation suite is synchronized (non-blocking)
     nix run .#docs -- --check
 
-    # Verify documentation with zero-debt enforcement
-    nix run .#docs -- --check --strict
-
     # Inspect evaluated LPG property graph in JSON format
     nix run .#docs -- --json
+    ```
+  '';
+
+  renderGraphDoc = {
+    graph,
+    cpg,
+  }: let
+    nodeCount = builtins.length (builtins.attrNames cpg.nodes);
+    edgeCount = builtins.length cpg.edges;
+    relCounts = builtins.mapAttrs (_: es: builtins.length es) cpg.indices.byRelation;
+    relNames = builtins.attrNames relCounts;
+    kindCounts = builtins.mapAttrs (_: ns: builtins.length ns) cpg.indices.byKind;
+  in ''
+    # Semantic Code Property Graph (CPG) Architecture
+
+    This document describes the unified Semantic Code Property Graph (CPG) of `nixconf`, merging Abstract Syntax Tree (AST), Control Flow Graph (CFG), and Program Dependence Graph (PDG) representations directly from evaluated Nix expressions.
+
+    Raw serialized graph dataset: [`docs/cpg.json`](cpg.json).
+
+    [← Back to Main README](../README.md)
+
+    ---
+
+    ## 1. Graph Metrics Overview
+
+    The complete semantic graph extracted from pure Nix evaluation:
+
+    | Dimension | Metric | Description |
+    | :--- | :--- | :--- |
+    | **Total Nodes** | **${toString nodeCount}** | Deduplicated primitives, hosts, configurations, modules, options, types, packages, devShells, and functions. |
+    | **Total Edges** | **${toString edgeCount}** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
+    | **Relations** | **${toString (builtins.length relNames)}** | Canonical Computer Science relation predicates (`${lib.concatStringsSep "`, `" relNames}`). |
+    | **Strata** | **4** | Ontological Intent (`onto`), Syntactic AST (`ast`), Operational Fixpoint (`eval`), Derivation Substrate (`drv`). |
+    | **Evaluation** | **100% Pure** | Zero `--impure` dependencies, zero regex text-scanning, zero heuristic disk path reads. |
+
+    ---
+
+    ## 2. Relation Predicate Breakdown
+
+    Every edge in the CPG represents an exact computer science relation across the four strata:
+
+    | Relation | Stratum | Count | Description | Nix Implementation Grounding |
+    | :--- | :---: | :---: | :--- | :--- |
+    | **`outputs`** | AST / Eval / Drv | ${toString (relCounts.outputs or 0)} | Flake artifact or component emission | Primitives outputting standard configurations, modules, packages, devShells, and functions |
+    | **`imports`** | Eval | ${toString (relCounts.imports or 0)} | Compilation unit composition | Evaluated NixOS configurations importing concrete NixOS modules |
+    | **`contains`** | Onto | ${toString (relCounts.contains or 0)} | Lexical parent-child containment | Primitives containing declared instances |
+    | **`writes`** | Eval | ${toString (relCounts.writes or 0)} | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
+    | **`declares`** | AST | ${toString (relCounts.declares or 0)} | Interface specification declaration | Contracts declaring public options and custom types |
+    | **`flowsTo`** | Eval | ${toString (relCounts.flowsTo or 0)} | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
+    | **`reads`** | Eval | ${toString (relCounts.reads or 0)} | Option value inspection (Use / Load) | Consumer implementation reading contract options |
+    | **`typedBy`** | AST | ${toString (relCounts.typedBy or 0)} | Option type-system binding | Contract options bound to custom submodule types |
+    | **`implements`** | Onto | ${toString (relCounts.implements or 0)} | Contract fulfillment | Explicit architectural relationship in `primitives/implementation.nix` |
+    | **`dependsOn`** | Drv | ${toString (relCounts.dependsOn or 0)} | Software package dependency | Modules and devShells depending on executable packages |
+
+    ---
+
+    ## 3. The Four-Strata Architecture
+
+    ```mermaid
+    graph TD
+        classDef onto fill:#24292e,stroke:#f1e05a,stroke-width:2px,color:#fff;
+        classDef ast fill:#1f2428,stroke:#58a6ff,stroke-width:2px,color:#fff;
+        classDef eval fill:#161b22,stroke:#7ee787,stroke-width:2px,color:#fff;
+        classDef drv fill:#2a1b3d,stroke:#d2a8ff,stroke-width:2px,color:#fff;
+
+        subgraph S1 ["1. Ontological Intent Stratum (onto)"]
+            H["urn:nixconf:onto:host:astrolabe"]:::onto
+            F["urn:nixconf:onto:feature:ssh"]:::onto
+            I["urn:nixconf:onto:implementation:caddy"]:::onto
+            C["urn:nixconf:onto:contract:reverse-proxy"]:::onto
+        end
+
+        subgraph S2 ["2. Syntactic AST Stratum (ast)"]
+            M_H["urn:nixconf:ast:module:astrolabe-services"]:::ast
+            M_F["urn:nixconf:ast:module:ssh"]:::ast
+            M_I["urn:nixconf:ast:module:caddy"]:::ast
+            OPT["urn:nixconf:ast:option:reverse-proxy.domain"]:::ast
+            TYP["urn:nixconf:ast:type:reverse-proxy.fqdn"]:::ast
+        end
+
+        subgraph S3 ["3. Operational Fixpoint Stratum (eval)"]
+            NC["urn:nixconf:eval:configuration:astrolabe"]:::eval
+        end
+
+        subgraph S4 ["4. Derivation Substrate Stratum (drv)"]
+            PKG["urn:nixconf:drv:package:caddy"]:::drv
+        end
+
+        %% Ontological to AST & Eval
+        H -- outputs --> NC
+        H -- outputs --> M_H
+        F -- outputs --> M_F
+        I -- outputs --> M_I
+        I -- implements --> C
+        C -- declares --> OPT
+        C -- declares --> TYP
+
+        %% Eval Composition & Dataflow
+        NC -- imports --> M_H
+        NC -- imports --> M_F
+        NC -- imports --> M_I
+        M_H -- writes --> OPT
+        M_I -- reads --> OPT
+        M_H -- flowsTo --> M_I
+
+        %% Type & Package Grounding
+        OPT -- typedBy --> TYP
+        M_I -- dependsOn --> PKG
+    ```
+
+    ---
+
+    ## 4. Node Classification
+
+    The graph indexes **${toString nodeCount} nodes** partitioned into distinct functional roles:
+
+    | Node Category | Count | Example Canonical URNs | Description |
+    | :--- | :---: | :--- | :--- |
+    | **NixOS Modules** | ${toString (kindCounts.module or 0)} | `urn:nixconf:ast:module:ssh`, `urn:nixconf:ast:module:caddy` | Composable NixOS system modules exported on `flake.nixosModules`. |
+    | **Library Functions** | ${toString (kindCounts.function or 0)} | `urn:nixconf:ast:function:stripLeadingIndentation` | Pure library helper functions with RFC 145 docstring metadata. |
+    | **Contract Options** | ${toString (kindCounts.option or 0)} | `urn:nixconf:ast:option:persistence.directories` | Public contract interface options with types and descriptions. |
+    | **Features** | ${toString (kindCounts.feature or 0)} | `urn:nixconf:onto:feature:ssh`, `urn:nixconf:onto:feature:git` | High-level system and desktop capability bundles. |
+    | **Library Symbols** | ${toString (kindCounts.symbol or 0)} | `urn:nixconf:ast:symbol:defaultLayout` | Exported library values and constants. |
+    | **Custom Types** | ${toString (kindCounts.type or 0)} | `urn:nixconf:ast:type:persistence.user` | RFC-typed submodule types defined in contracts. |
+    | **Exported Packages** | ${toString (kindCounts.package or 0)} | `urn:nixconf:drv:package:caddy`, `urn:nixconf:drv:package:git` | Executable packages and derivations exported on `flake.packages`. |
+    | **Library Submodules** | ${toString (kindCounts.lib or 0)} | `urn:nixconf:onto:lib:core`, `urn:nixconf:onto:lib:parser` | Library namespaces grouping functions and symbols. |
+    | **Implementations** | ${toString (kindCounts.implementation or 0)} | `urn:nixconf:onto:implementation:caddy` | Concrete capability provider implementations. |
+    | **Contracts** | ${toString (kindCounts.contract or 0)} | `urn:nixconf:onto:contract:reverse-proxy` | Typed contract interfaces. |
+    | **Primitives** | ${toString (kindCounts.primitive or 0)} | `urn:nixconf:onto:primitive:host` | Meta-primitives defining schema construction rules. |
+    | **Exported DevShells** | ${toString (kindCounts.devShell or 0)} | `urn:nixconf:drv:devShell:master-ssh` | Interactive development and administrative shells. |
+    | **Target Hosts** | ${toString (kindCounts.host or 0)} | `urn:nixconf:onto:host:astrolabe`, `urn:nixconf:onto:host:x240` | Root evaluated target machine wrappers. |
+    | **Configurations** | ${toString (kindCounts.configuration or 0)} | `urn:nixconf:eval:configuration:astrolabe` | Evaluated NixOS system configurations on `flake.nixosConfigurations`. |
+
+    ---
+
+    ## 5. Inspecting the Graph
+
+    ### A. Raw JSON Dataset
+    Inspect the complete dataset using `jq`:
+    ```bash
+    # General summary
+    jq '{nodeCount: (.nodes | length), edgeCount: (.edges | length), relations: (.indices.byRelation | map_values(length))}' docs/cpg.json
+
+    # Find all modules that write to options
+    jq '.edges[] | select(.relation == "writes") | {source, target, file: .meta.file}' docs/cpg.json
+
+    # Inspect outgoing edges for a specific configuration
+    jq '.indices.outgoing["urn:nixconf:eval:configuration:astrolabe"]' docs/cpg.json
+    ```
+
+    ### B. Command-Line Graph Queries (via Nix)
+    Query graph metrics and slices on the fly using pure evaluation:
+    ```bash
+    # Print all edge relations and counts
+    nix eval --apply 'f: builtins.mapAttrs (_: es: builtins.length es) (f {}).indices.byRelation' .#lib.graph.buildCPG --json
+
+    # Forward slice from a configuration (trace reachable dependencies)
+    nix eval --apply 'f: (f.graph.forwardSlice { cpg = f.graph.buildCPG {}; nodeId = "urn:nixconf:eval:configuration:astrolabe"; maxDepth = 2; }).nodeIds' .#lib --json
+
+    # Backward slice from an option (trace all writers and consumers)
+    nix eval --apply 'f: (f.graph.backwardSlice { cpg = f.graph.buildCPG {}; nodeId = "urn:nixconf:ast:option:reverse-proxy.domain"; maxDepth = 2; }).nodeIds' .#lib --json
     ```
   '';
 
@@ -392,9 +513,9 @@
 
     | Primitive | Description | Source File | Documentation |
     | :--- | :--- | :--- | :--- |
-    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive.nix`](../primitives/primitive.nix) | [Primitives Catalog](PRIMITIVES.md) |
-    | **`host`** | Declarative target host machines binding hardware, platform, and enabled features. | [`primitives/host.nix`](../primitives/host.nix) | [Hosts Documentation](HOSTS.md) |
-    | **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract.nix`](../primitives/contract.nix) | [Contracts Documentation](CONTRACTS.md) |
+    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](../primitives/primitive/default.nix) | [Primitives Catalog](PRIMITIVES.md) |
+    | **`host`** | Declarative target host machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](../primitives/host/default.nix) | [Hosts Documentation](HOSTS.md) |
+    | **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](../primitives/contract/default.nix) | [Contracts Documentation](CONTRACTS.md) |
     | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](../primitives/implementation.nix) | [Implementations Documentation](IMPLEMENTATIONS.md) |
     | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](../primitives/feature.nix) | [Features Documentation](FEATURES.md) |
     | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](../primitives/lib.nix) | [Library Documentation](LIB.md) |
@@ -408,8 +529,8 @@ in {
   internal.docs.markdown.root = {
     inherit
       renderReadme
-      renderTodoIndex
       renderDocsGuide
+      renderGraphDoc
       renderPrimitivesIndex
       ;
   };

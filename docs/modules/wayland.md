@@ -1,13 +1,13 @@
 # Module: `wayland`
 
-Capability contract interface defining 'wayland' option schemas and custom types.
+Contract interface defining 'wayland' option schemas and custom types.
 
 [← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
 
 ## Metadata
 
 - **Module Attribute**: `flake.nixosModules.wayland`
-- **Description**: Capability contract interface defining 'wayland' option schemas and custom types.
+- **Description**: Contract interface defining 'wayland' option schemas and custom types.
 
 ## Importing Hosts
 

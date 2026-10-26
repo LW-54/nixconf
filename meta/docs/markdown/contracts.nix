@@ -4,7 +4,7 @@
   options,
   ...
 }: let
-  graphLib = config.flake.lib.docsGraph;
+  graphLib = config.flake.lib.graph;
   mermaidLib = config.flake.lib.docsMermaid;
   shared = config.internal.docs.markdown.shared;
 
@@ -21,7 +21,7 @@
     devShells = props.devShells or [];
 
     # Related nodes from graph
-    opts = builtins.filter (n: n.kind == "opt" && (n.properties.contract or "") == name) (builtins.attrValues graph.nodes);
+    opts = builtins.filter (n: (n.kind == "opt" || n.kind == "option") && (n.properties.contract or "") == name) (builtins.attrValues graph.nodes);
     types = builtins.filter (n: n.kind == "type" && (n.properties.contract or "") == name) (builtins.attrValues graph.nodes);
 
     contractNeighborhood = graphLib.getNeighborhood {
@@ -34,10 +34,10 @@
     renderImplRow = i: "| [`${i.name}`](../implementations/${i.name}.md) | ${i.description} | [More →](../implementations/${i.name}.md) |";
 
     # Consumers partitioned by Hosts, Implementations, Features
-    consumerEdges = builtins.filter (e: e.target == contractNode.id && e.kind == "CONSUMES") graph.edges;
-    hostConsumerEdges = builtins.filter (e: lib.hasPrefix "host:" e.source) consumerEdges;
-    implConsumerEdges = builtins.filter (e: lib.hasPrefix "impl:" e.source) consumerEdges;
-    featureConsumerEdges = builtins.filter (e: lib.hasPrefix "feature:" e.source) consumerEdges;
+    consumerEdges = builtins.filter (e: e.target == contractNode.id && (e.kind == "CONSUMES" || e.relation == "CONSUMES")) graph.edges;
+    hostConsumerEdges = builtins.filter (e: lib.hasInfix "host:" e.source) consumerEdges;
+    implConsumerEdges = builtins.filter (e: lib.hasInfix "impl" e.source) consumerEdges;
+    featureConsumerEdges = builtins.filter (e: lib.hasInfix "feature:" e.source) consumerEdges;
 
     renderConsumer = e: let
       srcNode = graph.nodes.${e.source} or null;
@@ -46,12 +46,17 @@
         then srcNode.name
         else e.source;
       srcKind =
-        if lib.hasPrefix "host:" e.source
+        if lib.hasInfix "host:" e.source
         then "hosts"
-        else if lib.hasPrefix "impl:" e.source
+        else if lib.hasInfix "impl" e.source
         then "implementations"
         else "features";
-      optsWritten = e.properties.optionsWritten or [];
+      optsWritten =
+        e.properties.optionsWritten or (
+          if e ? qualifier && e.qualifier != null
+          then [e.qualifier]
+          else []
+        );
       optsStr =
         if optsWritten != []
         then lib.concatStringsSep ", " (map (o: "`${o}`") optsWritten)
@@ -220,7 +225,7 @@
   in ''
     # Contracts Documentation
 
-    Pure capability interfaces declared via `options.contract` in [`primitives/contract.nix`](../primitives/contract.nix).
+    Pure abstract interfaces declared via `options.contract` in [`primitives/contract/default.nix`](../primitives/contract/default.nix).
 
     [← Back to Main README](../README.md)
 
@@ -230,7 +235,7 @@
 
     ### Option Schema (`options.contract.<name>`)
 
-    - `description` (string, required): Formal description of the capability contract.
+    - `description` (string, required): Formal description of the contract.
     - `options` (raw, required): NixOS option declarations defined for this contract.
     - `types` (attrsOf raw, default: `{}`): Custom submodule types exposed on `self.lib.<name>.types`.
     - `mkOption` (raw, default: `null`): Submodule option constructor for features.
@@ -242,15 +247,15 @@
     ### Declaration Example (`contract.<name>`)
 
     ```nix
-    contract.example-capability = {
-      description = "Abstract capability interface.";
+    contract.example = {
+      description = "Abstract contract interface.";
       options = {
-        enable = lib.mkEnableOption "example capability";
+        enable = lib.mkEnableOption "example contract";
       };
     };
     ```
 
-    ## Capability Contracts Catalog
+    ## Contracts Catalog
 
     | Contract | Description | Implementations | Docs |
     | :--- | :--- | :--- | :--- |
