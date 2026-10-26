@@ -15,7 +15,7 @@
         options.antigravity.enable = lib.mkEnableOption "Antigravity" // {default = true;};
 
         config = lib.mkIf config.antigravity.enable {
-          environment.systemPackages = [self.packages.${pkgs.system}.antigravity];
+          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.antigravity];
         };
       };
 
@@ -28,7 +28,7 @@
         options.antigravity-ide.enable = lib.mkEnableOption "Antigravity IDE" // {default = true;};
 
         config = lib.mkIf config.antigravity-ide.enable {
-          environment.systemPackages = [self.packages.${pkgs.system}.antigravity-ide];
+          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-ide];
           persistence.users = lib.mapAttrs (_: _: {
             data.directories = [
               ".antigravity-ide"
@@ -47,15 +47,15 @@
         options.antigravity-cli.enable = lib.mkEnableOption "Antigravity CLI" // {default = true;};
 
         config = lib.mkIf config.antigravity-cli.enable {
-          environment.systemPackages = [self.packages.${pkgs.system}.antigravity-cli];
+          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli];
         };
       };
     };
 
     packages = {pkgs, ...}: {
-      antigravity = inputs.antigravity-nix.packages.${pkgs.system}.default;
-      antigravity-ide = inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-ide;
-      antigravity-cli = inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-cli;
+      antigravity = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+      antigravity-ide = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide;
+      antigravity-cli = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli;
     };
   };
 }

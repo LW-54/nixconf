@@ -53,7 +53,7 @@ in {
         config = lib.mkIf cfg.enable {
           git.settings = lib.mapAttrs (_: lib.mkDefault) defaultSettings;
           environment.systemPackages = [pkgs.git];
-          system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.system}.github-ssh;
+          system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
 
           home.shared.xdg.config."git/config" = {
             generator = lib.generators.toINI {};

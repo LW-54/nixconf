@@ -4,7 +4,7 @@
     modules = {
       tack = {pkgs, ...}: {
         environment.systemPackages = [
-          inputs.tack.packages.${pkgs.system}.default
+          inputs.tack.packages.${pkgs.stdenv.hostPlatform.system}.default
         ];
       };
     };

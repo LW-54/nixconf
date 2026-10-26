@@ -308,7 +308,7 @@
           in {
             system =
               if hCfg != null
-              then hCfg.pkgs.system
+              then hCfg.pkgs.stdenv.hostPlatform.system
               else (iDef.system or "x86_64-linux");
             stateVersion =
               if hCfg != null

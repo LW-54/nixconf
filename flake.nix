@@ -23,40 +23,34 @@
     };
 }
 /*
-system?
-
 updates
 monitoring
 ressource allocation
 
 bunq
 uchiyomi
-better ttyd
+ttyd auth
 rss
 
 keybinds contract
 hettznerbox
 utilise google storage
 gemini scheduled
+
 generate iso s (vm) for hosts
 mini live usb host (inspired by sonic)
 sops public secrets provisioning
 non conflicting ports provisioning
+
 LSP support
-.sops.yaml in secrets
 test if bootable
 graph cli
 interactive graph ui
 meta/monitoring
 
-hard coded docs
-docs docs docs pass
-lib in diagrams
 make TO DO work correctly
 make more clickable
 
-graph
-query
 rendering
 docs
 

@@ -112,7 +112,7 @@
             '';
           };
 
-          system.extraDependencies = lib.optional cfg.prebuildMasterSsh self.devShells.${pkgs.system}.master-ssh;
+          system.extraDependencies = lib.optional cfg.prebuildMasterSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.master-ssh;
 
           services.openssh.extraConfig = lib.optionalString (cfg.authorizeForUsers != []) ''
             Match User ${lib.concatStringsSep "," cfg.authorizeForUsers}

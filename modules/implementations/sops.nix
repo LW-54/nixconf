@@ -83,7 +83,7 @@ in {
           config.secrets.files;
 
         system.extraDependencies = lib.concatLists [
-          (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.system}.sops-admin)
+          (lib.optional cfg.prebuildAdminShell self.devShells.${pkgs.stdenv.hostPlatform.system}.sops-admin)
           (lib.optional cfg.prebuildHostShell (self.lib.sops.mkHostShell {
             inherit pkgs;
             keyFile = config.sops.age.keyFile;

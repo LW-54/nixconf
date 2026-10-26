@@ -127,7 +127,7 @@ in {
         pkgs,
         ...
       }: {
-        environment.systemPackages = [self.packages.${pkgs.system}.bw];
+        environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.bw];
 
         persistence.users = lib.mapAttrs (_: _: {
           data.directories = [".config/Bitwarden CLI"];

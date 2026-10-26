@@ -14,7 +14,7 @@
         options.dolphin.enable = lib.mkEnableOption "Dolphin File Manager" // {default = true;};
 
         config = lib.mkIf cfg.enable {
-          environment.systemPackages = [self.packages.${pkgs.system}.dolphin];
+          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.dolphin];
 
           persistence.users = lib.mapAttrs (_: _: {
             data = {
