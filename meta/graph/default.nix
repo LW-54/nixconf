@@ -10,6 +10,39 @@
   algebra = config.internal.graph.core.algebra;
   types = config.internal.graph.core.types;
   container = config.internal.graph.core.container;
+  query = config.internal.graph.query;
+  markdownTable = config.internal.graph.render.markdown.table;
+  markdownMatrix = config.internal.graph.render.markdown.matrix;
+  markdownTree = config.internal.graph.render.markdown.tree;
+  markdownEntity = config.internal.graph.render.markdown.entity;
+  mermaidTheme = config.internal.graph.render.mermaid.theme;
+  mermaidFlowchart = config.internal.graph.render.mermaid.flowchart;
+
+  renderMarkdown = {
+    inherit (markdownTable) renderTable renderNodeTable renderEdgeTable escapeCell;
+    inherit (markdownMatrix) renderMatrix;
+    inherit (markdownTree) renderMarkdownBullets renderAsciiTree renderTree;
+    inherit (markdownEntity) renderEntity;
+  };
+
+  renderMermaid = {
+    inherit (mermaidTheme) sanitizeId escapeLabel classDefs getNodeClass formatNode formatEdge;
+    inherit (mermaidFlowchart) renderFlowchart;
+  };
+
+  render = {
+    markdown = renderMarkdown;
+    mermaid = renderMermaid;
+
+    # Universal presentation shortcuts
+    table = markdownTable.renderTable;
+    nodeTable = markdownTable.renderNodeTable;
+    edgeTable = markdownTable.renderEdgeTable;
+    matrix = markdownMatrix.renderMatrix;
+    tree = markdownTree.renderTree;
+    entity = markdownEntity.renderEntity;
+    flowchart = mermaidFlowchart.renderFlowchart;
+  };
   serializers = {
     json = config.internal.graph.serializers.json;
     mermaid = config.internal.graph.serializers.mermaid;
@@ -340,6 +373,202 @@ in {
           ```
         '';
         value = getOptionValueFn;
+      };
+
+      query = {
+        docstring = ''
+          Fluent graph query selectors, pathfinding, and DAG hierarchy traversal.
+
+          # Type
+          ```
+          query :: AttrSet
+          ```
+        '';
+        value = query;
+      };
+
+      render = {
+        docstring = ''
+          Universal presentation engine for rendering any graph into Markdown tables, trees, matrices, entity sheets, and styled Mermaid flowcharts.
+
+          # Type
+          ```
+          render :: AttrSet
+          ```
+        '';
+        value = render;
+      };
+
+      renderTable = {
+        docstring = ''
+          Universal markdown table generator with configurable column extractors, alignments, and sorting.
+
+          # Inputs
+
+          `align`
+          : List of column alignments ("left", "center", "right") (optional, defaults to empty).
+
+          `columns`
+          : List of column extraction functions or attribute names.
+
+          `headers`
+          : List of column header title strings.
+
+          `reverse`
+          : Boolean flag to reverse row ordering (optional, defaults to false).
+
+          `rows`
+          : List of row data items or entity attribute sets.
+
+          `sortBy`
+          : Optional sorting key lambda (Row -> Comparable) (defaults to null).
+
+          # Type
+          ```
+          renderTable :: AttrSet -> String
+          ```
+        '';
+        value = render.table;
+      };
+
+      renderMatrix = {
+        docstring = ''
+          Two-dimensional cross-tabulation and relationship matrix markdown generator.
+
+          # Inputs
+
+          `cellFn`
+          : Custom cell renderer function receiving `{ row, col, edges, matched }` (optional, defaults to null).
+
+          `colLabel`
+          : Display title extractor for column entities (optional, defaults to `c.name or c.id`).
+
+          `cols`
+          : List of column entities or nodes.
+
+          `graph`
+          : Graph attribute set containing edges to match (optional, defaults to null).
+
+          `relation`
+          : Optional edge relation name filter (e.g. "implements", "CONSUMES") (defaults to null).
+
+          `rowHeader`
+          : Header title for the row index column (defaults to "Entity").
+
+          `rowLabel`
+          : Display title extractor for row entities (optional, defaults to `r.name or r.id`).
+
+          `rows`
+          : List of row entities or nodes.
+
+          # Type
+          ```
+          renderMatrix :: AttrSet -> String
+          ```
+        '';
+        value = render.matrix;
+      };
+
+      renderTree = {
+        docstring = ''
+          Hierarchical tree generator supporting markdown bullet lists and ASCII tree formats.
+
+          # Inputs
+
+          `format`
+          : Optional format style alias ("markdown" or "ascii") (defaults to null).
+
+          `formatNode`
+          : Optional node display formatting function (defaults to null).
+
+          `graph`
+          : The labeled property graph attribute set.
+
+          `maxDepth`
+          : Maximum recursion depth for tree traversal (defaults to 10).
+
+          `relation`
+          : Optional edge relation name filter (defaults to null).
+
+          `roots`
+          : List of root node IDs or root node attribute sets.
+
+          `style`
+          : Formatting style ("markdown" or "ascii") (defaults to "markdown").
+
+          # Type
+          ```
+          renderTree :: AttrSet -> String
+          ```
+        '';
+        value = render.tree;
+      };
+
+      renderEntity = {
+        docstring = ''
+          Entity sheet generator providing comprehensive markdown inspection cards for graph nodes.
+
+          # Inputs
+
+          `graph`
+          : The labeled property graph containing the node.
+
+          `includeNeighborhoodDiagram`
+          : Boolean flag to embed a Mermaid 1-hop neighborhood diagram (defaults to true).
+
+          `mermaidRenderer`
+          : Optional custom function to render a Mermaid diagram from a subgraph (defaults to null).
+
+          `node`
+          : The target node attribute set to inspect.
+
+          # Type
+          ```
+          renderEntity :: AttrSet -> String
+          ```
+        '';
+        value = render.entity;
+      };
+
+      renderMermaid = {
+        docstring = ''
+          Advanced Mermaid flowchart renderer with clustering, hyperlinked click events, and semantic class styling.
+
+          # Inputs
+
+          `clusterBy`
+          : Optional clustering criterion (e.g. "stratum", "kind", or a grouping lambda) (defaults to null).
+
+          `customEdgeFormatter`
+          : Optional custom formatting function for graph edges (defaults to null).
+
+          `customNodeFormatter`
+          : Optional custom formatting function for graph nodes (defaults to null).
+
+          `graph`
+          : The labeled property graph attribute set.
+
+          `includeTheme`
+          : Boolean flag to append semantic CSS class definitions (defaults to true).
+
+          `layout`
+          : Flowchart orientation direction ("TD", "LR", "TB", etc.) (defaults to "TD").
+
+          `linkFn`
+          : Optional function returning an interactive URL string for a node (defaults to null).
+
+          `title`
+          : Optional flowchart diagram title string (defaults to null).
+
+          `tooltipFn`
+          : Optional function returning tooltip hover text for a node (defaults to null).
+
+          # Type
+          ```
+          renderMermaid :: AttrSet -> String
+          ```
+        '';
+        value = mermaidFlowchart.renderFlowchart;
       };
     };
   };

@@ -276,6 +276,145 @@ getOptionValue :: AttrSet -> Any
 
 
 
+<a id="renderEntity"></a>
+### `renderEntity`
+
+Entity sheet generator providing comprehensive markdown inspection cards for graph nodes.
+
+
+
+#### Inputs
+
+- `graph`: The labeled property graph containing the node.
+- `includeNeighborhoodDiagram`: Boolean flag to embed a Mermaid 1-hop neighborhood diagram (defaults to true).
+- `mermaidRenderer`: Optional custom function to render a Mermaid diagram from a subgraph (defaults to null).
+- `node`: The target node attribute set to inspect.
+
+
+#### Type
+
+```
+renderEntity :: AttrSet -> String
+```
+
+
+
+
+
+<a id="renderMatrix"></a>
+### `renderMatrix`
+
+Two-dimensional cross-tabulation and relationship matrix markdown generator.
+
+
+
+#### Inputs
+
+- `cellFn`: Custom cell renderer function receiving `{ row, col, edges, matched }` (optional, defaults to null).
+- `colLabel`: Display title extractor for column entities (optional, defaults to `c.name or c.id`).
+- `cols`: List of column entities or nodes.
+- `graph`: Graph attribute set containing edges to match (optional, defaults to null).
+- `relation`: Optional edge relation name filter (e.g. "implements", "CONSUMES") (defaults to null).
+- `rowHeader`: Header title for the row index column (defaults to "Entity").
+- `rowLabel`: Display title extractor for row entities (optional, defaults to `r.name or r.id`).
+- `rows`: List of row entities or nodes.
+
+
+#### Type
+
+```
+renderMatrix :: AttrSet -> String
+```
+
+
+
+
+
+<a id="renderMermaid"></a>
+### `renderMermaid`
+
+Advanced Mermaid flowchart renderer with clustering, hyperlinked click events, and semantic class styling.
+
+
+
+#### Inputs
+
+- `clusterBy`: Optional clustering criterion (e.g. "stratum", "kind", or a grouping lambda) (defaults to null).
+- `customEdgeFormatter`: Optional custom formatting function for graph edges (defaults to null).
+- `customNodeFormatter`: Optional custom formatting function for graph nodes (defaults to null).
+- `graph`: The labeled property graph attribute set.
+- `includeTheme`: Boolean flag to append semantic CSS class definitions (defaults to true).
+- `layout`: Flowchart orientation direction ("TD", "LR", "TB", etc.) (defaults to "TD").
+- `linkFn`: Optional function returning an interactive URL string for a node (defaults to null).
+- `title`: Optional flowchart diagram title string (defaults to null).
+- `tooltipFn`: Optional function returning tooltip hover text for a node (defaults to null).
+
+
+#### Type
+
+```
+renderMermaid :: AttrSet -> String
+```
+
+
+
+
+
+<a id="renderTable"></a>
+### `renderTable`
+
+Universal markdown table generator with configurable column extractors, alignments, and sorting.
+
+
+
+#### Inputs
+
+- `align`: List of column alignments ("left", "center", "right") (optional, defaults to empty).
+- `columns`: List of column extraction functions or attribute names.
+- `headers`: List of column header title strings.
+- `reverse`: Boolean flag to reverse row ordering (optional, defaults to false).
+- `rows`: List of row data items or entity attribute sets.
+- `sortBy`: Optional sorting key lambda (Row -> Comparable) (defaults to null).
+
+
+#### Type
+
+```
+renderTable :: AttrSet -> String
+```
+
+
+
+
+
+<a id="renderTree"></a>
+### `renderTree`
+
+Hierarchical tree generator supporting markdown bullet lists and ASCII tree formats.
+
+
+
+#### Inputs
+
+- `format`: Optional format style alias ("markdown" or "ascii") (defaults to null).
+- `formatNode`: Optional node display formatting function (defaults to null).
+- `graph`: The labeled property graph attribute set.
+- `maxDepth`: Maximum recursion depth for tree traversal (defaults to 10).
+- `relation`: Optional edge relation name filter (defaults to null).
+- `roots`: List of root node IDs or root node attribute sets.
+- `style`: Formatting style ("markdown" or "ascii") (defaults to "markdown").
+
+
+#### Type
+
+```
+renderTree :: AttrSet -> String
+```
+
+
+
+
+
 <a id="toArchitectureLPG"></a>
 ### `toArchitectureLPG`
 
@@ -292,6 +431,44 @@ Projects the fine-grained Semantic CPG into the macro architectural graph (LPG).
 
 ```
 toArchitectureLPG :: AttrSet -> AttrSet
+```
+
+
+
+
+
+<a id="query"></a>
+### `query`
+
+Fluent graph query selectors, pathfinding, and DAG hierarchy traversal.
+
+
+
+
+
+#### Type
+
+```
+query :: AttrSet
+```
+
+
+
+
+
+<a id="render"></a>
+### `render`
+
+Universal presentation engine for rendering any graph into Markdown tables, trees, matrices, entity sheets, and styled Mermaid flowcharts.
+
+
+
+
+
+#### Type
+
+```
+render :: AttrSet
 ```
 
 

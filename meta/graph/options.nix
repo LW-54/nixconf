@@ -78,5 +78,46 @@
         description = "Graphviz DOT serializer.";
       };
     };
+    query = lib.mkOption {
+      type = lib.types.raw;
+      default = {};
+      description = "Fluent graph query selectors, pathfinding, and DAG hierarchy traversal.";
+    };
+    render = {
+      markdown = {
+        table = lib.mkOption {
+          type = lib.types.raw;
+          default = {};
+          description = "Markdown table rendering utilities.";
+        };
+        matrix = lib.mkOption {
+          type = lib.types.raw;
+          default = {};
+          description = "Markdown matrix rendering utilities.";
+        };
+        tree = lib.mkOption {
+          type = lib.types.raw;
+          default = {};
+          description = "Markdown tree rendering utilities.";
+        };
+        entity = lib.mkOption {
+          type = lib.types.raw;
+          default = {};
+          description = "Markdown entity inspection sheet rendering utilities.";
+        };
+      };
+      mermaid = {
+        theme = lib.mkOption {
+          type = lib.types.raw;
+          default = {};
+          description = "Mermaid flowchart styling themes and node formatters.";
+        };
+        flowchart = lib.mkOption {
+          type = lib.types.raw;
+          default = {};
+          description = "Mermaid flowchart diagram rendering utilities.";
+        };
+      };
+    };
   };
 }
