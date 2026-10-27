@@ -35,8 +35,6 @@ flowchart LR
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_email
-    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_enable
-    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_fullName
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_githubUsername
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_username
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_email

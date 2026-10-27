@@ -74,7 +74,6 @@ flowchart LR
     urn__nixconf__ast__module__direnv -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__direnv -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries

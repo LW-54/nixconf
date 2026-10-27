@@ -146,7 +146,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__hjem -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user

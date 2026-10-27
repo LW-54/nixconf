@@ -192,10 +192,8 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__hjem -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
@@ -203,7 +201,6 @@ end
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup

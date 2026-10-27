@@ -87,10 +87,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_enable
     urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_slices
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__resources_services
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
@@ -197,7 +194,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources

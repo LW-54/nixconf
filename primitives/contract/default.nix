@@ -78,12 +78,16 @@
           flake.nixosModules =
             (lib.mapAttrs (
                 name: c: {
+                  _file = "contract:${name}";
+                  key = "contract-${name}";
                   options.${name} = c.options;
                 }
               )
               instances)
             // {
               contracts = {...}: {
+                _file = "contracts";
+                key = "contracts";
                 imports = lib.mapAttrsToList (name: _: config.flake.nixosModules.${name}) instances;
               };
             };

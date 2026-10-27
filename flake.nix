@@ -54,17 +54,6 @@ make more clickable
 rendering
 docs
 
-.gnupg
-
 antikythera
-
-lets think about a change to the implementation to enforce and automate config = lib.mkMerge [
-        {
-          <contact>.enable = lib.mkDefault true;
-        }
-        (lib.mkIf config.<contract>.enable {
-          ...
-        })
-      ];
 */
 

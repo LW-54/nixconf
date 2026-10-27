@@ -72,7 +72,6 @@ flowchart LR
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
 
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__vivaldi -.->|flowsTo| urn__nixconf__ast__module__impermanence

@@ -59,9 +59,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
-    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_enable
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__reverse_proxy_enable
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
@@ -118,7 +116,6 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
@@ -127,7 +124,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
@@ -259,20 +255,7 @@ config = {
 
 ### Implementations
 
-<details>
-<summary><code><a href="../implementations/caddy.md">caddy</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
+*No implementations configure this contract.*
 
 ### Features
 

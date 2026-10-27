@@ -80,10 +80,8 @@ flowchart LR
     urn__nixconf__ast__module__git -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__git -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__git -.->|writes| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|writes| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__labwc -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__home_users
@@ -163,7 +161,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
-    urn__nixconf__onto__implementation__hjem -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
@@ -273,17 +270,4 @@ Hosts enabling this provider to fulfill the [`home`](../contracts/home.md) contr
 
 Contracts configured by this implementation:
 
-<details>
-<summary><code><a href="../contracts/home.md">home</a></code></summary>
-
-Configures options: *general capability bindings*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
+*No external contracts consumed by this implementation.*

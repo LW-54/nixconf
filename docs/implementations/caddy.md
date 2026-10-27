@@ -84,17 +84,11 @@ flowchart LR
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
-    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_enable
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__reverse_proxy_enable
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_enable
     urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_slices
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
@@ -188,7 +182,6 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
@@ -313,21 +306,6 @@ config = {
 
 <details>
 <summary><code><a href="../contracts/resources.md">resources</a></code></summary>
-
-Configures options: *general capability bindings*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../contracts/reverse-proxy.md">reverse-proxy</a></code></summary>
 
 Configures options: *general capability bindings*
 

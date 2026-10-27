@@ -70,15 +70,13 @@
           })
           cfg.users;
 
-        programs.fuse.userAllowOther = lib.mkIf cfg.enable true;
-        boot.tmp.cleanOnBoot = lib.mkIf cfg.enable true;
-        fileSystems."/persist".neededForBoot = lib.mkIf cfg.enable true;
+        programs.fuse.userAllowOther = true;
+        boot.tmp.cleanOnBoot = true;
+        fileSystems."/persist".neededForBoot = true;
 
-        environment.persistence = lib.mkIf cfg.enable (
-          lib.mkMerge (
-            [systemPersistence]
-            ++ map mkUserPersistence (builtins.attrNames cfg.users)
-          )
+        environment.persistence = lib.mkMerge (
+          [systemPersistence]
+          ++ map mkUserPersistence (builtins.attrNames cfg.users)
         );
       };
     };

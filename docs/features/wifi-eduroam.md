@@ -69,8 +69,6 @@ flowchart LR
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
 
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_files

@@ -44,50 +44,42 @@ in {
     contract = "default-user";
     description = "Primary human user account orchestration and identity provisioning.";
     lib = Identity;
-    module = {
-      config,
-      lib,
-      options,
-      ...
-    }: let
+    module = {config, ...}: let
       cfg = config.default-user;
     in {
-      config = lib.mkIf cfg.enable {
-        default-user = {
-          username = Identity.username.value;
-          githubUsername = Identity.githubUsername.value;
-          email = Identity.email.value;
-        };
+      default-user = {
+        username = Identity.username.value;
+        githubUsername = Identity.githubUsername.value;
+        email = Identity.email.value;
+      };
 
-        secrets.files.default-user-password-hash = {
-          file = ../../secrets/users/default.yaml;
-          key = "passwordHash";
-          neededForUsers = true;
-        };
+      secrets.files.default-user-password-hash = {
+        file = ../../secrets/users/default.yaml;
+        key = "passwordHash";
+        neededForUsers = true;
+      };
 
-        users.users.${cfg.username} = {
-          isNormalUser = true;
-          description = cfg.username;
-          extraGroups = ["wheel" "networkmanager"];
-          hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
-        };
+      users.users.${cfg.username} = {
+        isNormalUser = true;
+        description = cfg.username;
+        extraGroups = ["wheel" "networkmanager"];
+        hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+      };
 
-        users.users.root = {
-          hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
-        };
+      users.users.root = {
+        hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+      };
 
-        home.users.${cfg.username} = {};
+      home.users.${cfg.username} = {};
 
-        persistence.users.${cfg.username} = {
-          data.directories = [
-            "nixconf"
-            "Documents"
-            "Downloads"
-            "Projects"
-            ".ssh"
-            ".gnupg"
-          ];
-        };
+      persistence.users.${cfg.username} = {
+        data.directories = [
+          "nixconf"
+          "Documents"
+          "Downloads"
+          "Projects"
+          ".ssh"
+        ];
       };
     };
   };

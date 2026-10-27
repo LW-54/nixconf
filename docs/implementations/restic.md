@@ -68,22 +68,13 @@ flowchart LR
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_enable
     urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_slices
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
-    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_pruneOpts
-    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_timerConfig
-    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__resources_services
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -152,13 +143,11 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
@@ -255,21 +244,6 @@ Hosts enabling this provider to fulfill the [`backup`](../contracts/backup.md) c
 ## Consumed Contracts
 
 Contracts configured by this implementation:
-
-<details>
-<summary><code><a href="../contracts/backup.md">backup</a></code></summary>
-
-Configures options: *general capability bindings*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
 
 <details>
 <summary><code><a href="../contracts/resources.md">resources</a></code></summary>

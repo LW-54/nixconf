@@ -90,8 +90,6 @@ flowchart LR
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__secrets_files
@@ -194,7 +192,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets

@@ -59,10 +59,8 @@ flowchart LR
     urn__nixconf__ast__module__git -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__git -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__git -.->|writes| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|writes| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__labwc -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__home_users
@@ -108,7 +106,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
-    urn__nixconf__onto__implementation__hjem -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
@@ -217,21 +214,6 @@ Modules configuring options under the `home` contract capability:
 *No hosts configure this contract directly.*
 
 ### Implementations
-
-<details>
-<summary><code><a href="../implementations/hjem.md">hjem</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
 
 <details>
 <summary><code><a href="../implementations/lw.md">lw</a></code></summary>

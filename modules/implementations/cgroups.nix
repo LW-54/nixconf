@@ -43,7 +43,7 @@
         };
       };
 
-      config = lib.mkIf (rCfg.enable && cfg.enable) {
+      config = lib.mkIf cfg.enable {
         # Enable systemd userspace OOM killer
         systemd.oomd.enable = lib.mkIf cfg.enableOOMD (lib.mkDefault true);
 

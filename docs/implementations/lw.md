@@ -101,20 +101,15 @@ flowchart LR
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|writes| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_email
-    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_enable
-    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_fullName
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_githubUsername
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_username
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_email
@@ -123,8 +118,6 @@ flowchart LR
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
@@ -257,10 +250,8 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
-    urn__nixconf__onto__implementation__hjem -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence

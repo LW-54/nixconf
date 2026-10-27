@@ -81,8 +81,6 @@ flowchart LR
 
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -170,7 +168,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets

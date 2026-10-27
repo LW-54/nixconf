@@ -15,7 +15,7 @@ The complete semantic graph extracted from pure Nix evaluation:
 | Dimension | Metric | Description |
 | :--- | :--- | :--- |
 | **Total Nodes** | **242** | Deduplicated primitives, hosts, configurations, modules, options, types, packages, devShells, and functions. |
-| **Total Edges** | **535** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
+| **Total Edges** | **461** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
 | **Relations** | **10** | Canonical Computer Science relation predicates (`contains`, `declares`, `dependsOn`, `flowsTo`, `implements`, `imports`, `outputs`, `reads`, `typedBy`, `writes`). |
 | **Strata** | **4** | Ontological Intent (`onto`), Syntactic AST (`ast`), Operational Fixpoint (`eval`), Derivation Substrate (`drv`). |
 | **Evaluation** | **100% Pure** | Zero `--impure` dependencies, zero regex text-scanning, zero heuristic disk path reads. |
@@ -31,10 +31,10 @@ Every edge in the CPG represents an exact computer science relation across the f
 | **`outputs`** | AST / Eval / Drv | 119 | Flake artifact or component emission | Primitives outputting standard configurations, modules, packages, devShells, and functions |
 | **`imports`** | Eval | 70 | Compilation unit composition | Evaluated NixOS configurations importing concrete NixOS modules |
 | **`contains`** | Onto | 61 | Lexical parent-child containment | Primitives containing declared instances |
-| **`writes`** | Eval | 87 | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
+| **`writes`** | Eval | 54 | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
 | **`declares`** | AST | 44 | Interface specification declaration | Contracts declaring public options and custom types |
-| **`flowsTo`** | Eval | 63 | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
-| **`reads`** | Eval | 45 | Option value inspection (Use / Load) | Consumer implementation reading contract options |
+| **`flowsTo`** | Eval | 44 | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
+| **`reads`** | Eval | 23 | Option value inspection (Use / Load) | Consumer implementation reading contract options |
 | **`typedBy`** | AST | 15 | Option type-system binding | Contract options bound to custom submodule types |
 | **`implements`** | Onto | 8 | Contract fulfillment | Explicit architectural relationship in `primitives/implementation.nix` |
 | **`dependsOn`** | Drv | 23 | Software package dependency | Modules and devShells depending on executable packages |

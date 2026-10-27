@@ -90,10 +90,8 @@ flowchart LR
     urn__nixconf__ast__module__git -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__git -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__git -.->|writes| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|writes| urn__nixconf__ast__option__home_enable
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
@@ -194,10 +192,8 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
-    urn__nixconf__onto__implementation__hjem -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland

@@ -36,12 +36,8 @@ flowchart LR
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
-    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_pruneOpts
-    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_timerConfig
-    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_paths
@@ -59,7 +55,6 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
@@ -144,20 +139,7 @@ Modules configuring options under the `backup` contract capability:
 
 ### Implementations
 
-<details>
-<summary><code><a href="../implementations/restic.md">restic</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
+*No implementations configure this contract.*
 
 ### Features
 

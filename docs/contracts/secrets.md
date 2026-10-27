@@ -53,8 +53,6 @@ flowchart LR
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__secrets_files
@@ -92,7 +90,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup

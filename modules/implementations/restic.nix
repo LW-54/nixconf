@@ -33,50 +33,45 @@
         };
       };
 
-      config = lib.mkMerge [
-        {
-          backup.enable = lib.mkDefault true;
-        }
-        (lib.mkIf (cfg.enable && resticCfg.repository != null) {
-          secrets.files = {
-            restic-env = lib.mkIf (resticCfg.environmentFile == null) {
-              file = ../../secrets/backup/restic.yaml;
-              key = "env";
-            };
-
-            restic-password = lib.mkIf (resticCfg.passwordFile == null) {
-              file = ../../secrets/backup/restic.yaml;
-              key = "password";
-            };
+      config = lib.mkIf (resticCfg.repository != null) {
+        secrets.files = {
+          restic-env = lib.mkIf (resticCfg.environmentFile == null) {
+            file = ../../secrets/backup/restic.yaml;
+            key = "env";
           };
 
-          services.restic.backups.main = {
-            repository = resticCfg.repository;
-            environmentFile =
-              if resticCfg.environmentFile != null
-              then resticCfg.environmentFile
-              else config.secrets.files.restic-env.path;
-            passwordFile =
-              if resticCfg.passwordFile != null
-              then resticCfg.passwordFile
-              else config.secrets.files.restic-password.path;
-            paths = cfg.paths;
-            exclude = cfg.exclude;
-            pruneOpts = cfg.pruneOpts;
-            timerConfig = cfg.timerConfig;
-            initialize = true;
+          restic-password = lib.mkIf (resticCfg.passwordFile == null) {
+            file = ../../secrets/backup/restic.yaml;
+            key = "password";
           };
+        };
 
-          resources.services.restic-backups-main = lib.mkIf (config.resources.enable or false) {
-            profile = "background";
-            memory.high = "512M";
-            battery = {
-              throttleOnBattery = true;
-              pauseOnBattery = true;
-            };
+        services.restic.backups.main = {
+          repository = resticCfg.repository;
+          environmentFile =
+            if resticCfg.environmentFile != null
+            then resticCfg.environmentFile
+            else config.secrets.files.restic-env.path;
+          passwordFile =
+            if resticCfg.passwordFile != null
+            then resticCfg.passwordFile
+            else config.secrets.files.restic-password.path;
+          paths = cfg.paths;
+          exclude = cfg.exclude;
+          pruneOpts = cfg.pruneOpts;
+          timerConfig = cfg.timerConfig;
+          initialize = true;
+        };
+
+        resources.services.restic-backups-main = lib.mkIf (config.resources.enable or false) {
+          profile = "background";
+          memory.high = "512M";
+          battery = {
+            throttleOnBattery = true;
+            pauseOnBattery = true;
           };
-        })
-      ];
+        };
+      };
     };
   };
 }

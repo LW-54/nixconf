@@ -68,7 +68,7 @@ in {
       options.sops.prebuildAdminShell = lib.mkEnableOption "prebuilding the SOPS admin development shell" // {default = true;};
       options.sops.prebuildHostShell = lib.mkEnableOption "prebuilding the SOPS host development shell" // {default = true;};
 
-      config = lib.mkIf (config.secrets.enable or false) {
+      config = {
         sops.age.keyFile = lib.mkDefault defaultAgeKeyFile;
         sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
 

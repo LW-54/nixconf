@@ -10,21 +10,14 @@
       lib,
       ...
     }: {
-      config = lib.mkMerge [
-        {
-          wayland.enable = lib.mkDefault true;
-        }
-        (lib.mkIf (config.wayland.enable or false) {
-          programs.uwsm = {
-            enable = true;
-            waylandCompositors =
-              lib.mapAttrs (_: c: {
-                inherit (c) prettyName comment binPath;
-              })
-              config.wayland.compositors;
-          };
-        })
-      ];
+      programs.uwsm = {
+        enable = true;
+        waylandCompositors =
+          lib.mapAttrs (_: c: {
+            inherit (c) prettyName comment binPath;
+          })
+          config.wayland.compositors;
+      };
     };
   };
 }

@@ -4,6 +4,8 @@
   option,
   output,
   self,
+  config,
+  implementationLib,
   ...
 }: {
   primitive.implementation = {
@@ -53,6 +55,19 @@
       lib = option.lib;
     };
 
-    outputs = {instances, ...}: output.standard instances;
+    outputs = {instances, ...}: let
+      wrappedInstances = lib.mapAttrs (name: inst:
+        inst
+        // lib.optionalAttrs (inst ? module && inst ? contract) {
+          module = implementationLib.wrapImplementationModule {
+            inherit name;
+            contract = inst.contract;
+            userModule = inst.module;
+            contractModule = config.flake.nixosModules.${inst.contract} or null;
+          };
+        })
+      instances;
+    in
+      output.standard wrappedInstances;
   };
 }
