@@ -19,7 +19,6 @@ flowchart LR
     urn__nixconf__ast__option__default_user_enable[/"default-user.enable"/]:::optNode
     urn__nixconf__ast__option__default_user_fullName[/"default-user.fullName"/]:::optNode
     urn__nixconf__ast__option__default_user_githubUsername[/"default-user.githubUsername"/]:::optNode
-    urn__nixconf__ast__option__default_user_modules[/"default-user.modules"/]:::optNode
     urn__nixconf__ast__option__default_user_username[/"default-user.username"/]:::optNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
@@ -39,7 +38,6 @@ flowchart LR
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_enable
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_fullName
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_modules
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_username
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_email
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_githubUsername
@@ -48,7 +46,6 @@ flowchart LR
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_enable
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_fullName
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_modules
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_username
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
@@ -106,7 +103,6 @@ flowchart LR
 | `options.default-user.enable` | `boolean` | `1` | `1` | Whether to enable system default user contract. |
 | `options.default-user.fullName` | `null or string` | *null* | `Alice Smith` | Display name / GECOS description of the default user. |
 | `options.default-user.githubUsername` | `string` | *null* | `alice` | GitHub username of the default user. |
-| `options.default-user.modules` | `list of module` | `[ ... ]` | `[ ... ]` | Arbitrary NixOS configuration modules contributed by other features for the default user, evaluated and merged into the system when enabled. |
 | `options.default-user.username` | `string` | *null* | `alice` | Username of the default user account. |
 
 ## Outputs
@@ -117,9 +113,7 @@ flowchart LR
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.default-user.forDefaultUser`](../lib/default-user.md#forDefaultUser) | Contract option constructor / binding helper | [More →](../lib/default-user.md#forDefaultUser) |
+*No library symbols exported.*
 
 ## Implementations
 

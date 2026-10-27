@@ -21,6 +21,7 @@ flowchart LR
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__direnv["nixosModule/direnv"]:::defaultNode
+    urn__nixconf__ast__module__docker["nixosModule/docker"]:::defaultNode
     urn__nixconf__ast__module__dolphin["nixosModule/dolphin"]:::defaultNode
     urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
@@ -55,6 +56,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
+    urn__nixconf__onto__feature__docker("docker"):::featureNode
     urn__nixconf__onto__feature__dolphin("dolphin"):::featureNode
     urn__nixconf__onto__feature__foot("foot"):::featureNode
     urn__nixconf__onto__feature__labwc("labwc"):::featureNode
@@ -91,6 +93,8 @@ flowchart LR
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__direnv -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__direnv -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__dolphin -->|dependsOn| urn__nixconf__drv__package__dolphin
     urn__nixconf__ast__module__dolphin -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__dolphin -.->|writes| urn__nixconf__ast__option__persistence_users
@@ -140,6 +144,8 @@ flowchart LR
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -->|outputs| urn__nixconf__ast__module__direnv
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__docker -->|outputs| urn__nixconf__ast__module__docker
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -->|outputs| urn__nixconf__ast__module__dolphin
     urn__nixconf__onto__feature__dolphin -->|outputs| urn__nixconf__drv__package__dolphin
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -176,6 +182,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__docker
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
@@ -209,6 +216,7 @@ flowchart LR
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__docker
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
@@ -229,6 +237,7 @@ flowchart LR
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
     click urn__nixconf__ast__module__direnv href "../modules/direnv.md" "direnv"
+    click urn__nixconf__ast__module__docker href "../modules/docker.md" "docker"
     click urn__nixconf__ast__module__dolphin href "../modules/dolphin.md" "dolphin"
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
@@ -257,6 +266,7 @@ flowchart LR
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
+    click urn__nixconf__onto__feature__docker href "../features/docker.md" "docker"
     click urn__nixconf__onto__feature__dolphin href "../features/dolphin.md" "dolphin"
     click urn__nixconf__onto__feature__foot href "../features/foot.md" "foot"
     click urn__nixconf__onto__feature__labwc href "../features/labwc.md" "labwc"
@@ -392,6 +402,21 @@ config = {
 
 <details>
 <summary><code><a href="../features/direnv.md">direnv</a></code></summary>
+
+Configures options: *general contract configuration*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/docker.md">docker</a></code></summary>
 
 Configures options: *general contract configuration*
 

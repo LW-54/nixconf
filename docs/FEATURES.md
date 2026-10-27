@@ -39,6 +39,7 @@ feature.example-feature = {
 | [`cursor`](features/cursor.md) | XCursor theme configuration and icon assets. | [More →](features/cursor.md) |
 | [`direnv`](features/direnv.md) | Per-directory declarative shell environment integration via nix-direnv. | [More →](features/direnv.md) |
 | [`disko`](features/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](features/disko.md) |
+| [`docker`](features/docker.md) | Docker application container engine, socket activation, and state persistence. | [More →](features/docker.md) |
 | [`dolphin`](features/dolphin.md) | KDE Dolphin file manager with Wayland integration and isolated runtime plugins. | [More →](features/dolphin.md) |
 | [`fonts`](features/fonts.md) | System typography and developer monospace font packages. | [More →](features/fonts.md) |
 | [`foot`](features/foot.md) | Fast, lightweight Wayland terminal emulator with server-client architecture. | [More →](features/foot.md) |

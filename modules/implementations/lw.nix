@@ -1,5 +1,5 @@
-{...}: let
-  lwIdentity = {
+{self, ...}: let
+  Identity = {
     username = {
       docstring = ''
         Primary login username for user account lw.
@@ -43,19 +43,20 @@ in {
   implementation.lw = {
     contract = "default-user";
     description = "Primary human user account orchestration and identity provisioning.";
-    lib = lwIdentity;
+    lib = Identity;
     module = {
       config,
       lib,
+      options,
       ...
     }: let
       cfg = config.default-user;
     in {
       config = lib.mkIf cfg.enable {
         default-user = {
-          username = lwIdentity.username.value;
-          githubUsername = lwIdentity.githubUsername.value;
-          email = lwIdentity.email.value;
+          username = Identity.username.value;
+          githubUsername = Identity.githubUsername.value;
+          email = Identity.email.value;
         };
 
         secrets.files.default-user-password-hash = {
@@ -66,7 +67,7 @@ in {
 
         users.users.${cfg.username} = {
           isNormalUser = true;
-          description = "lw";
+          description = cfg.username;
           extraGroups = ["wheel" "networkmanager"];
           hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
         };

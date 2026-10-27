@@ -25,5 +25,4 @@ NixOS options declared directly by this module:
 | `options.default-user.enable` | `boolean` | Whether to enable system default user contract. |
 | `options.default-user.fullName` | `null or string` | Display name / GECOS description of the default user. |
 | `options.default-user.githubUsername` | `string` | GitHub username of the default user. |
-| `options.default-user.modules` | `list of module` | Arbitrary NixOS configuration modules contributed by other features for the default user, evaluated and merged into the system when enabled. |
 | `options.default-user.username` | `string` | Username of the default user account. |

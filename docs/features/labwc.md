@@ -54,6 +54,7 @@ flowchart LR
     urn__nixconf__onto__feature__cursor("cursor"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
+    urn__nixconf__onto__feature__docker("docker"):::featureNode
     urn__nixconf__onto__feature__dolphin("dolphin"):::featureNode
     urn__nixconf__onto__feature__fonts("fonts"):::featureNode
     urn__nixconf__onto__feature__foot("foot"):::featureNode
@@ -142,6 +143,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -172,6 +174,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__cursor
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__docker
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__fonts
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
@@ -212,6 +215,7 @@ flowchart LR
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cursor
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__docker
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__fonts
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
@@ -256,6 +260,7 @@ flowchart LR
     click urn__nixconf__onto__feature__cursor href "../features/cursor.md" "cursor"
     click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
+    click urn__nixconf__onto__feature__docker href "../features/docker.md" "docker"
     click urn__nixconf__onto__feature__dolphin href "../features/dolphin.md" "dolphin"
     click urn__nixconf__onto__feature__fonts href "../features/fonts.md" "fonts"
     click urn__nixconf__onto__feature__foot href "../features/foot.md" "foot"

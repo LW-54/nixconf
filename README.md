@@ -66,6 +66,7 @@ end
     urn__nixconf__onto__feature__cursor("cursor"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
+    urn__nixconf__onto__feature__docker("docker"):::featureNode
     urn__nixconf__onto__feature__dolphin("dolphin"):::featureNode
     urn__nixconf__onto__feature__fonts("fonts"):::featureNode
     urn__nixconf__onto__feature__foot("foot"):::featureNode
@@ -125,6 +126,7 @@ end
   urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -167,6 +169,7 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__cursor
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__docker
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__fonts
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
@@ -222,6 +225,7 @@ end
     click urn__nixconf__onto__feature__cursor href "docs/features/cursor.md" "cursor"
     click urn__nixconf__onto__feature__direnv href "docs/features/direnv.md" "direnv"
     click urn__nixconf__onto__feature__disko href "docs/features/disko.md" "disko"
+    click urn__nixconf__onto__feature__docker href "docs/features/docker.md" "docker"
     click urn__nixconf__onto__feature__dolphin href "docs/features/dolphin.md" "dolphin"
     click urn__nixconf__onto__feature__fonts href "docs/features/fonts.md" "fonts"
     click urn__nixconf__onto__feature__foot href "docs/features/foot.md" "foot"
@@ -459,6 +463,7 @@ Reusable system services and applications declared via `options.feature` in [`pr
 | [`cursor`](docs/features/cursor.md) | XCursor theme configuration and icon assets. | [More →](docs/features/cursor.md) |
 | [`direnv`](docs/features/direnv.md) | Per-directory declarative shell environment integration via nix-direnv. | [More →](docs/features/direnv.md) |
 | [`disko`](docs/features/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](docs/features/disko.md) |
+| [`docker`](docs/features/docker.md) | Docker application container engine, socket activation, and state persistence. | [More →](docs/features/docker.md) |
 | [`dolphin`](docs/features/dolphin.md) | KDE Dolphin file manager with Wayland integration and isolated runtime plugins. | [More →](docs/features/dolphin.md) |
 | [`fonts`](docs/features/fonts.md) | System typography and developer monospace font packages. | [More →](docs/features/fonts.md) |
 | [`foot`](docs/features/foot.md) | Fast, lightweight Wayland terminal emulator with server-client architecture. | [More →](docs/features/foot.md) |

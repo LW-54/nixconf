@@ -50,33 +50,33 @@ in {
           prebuildGithubSsh = lib.mkEnableOption "prebuilding the GitHub SSH development shell" // {default = true;};
         };
 
-        config = lib.mkIf cfg.enable {
-          git.settings = lib.mapAttrs (_: lib.mkDefault) defaultSettings;
-          environment.systemPackages = [pkgs.git];
-          system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
+        config = lib.mkIf cfg.enable (lib.mkMerge [
+          {
+            git.settings = lib.mapAttrs (_: lib.mkDefault) defaultSettings;
+            environment.systemPackages = [pkgs.git];
+            system.extraDependencies = lib.optional cfg.prebuildGithubSsh self.devShells.${pkgs.stdenv.hostPlatform.system}.github-ssh;
 
-          home.shared.xdg.config."git/config" = {
-            generator = lib.generators.toINI {};
-            value = cfg.settings;
-          };
+            home.shared.xdg.config."git/config" = {
+              generator = lib.generators.toINI {};
+              value = cfg.settings;
+            };
 
-          home.users = lib.mapAttrs (userName: uCfg:
-            lib.mkIf (uCfg.enable != false) {
-              xdg.config."git/config" = {
-                generator = lib.generators.toINI {};
-                value = lib.recursiveUpdate cfg.settings uCfg.settings;
-              };
-            })
-          cfg.users;
-
-          # Configure Git settings for the default user if active
-          git.users = lib.mkIf (config.default-user.enable or false) {
-            ${config.default-user.username}.settings.user = {
+            home.users = lib.mapAttrs (userName: uCfg:
+              lib.mkIf (uCfg.enable != false) {
+                xdg.config."git/config" = {
+                  generator = lib.generators.toINI {};
+                  value = lib.recursiveUpdate cfg.settings uCfg.settings;
+                };
+              })
+            cfg.users;
+          }
+          (lib.mkIf config.default-user.enable {
+            git.users.${config.default-user.username}.settings.user = {
               name = config.default-user.githubUsername;
               email = config.default-user.email;
             };
-          };
-        };
+          })
+        ]);
       };
     };
 

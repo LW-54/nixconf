@@ -29,6 +29,7 @@ Complete directory of all NixOS modules exported on `flake.nixosModules`.
 | [`default-user`](modules/default-user.md) | Contract interface defining 'default-user' option schemas and custom types. | [More →](modules/default-user.md) |
 | [`direnv`](modules/direnv.md) | Per-directory declarative shell environment integration via nix-direnv. | [More →](modules/direnv.md) |
 | [`disko`](modules/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](modules/disko.md) |
+| [`docker`](modules/docker.md) | Docker application container engine, socket activation, and state persistence. | [More →](modules/docker.md) |
 | [`dolphin`](modules/dolphin.md) | KDE Dolphin file manager with Wayland integration and isolated runtime plugins. | [More →](modules/dolphin.md) |
 | [`fonts`](modules/fonts.md) | System typography and developer monospace font packages. | [More →](modules/fonts.md) |
 | [`foot`](modules/foot.md) | Fast, lightweight Wayland terminal emulator with server-client architecture. | [More →](modules/foot.md) |
