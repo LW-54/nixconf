@@ -77,4 +77,3 @@ NixOS options declared directly by this module:
 | `options.sops.useTmpfs` | `boolean` | Use tmpfs in place of ramfs for secrets storage.  *WARNING* On Linux kernels earlier than 6.4, enabling this option has the potential to write secrets to disk unencrypted if the tmpfs volume is written to swap. Do not use unless absolutely necessary.  When using a swap file or device, consider enabling swap encryption by setting the `randomEncryption.enable` option  ``` swapDevices = [{   device = "/dev/sdXY";   randomEncryption.enable = true; }]; ``` |
 | `options.sops.validateSopsFiles` | `boolean` | Check all sops files at evaluation time. This requires sops files to be added to the nix store. |
 | `options.sops.validationPackage` | `package` | sops-install-secrets package to use when validating configuration.  Defaults to sops.package if building natively, and a native version of sops-install-secrets if cross compiling. |
-

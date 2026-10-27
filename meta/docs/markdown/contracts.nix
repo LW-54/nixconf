@@ -5,7 +5,6 @@
   ...
 }: let
   graphLib = config.flake.lib.graph;
-  mermaidLib = config.flake.lib.docsMermaid;
   shared = config.internal.docs.markdown.shared;
 
   renderContractDoc = {
@@ -29,7 +28,11 @@
       nodeId = contractNode.id;
       depth = 2;
     };
-    contractMermaid = mermaidLib.renderMermaid contractNeighborhood;
+    contractMermaid = graphLib.renderMermaid {
+      graph = contractNeighborhood;
+      layout = "LR";
+      linkFn = shared.makeDocLinkFn {relPrefix = "..";};
+    };
 
     renderImplRow = i: "| [`${i.name}`](../implementations/${i.name}.md) | ${i.description} | [More →](../implementations/${i.name}.md) |";
 
@@ -102,61 +105,31 @@
 
     ## Option Schema Definitions
 
-    ${
-      if opts != []
-      then ''
-        | Option Path | Type | Default | Example | Description |
-        | :--- | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" shared.renderOptRow opts}
-      ''
-      else "*No direct options declared.*"
-    }
+    ${shared.renderOptTable {options = opts;}}
 
     ## Outputs
 
     ### Custom Submodule Types
 
-    ${
-      if types != []
-      then ''
-        | Type Name | Description | Docs |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (t:
-          shared.renderTypeRow {
-            inherit t;
-            cName = name;
-          })
-        types}
-      ''
-      else "*No custom types declared directly on this contract.*"
-    }
+    ${shared.renderTypeTable {
+      inherit types;
+      cName = name;
+    }}
 
     ### Library Helpers
 
-    ${
-      if libExports != []
-      then ''
-        | Symbol | Description | Docs |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (sym:
-          shared.renderLibRow {
-            inherit sym;
-            ns = name;
-            desc = "Contract option constructor / binding helper";
-          })
-        libExports}
-      ''
-      else "*No library helpers exported.*"
-    }${
+    ${shared.renderLibTable {
+      inherit libExports;
+      ns = name;
+      desc = "Contract option constructor / binding helper";
+    }}${
       if packages != []
       then ''
 
 
         ### Executable Packages
 
-        | Package Attribute | Command | Description | Docs |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (p: shared.renderPkgRow {inherit p;}) packages}''
+        ${shared.renderPkgTable {inherit packages;}}''
       else ""
     }${
       if devShells != []
@@ -165,9 +138,7 @@
 
         ### Development Shells
 
-        | Shell Attribute | Command | Description | Docs |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (s: shared.renderShellRow {inherit s;}) devShells}''
+        ${shared.renderShellTable {inherit devShells;}}''
       else ""
     }
 
@@ -175,11 +146,18 @@
 
     Providers satisfying the `${name}` contract capability:
 
-    | Implementation | Description | Docs |
-    | :--- | :--- | :--- |
     ${
       if implementers != []
-      then lib.concatMapStringsSep "\n" renderImplRow implementers
+      then
+        graphLib.renderTable {
+          headers = ["Implementation" "Description" "Docs"];
+          columns = [
+            (i: "[`${i.name}`](../implementations/${i.name}.md)")
+            (i: i.description or "")
+            (i: "[More →](../implementations/${i.name}.md)")
+          ];
+          rows = implementers;
+        }
       else "*No active implementations satisfying this contract.*"
     }
 
@@ -214,14 +192,23 @@
 
   renderContractsIndex = {graph}: let
     contracts = builtins.filter (n: n.kind == "contract") (builtins.attrValues graph.nodes);
-    contractRow = c: let
-      desc = c.properties.description or "";
-      implList = map (i: "[`${i.name}`](implementations/${i.name}.md)") (c.properties.implementers or []);
-      implStr =
-        if implList != []
-        then lib.concatStringsSep ", " implList
-        else "*none*";
-    in "| [`${c.name}`](contracts/${c.name}.md) | ${desc} | ${implStr} | [More →](contracts/${c.name}.md) |";
+    contractsCatalog = graphLib.renderTable {
+      headers = ["Contract" "Description" "Implementations" "Docs"];
+      columns = [
+        (c: "[`${c.name}`](contracts/${c.name}.md)")
+        (c: c.properties.description or "")
+        (
+          c: let
+            implList = map (i: "[`${i.name}`](implementations/${i.name}.md)") (c.properties.implementers or []);
+          in
+            if implList != []
+            then lib.concatStringsSep ", " implList
+            else "*none*"
+        )
+        (c: "[More →](contracts/${c.name}.md)")
+      ];
+      rows = contracts;
+    };
   in ''
     # Contracts Documentation
 
@@ -257,9 +244,7 @@
 
     ## Contracts Catalog
 
-    | Contract | Description | Implementations | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" contractRow contracts}
+    ${contractsCatalog}
   '';
 in {
   internal.docs.markdown.contracts = {

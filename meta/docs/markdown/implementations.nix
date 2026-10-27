@@ -5,7 +5,6 @@
   ...
 }: let
   graphLib = config.flake.lib.graph;
-  mermaidLib = config.flake.lib.docsMermaid;
   shared = config.internal.docs.markdown.shared;
 
   renderImplDoc = {
@@ -28,7 +27,11 @@
       nodeId = implNode.id;
       depth = 2;
     };
-    implMermaid = mermaidLib.renderMermaid implNeighborhood;
+    implMermaid = graphLib.renderMermaid {
+      graph = implNeighborhood;
+      layout = "LR";
+      linkFn = shared.makeDocLinkFn {relPrefix = "..";};
+    };
 
     renderHost = h: let
       hostNode = graph.nodes."urn:nixconf:onto:host:${h}" or (graph.nodes."host:${h}" or null);
@@ -104,55 +107,25 @@
 
     ### NixOS Modules
 
-    | Module Attribute | Description | Docs |
-    | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" (m:
-      shared.renderModRow {
-        inherit m;
-        desc = "Provider module satisfying `${cName}` contract";
-      })
-    modules}
+    ${shared.renderModTable {
+      inherit modules;
+      desc = "Provider module satisfying `${cName}` contract";
+    }}
 
     ### Executable Packages
 
-    ${
-      if packages != []
-      then ''
-        | Package Attribute | Command | Description | Docs |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (p: shared.renderPkgRow {inherit p;}) packages}
-      ''
-      else "*No executable packages exported.*"
-    }
+    ${shared.renderPkgTable {inherit packages;}}
 
     ### Development Shells
 
-    ${
-      if devShells != []
-      then ''
-        | Shell Attribute | Command | Description | Docs |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (s: shared.renderShellRow {inherit s;}) devShells}
-      ''
-      else "*No development shells exported.*"
-    }
+    ${shared.renderShellTable {inherit devShells;}}
 
     ### Library Helpers
 
-    ${
-      if libExports != []
-      then ''
-        | Symbol | Description | Docs |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (sym:
-          shared.renderLibRow {
-            inherit sym;
-            ns = name;
-          })
-        libExports}
-      ''
-      else "*No library helpers exported.*"
-    }
+    ${shared.renderLibTable {
+      inherit libExports;
+      ns = name;
+    }}
 
     ## Importing Hosts
 
@@ -177,14 +150,23 @@
 
   renderImplementationsIndex = {graph}: let
     impls = builtins.filter (n: n.kind == "impl") (builtins.attrValues graph.nodes);
-    implRow = i: let
-      desc = i.properties.description or "";
-      cName = i.properties.contract or "";
-      cLink =
-        if cName != ""
-        then "[`${cName}`](contracts/${cName}.md)"
-        else "*none*";
-    in "| [`${i.name}`](implementations/${i.name}.md) | ${desc} | ${cLink} | [More →](implementations/${i.name}.md) |";
+    implsCatalog = graphLib.renderTable {
+      headers = ["Implementation" "Description" "Contract Satisfied" "Docs"];
+      columns = [
+        (i: "[`${i.name}`](implementations/${i.name}.md)")
+        (i: i.properties.description or "")
+        (
+          i: let
+            cName = i.properties.contract or "";
+          in
+            if cName != ""
+            then "[`${cName}`](contracts/${cName}.md)"
+            else "*none*"
+        )
+        (i: "[More →](implementations/${i.name}.md)")
+      ];
+      rows = impls;
+    };
   in ''
     # Implementations Documentation
 
@@ -217,9 +199,7 @@
 
     ## Implementations Catalog
 
-    | Implementation | Description | Contract Satisfied | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" implRow impls}
+    ${implsCatalog}
   '';
 in {
   internal.docs.markdown.implementations = {

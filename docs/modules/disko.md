@@ -66,4 +66,3 @@ NixOS options declared directly by this module:
 | `options.disko.tests.enableOCR` | `boolean` | Sets the enableOCR option in the NixOS VM test driver. |
 | `options.disko.tests.extraChecks` | `strings concatenated with "\n"` | extra checks to run in the `system.build.installTest`. |
 | `options.disko.tests.extraConfig` | `unspecified value` | Extra NixOS config for your test. Can be used to specify a different luks key for tests. A dummy key is in /tmp/secret.key |
-

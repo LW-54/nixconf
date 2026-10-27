@@ -48,4 +48,3 @@ NixOS options declared directly by this module:
 | `options.locale.enable` | `boolean` | Whether to enable locale configuration. |
 | `options.locale.extraLocaleSettings` | `attribute set of string` | Additional system locale settings and user defaults. |
 | `options.locale.timeZone` | `string` | System time zone. |
-

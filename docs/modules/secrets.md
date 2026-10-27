@@ -24,4 +24,3 @@ NixOS options declared directly by this module:
 | `options.secrets.defaultFile` | `null or absolute path` | Default YAML/JSON file containing encrypted secrets for this host. Can be overridden on a per-secret basis by consumer features. |
 | `options.secrets.enable` | `boolean` | Whether to enable system secrets management contract. |
 | `options.secrets.files` | `attribute set of (submodule)` | Attribute set of declarative secret items required by system services. Mapped to the active secrets provider implementation (e.g. SOPS). |
-

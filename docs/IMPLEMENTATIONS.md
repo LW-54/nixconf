@@ -29,6 +29,4 @@ implementation.example-provider = {
 
 ## Implementations Catalog
 
-| Implementation | Description | Contract Satisfied | Docs |
-| :--- | :--- | :--- | :--- |
-
+*No entries to display.*

@@ -27,4 +27,3 @@ NixOS options declared directly by this module:
 | `options.default-user.githubUsername` | `string` | GitHub username of the default user. |
 | `options.default-user.modules` | `list of module` | Arbitrary NixOS configuration modules contributed by other features for the default user, evaluated and merged into the system when enabled. |
 | `options.default-user.username` | `string` | Username of the default user account. |
-

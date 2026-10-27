@@ -10,12 +10,12 @@ A primitive defines the grammar, options schema, and export lifecycle for a clas
 
 | Primitive | Description | Source File | Documentation |
 | :--- | :--- | :--- | :--- |
-| **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](../primitives/primitive/default.nix) | [Primitives Catalog](PRIMITIVES.md) |
-| **`host`** | Declarative target host machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](../primitives/host/default.nix) | [Hosts Documentation](HOSTS.md) |
-| **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](../primitives/contract/default.nix) | [Contracts Documentation](CONTRACTS.md) |
-| **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](../primitives/implementation.nix) | [Implementations Documentation](IMPLEMENTATIONS.md) |
-| **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](../primitives/feature.nix) | [Features Documentation](FEATURES.md) |
-| **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](../primitives/lib.nix) | [Library Documentation](LIB.md) |
+| **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`../primitives/primitive/default.nix`](../primitives/primitive/default.nix) | [Primitives Catalog](PRIMITIVES.md) |
+| **`host`** | Declarative target host machines binding hardware, platform, and enabled features. | [`../primitives/host/default.nix`](../primitives/host/default.nix) | [Hosts Documentation](HOSTS.md) |
+| **`contract`** | Abstract contract interfaces defining shared option schemas decoupled from backends. | [`../primitives/contract/default.nix`](../primitives/contract/default.nix) | [Contracts Documentation](CONTRACTS.md) |
+| **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`../primitives/implementation.nix`](../primitives/implementation.nix) | [Implementations Documentation](IMPLEMENTATIONS.md) |
+| **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`../primitives/feature.nix`](../primitives/feature.nix) | [Features Documentation](FEATURES.md) |
+| **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`../primitives/lib.nix`](../primitives/lib.nix) | [Library Documentation](LIB.md) |
 
 ## Two-Pass Evaluation Pipeline
 

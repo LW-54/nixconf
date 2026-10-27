@@ -26,4 +26,3 @@ NixOS options declared directly by this module:
 | `options.backup.paths` | `list of absolute path` | List of absolute filesystem directory or file paths to include in the backup snapshot. Aggregated across all active service modules via `mkConfig`. |
 | `options.backup.pruneOpts` | `list of string` | Command-line argument rules passed to the backup backend pruning command to enforce snapshot retention and prevent unbounded remote storage usage. |
 | `options.backup.timerConfig` | `attribute set of anything` | Systemd timer specification governing when automated backup snapshots run. Defaults to executing daily at 04:00 with persistence enabled. |
-

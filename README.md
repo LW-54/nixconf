@@ -14,14 +14,12 @@ The repository architecture is governed by five first-class, symmetrical primiti
 
 ```mermaid
 flowchart TD
-    Host["Host"]
-    Implementation["Implementation"]
-    Feature["Feature"]
-    Contract["Contract"]
-    Library["Library"]
+    Host["host<br/><i>Target Machine</i>"]
+    Contract{{"contract<br/><i>Abstract Interface</i>"}}
+    Implementation["implementation<br/><i>Capability Provider</i>"]
+    Feature["feature<br/><i>System Service</i>"]
+    Library(["lib<br/><i>Pure Helpers</i>"])
 
-    Host -->|"imports"| Implementation
-    Host -->|"imports"| Feature
     Host -->|"consumes"| Contract
     Implementation -.->|"implements"| Contract
     Implementation -->|"consumes"| Contract
@@ -47,115 +45,113 @@ flowchart TD
 <details>
 <summary>Full Architecture Diagram (Click to expand)</summary>
 
-```mermaid
 flowchart TD
-    subgraph Hosts["Hosts"]
-        urn__nixconf__onto__host__astrolabe["astrolabe"]:::hostNode
-        urn__nixconf__onto__host__x240["x240"]:::hostNode
-    end
+  subgraph cluster_contract ["contract"]
+  urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
+    urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
+    urn__nixconf__onto__contract__home{{"home"}}:::contractNode
+    urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
+    urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
+    urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
+end
 
-    subgraph Contracts["Contracts"]
-        urn__nixconf__onto__contract__backup(["backup"]):::contractNode
-        urn__nixconf__onto__contract__default_user(["default-user"]):::contractNode
-        urn__nixconf__onto__contract__home(["home"]):::contractNode
-        urn__nixconf__onto__contract__persistence(["persistence"]):::contractNode
-        urn__nixconf__onto__contract__resources(["resources"]):::contractNode
-        urn__nixconf__onto__contract__reverse_proxy(["reverse-proxy"]):::contractNode
-        urn__nixconf__onto__contract__secrets(["secrets"]):::contractNode
-        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
-    end
+  subgraph cluster_feature ["feature"]
+  urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__audio("audio"):::featureNode
+    urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
+    urn__nixconf__onto__feature__cosmic("cosmic"):::featureNode
+    urn__nixconf__onto__feature__cursor("cursor"):::featureNode
+    urn__nixconf__onto__feature__direnv("direnv"):::featureNode
+    urn__nixconf__onto__feature__disko("disko"):::featureNode
+    urn__nixconf__onto__feature__dolphin("dolphin"):::featureNode
+    urn__nixconf__onto__feature__fonts("fonts"):::featureNode
+    urn__nixconf__onto__feature__foot("foot"):::featureNode
+    urn__nixconf__onto__feature__git("git"):::featureNode
+    urn__nixconf__onto__feature__greetd("greetd"):::featureNode
+    urn__nixconf__onto__feature__helium("helium"):::featureNode
+    urn__nixconf__onto__feature__labwc("labwc"):::featureNode
+    urn__nixconf__onto__feature__locale("locale"):::featureNode
+    urn__nixconf__onto__feature__nix("nix"):::featureNode
+    urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__ssh("ssh"):::featureNode
+    urn__nixconf__onto__feature__tack("tack"):::featureNode
+    urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
+    urn__nixconf__onto__feature__user("user"):::featureNode
+    urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
+    urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
+    urn__nixconf__onto__feature__vscode("vscode"):::featureNode
+    urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+end
 
-    subgraph Features["Features"]
-        urn__nixconf__onto__feature__antigravity["antigravity"]:::featureNode
-        urn__nixconf__onto__feature__audio["audio"]:::featureNode
-        urn__nixconf__onto__feature__bitwarden["bitwarden"]:::featureNode
-        urn__nixconf__onto__feature__cosmic["cosmic"]:::featureNode
-        urn__nixconf__onto__feature__cursor["cursor"]:::featureNode
-        urn__nixconf__onto__feature__direnv["direnv"]:::featureNode
-        urn__nixconf__onto__feature__disko["disko"]:::featureNode
-        urn__nixconf__onto__feature__dolphin["dolphin"]:::featureNode
-        urn__nixconf__onto__feature__fonts["fonts"]:::featureNode
-        urn__nixconf__onto__feature__foot["foot"]:::featureNode
-        urn__nixconf__onto__feature__git["git"]:::featureNode
-        urn__nixconf__onto__feature__greetd["greetd"]:::featureNode
-        urn__nixconf__onto__feature__helium["helium"]:::featureNode
-        urn__nixconf__onto__feature__labwc["labwc"]:::featureNode
-        urn__nixconf__onto__feature__locale["locale"]:::featureNode
-        urn__nixconf__onto__feature__nix["nix"]:::featureNode
-        urn__nixconf__onto__feature__noctalia["noctalia"]:::featureNode
-        urn__nixconf__onto__feature__ssh["ssh"]:::featureNode
-        urn__nixconf__onto__feature__tack["tack"]:::featureNode
-        urn__nixconf__onto__feature__ttyd["ttyd"]:::featureNode
-        urn__nixconf__onto__feature__user["user"]:::featureNode
-        urn__nixconf__onto__feature__vaultwarden["vaultwarden"]:::featureNode
-        urn__nixconf__onto__feature__vivaldi["vivaldi"]:::featureNode
-        urn__nixconf__onto__feature__vscode["vscode"]:::featureNode
-        urn__nixconf__onto__feature__wifi_eduroam["wifi-eduroam"]:::featureNode
-    end
+  subgraph cluster_host ["host"]
+  urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
+    urn__nixconf__onto__host__x240(["x240"]):::hostNode
+end
 
-    subgraph Libraries["Libraries"]
-        urn__nixconf__onto__lib__backup(["lib: backup"]):::libNode
-        urn__nixconf__onto__lib__bitwarden(["lib: bitwarden"]):::libNode
-        urn__nixconf__onto__lib__default_user(["lib: default-user"]):::libNode
-        urn__nixconf__onto__lib__disko(["lib: disko"]):::libNode
-        urn__nixconf__onto__lib__docsMarkdown(["lib: docsMarkdown"]):::libNode
-        urn__nixconf__onto__lib__docsMermaid(["lib: docsMermaid"]):::libNode
-        urn__nixconf__onto__lib__docsParser(["lib: docsParser"]):::libNode
-        urn__nixconf__onto__lib__graph(["lib: graph"]):::libNode
-        urn__nixconf__onto__lib__home(["lib: home"]):::libNode
-        urn__nixconf__onto__lib__lw(["lib: lw"]):::libNode
-        urn__nixconf__onto__lib__persistence(["lib: persistence"]):::libNode
-        urn__nixconf__onto__lib__primitive(["lib: primitive"]):::libNode
-        urn__nixconf__onto__lib__resources(["lib: resources"]):::libNode
-        urn__nixconf__onto__lib__reverse_proxy(["lib: reverse-proxy"]):::libNode
-        urn__nixconf__onto__lib__secrets(["lib: secrets"]):::libNode
-        urn__nixconf__onto__lib__sops(["lib: sops"]):::libNode
-        urn__nixconf__onto__lib__user(["lib: user"]):::libNode
-        urn__nixconf__onto__lib__wayland(["lib: wayland"]):::libNode
-    end
+  subgraph cluster_implementation ["implementation"]
+  urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
+    urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
+    urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
+    urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__restic["restic"]:::implNode
+    urn__nixconf__onto__implementation__sops["sops"]:::implNode
+    urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
+end
 
-    subgraph OtherNodes["Other Entities"]
-        urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
-        urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
-        urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
-        urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
-        urn__nixconf__onto__implementation__lw["lw"]:::implNode
-        urn__nixconf__onto__implementation__restic["restic"]:::implNode
-        urn__nixconf__onto__implementation__sops["sops"]:::implNode
-        urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    end
+  subgraph cluster_lib ["lib"]
+  urn__nixconf__onto__lib__backup["backup"]:::defaultNode
+    urn__nixconf__onto__lib__bitwarden["bitwarden"]:::defaultNode
+    urn__nixconf__onto__lib__default_user["default-user"]:::defaultNode
+    urn__nixconf__onto__lib__disko["disko"]:::defaultNode
+    urn__nixconf__onto__lib__docsMarkdown["docsMarkdown"]:::defaultNode
+    urn__nixconf__onto__lib__docsParser["docsParser"]:::defaultNode
+    urn__nixconf__onto__lib__graph["graph"]:::defaultNode
+    urn__nixconf__onto__lib__home["home"]:::defaultNode
+    urn__nixconf__onto__lib__lw["lw"]:::defaultNode
+    urn__nixconf__onto__lib__persistence["persistence"]:::defaultNode
+    urn__nixconf__onto__lib__primitive["primitive"]:::defaultNode
+    urn__nixconf__onto__lib__resources["resources"]:::defaultNode
+    urn__nixconf__onto__lib__reverse_proxy["reverse-proxy"]:::defaultNode
+    urn__nixconf__onto__lib__secrets["secrets"]:::defaultNode
+    urn__nixconf__onto__lib__sops["sops"]:::defaultNode
+    urn__nixconf__onto__lib__user["user"]:::defaultNode
+    urn__nixconf__onto__lib__wayland["wayland"]:::defaultNode
+end
 
 
-    urn__nixconf__onto__feature__antigravity -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__bitwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__direnv -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__dolphin -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__feature__locale -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__nix -->|"consumes"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__noctalia -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -->|"consumes"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__ttyd -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__vaultwarden -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vivaldi -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vscode -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__wifi_eduroam -->|"consumes"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__astrolabe -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
+  urn__nixconf__onto__feature__antigravity -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__bitwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__direnv -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__dolphin -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__git -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__locale -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__nix -. "consumes" .-> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__noctalia -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vivaldi -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vscode -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__wifi_eduroam -. "consumes" .-> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__astrolabe -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__locale
@@ -169,7 +165,7 @@ flowchart TD
     urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -. "consumes" .-> urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__audio
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__bitwarden
@@ -196,48 +192,108 @@ flowchart TD
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -->|"consumes"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy -.->|"implements"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__cgroups -.->|"implements"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__cgroups -.->|"implements"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__hjem -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__impermanence -.->|"implements"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__impermanence -.->|"implements"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -.->|"implements"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__restic -->|"consumes"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__restic -.->|"implements"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__sops -.->|"implements"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__sops -.->|"implements"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__cgroups == "implements" ==> urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups == "implements" ==> urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__hjem -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem == "implements" ==> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem == "implements" ==> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__impermanence == "implements" ==> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__impermanence == "implements" ==> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic == "implements" ==> urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic == "implements" ==> urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops == "implements" ==> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__sops == "implements" ==> urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__uwsm == "implements" ==> urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__implementation__uwsm == "implements" ==> urn__nixconf__onto__contract__wayland
 
-classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
-classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
-classDef implNode fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
-classDef featureNode fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4;
-classDef libNode fill:#181825,stroke:#94e2d5,stroke-width:2px,color:#cdd6f4;
-classDef optNode fill:#11111b,stroke:#fab387,stroke-width:1px,color:#cdd6f4;
-classDef typeNode fill:#11111b,stroke:#f9e2af,stroke-width:1px,color:#cdd6f4;
-classDef fnNode fill:#181825,stroke:#94e2d5,stroke-width:1px,color:#cdd6f4;
-classDef pkgNode fill:#181825,stroke:#b4befe,stroke-width:1px,color:#cdd6f4;
-classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
+    click urn__nixconf__onto__contract__backup href "docs/contracts/backup.md" "backup"
+    click urn__nixconf__onto__contract__default_user href "docs/contracts/default-user.md" "default-user"
+    click urn__nixconf__onto__contract__home href "docs/contracts/home.md" "home"
+    click urn__nixconf__onto__contract__persistence href "docs/contracts/persistence.md" "persistence"
+    click urn__nixconf__onto__contract__resources href "docs/contracts/resources.md" "resources"
+    click urn__nixconf__onto__contract__reverse_proxy href "docs/contracts/reverse-proxy.md" "reverse-proxy"
+    click urn__nixconf__onto__contract__secrets href "docs/contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__wayland href "docs/contracts/wayland.md" "wayland"
+    click urn__nixconf__onto__feature__antigravity href "docs/features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__audio href "docs/features/audio.md" "audio"
+    click urn__nixconf__onto__feature__bitwarden href "docs/features/bitwarden.md" "bitwarden"
+    click urn__nixconf__onto__feature__cosmic href "docs/features/cosmic.md" "cosmic"
+    click urn__nixconf__onto__feature__cursor href "docs/features/cursor.md" "cursor"
+    click urn__nixconf__onto__feature__direnv href "docs/features/direnv.md" "direnv"
+    click urn__nixconf__onto__feature__disko href "docs/features/disko.md" "disko"
+    click urn__nixconf__onto__feature__dolphin href "docs/features/dolphin.md" "dolphin"
+    click urn__nixconf__onto__feature__fonts href "docs/features/fonts.md" "fonts"
+    click urn__nixconf__onto__feature__foot href "docs/features/foot.md" "foot"
+    click urn__nixconf__onto__feature__git href "docs/features/git.md" "git"
+    click urn__nixconf__onto__feature__greetd href "docs/features/greetd.md" "greetd"
+    click urn__nixconf__onto__feature__helium href "docs/features/helium.md" "helium"
+    click urn__nixconf__onto__feature__labwc href "docs/features/labwc.md" "labwc"
+    click urn__nixconf__onto__feature__locale href "docs/features/locale.md" "locale"
+    click urn__nixconf__onto__feature__nix href "docs/features/nix.md" "nix"
+    click urn__nixconf__onto__feature__noctalia href "docs/features/noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__ssh href "docs/features/ssh.md" "ssh"
+    click urn__nixconf__onto__feature__tack href "docs/features/tack.md" "tack"
+    click urn__nixconf__onto__feature__ttyd href "docs/features/ttyd.md" "ttyd"
+    click urn__nixconf__onto__feature__user href "docs/features/user.md" "user"
+    click urn__nixconf__onto__feature__vaultwarden href "docs/features/vaultwarden.md" "vaultwarden"
+    click urn__nixconf__onto__feature__vivaldi href "docs/features/vivaldi.md" "vivaldi"
+    click urn__nixconf__onto__feature__vscode href "docs/features/vscode.md" "vscode"
+    click urn__nixconf__onto__feature__wifi_eduroam href "docs/features/wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__host__astrolabe href "docs/hosts/astrolabe.md" "astrolabe"
+    click urn__nixconf__onto__host__x240 href "docs/hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__caddy href "docs/implementations/caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__cgroups href "docs/implementations/cgroups.md" "cgroups"
+    click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
+    click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "docs/implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
+    click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__lib__backup href "docs/lib/backup.md" "backup"
+    click urn__nixconf__onto__lib__bitwarden href "docs/lib/bitwarden.md" "bitwarden"
+    click urn__nixconf__onto__lib__default_user href "docs/lib/default-user.md" "default-user"
+    click urn__nixconf__onto__lib__disko href "docs/lib/disko.md" "disko"
+    click urn__nixconf__onto__lib__docsMarkdown href "docs/lib/docsMarkdown.md" "docsMarkdown"
+    click urn__nixconf__onto__lib__docsParser href "docs/lib/docsParser.md" "docsParser"
+    click urn__nixconf__onto__lib__graph href "docs/lib/graph.md" "graph"
+    click urn__nixconf__onto__lib__home href "docs/lib/home.md" "home"
+    click urn__nixconf__onto__lib__lw href "docs/lib/lw.md" "lw"
+    click urn__nixconf__onto__lib__persistence href "docs/lib/persistence.md" "persistence"
+    click urn__nixconf__onto__lib__primitive href "docs/lib/primitive.md" "primitive"
+    click urn__nixconf__onto__lib__resources href "docs/lib/resources.md" "resources"
+    click urn__nixconf__onto__lib__reverse_proxy href "docs/lib/reverse-proxy.md" "reverse-proxy"
+    click urn__nixconf__onto__lib__secrets href "docs/lib/secrets.md" "secrets"
+    click urn__nixconf__onto__lib__sops href "docs/lib/sops.md" "sops"
+    click urn__nixconf__onto__lib__user href "docs/lib/user.md" "user"
+    click urn__nixconf__onto__lib__wayland href "docs/lib/wayland.md" "wayland"
 
-```
+  %% Semantic Visual Classes
+  classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+  classDef contractNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+  classDef implNode fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+  classDef featureNode fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f8fafc;
+  classDef optNode fill:#422006,stroke:#facc15,stroke-width:1px,color:#fefce8;
+  classDef typeNode fill:#3b0764,stroke:#c084fc,stroke-width:1px,color:#faf5ff;
+  classDef pkgNode fill:#4c0519,stroke:#fb7185,stroke-width:1px,color:#fff1f2;
+  classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
+  classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
+  classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 
 
 </details>
@@ -450,7 +506,6 @@ Pure reusable helper functions, data types, calculations, and presets declared v
 | [`flake.lib.default-user`](docs/lib/default-user.md) | Library helpers and constructors for the 'default-user' contract. | [More →](docs/lib/default-user.md) |
 | [`flake.lib.disko`](docs/lib/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](docs/lib/disko.md) |
 | [`flake.lib.docsMarkdown`](docs/lib/docsMarkdown.md) | Markdown documentation rendering engine for Nixconf architecture. | [More →](docs/lib/docsMarkdown.md) |
-| [`flake.lib.docsMermaid`](docs/lib/docsMermaid.md) | Declarative Mermaid flowchart diagram visualizer with custom styling. | [More →](docs/lib/docsMermaid.md) |
 | [`flake.lib.docsParser`](docs/lib/docsParser.md) | Pure-Nix RFC 145 docstring parser utilities for functions and library symbols. | [More →](docs/lib/docsParser.md) |
 | [`flake.lib.graph`](docs/lib/graph.md) | Canonical Semantic Code Property Graph (CPG) framework, algebraic calculus, and architectural projection functors. | [More →](docs/lib/graph.md) |
 | [`flake.lib.home`](docs/lib/home.md) | Library helpers and constructors for the 'home' contract. | [More →](docs/lib/home.md) |

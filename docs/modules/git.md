@@ -49,4 +49,3 @@ NixOS options declared directly by this module:
 | `options.git.prebuildGithubSsh` | `boolean` | Whether to enable prebuilding the GitHub SSH development shell. |
 | `options.git.settings` | `attribute set of anything` | Global Git configuration settings. |
 | `options.git.users` | `attribute set of (submodule)` | Per-user Git configuration overrides. |
-

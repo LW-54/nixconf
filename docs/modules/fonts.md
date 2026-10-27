@@ -77,4 +77,3 @@ NixOS options declared directly by this module:
 | `options.fonts.fonts` | `list of absolute path` | Alias of {option}`fonts.packages`. |
 | `options.fonts.optimizeForVeryHighDPI` | `unspecified value` |  |
 | `options.fonts.packages` | `list of absolute path` | List of primary font packages. |
-

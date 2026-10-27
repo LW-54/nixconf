@@ -24,4 +24,3 @@ NixOS options declared directly by this module:
 | `options.home.enable` | `boolean` | Whether to enable declarative user home dotfile and environment contract. |
 | `options.home.shared` | `submodule` | Shared dotfile tree and environment configurations applied across all managed users. |
 | `options.home.users` | `attribute set of (submodule)` | Per-user dotfile tree and environment configurations mapped to active backend interpreters (e.g. Hjem). |
-

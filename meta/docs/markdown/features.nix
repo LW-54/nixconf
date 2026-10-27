@@ -5,7 +5,6 @@
   ...
 }: let
   graphLib = config.flake.lib.graph;
-  mermaidLib = config.flake.lib.docsMermaid;
   shared = config.internal.docs.markdown.shared;
 
   renderFeatureDoc = {
@@ -26,7 +25,11 @@
       nodeId = featureNode.id;
       depth = 2;
     };
-    featMermaid = mermaidLib.renderMermaid featNeighborhood;
+    featMermaid = graphLib.renderMermaid {
+      graph = featNeighborhood;
+      layout = "LR";
+      linkFn = shared.makeDocLinkFn {relPrefix = "..";};
+    };
 
     consumedEdges = builtins.filter (e: e.source == featureNode.id && (e.kind == "CONSUMES" || e.relation == "CONSUMES")) graph.edges;
 
@@ -89,71 +92,40 @@
 
     ### NixOS Modules
 
-    ${
-      if modules != []
-      then ''
-        | Module Attribute | Description | Docs |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (m:
-          shared.renderModRow {
-            inherit m;
-            desc = "System service module exported by `${name}`";
-          })
-        modules}
-      ''
-      else "*No NixOS modules exported.*"
-    }
+    ${shared.renderModTable {
+      inherit modules;
+      desc = "System service module exported by `${name}`";
+    }}
 
     ### Executable Packages
 
-    ${
-      if packages != []
-      then ''
-        | Package Attribute | Command | Description | Docs |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (p: shared.renderPkgRow {inherit p;}) packages}
-      ''
-      else "*No executable packages exported.*"
-    }
+    ${shared.renderPkgTable {inherit packages;}}
 
     ### Development Shells
 
-    ${
-      if devShells != []
-      then ''
-        | Shell Attribute | Command | Description | Docs |
-        | :--- | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (s: shared.renderShellRow {inherit s;}) devShells}
-      ''
-      else "*No development shells exported.*"
-    }
+    ${shared.renderShellTable {inherit devShells;}}
 
     ### Library Helpers
 
-    ${
-      if libExports != []
-      then ''
-        | Symbol | Description | Docs |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (sym:
-          shared.renderLibRow {
-            inherit sym;
-            ns = name;
-          })
-        libExports}
-      ''
-      else "*No library helpers exported.*"
-    }
-
-    ${
+    ${shared.renderLibTable {
+      inherit libExports;
+      ns = name;
+    }}${
       if types != []
       then ''
+
+
         ### Custom Types
 
-        | Type Symbol | Description | Docs |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" (t: "| [`${t}`](../lib/${name}.md#${t}) | Custom option type declared by `${name}` | [More →](../lib/${name}.md#${t}) |") types}
-      ''
+        ${graphLib.renderTable {
+          headers = ["Type Symbol" "Description" "Docs"];
+          columns = [
+            (t: "[`${t}`](../lib/${name}.md#${t})")
+            (_: "Custom option type declared by `${name}`")
+            (t: "[More →](../lib/${name}.md#${t})")
+          ];
+          rows = types;
+        }}''
       else ""
     }
 
@@ -170,9 +142,15 @@
 
   renderFeaturesIndex = {graph}: let
     features = builtins.filter (n: n.kind == "feature") (builtins.attrValues graph.nodes);
-    featureRow = f: let
-      desc = f.properties.description or "";
-    in "| [`${f.name}`](features/${f.name}.md) | ${desc} | [More →](features/${f.name}.md) |";
+    featuresCatalog = graphLib.renderTable {
+      headers = ["Feature" "Description" "Docs"];
+      columns = [
+        (f: "[`${f.name}`](features/${f.name}.md)")
+        (f: f.properties.description or "")
+        (f: "[More →](features/${f.name}.md)")
+      ];
+      rows = features;
+    };
   in ''
     # Features Documentation
 
@@ -206,9 +184,7 @@
 
     ## Features Catalog
 
-    | Feature | Description | Docs |
-    | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" featureRow features}
+    ${featuresCatalog}
   '';
 in {
   internal.docs.markdown.features = {

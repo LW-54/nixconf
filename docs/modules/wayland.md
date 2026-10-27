@@ -23,4 +23,3 @@ NixOS options declared directly by this module:
 | :--- | :--- | :--- |
 | `options.wayland.compositors` | `attribute set of (submodule)` | Declarative Wayland compositor registrations managed by the session manager. |
 | `options.wayland.enable` | `boolean` | Whether to enable system-level Wayland session orchestration. When enabled, Wayland compositor backends (such as UWSM) will configure systemd graphical session targets, environment variables, and startup units. |
-

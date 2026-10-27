@@ -104,4 +104,3 @@ NixOS options declared directly by this module:
 | `options.nix.trustedUsers` | `submodule` | Alias of {option}`nix.settings.trusted-users`. |
 | `options.nix.useChroot` | `submodule` | Alias of {option}`nix.useSandbox`. |
 | `options.nix.useSandbox` | `submodule` | Alias of {option}`nix.settings.sandbox`. |
-

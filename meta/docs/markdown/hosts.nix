@@ -5,7 +5,6 @@
   ...
 }: let
   graphLib = config.flake.lib.graph;
-  mermaidLib = config.flake.lib.docsMermaid;
   shared = config.internal.docs.markdown.shared;
   trees = config.internal.docs.trees;
 
@@ -40,7 +39,11 @@
       nodeId = hostNode.id;
       depth = 2;
     };
-    hostMermaid = mermaidLib.renderMermaid hostNeighborhood;
+    hostMermaid = graphLib.renderMermaid {
+      graph = hostNeighborhood;
+      layout = "LR";
+      linkFn = shared.makeDocLinkFn {relPrefix = "..";};
+    };
 
     contractRow = c: "| [`${c.contract}`](../contracts/${c.contract}.md) | ${c.contractDescription} | [`${c.implementation}`](../implementations/${c.implementation}.md) | ${c.implementationDescription} |";
 
@@ -81,11 +84,19 @@
 
     The following contracts are materialized on `${name}` through its active implementation providers:
 
-    | Contract | Description | Implementation | Description |
-    | :--- | :--- | :--- | :--- |
     ${
       if activeContracts != []
-      then lib.concatMapStringsSep "\n" contractRow activeContracts
+      then
+        graphLib.renderTable {
+          headers = ["Contract" "Description" "Implementation" "Description"];
+          columns = [
+            (c: "[`${c.contract}`](../contracts/${c.contract}.md)")
+            (c: c.contractDescription or "")
+            (c: "[`${c.implementation}`](../implementations/${c.implementation}.md)")
+            (c: c.implementationDescription or "")
+          ];
+          rows = activeContracts;
+        }
       else "*No active contracts defined.*"
     }
 
@@ -93,11 +104,18 @@
 
     The following system and desktop features are imported by `${name}`:
 
-    | Feature | Description | Outputs |
-    | :--- | :--- | :--- |
     ${
       if features != []
-      then lib.concatMapStringsSep "\n" featureRow features
+      then
+        graphLib.renderTable {
+          headers = ["Feature" "Description" "Outputs"];
+          columns = [
+            (f: "[`${f.name}`](../features/${f.name}.md)")
+            (f: f.description or "")
+            (f: f.outputs or "")
+          ];
+          rows = features;
+        }
       else "*No features enabled.*"
     }
 
@@ -119,11 +137,18 @@
 
     Host-specific configuration submodules partitioning hardware, disks, and local system services:
 
-    | Submodule Attribute | Description | Docs |
-    | :--- | :--- | :--- |
     ${
       if subModules != []
-      then lib.concatMapStringsSep "\n" subModuleRow subModules
+      then
+        graphLib.renderTable {
+          headers = ["Submodule Attribute" "Description" "Docs"];
+          columns = [
+            (sub: "[`${sub.name}`](../modules/${sub.name}.md)")
+            (_: "Host configuration submodule")
+            (sub: "[More →](../modules/${sub.name}.md)")
+          ];
+          rows = subModules;
+        }
       else "*No host submodules declared.*"
     }
 
@@ -136,44 +161,18 @@
 
         ### Executable Packages
 
-        ${
-          if packages != []
-          then ''
-            | Package Attribute | Command | Description | Docs |
-            | :--- | :--- | :--- | :--- |
-            ${lib.concatMapStringsSep "\n" (p: shared.renderPkgRow {inherit p;}) packages}
-          ''
-          else "*No executable packages exported.*"
-        }
+        ${shared.renderPkgTable {inherit packages;}}
 
         ### Development Shells
 
-        ${
-          if devShells != []
-          then ''
-            | Shell Attribute | Command | Description | Docs |
-            | :--- | :--- | :--- | :--- |
-            ${lib.concatMapStringsSep "\n" (s: shared.renderShellRow {inherit s;}) devShells}
-          ''
-          else "*No development shells exported.*"
-        }
+        ${shared.renderShellTable {inherit devShells;}}
 
         ### Library Helpers
 
-        ${
-          if libExports != []
-          then ''
-            | Symbol | Description | Docs |
-            | :--- | :--- | :--- |
-            ${lib.concatMapStringsSep "\n" (sym:
-              shared.renderLibRow {
-                inherit sym;
-                ns = name;
-              })
-            libExports}
-          ''
-          else "*No library helpers exported.*"
-        }
+        ${shared.renderLibTable {
+          inherit libExports;
+          ns = name;
+        }}
       ''
       else ""
     }
@@ -212,10 +211,16 @@
 
   renderHostsIndex = {graph}: let
     hosts = builtins.filter (n: n.kind == "host") (builtins.attrValues graph.nodes);
-    hostRow = h: let
-      desc = h.properties.description or "";
-      sys = h.properties.system or "x86_64-linux";
-    in "| [`${h.name}`](hosts/${h.name}.md) | ${desc} | `${sys}` | [More →](hosts/${h.name}.md) |";
+    hostsCatalog = graphLib.renderTable {
+      headers = ["Host" "Description" "System" "Docs"];
+      columns = [
+        (h: "[`${h.name}`](hosts/${h.name}.md)")
+        (h: h.properties.description or "")
+        (h: "`${h.properties.system or "x86_64-linux"}`")
+        (h: "[More →](hosts/${h.name}.md)")
+      ];
+      rows = hosts;
+    };
   in ''
     # Hosts Documentation
 
@@ -254,9 +259,7 @@
 
     ## Target Hosts Catalog
 
-    | Host | Description | System | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" hostRow hosts}
+    ${hostsCatalog}
   '';
 in {
   internal.docs.markdown.hosts = {

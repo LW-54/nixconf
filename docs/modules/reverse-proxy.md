@@ -24,4 +24,3 @@ NixOS options declared directly by this module:
 | `options.reverse-proxy.domain` | `null or (Fully qualified domain name)` | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
 | `options.reverse-proxy.enable` | `boolean` | Whether to enable system reverse proxy contract. |
 | `options.reverse-proxy.hosts` | `attribute set of (submodule)` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |
-

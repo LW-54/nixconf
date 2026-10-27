@@ -4,11 +4,19 @@
   options,
   ...
 }: let
+  graphLib = config.flake.lib.graph;
+
   renderModulesIndex = {graph}: let
     modules = builtins.filter (n: n.kind == "module") (builtins.attrValues graph.nodes);
-    modRow = m: let
-      desc = m.properties.description or "";
-    in "| [`${m.name}`](modules/${m.name}.md) | ${desc} | [More →](modules/${m.name}.md) |";
+    modulesCatalog = graphLib.renderTable {
+      headers = ["Module" "Description" "Docs"];
+      columns = [
+        (m: "[`${m.name}`](modules/${m.name}.md)")
+        (m: m.properties.description or "")
+        (m: "[More →](modules/${m.name}.md)")
+      ];
+      rows = modules;
+    };
   in ''
     # Modules Documentation
 
@@ -18,9 +26,7 @@
 
     ## Exported Modules Catalog
 
-    | Module | Description | Docs |
-    | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" modRow modules}
+    ${modulesCatalog}
   '';
 
   renderModuleDoc = {
@@ -76,11 +82,16 @@
 
     ${
       if options != []
-      then ''
-        | Option Path | Type | Description |
-        | :--- | :--- | :--- |
-        ${lib.concatMapStringsSep "\n" renderOpt options}
-      ''
+      then
+        graphLib.renderTable {
+          headers = ["Option Path" "Type" "Description"];
+          columns = [
+            (o: "`options.${o.path}`")
+            (o: "`${o.type}`")
+            (o: builtins.replaceStrings ["\n" "|"] [" " "\\|"] (lib.trim o.description))
+          ];
+          rows = options;
+        }
       else "*No direct top-level options declared.*"
     }
   '';
@@ -203,9 +214,41 @@
 
     ## Library Namespaces Catalog
 
-    | Library Namespace | Description | Exported Functions / Symbols | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" sublibRow sublibNames}
+    ${graphLib.renderTable {
+      headers = ["Library Namespace" "Description" "Exported Functions / Symbols" "Docs"];
+      columns = [
+        (s: "[`flake.lib.${s}`](lib/${s}.md)")
+        (
+          s: let
+            libNode = graph.nodes."urn:nixconf:onto:lib:${s}" or (graph.nodes."lib:${s}" or null);
+          in
+            if libNode != null && libNode.properties ? description
+            then libNode.properties.description
+            else "Library helpers and symbols for ${s}."
+        )
+        (
+          s: let
+            fns = sublibGroups.${s} or [];
+            fnNames = map (f: f.name) fns;
+            shortNames =
+              map (
+                n: let
+                  p = lib.splitString "." n;
+                in
+                  if builtins.length p > 1
+                  then builtins.elemAt p 1
+                  else n
+              )
+              fnNames;
+          in
+            if shortNames != []
+            then lib.concatStringsSep ", " (map (f: "[`${f}`](lib/${s}.md#${f})") shortNames)
+            else "*namespace helpers*"
+        )
+        (s: "[More →](lib/${s}.md)")
+      ];
+      rows = sublibNames;
+    }}
   '';
 
   renderSublibDoc = {

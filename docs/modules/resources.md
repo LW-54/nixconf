@@ -25,4 +25,3 @@ NixOS options declared directly by this module:
 | `options.resources.enable` | `boolean` | Whether to enable system resource allocation contract. |
 | `options.resources.services` | `attribute set of (submodule)` | Attribute set of per-service resource policies and constraints mapped directly to individual systemd service unit configurations. |
 | `options.resources.slices` | `attribute set of (submodule)` | Attribute set of hierarchical systemd slice definitions mapping directly to Linux cgroups v2 resource controllers (CPU, memory, IO, and task counts). |
-

@@ -148,7 +148,7 @@
         fi
 
         if [ "$ACTION" = "subgraph" ]; then
-          nix eval --raw --apply 'f: f.docsMermaid.renderMermaid (f.graph.getNeighborhood { graph = f.graph.buildGraph {}; nodeId = "'"$NODE_ID"'"; })' .#lib
+          nix eval --raw --apply 'f: f.graph.renderMermaid { graph = f.graph.getNeighborhood { graph = f.graph.buildGraph {}; nodeId = "'"$NODE_ID"'"; }; }' .#lib
           exit 0
         fi
       '';

@@ -13,109 +13,93 @@ Lightweight declarative home directory files and XDG environment manager.
 
 ## Architecture Diagram
 
-```mermaid
-flowchart TD
-    subgraph Hosts["Hosts"]
-        urn__nixconf__onto__host__x240["x240"]:::hostNode
-    end
+flowchart LR
+  urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
+    urn__nixconf__ast__module__git["nixosModule/git"]:::defaultNode
+    urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
+    urn__nixconf__ast__module__labwc["nixosModule/labwc"]:::defaultNode
+    urn__nixconf__ast__module__locale["nixosModule/locale"]:::defaultNode
+    urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
+    urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
+    urn__nixconf__ast__module__x240_desktop["nixosModule/x240-desktop"]:::defaultNode
+    urn__nixconf__ast__module__x240_desktop_features["nixosModule/x240-desktop-features"]:::defaultNode
+    urn__nixconf__ast__module__x240_disk["nixosModule/x240-disk"]:::defaultNode
+    urn__nixconf__ast__module__x240_hardware["nixosModule/x240-hardware"]:::defaultNode
+    urn__nixconf__ast__module__x240_packages["nixosModule/x240-packages"]:::defaultNode
+    urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
+    urn__nixconf__ast__module__x240_system_features["nixosModule/x240-system-features"]:::defaultNode
+    urn__nixconf__ast__option__home_enable[/"home.enable"/]:::optNode
+    urn__nixconf__ast__option__home_shared[/"home.shared"/]:::optNode
+    urn__nixconf__ast__option__home_users[/"home.users"/]:::optNode
+    urn__nixconf__ast__type__home_file[["home.file"]]:::typeNode
+    urn__nixconf__ast__type__home_files[["home.files"]]:::typeNode
+    urn__nixconf__ast__type__home_relativeHomePath[["home.relativeHomePath"]]:::typeNode
+    urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
+    urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
+    urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
+    urn__nixconf__onto__contract__home{{"home"}}:::contractNode
+    urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
+    urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__audio("audio"):::featureNode
+    urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
+    urn__nixconf__onto__feature__cursor("cursor"):::featureNode
+    urn__nixconf__onto__feature__direnv("direnv"):::featureNode
+    urn__nixconf__onto__feature__disko("disko"):::featureNode
+    urn__nixconf__onto__feature__dolphin("dolphin"):::featureNode
+    urn__nixconf__onto__feature__fonts("fonts"):::featureNode
+    urn__nixconf__onto__feature__foot("foot"):::featureNode
+    urn__nixconf__onto__feature__git("git"):::featureNode
+    urn__nixconf__onto__feature__greetd("greetd"):::featureNode
+    urn__nixconf__onto__feature__labwc("labwc"):::featureNode
+    urn__nixconf__onto__feature__locale("locale"):::featureNode
+    urn__nixconf__onto__feature__nix("nix"):::featureNode
+    urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__ssh("ssh"):::featureNode
+    urn__nixconf__onto__feature__tack("tack"):::featureNode
+    urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
+    urn__nixconf__onto__feature__vscode("vscode"):::featureNode
+    urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+    urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
+    urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
+    urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
+    urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__restic["restic"]:::implNode
+    urn__nixconf__onto__implementation__sops["sops"]:::implNode
+    urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
+    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
+    urn__nixconf__onto__primitive__host["host"]:::defaultNode
+    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    subgraph Contracts["Contracts"]
-        urn__nixconf__onto__contract__home(["home"]):::contractNode
-        urn__nixconf__onto__contract__wayland(["wayland"]):::contractNode
-    end
-
-    subgraph Features["Features"]
-        urn__nixconf__onto__feature__antigravity["antigravity"]:::featureNode
-        urn__nixconf__onto__feature__audio["audio"]:::featureNode
-        urn__nixconf__onto__feature__bitwarden["bitwarden"]:::featureNode
-        urn__nixconf__onto__feature__cursor["cursor"]:::featureNode
-        urn__nixconf__onto__feature__direnv["direnv"]:::featureNode
-        urn__nixconf__onto__feature__disko["disko"]:::featureNode
-        urn__nixconf__onto__feature__dolphin["dolphin"]:::featureNode
-        urn__nixconf__onto__feature__fonts["fonts"]:::featureNode
-        urn__nixconf__onto__feature__foot["foot"]:::featureNode
-        urn__nixconf__onto__feature__git["git"]:::featureNode
-        urn__nixconf__onto__feature__greetd["greetd"]:::featureNode
-        urn__nixconf__onto__feature__labwc["labwc"]:::featureNode
-        urn__nixconf__onto__feature__locale["locale"]:::featureNode
-        urn__nixconf__onto__feature__nix["nix"]:::featureNode
-        urn__nixconf__onto__feature__noctalia["noctalia"]:::featureNode
-        urn__nixconf__onto__feature__ssh["ssh"]:::featureNode
-        urn__nixconf__onto__feature__tack["tack"]:::featureNode
-        urn__nixconf__onto__feature__vivaldi["vivaldi"]:::featureNode
-        urn__nixconf__onto__feature__vscode["vscode"]:::featureNode
-        urn__nixconf__onto__feature__wifi_eduroam["wifi-eduroam"]:::featureNode
-    end
-
-    subgraph ContractTypes["Contract Types"]
-        urn__nixconf__ast__type__home_file{{"home.file"}}:::typeNode
-        urn__nixconf__ast__type__home_files{{"home.files"}}:::typeNode
-        urn__nixconf__ast__type__home_relativeHomePath{{"home.relativeHomePath"}}:::typeNode
-        urn__nixconf__ast__type__home_userHome{{"home.userHome"}}:::typeNode
-        urn__nixconf__ast__type__home_xdg{{"home.xdg"}}:::typeNode
-    end
-
-    subgraph OtherNodes["Other Entities"]
-        urn__nixconf__ast__module__foot["foot"]
-        urn__nixconf__ast__module__git["git"]
-        urn__nixconf__ast__module__hjem["hjem"]
-        urn__nixconf__ast__module__labwc["labwc"]
-        urn__nixconf__ast__module__locale["locale"]
-        urn__nixconf__ast__module__lw["lw"]
-        urn__nixconf__ast__module__x240["x240"]
-        urn__nixconf__ast__module__x240_desktop["x240-desktop"]
-        urn__nixconf__ast__module__x240_desktop_features["x240-desktop-features"]
-        urn__nixconf__ast__module__x240_disk["x240-disk"]
-        urn__nixconf__ast__module__x240_hardware["x240-hardware"]
-        urn__nixconf__ast__module__x240_packages["x240-packages"]
-        urn__nixconf__ast__module__x240_system["x240-system"]
-        urn__nixconf__ast__module__x240_system_features["x240-system-features"]
-        urn__nixconf__ast__option__home_enable[/"home.enable: boolean"/]:::optNode
-        urn__nixconf__ast__option__home_shared[/"home.shared: submodule"/]:::optNode
-        urn__nixconf__ast__option__home_users[/"home.users: attribute set of (submodule)"/]:::optNode
-        urn__nixconf__eval__configuration__x240["x240"]
-        urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
-        urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
-        urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
-        urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
-        urn__nixconf__onto__implementation__lw["lw"]:::implNode
-        urn__nixconf__onto__implementation__restic["restic"]:::implNode
-        urn__nixconf__onto__implementation__sops["sops"]:::implNode
-        urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-        urn__nixconf__onto__primitive__contract["contract"]
-        urn__nixconf__onto__primitive__host["host"]
-        urn__nixconf__onto__primitive__implementation["implementation"]
-    end
-
-
-    urn__nixconf__ast__module__foot ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__foot ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__foot -->|"writes"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__foot -->|"writes"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__git ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__git ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__git -->|"writes"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_enable
-    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__hjem -.->|"reads"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__hjem -->|"writes"| urn__nixconf__ast__option__home_enable
-    urn__nixconf__ast__module__labwc ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__labwc ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__labwc -->|"writes"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__labwc -->|"writes"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__locale ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__locale -->|"writes"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__locale -->|"writes"| urn__nixconf__ast__option__home_shared
-    urn__nixconf__ast__module__lw ==>|"flowsTo"| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__module__lw -->|"writes"| urn__nixconf__ast__option__home_users
-    urn__nixconf__ast__option__home_shared -.->|"typedBy"| urn__nixconf__ast__type__home_userHome
-    urn__nixconf__ast__option__home_shared -.->|"typedBy"| urn__nixconf__ast__type__home_xdg
-    urn__nixconf__ast__option__home_users -.->|"typedBy"| urn__nixconf__ast__type__home_userHome
-    urn__nixconf__ast__option__home_users -.->|"typedBy"| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__ast__module__foot -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__foot -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__foot -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__foot -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__git -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__git -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__git -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__git -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__git -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__git -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__hjem -. "reads" .-> urn__nixconf__ast__option__home_enable
+    urn__nixconf__ast__module__hjem -. "reads" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__hjem -. "reads" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__hjem -. "writes = true" .-> urn__nixconf__ast__option__home_enable
+    urn__nixconf__ast__module__labwc -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__labwc -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__labwc -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__labwc -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__locale -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__locale -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__locale -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__lw -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__lw -. "writes = "<set>"" .-> urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__option__home_shared -->|"typedBy"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_shared -->|"typedBy"| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__ast__option__home_users -->|"typedBy"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_users -->|"typedBy"| urn__nixconf__ast__type__home_xdg
     urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__foot
     urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__git
     urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__hjem
@@ -129,26 +113,26 @@ flowchart TD
     urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_packages
     urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_system
     urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_system_features
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_enable
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_shared
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__option__home_users
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_file
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_files
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_relativeHomePath
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_userHome
-    urn__nixconf__onto__contract__home --- urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__option__home_enable
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__option__home_shared
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__option__home_users
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__type__home_file
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__type__home_files
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__type__home_relativeHomePath
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__onto__contract__home -->|"declares"| urn__nixconf__ast__type__home_xdg
     urn__nixconf__onto__feature__foot -->|"outputs"| urn__nixconf__ast__module__foot
-    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__foot -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__ast__module__git
-    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__git -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__git -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__git -. "consumes" .-> urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -->|"outputs"| urn__nixconf__ast__module__labwc
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__locale -->|"outputs"| urn__nixconf__ast__module__locale
-    urn__nixconf__onto__feature__locale -->|"consumes"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__locale -. "consumes" .-> urn__nixconf__onto__contract__home
     urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_desktop_features
@@ -158,7 +142,7 @@ flowchart TD
     urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_system
     urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__eval__configuration__x240
-    urn__nixconf__onto__host__x240 -->|"consumes"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -. "consumes" .-> urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__audio
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__bitwarden
@@ -186,50 +170,97 @@ flowchart TD
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__hjem -->|"outputs"| urn__nixconf__ast__module__hjem
-    urn__nixconf__onto__implementation__hjem -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__hjem -.->|"implements"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem == "implements" ==> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__hjem == "implements" ==> urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -->|"outputs"| urn__nixconf__ast__module__lw
-    urn__nixconf__onto__implementation__lw -->|"consumes"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__implementation__uwsm -.->|"implements"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract --- urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__host --- urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation --- urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__uwsm == "implements" ==> urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__implementation__uwsm == "implements" ==> urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__host -->|"contains"| urn__nixconf__onto__host__x240
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__uwsm
 
-classDef hostNode fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
-classDef contractNode fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
-classDef implNode fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
-classDef featureNode fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4;
-classDef libNode fill:#181825,stroke:#94e2d5,stroke-width:2px,color:#cdd6f4;
-classDef optNode fill:#11111b,stroke:#fab387,stroke-width:1px,color:#cdd6f4;
-classDef typeNode fill:#11111b,stroke:#f9e2af,stroke-width:1px,color:#cdd6f4;
-classDef fnNode fill:#181825,stroke:#94e2d5,stroke-width:1px,color:#cdd6f4;
-classDef pkgNode fill:#181825,stroke:#b4befe,stroke-width:1px,color:#cdd6f4;
-classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
-```
+    click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
+    click urn__nixconf__ast__module__git href "../modules/git.md" "git"
+    click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"
+    click urn__nixconf__ast__module__labwc href "../modules/labwc.md" "labwc"
+    click urn__nixconf__ast__module__locale href "../modules/locale.md" "locale"
+    click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
+    click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
+    click urn__nixconf__ast__module__x240_desktop href "../modules/x240-desktop.md" "x240-desktop"
+    click urn__nixconf__ast__module__x240_desktop_features href "../modules/x240-desktop-features.md" "x240-desktop-features"
+    click urn__nixconf__ast__module__x240_disk href "../modules/x240-disk.md" "x240-disk"
+    click urn__nixconf__ast__module__x240_hardware href "../modules/x240-hardware.md" "x240-hardware"
+    click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
+    click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
+    click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
+    click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
+    click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
+    click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
+    click urn__nixconf__onto__feature__cursor href "../features/cursor.md" "cursor"
+    click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
+    click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
+    click urn__nixconf__onto__feature__dolphin href "../features/dolphin.md" "dolphin"
+    click urn__nixconf__onto__feature__fonts href "../features/fonts.md" "fonts"
+    click urn__nixconf__onto__feature__foot href "../features/foot.md" "foot"
+    click urn__nixconf__onto__feature__git href "../features/git.md" "git"
+    click urn__nixconf__onto__feature__greetd href "../features/greetd.md" "greetd"
+    click urn__nixconf__onto__feature__labwc href "../features/labwc.md" "labwc"
+    click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
+    click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
+    click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
+    click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
+    click urn__nixconf__onto__feature__vivaldi href "../features/vivaldi.md" "vivaldi"
+    click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
+    click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__cgroups href "../implementations/cgroups.md" "cgroups"
+    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
+    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
+    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+
+  %% Semantic Visual Classes
+  classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+  classDef contractNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+  classDef implNode fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+  classDef featureNode fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f8fafc;
+  classDef optNode fill:#422006,stroke:#facc15,stroke-width:1px,color:#fefce8;
+  classDef typeNode fill:#3b0764,stroke:#c084fc,stroke-width:1px,color:#faf5ff;
+  classDef pkgNode fill:#4c0519,stroke:#fb7185,stroke-width:1px,color:#fff1f2;
+  classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
+  classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
+  classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module Attribute | Description | Docs |
+| Module | Description | Details |
 | :--- | :--- | :--- |
 | [`hjem`](../modules/hjem.md) | Provider module satisfying `home` contract | [More →](../modules/hjem.md) |
 
 ### Executable Packages
 
-*No executable packages exported.*
+*No packages exported.*
 
 ### Development Shells
 
@@ -237,7 +268,7 @@ classDef shellNode fill:#181825,stroke:#f5c2e7,stroke-width:1px,color:#cdd6f4;
 
 ### Library Helpers
 
-*No library helpers exported.*
+*No library symbols exported.*
 
 ## Importing Hosts
 

@@ -5,7 +5,38 @@
   ...
 }: let
   graphLib = config.flake.lib.graph;
-  mermaidLib = config.flake.lib.docsMermaid;
+  shared = config.internal.docs.markdown.shared;
+
+  conceptualDiagram = ''
+    ```mermaid
+    flowchart TD
+        Host["host<br/><i>Target Machine</i>"]
+        Contract{{"contract<br/><i>Abstract Interface</i>"}}
+        Implementation["implementation<br/><i>Capability Provider</i>"]
+        Feature["feature<br/><i>System Service</i>"]
+        Library(["lib<br/><i>Pure Helpers</i>"])
+
+        Host -->|"consumes"| Contract
+        Implementation -.->|"implements"| Contract
+        Implementation -->|"consumes"| Contract
+        Feature -->|"consumes"| Contract
+        Contract -.->|"provides"| Library
+        Implementation -.->|"provides"| Library
+        Feature -.->|"provides"| Library
+
+        classDef default fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
+        classDef contract fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
+        classDef impl fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
+        classDef feat fill:#181825,stroke:#f38ba8,stroke-width:2px,color:#cdd6f4;
+        classDef lib fill:#181825,stroke:#94e2d5,stroke-width:2px,color:#cdd6f4;
+
+        class Host default;
+        class Contract contract;
+        class Implementation impl;
+        class Feature feat;
+        class Library lib;
+    ```
+  '';
 
   renderReadme = {graph}: let
     hosts = builtins.filter (n: n.kind == "host") (builtins.attrValues graph.nodes);
@@ -16,42 +47,127 @@
     pkgs = builtins.filter (n: n.kind == "pkg" || n.kind == "package") (builtins.attrValues graph.nodes);
     shells = builtins.filter (n: n.kind == "shell" || n.kind == "devShell") (builtins.attrValues graph.nodes);
 
-    topologyMermaid = mermaidLib.renderMermaid (graphLib.filterGraph {
+    topologyGraph =
+      graphLib.filterGraph {
         nodeFilter = n: builtins.elem n.kind ["host" "contract" "impl" "implementation" "feature" "lib"];
         edgeFilter = e: builtins.elem (lib.toUpper (e.relation or (e.kind or ""))) ["IMPORTS" "IMPLEMENTS" "CONSUMES" "EXPORTS" "PROVIDES"];
       }
-      graph);
+      graph;
 
-    hostRow = h: let
-      desc = h.properties.description or "";
-      sys = h.properties.system or "x86_64-linux";
-    in "| [`${h.name}`](docs/hosts/${h.name}.md) | ${desc} | `${sys}` | [More →](docs/hosts/${h.name}.md) |";
+    topologyMermaid = graphLib.renderMermaid {
+      graph = topologyGraph;
+      layout = "TD";
+      clusterBy = "kind";
+      linkFn = shared.makeDocLinkFn {relPrefix = "docs";};
+    };
 
-    contractRow = c: let
-      desc = c.properties.description or "";
-      implList = map (i: "[`${i.name}`](docs/implementations/${i.name}.md)") (c.properties.implementers or []);
-      implStr =
-        if implList != []
-        then lib.concatStringsSep ", " implList
-        else "*none*";
-    in "| [`${c.name}`](docs/contracts/${c.name}.md) | ${desc} | ${implStr} | [More →](docs/contracts/${c.name}.md) |";
+    primitivesTable = graphLib.renderTable {
+      headers = ["Primitive" "Description" "Source File"];
+      columns = [
+        (p: "**`${p.name}`**")
+        (p: p.desc)
+        (p: "[`${p.file}`](${p.file})")
+      ];
+      rows = [
+        {
+          name = "primitive";
+          desc = "Meta-primitive defining how primitives are constructed and registered.";
+          file = "primitives/primitive/default.nix";
+        }
+        {
+          name = "host";
+          desc = "Declarative NixOS target machines binding hardware, platform, and enabled features.";
+          file = "primitives/host/default.nix";
+        }
+        {
+          name = "contract";
+          desc = "Abstract contract interfaces defining shared option schemas decoupled from backends.";
+          file = "primitives/contract/default.nix";
+        }
+        {
+          name = "implementation";
+          desc = "Concrete capability providers satisfying contract interfaces with services and packages.";
+          file = "primitives/implementation.nix";
+        }
+        {
+          name = "feature";
+          desc = "Reusable system configurations and desktop services consuming contracts.";
+          file = "primitives/feature.nix";
+        }
+        {
+          name = "lib";
+          desc = "Pure reusable helper functions, data types, calculations, and presets.";
+          file = "primitives/lib.nix";
+        }
+      ];
+    };
 
-    implRow = i: let
-      desc = i.properties.description or "";
-      cName = i.properties.contract or "";
-      cLink =
-        if cName != ""
-        then "[`${cName}`](docs/contracts/${cName}.md)"
-        else "*none*";
-    in "| [`${i.name}`](docs/implementations/${i.name}.md) | ${desc} | ${cLink} | [More →](docs/implementations/${i.name}.md) |";
+    hostsTable = graphLib.renderTable {
+      headers = ["Host" "Description" "System" "Docs"];
+      columns = [
+        (h: "[`${h.name}`](docs/hosts/${h.name}.md)")
+        (h: h.properties.description or "")
+        (h: "`${h.properties.system or "x86_64-linux"}`")
+        (h: "[More →](docs/hosts/${h.name}.md)")
+      ];
+      rows = hosts;
+    };
 
-    featureRow = f: let
-      desc = f.properties.description or "";
-    in "| [`${f.name}`](docs/features/${f.name}.md) | ${desc} | [More →](docs/features/${f.name}.md) |";
+    contractsTable = graphLib.renderTable {
+      headers = ["Contract" "Description" "Implementations" "Docs"];
+      columns = [
+        (c: "[`${c.name}`](docs/contracts/${c.name}.md)")
+        (c: c.properties.description or "")
+        (
+          c: let
+            implList = map (i: "[`${i.name}`](docs/implementations/${i.name}.md)") (c.properties.implementers or []);
+          in
+            if implList != []
+            then lib.concatStringsSep ", " implList
+            else "*none*"
+        )
+        (c: "[More →](docs/contracts/${c.name}.md)")
+      ];
+      rows = contracts;
+    };
 
-    libRow = l: let
-      desc = l.properties.description or "";
-    in "| [`flake.lib.${l.name}`](docs/lib/${l.name}.md) | ${desc} | [More →](docs/lib/${l.name}.md) |";
+    implsTable = graphLib.renderTable {
+      headers = ["Implementation" "Description" "Contract" "Docs"];
+      columns = [
+        (i: "[`${i.name}`](docs/implementations/${i.name}.md)")
+        (i: i.properties.description or "")
+        (
+          i: let
+            cName = i.properties.contract or "";
+          in
+            if cName != ""
+            then "[`${cName}`](docs/contracts/${cName}.md)"
+            else "*none*"
+        )
+        (i: "[More →](docs/implementations/${i.name}.md)")
+      ];
+      rows = impls;
+    };
+
+    featuresTable = graphLib.renderTable {
+      headers = ["Feature" "Description" "Docs"];
+      columns = [
+        (f: "[`${f.name}`](docs/features/${f.name}.md)")
+        (f: f.properties.description or "")
+        (f: "[More →](docs/features/${f.name}.md)")
+      ];
+      rows = features;
+    };
+
+    libsTable = graphLib.renderTable {
+      headers = ["Library Namespace" "Description" "Docs"];
+      columns = [
+        (l: "[`flake.lib.${l.name}`](docs/lib/${l.name}.md)")
+        (l: l.properties.description or "")
+        (l: "[More →](docs/lib/${l.name}.md)")
+      ];
+      rows = libs;
+    };
 
     renderPkgBlock = p: ''
       #### [`${p.name}`](docs/PACKAGES.md#${p.name})
@@ -85,7 +201,7 @@
     - **Features (`feature`)**: ${options.feature.description}
     - **Libraries (`lib`)**: ${options.lib.description}
 
-    ${mermaidLib.renderConceptualDiagram}
+    ${conceptualDiagram}
 
     <details>
     <summary>Full Architecture Diagram (Click to expand)</summary>
@@ -126,14 +242,7 @@
 
     Foundational abstractions governing components across the repository, declared in [`primitives/`](primitives/). See [Primitives Documentation](docs/PRIMITIVES.md) for full specifications.
 
-    | Primitive | Description | Source File |
-    | :--- | :--- | :--- |
-    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](primitives/primitive/default.nix) |
-    | **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](primitives/host/default.nix) |
-    | **`contract`** | Abstract contract interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](primitives/contract/default.nix) |
-    | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](primitives/implementation.nix) |
-    | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](primitives/feature.nix) |
-    | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](primitives/lib.nix) |
+    ${primitivesTable}
 
     </details>
 
@@ -142,9 +251,7 @@
 
     Master registry of target hosts declared via `options.host` in [`primitives/host/default.nix`](primitives/host/default.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
 
-    | Host | Description | System | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" hostRow hosts}
+    ${hostsTable}
 
     ### Host Installation & Deployment
 
@@ -223,9 +330,7 @@
 
     Pure contract interfaces declared via `options.contract` in [`primitives/contract/default.nix`](primitives/contract/default.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full contract specifications.
 
-    | Contract | Description | Implementations | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" contractRow contracts}
+    ${contractsTable}
 
     </details>
 
@@ -234,9 +339,7 @@
 
     Concrete contract providers declared via `options.implementation` in [`primitives/implementation.nix`](primitives/implementation.nix). See [Implementations Documentation](docs/IMPLEMENTATIONS.md) for provider assignments.
 
-    | Implementation | Description | Contract | Docs |
-    | :--- | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" implRow impls}
+    ${implsTable}
 
     </details>
 
@@ -245,9 +348,7 @@
 
     Reusable system services and applications declared via `options.feature` in [`primitives/feature.nix`](primitives/feature.nix). See [Features Documentation](docs/FEATURES.md) for exported outputs.
 
-    | Feature | Description | Docs |
-    | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" featureRow features}
+    ${featuresTable}
 
     </details>
 
@@ -256,9 +357,7 @@
 
     Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`primitives/lib.nix`](primitives/lib.nix). See [Library Documentation](docs/LIB.md) for full function signatures and docstrings.
 
-    | Library Namespace | Description | Docs |
-    | :--- | :--- | :--- |
-    ${lib.concatMapStringsSep "\n" libRow libs}
+    ${libsTable}
 
     </details>
 
@@ -511,14 +610,59 @@
 
     A primitive defines the grammar, options schema, and export lifecycle for a class of system components. The repository defines 6 symmetrical primitives evaluated across a two-pass module pipeline:
 
-    | Primitive | Description | Source File | Documentation |
-    | :--- | :--- | :--- | :--- |
-    | **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](../primitives/primitive/default.nix) | [Primitives Catalog](PRIMITIVES.md) |
-    | **`host`** | Declarative target host machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](../primitives/host/default.nix) | [Hosts Documentation](HOSTS.md) |
-    | **`contract`** | Abstract capability interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](../primitives/contract/default.nix) | [Contracts Documentation](CONTRACTS.md) |
-    | **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](../primitives/implementation.nix) | [Implementations Documentation](IMPLEMENTATIONS.md) |
-    | **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](../primitives/feature.nix) | [Features Documentation](FEATURES.md) |
-    | **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](../primitives/lib.nix) | [Library Documentation](LIB.md) |
+    ${graphLib.renderTable {
+      headers = ["Primitive" "Description" "Source File" "Documentation"];
+      columns = [
+        (p: "**`${p.name}`**")
+        (p: p.desc)
+        (p: "[`${p.file}`](${p.file})")
+        (p: "[${p.docTitle}](${p.docLink})")
+      ];
+      rows = [
+        {
+          name = "primitive";
+          desc = "Meta-primitive defining how primitives are constructed and registered.";
+          file = "../primitives/primitive/default.nix";
+          docTitle = "Primitives Catalog";
+          docLink = "PRIMITIVES.md";
+        }
+        {
+          name = "host";
+          desc = "Declarative target host machines binding hardware, platform, and enabled features.";
+          file = "../primitives/host/default.nix";
+          docTitle = "Hosts Documentation";
+          docLink = "HOSTS.md";
+        }
+        {
+          name = "contract";
+          desc = "Abstract contract interfaces defining shared option schemas decoupled from backends.";
+          file = "../primitives/contract/default.nix";
+          docTitle = "Contracts Documentation";
+          docLink = "CONTRACTS.md";
+        }
+        {
+          name = "implementation";
+          desc = "Concrete capability providers satisfying contract interfaces with services and packages.";
+          file = "../primitives/implementation.nix";
+          docTitle = "Implementations Documentation";
+          docLink = "IMPLEMENTATIONS.md";
+        }
+        {
+          name = "feature";
+          desc = "Reusable system configurations and desktop services consuming contracts.";
+          file = "../primitives/feature.nix";
+          docTitle = "Features Documentation";
+          docLink = "FEATURES.md";
+        }
+        {
+          name = "lib";
+          desc = "Pure reusable helper functions, data types, calculations, and presets.";
+          file = "../primitives/lib.nix";
+          docTitle = "Library Documentation";
+          docLink = "LIB.md";
+        }
+      ];
+    }}
 
     ## Two-Pass Evaluation Pipeline
 
