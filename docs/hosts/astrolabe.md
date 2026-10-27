@@ -14,6 +14,7 @@ Headless VPS Server (adje.app public edge and core services).
 
 ## Host Architecture Diagram
 
+```mermaid
 flowchart LR
   urn__nixconf__ast__module__astrolabe["nixosModule/astrolabe"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_disk["nixosModule/astrolabe-disk"]:::defaultNode
@@ -48,10 +49,10 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
     urn__nixconf__ast__type__reverse_proxy_fqdn[["reverse-proxy.fqdn"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_host[["reverse-proxy.host"]]:::typeNode
-    urn__nixconf__drv__devShell__github_ssh>"devShell/github-ssh"]:::devShellNode
-    urn__nixconf__drv__devShell__master_ssh>"devShell/master-ssh"]:::devShellNode
-    urn__nixconf__drv__devShell__sops_admin>"devShell/sops-admin"]:::devShellNode
-    urn__nixconf__drv__devShell__sops_host>"devShell/sops-host"]:::devShellNode
+    urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
+    urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
+    urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
+    urn__nixconf__drv__devShell__sops_host["devShell/sops-host"]:::devShellNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
@@ -81,180 +82,162 @@ flowchart LR
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__astrolabe_services -. "flowsTo = "adje.app"" .-> urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__astrolabe_services -. "writes = "adje.app"" .-> urn__nixconf__ast__option__reverse_proxy_domain
-    urn__nixconf__ast__module__caddy -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__caddy -. "flowsTo = ["/var/lib/caddy"]" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__caddy -. "reads" .-> urn__nixconf__ast__option__reverse_proxy_domain
-    urn__nixconf__ast__module__caddy -. "reads" .-> urn__nixconf__ast__option__reverse_proxy_enable
-    urn__nixconf__ast__module__caddy -. "reads" .-> urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__ast__module__caddy -. "writes = true" .-> urn__nixconf__ast__option__reverse_proxy_enable
-    urn__nixconf__ast__module__git -->|"dependsOn"| urn__nixconf__drv__package__git
-    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__nix -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__nix -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__restic -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__restic -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__ssh -. "flowsTo = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__ssh -. "flowsTo = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__ssh -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__ssh -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__ttyd -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__ttyd -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__ttyd -. "writes = "<set>"" .-> urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = ["/var/lib/caddy"]" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = []" .-> urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = []" .-> urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__vaultwarden -. "writes = "<set>"" .-> urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__ast__option__reverse_proxy_domain -->|"typedBy"| urn__nixconf__ast__type__reverse_proxy_fqdn
-    urn__nixconf__ast__option__reverse_proxy_hosts -->|"typedBy"| urn__nixconf__ast__type__reverse_proxy_host
-    urn__nixconf__eval__configuration__astrolabe -->|"dependsOn"| urn__nixconf__drv__package__git
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_disk
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_hardware
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_packages
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_services
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__backup
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__caddy
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__cgroups
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__contracts
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__default_user
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__disko
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__git
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__home
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__impermanence
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__locale
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__lw
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__nix
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__persistence
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__resources
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__restic
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__reverse_proxy
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__secrets
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__sops
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__ssh
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__ttyd
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__vaultwarden
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__wayland
-    urn__nixconf__onto__contract__reverse_proxy -->|"declares"| urn__nixconf__ast__option__reverse_proxy_domain
-    urn__nixconf__onto__contract__reverse_proxy -->|"declares"| urn__nixconf__ast__option__reverse_proxy_enable
-    urn__nixconf__onto__contract__reverse_proxy -->|"declares"| urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__onto__contract__reverse_proxy -->|"declares"| urn__nixconf__ast__type__reverse_proxy_fqdn
-    urn__nixconf__onto__contract__reverse_proxy -->|"declares"| urn__nixconf__ast__type__reverse_proxy_host
-    urn__nixconf__onto__feature__disko -->|"outputs"| urn__nixconf__ast__module__disko
-    urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__ast__module__git
-    urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__drv__devShell__github_ssh
-    urn__nixconf__onto__feature__git -->|"outputs"| urn__nixconf__drv__package__git
-    urn__nixconf__onto__feature__git -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__git -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__locale -->|"outputs"| urn__nixconf__ast__module__locale
-    urn__nixconf__onto__feature__locale -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__nix -->|"outputs"| urn__nixconf__ast__module__nix
-    urn__nixconf__onto__feature__nix -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ssh -->|"outputs"| urn__nixconf__ast__module__ssh
-    urn__nixconf__onto__feature__ssh -->|"outputs"| urn__nixconf__drv__devShell__master_ssh
-    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ttyd -->|"outputs"| urn__nixconf__ast__module__ttyd
-    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vaultwarden -->|"outputs"| urn__nixconf__ast__module__vaultwarden
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_disk
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_hardware
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_packages
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_services
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__eval__configuration__astrolabe
-    urn__nixconf__onto__host__astrolabe -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__implementation__caddy -->|"outputs"| urn__nixconf__ast__module__caddy
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__cgroups -->|"outputs"| urn__nixconf__ast__module__cgroups
-    urn__nixconf__onto__implementation__cgroups == "implements" ==> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__cgroups == "implements" ==> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__impermanence -->|"outputs"| urn__nixconf__ast__module__impermanence
-    urn__nixconf__onto__implementation__impermanence == "implements" ==> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__impermanence == "implements" ==> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -->|"outputs"| urn__nixconf__ast__module__lw
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__restic -->|"outputs"| urn__nixconf__ast__module__restic
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic == "implements" ==> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__restic == "implements" ==> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__sops -->|"outputs"| urn__nixconf__ast__module__sops
-    urn__nixconf__onto__implementation__sops -->|"outputs"| urn__nixconf__drv__devShell__sops_admin
-    urn__nixconf__onto__implementation__sops -->|"outputs"| urn__nixconf__drv__devShell__sops_host
-    urn__nixconf__onto__implementation__sops == "implements" ==> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__sops == "implements" ==> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__host -->|"contains"| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__host -->|"contains"| urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__sops
+    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_enable
+    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__reverse_proxy_enable
+    urn__nixconf__ast__module__git -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__option__reverse_proxy_domain -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_fqdn
+    urn__nixconf__ast__option__reverse_proxy_hosts -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__backup
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__cgroups
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__contracts
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__default_user
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__disko
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__git
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__home
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__locale
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lw
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__persistence
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__resources
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__reverse_proxy
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__secrets
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__wayland
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_enable
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__onto__feature__disko -->|outputs| urn__nixconf__ast__module__disko
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_ssh
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__package__git
+    urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
+    urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
+    urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_disk
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_hardware
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_packages
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_services
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
+    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
+    urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
+    urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
+    urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
+    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -325,6 +308,7 @@ flowchart LR
   classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
 
 
 ## Active Contracts

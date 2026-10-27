@@ -557,11 +557,17 @@ in {
           `linkFn`
           : Optional function returning an interactive URL string for a node (defaults to null).
 
+          `raw`
+          : Boolean flag to suppress markdown code block fence wrapping (defaults to false).
+
           `title`
           : Optional flowchart diagram title string (defaults to null).
 
           `tooltipFn`
           : Optional function returning tooltip hover text for a node (defaults to null).
+
+          `wrapCodeBlock`
+          : Boolean flag to enclose flowchart in a markdown ```mermaid code block (defaults to true).
 
           # Type
           ```

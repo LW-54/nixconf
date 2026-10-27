@@ -12,6 +12,7 @@ Nix package manager daemon settings, binary caches, garbage collection, and nix-
 
 ## Architecture Diagram
 
+```mermaid
 flowchart LR
   urn__nixconf__ast__module__astrolabe["nixosModule/astrolabe"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_disk["nixosModule/astrolabe-disk"]:::defaultNode
@@ -77,141 +78,133 @@ flowchart LR
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
 
-    urn__nixconf__ast__module__nix -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__nix -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__nix -. "writes = "<set>"" .-> urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__nix -. "writes = "<set>"" .-> urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -. "reads" .-> urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -. "reads" .-> urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__ast__module__sops -. "reads" .-> urn__nixconf__ast__option__secrets_enable
-    urn__nixconf__ast__module__sops -. "reads" .-> urn__nixconf__ast__option__secrets_enable
-    urn__nixconf__ast__module__sops -. "reads" .-> urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__sops -. "reads" .-> urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__option__secrets_files -->|"typedBy"| urn__nixconf__ast__type__secrets_secret
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_disk
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_hardware
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_packages
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_services
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__nix
-    urn__nixconf__eval__configuration__astrolabe -->|"imports"| urn__nixconf__ast__module__sops
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__nix
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__sops
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_desktop_features
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_disk
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_packages
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_system
-    urn__nixconf__eval__configuration__x240 -->|"imports"| urn__nixconf__ast__module__x240_system_features
-    urn__nixconf__onto__contract__secrets -->|"declares"| urn__nixconf__ast__option__secrets_defaultFile
-    urn__nixconf__onto__contract__secrets -->|"declares"| urn__nixconf__ast__option__secrets_enable
-    urn__nixconf__onto__contract__secrets -->|"declares"| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__onto__contract__secrets -->|"declares"| urn__nixconf__ast__type__secrets_secret
-    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__feature__nix -->|"outputs"| urn__nixconf__ast__module__nix
-    urn__nixconf__onto__feature__nix -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__wifi_eduroam -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_disk
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_hardware
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_packages
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_services
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__onto__host__astrolabe -->|"outputs"| urn__nixconf__eval__configuration__astrolabe
-    urn__nixconf__onto__host__astrolabe -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_desktop_features
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_disk
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_packages
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_system
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__ast__module__x240_system_features
-    urn__nixconf__onto__host__x240 -->|"outputs"| urn__nixconf__eval__configuration__x240
-    urn__nixconf__onto__host__x240 -. "consumes" .-> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__audio
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__cursor
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__fonts
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__greetd
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__tack
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__wifi_eduroam
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__sops -->|"outputs"| urn__nixconf__ast__module__sops
-    urn__nixconf__onto__implementation__sops == "implements" ==> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__sops == "implements" ==> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__uwsm == "implements" ==> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__implementation__uwsm == "implements" ==> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__audio
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__cosmic
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__cursor
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__fonts
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__greetd
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__helium
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__tack
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__user
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__wifi_eduroam
-    urn__nixconf__onto__primitive__host -->|"contains"| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__host -->|"contains"| urn__nixconf__onto__host__x240
+    urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_defaultFile
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_enable
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop_features
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_disk
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_hardware
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system_features
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_disk
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_hardware
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_packages
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_services
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop_features
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_disk
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_hardware
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system_features
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__eval__configuration__x240
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__audio
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__cursor
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__fonts
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__greetd
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__tack
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__audio
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cosmic
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cursor
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__fonts
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__greetd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__helium
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__tack
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__user
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
+    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -282,6 +275,7 @@ flowchart LR
   classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
 
 
 ## Outputs

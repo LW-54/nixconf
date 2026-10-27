@@ -123,9 +123,7 @@
       in ''
         ### Neighborhood Diagram
 
-        ```mermaid
         ${diagram}
-        ```
       ''
       else "";
   in ''

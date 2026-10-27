@@ -346,8 +346,10 @@ Advanced Mermaid flowchart renderer with clustering, hyperlinked click events, a
 - `includeTheme`: Boolean flag to append semantic CSS class definitions (defaults to true).
 - `layout`: Flowchart orientation direction ("TD", "LR", "TB", etc.) (defaults to "TD").
 - `linkFn`: Optional function returning an interactive URL string for a node (defaults to null).
+- `raw`: Boolean flag to suppress markdown code block fence wrapping (defaults to false).
 - `title`: Optional flowchart diagram title string (defaults to null).
 - `tooltipFn`: Optional function returning tooltip hover text for a node (defaults to null).
+- `wrapCodeBlock`: Boolean flag to enclose flowchart in a markdown ```mermaid code block (defaults to true).
 
 
 #### Type

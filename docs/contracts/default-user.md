@@ -12,6 +12,7 @@ Default primary user account identification, credentials, and configuration inje
 
 ## Architecture Diagram
 
+```mermaid
 flowchart LR
   urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__option__default_user_email[/"default-user.email"/]:::optNode
@@ -34,52 +35,40 @@ flowchart LR
     urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_email
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_email
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_enable
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_enable
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_fullName
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_fullName
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_modules
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_modules
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_username
-    urn__nixconf__ast__module__lw -. "reads" .-> urn__nixconf__ast__option__default_user_username
-    urn__nixconf__ast__module__lw -. "writes = "leonardwilsonb@gmai" .-> urn__nixconf__ast__option__default_user_email
-    urn__nixconf__ast__module__lw -. "writes = "leonardwilsonb@gmai" .-> urn__nixconf__ast__option__default_user_email
-    urn__nixconf__ast__module__lw -. "writes = "LW-54"" .-> urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__ast__module__lw -. "writes = "LW-54"" .-> urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__ast__module__lw -. "writes = "lw"" .-> urn__nixconf__ast__option__default_user_username
-    urn__nixconf__ast__module__lw -. "writes = "lw"" .-> urn__nixconf__ast__option__default_user_username
-    urn__nixconf__onto__contract__default_user -->|"declares"| urn__nixconf__ast__option__default_user_email
-    urn__nixconf__onto__contract__default_user -->|"declares"| urn__nixconf__ast__option__default_user_enable
-    urn__nixconf__onto__contract__default_user -->|"declares"| urn__nixconf__ast__option__default_user_fullName
-    urn__nixconf__onto__contract__default_user -->|"declares"| urn__nixconf__ast__option__default_user_githubUsername
-    urn__nixconf__onto__contract__default_user -->|"declares"| urn__nixconf__ast__option__default_user_modules
-    urn__nixconf__onto__contract__default_user -->|"declares"| urn__nixconf__ast__option__default_user_username
-    urn__nixconf__onto__host__astrolabe -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__x240 -. "consumes" .-> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__implementation__lw -->|"outputs"| urn__nixconf__ast__module__lw
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_enable
+    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_fullName
+    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_modules
+    urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_email
+    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_enable
+    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_fullName
+    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_githubUsername
+    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_modules
+    urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_username
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
 
 
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
@@ -106,6 +95,7 @@ flowchart LR
   classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
 
 
 ## Option Schema Definitions

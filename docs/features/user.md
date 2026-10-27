@@ -12,6 +12,7 @@ Normal user account helper functions and querying utilities.
 
 ## Architecture Diagram
 
+```mermaid
 flowchart LR
   urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
@@ -40,31 +41,31 @@ flowchart LR
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
 
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__audio
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__cosmic
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__cursor
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__fonts
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__greetd
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__helium
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__tack
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__user
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__audio
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cosmic
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cursor
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__fonts
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__greetd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__helium
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__tack
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__user
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__wifi_eduroam
 
 
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
@@ -104,6 +105,7 @@ flowchart LR
   classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
 
 
 ## Outputs

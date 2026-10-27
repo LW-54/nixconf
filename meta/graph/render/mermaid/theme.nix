@@ -57,33 +57,37 @@
     else if kind == "package" || kind == "pkg"
     then "${safeId}[(\"${label}\")]:::${cls}"
     else if kind == "devShell" || kind == "shell"
-    then "${safeId}>\"${label}\"]:::${cls}"
+    then "${safeId}[\"${label}\"]:::${cls}"
     else "${safeId}[\"${label}\"]:::${cls}";
 
   formatEdge = edge: let
     src = sanitizeId edge.source;
     tgt = sanitizeId edge.target;
     rel = edge.relation;
-    valueSnippet =
-      if (edge.meta or {}) ? resolvedValue && edge.meta.resolvedValue != null
-      then " = ${builtins.substring 0 20 (builtins.toJSON edge.meta.resolvedValue)}"
-      else "";
   in
     if rel == "implements" || rel == "IMPLEMENTS"
-    then "${src} == \"implements\" ==> ${tgt}"
+    then "${src} ==>|implements| ${tgt}"
     else if rel == "consumes" || rel == "CONSUMES"
-    then "${src} -. \"consumes\" .-> ${tgt}"
+    then "${src} -.->|consumes| ${tgt}"
     else if rel == "flowsTo" || rel == "FLOWS_TO"
-    then "${src} -. \"flowsTo${valueSnippet}\" .-> ${tgt}"
+    then "${src} -.->|flowsTo| ${tgt}"
     else if rel == "writes" || rel == "WRITES"
-    then "${src} -. \"writes${valueSnippet}\" .-> ${tgt}"
+    then "${src} -.->|writes| ${tgt}"
     else if rel == "reads" || rel == "READS"
-    then "${src} -. \"reads\" .-> ${tgt}"
+    then "${src} -.->|reads| ${tgt}"
     else if rel == "imports" || rel == "IMPORTS"
-    then "${src} -->|\"imports\"| ${tgt}"
+    then "${src} -->|imports| ${tgt}"
     else if rel == "dependsOn" || rel == "DEPENDS_ON"
-    then "${src} -->|\"dependsOn\"| ${tgt}"
-    else "${src} -->|\"${rel}\"| ${tgt}";
+    then "${src} -->|dependsOn| ${tgt}"
+    else if rel == "declares"
+    then "${src} -->|declares| ${tgt}"
+    else if rel == "outputs"
+    then "${src} -->|outputs| ${tgt}"
+    else if rel == "contains"
+    then "${src} -->|contains| ${tgt}"
+    else if rel == "typedBy"
+    then "${src} -.->|typedBy| ${tgt}"
+    else "${src} -->|${rel}| ${tgt}";
 in {
   internal.graph.render.mermaid.theme = {
     inherit

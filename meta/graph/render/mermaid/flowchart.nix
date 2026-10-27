@@ -19,6 +19,8 @@
     customNodeFormatter ? null,
     customEdgeFormatter ? null,
     title ? null,
+    wrapCodeBlock ? true,
+    raw ? false,
   }: let
     nodes = builtins.attrValues graph.nodes;
     validNodeIds = builtins.attrNames graph.nodes;
@@ -41,7 +43,7 @@
       else theme.formatEdge;
 
     renderNodeList = ns: lib.concatMapStringsSep "\n    " formatNode ns;
-    renderEdgeList = es: lib.concatMapStringsSep "\n    " formatEdge es;
+    renderEdgeList = es: lib.concatStringsSep "\n    " (lib.unique (map formatEdge es));
 
     # Cluster / Subgraph grouping
     clusterLambda =
@@ -63,10 +65,9 @@
         in ''
           subgraph ${clusterSafeId} ["${cKey}"]
             ${renderNodeList clusterNodes}
-          end
-        '') (builtins.attrNames grouped);
+          end'') (builtins.attrNames grouped);
       in
-        lib.concatStringsSep "\n  " subgraphs
+        lib.concatStringsSep "\n\n  " subgraphs
         + (
           if validEdges != []
           then "\n\n  " + renderEdgeList validEdges
@@ -112,13 +113,22 @@
       if title != null
       then "--- title: ${title} ---\n"
       else "";
+
+    chartContent =
+      if nodes == []
+      then "flowchart ${layout}\n    empty[\"Empty Graph\"]"
+      else ''
+        ${titleSection}flowchart ${layout}
+          ${body}${clickLines}${themeSection}
+      '';
   in
-    if nodes == []
-    then "flowchart ${layout}\n    empty[\"Empty Graph\"]"
-    else ''
-      ${titleSection}flowchart ${layout}
-        ${body}${clickLines}${themeSection}
-    '';
+    if wrapCodeBlock && !raw
+    then ''
+      ```mermaid
+      ${lib.trim chartContent}
+      ```
+    ''
+    else lib.trim chartContent;
 in {
   internal.graph.render.mermaid.flowchart = {
     inherit renderFlowchart;

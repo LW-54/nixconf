@@ -12,6 +12,7 @@ Declarative state preservation across ephemeral reboots for system and user dire
 
 ## Architecture Diagram
 
+```mermaid
 flowchart LR
   urn__nixconf__ast__module__antigravity["nixosModule/antigravity"]:::defaultNode
     urn__nixconf__ast__module__antigravity_cli["nixosModule/antigravity-cli"]:::defaultNode
@@ -36,7 +37,7 @@ flowchart LR
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
-    urn__nixconf__drv__devShell__master_ssh>"devShell/master-ssh"]:::devShellNode
+    urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
     urn__nixconf__drv__package__antigravity_cli[("package/antigravity-cli")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
@@ -71,172 +72,154 @@ flowchart LR
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__antigravity -->|"dependsOn"| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity -->|"dependsOn"| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity -->|"dependsOn"| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_cli -->|"dependsOn"| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity_cli -->|"dependsOn"| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity_cli -->|"dependsOn"| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_ide -->|"dependsOn"| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity_ide -->|"dependsOn"| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity_ide -->|"dependsOn"| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_ide -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__antigravity_ide -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__bitwarden_desktop -->|"dependsOn"| urn__nixconf__drv__package__bw
-    urn__nixconf__ast__module__bw -->|"dependsOn"| urn__nixconf__drv__package__bw
-    urn__nixconf__ast__module__bw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__bw -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__caddy -. "flowsTo = ["/var/lib/caddy"]" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__caddy -. "writes = ["/var/lib/caddy"]" .-> urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__direnv -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__direnv -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__dolphin -->|"dependsOn"| urn__nixconf__drv__package__dolphin
-    urn__nixconf__ast__module__dolphin -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__dolphin -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__foot -->|"dependsOn"| urn__nixconf__drv__package__foot
-    urn__nixconf__ast__module__foot -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__foot -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_enable
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_enable
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_files
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_files
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__impermanence -. "reads" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__labwc -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__labwc -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__lw -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__lw -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__lw -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__noctalia -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__noctalia -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__ssh -. "flowsTo = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__ssh -. "flowsTo = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__ssh -. "writes = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__option__persistence_files
-    urn__nixconf__ast__module__ssh -. "writes = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__option__persistence_files
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = ["/var/lib/caddy"]" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__vaultwarden -. "writes = ["/var/lib/caddy"]" .-> urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__ast__module__vaultwarden -. "writes = ["/etc/ssh/ssh_host_" .-> urn__nixconf__ast__option__persistence_files
-    urn__nixconf__ast__module__vivaldi -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__vivaldi -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__vscode -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__vscode -. "writes = "<set>"" .-> urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__option__persistence_directories -->|"typedBy"| urn__nixconf__ast__type__persistence_entries
-    urn__nixconf__ast__option__persistence_files -->|"typedBy"| urn__nixconf__ast__type__persistence_entries
-    urn__nixconf__ast__option__persistence_users -->|"typedBy"| urn__nixconf__ast__type__persistence_user
-    urn__nixconf__drv__devShell__master_ssh -->|"dependsOn"| urn__nixconf__drv__package__bw
-    urn__nixconf__onto__contract__persistence -->|"declares"| urn__nixconf__ast__option__persistence_directories
-    urn__nixconf__onto__contract__persistence -->|"declares"| urn__nixconf__ast__option__persistence_enable
-    urn__nixconf__onto__contract__persistence -->|"declares"| urn__nixconf__ast__option__persistence_files
-    urn__nixconf__onto__contract__persistence -->|"declares"| urn__nixconf__ast__option__persistence_users
-    urn__nixconf__onto__contract__persistence -->|"declares"| urn__nixconf__ast__type__persistence_entries
-    urn__nixconf__onto__contract__persistence -->|"declares"| urn__nixconf__ast__type__persistence_user
-    urn__nixconf__onto__feature__antigravity -->|"outputs"| urn__nixconf__ast__module__antigravity
-    urn__nixconf__onto__feature__antigravity -->|"outputs"| urn__nixconf__ast__module__antigravity_cli
-    urn__nixconf__onto__feature__antigravity -->|"outputs"| urn__nixconf__ast__module__antigravity_ide
-    urn__nixconf__onto__feature__antigravity -->|"outputs"| urn__nixconf__drv__package__antigravity
-    urn__nixconf__onto__feature__antigravity -->|"outputs"| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__onto__feature__antigravity -->|"outputs"| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__onto__feature__antigravity -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__bitwarden -->|"outputs"| urn__nixconf__ast__module__bitwarden_desktop
-    urn__nixconf__onto__feature__bitwarden -->|"outputs"| urn__nixconf__ast__module__bw
-    urn__nixconf__onto__feature__bitwarden -->|"outputs"| urn__nixconf__drv__package__bw
-    urn__nixconf__onto__feature__bitwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__direnv -->|"outputs"| urn__nixconf__ast__module__direnv
-    urn__nixconf__onto__feature__direnv -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__dolphin -->|"outputs"| urn__nixconf__ast__module__dolphin
-    urn__nixconf__onto__feature__dolphin -->|"outputs"| urn__nixconf__drv__package__dolphin
-    urn__nixconf__onto__feature__dolphin -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__foot -->|"outputs"| urn__nixconf__ast__module__foot
-    urn__nixconf__onto__feature__foot -->|"outputs"| urn__nixconf__drv__package__foot
-    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__foot -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__labwc -->|"outputs"| urn__nixconf__ast__module__labwc
-    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__labwc -. "consumes" .-> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__feature__noctalia -->|"outputs"| urn__nixconf__ast__module__noctalia
-    urn__nixconf__onto__feature__noctalia -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -->|"outputs"| urn__nixconf__ast__module__ssh
-    urn__nixconf__onto__feature__ssh -->|"outputs"| urn__nixconf__drv__devShell__master_ssh
-    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__vaultwarden -->|"outputs"| urn__nixconf__ast__module__vaultwarden
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vivaldi -->|"outputs"| urn__nixconf__ast__module__vivaldi
-    urn__nixconf__onto__feature__vivaldi -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vscode -->|"outputs"| urn__nixconf__ast__module__vscode
-    urn__nixconf__onto__feature__vscode -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__host__astrolabe -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__x240 -. "consumes" .-> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__implementation__caddy -->|"outputs"| urn__nixconf__ast__module__caddy
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__impermanence -->|"outputs"| urn__nixconf__ast__module__impermanence
-    urn__nixconf__onto__implementation__impermanence == "implements" ==> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__impermanence == "implements" ==> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -->|"outputs"| urn__nixconf__ast__module__lw
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw == "implements" ==> urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__lw
+    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__bitwarden_desktop -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__ast__module__bw -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__ast__module__bw -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__bw -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__direnv -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__direnv -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__dolphin -->|dependsOn| urn__nixconf__drv__package__dolphin
+    urn__nixconf__ast__module__dolphin -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__dolphin -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__foot -->|dependsOn| urn__nixconf__drv__package__foot
+    urn__nixconf__ast__module__foot -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_enable
+    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__labwc -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__noctalia -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__noctalia -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__vivaldi -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__vivaldi -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__vscode -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__vscode -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
+    urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
+    urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_enable
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_entries
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bitwarden_desktop
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bw
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
+    urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__direnv -->|outputs| urn__nixconf__ast__module__direnv
+    urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__dolphin -->|outputs| urn__nixconf__ast__module__dolphin
+    urn__nixconf__onto__feature__dolphin -->|outputs| urn__nixconf__drv__package__dolphin
+    urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__ast__module__foot
+    urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__drv__package__foot
+    urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__labwc -->|outputs| urn__nixconf__ast__module__labwc
+    urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__noctalia -->|outputs| urn__nixconf__ast__module__noctalia
+    urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
+    urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vivaldi -->|outputs| urn__nixconf__ast__module__vivaldi
+    urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vscode -->|outputs| urn__nixconf__ast__module__vscode
+    urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
+    urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
 
 
     click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
@@ -299,6 +282,7 @@ flowchart LR
   classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
 
 
 ## Option Schema Definitions

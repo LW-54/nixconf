@@ -12,6 +12,7 @@ System resource limits, cgroup slices, memory/CPU quotas, and power-aware thrott
 
 ## Architecture Diagram
 
+```mermaid
 flowchart LR
   urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
@@ -45,84 +46,74 @@ flowchart LR
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
     urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
-    urn__nixconf__ast__module__caddy -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__caddy -. "writes = "<set>"" .-> urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_enable
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_enable
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_slices
-    urn__nixconf__ast__module__cgroups -. "reads" .-> urn__nixconf__ast__option__resources_slices
-    urn__nixconf__ast__module__restic -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__restic -. "writes = "<set>"" .-> urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__ttyd -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__ttyd -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__ttyd -. "writes = "<set>"" .-> urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = "<set>"" .-> urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = []" .-> urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__vaultwarden -. "flowsTo = []" .-> urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__vaultwarden -. "writes = "<set>"" .-> urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__option__resources_services -->|"typedBy"| urn__nixconf__ast__type__resources_service
-    urn__nixconf__ast__option__resources_services -->|"typedBy"| urn__nixconf__ast__type__resources_slice
-    urn__nixconf__ast__option__resources_slices -->|"typedBy"| urn__nixconf__ast__type__resources_service
-    urn__nixconf__ast__option__resources_slices -->|"typedBy"| urn__nixconf__ast__type__resources_slice
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__option__resources_enable
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__option__resources_services
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__option__resources_slices
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__type__resources_byteSize
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__type__resources_cgroupWeight
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__type__resources_service
-    urn__nixconf__onto__contract__resources -->|"declares"| urn__nixconf__ast__type__resources_slice
-    urn__nixconf__onto__feature__ttyd -->|"outputs"| urn__nixconf__ast__module__ttyd
-    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__ttyd -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vaultwarden -->|"outputs"| urn__nixconf__ast__module__vaultwarden
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__feature__vaultwarden -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__host__astrolabe -->|"imports"| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__x240 -. "consumes" .-> urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__host__x240 -->|"imports"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__implementation__caddy -->|"outputs"| urn__nixconf__ast__module__caddy
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__caddy -. "consumes" .-> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__caddy == "implements" ==> urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__cgroups -->|"outputs"| urn__nixconf__ast__module__cgroups
-    urn__nixconf__onto__implementation__cgroups == "implements" ==> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__cgroups == "implements" ==> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__restic -->|"outputs"| urn__nixconf__ast__module__restic
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__restic -. "consumes" .-> urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic == "implements" ==> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__restic == "implements" ==> urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|"contains"| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__primitive__feature -->|"contains"| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__cgroups
-    urn__nixconf__onto__primitive__implementation -->|"contains"| urn__nixconf__onto__implementation__restic
+    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_defaultSlices_enable
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_enable
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_slices
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__resources_services
+    urn__nixconf__ast__option__resources_services -.->|typedBy| urn__nixconf__ast__type__resources_service
+    urn__nixconf__ast__option__resources_services -.->|typedBy| urn__nixconf__ast__type__resources_slice
+    urn__nixconf__ast__option__resources_slices -.->|typedBy| urn__nixconf__ast__type__resources_service
+    urn__nixconf__ast__option__resources_slices -.->|typedBy| urn__nixconf__ast__type__resources_slice
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_defaultSlices_enable
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_enable
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_services
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_slices
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_byteSize
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_cgroupWeight
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_service
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_slice
+    urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
+    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
 
 
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
@@ -157,6 +148,7 @@ flowchart LR
   classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
 
 
 ## Option Schema Definitions
