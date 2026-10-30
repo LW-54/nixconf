@@ -176,13 +176,13 @@
 
             systemd.tmpfiles.rules = [
               "d ${cfg.dataDir} 0755 root root -"
-              "d ${cfg.dataDir}/data 0755 root root -"
-              "d ${cfg.dataDir}/config 0755 root root -"
-              "d ${cfg.dataDir}/suwayomi 0755 root root -"
-              "d ${cfg.dataDir}/backups 0755 root root -"
-              "d ${cfg.libraryPath} 0755 root root -"
-              "d ${cfg.downloadsPath} 0755 root root -"
-              "d ${cfg.cacheDir} 0755 root root -"
+              "d ${cfg.dataDir}/data 0775 10002 10002 -"
+              "d ${cfg.dataDir}/config 0775 10002 10002 -"
+              "d ${cfg.dataDir}/suwayomi 0775 1000 1000 -"
+              "d ${cfg.dataDir}/backups 0775 10002 10002 -"
+              "d ${cfg.libraryPath} 0775 10002 10002 -"
+              "d ${cfg.downloadsPath} 0775 10002 10002 -"
+              "d ${cfg.cacheDir} 0775 10002 10002 -"
             ];
 
             systemd.services =
