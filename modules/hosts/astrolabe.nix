@@ -25,6 +25,7 @@
           self.nixosModules.restic
           self.nixosModules.vaultwarden
           self.nixosModules.ttyd
+          self.nixosModules.uchiyomi
         ];
 
         config = {

@@ -53,6 +53,7 @@ feature.example-feature = {
 | [`ssh`](features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](features/ssh.md) |
 | [`tack`](features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](features/tack.md) |
 | [`ttyd`](features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](features/ttyd.md) |
+| [`uchiyomi`](features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](features/uchiyomi.md) |
 | [`user`](features/user.md) | Normal user account helper functions and querying utilities. | [More →](features/user.md) |
 | [`vaultwarden`](features/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](features/vaultwarden.md) |
 | [`vivaldi`](features/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](features/vivaldi.md) |

@@ -79,6 +79,7 @@ end
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
+    urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__user("user"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
@@ -137,6 +138,9 @@ end
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -150,6 +154,7 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -225,6 +230,7 @@ end
     click urn__nixconf__onto__feature__ssh href "docs/features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "docs/features/tack.md" "tack"
     click urn__nixconf__onto__feature__ttyd href "docs/features/ttyd.md" "ttyd"
+    click urn__nixconf__onto__feature__uchiyomi href "docs/features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__user href "docs/features/user.md" "user"
     click urn__nixconf__onto__feature__vaultwarden href "docs/features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__feature__vivaldi href "docs/features/vivaldi.md" "vivaldi"
@@ -459,6 +465,7 @@ Reusable system services and applications declared via `options.feature` in [`pr
 | [`ssh`](docs/features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](docs/features/ssh.md) |
 | [`tack`](docs/features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](docs/features/tack.md) |
 | [`ttyd`](docs/features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](docs/features/ttyd.md) |
+| [`uchiyomi`](docs/features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](docs/features/uchiyomi.md) |
 | [`user`](docs/features/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/features/user.md) |
 | [`vaultwarden`](docs/features/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](docs/features/vaultwarden.md) |
 | [`vivaldi`](docs/features/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](docs/features/vivaldi.md) |

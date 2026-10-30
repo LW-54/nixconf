@@ -54,6 +54,7 @@ flowchart LR
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
+    urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__user("user"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
@@ -104,6 +105,7 @@ flowchart LR
     urn__nixconf__onto__feature__noctalia -->|outputs| urn__nixconf__ast__module__noctalia
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -171,6 +173,7 @@ flowchart LR
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__tack
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
+    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__user
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
@@ -213,6 +216,7 @@ flowchart LR
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
+    click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__user href "../features/user.md" "user"
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__feature__vivaldi href "../features/vivaldi.md" "vivaldi"

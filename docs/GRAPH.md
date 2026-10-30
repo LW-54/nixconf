@@ -14,8 +14,8 @@ The complete semantic graph extracted from pure Nix evaluation:
 
 | Dimension | Metric | Description |
 | :--- | :--- | :--- |
-| **Total Nodes** | **225** | Deduplicated primitives, hosts, configurations, modules, options, types, packages, devShells, and functions. |
-| **Total Edges** | **427** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
+| **Total Nodes** | **227** | Deduplicated primitives, hosts, configurations, modules, options, types, packages, devShells, and functions. |
+| **Total Edges** | **440** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
 | **Relations** | **10** | Canonical Computer Science relation predicates (`contains`, `declares`, `dependsOn`, `flowsTo`, `implements`, `imports`, `outputs`, `reads`, `typedBy`, `writes`). |
 | **Strata** | **4** | Ontological Intent (`onto`), Syntactic AST (`ast`), Operational Fixpoint (`eval`), Derivation Substrate (`drv`). |
 | **Evaluation** | **100% Pure** | Zero `--impure` dependencies, zero regex text-scanning, zero heuristic disk path reads. |
@@ -28,12 +28,12 @@ Every edge in the CPG represents an exact computer science relation across the f
 
 | Relation | Stratum | Count | Description | Nix Implementation Grounding |
 | :--- | :---: | :---: | :--- | :--- |
-| **`outputs`** | AST / Eval / Drv | 114 | Flake artifact or component emission | Primitives outputting standard configurations, modules, packages, devShells, and functions |
-| **`imports`** | Eval | 66 | Compilation unit composition | Evaluated NixOS configurations importing concrete NixOS modules |
-| **`contains`** | Onto | 58 | Lexical parent-child containment | Primitives containing declared instances |
-| **`writes`** | Eval | 50 | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
+| **`outputs`** | AST / Eval / Drv | 115 | Flake artifact or component emission | Primitives outputting standard configurations, modules, packages, devShells, and functions |
+| **`imports`** | Eval | 67 | Compilation unit composition | Evaluated NixOS configurations importing concrete NixOS modules |
+| **`contains`** | Onto | 59 | Lexical parent-child containment | Primitives containing declared instances |
+| **`writes`** | Eval | 55 | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
 | **`declares`** | AST | 36 | Interface specification declaration | Contracts declaring public options and custom types |
-| **`flowsTo`** | Eval | 40 | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
+| **`flowsTo`** | Eval | 45 | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
 | **`reads`** | Eval | 22 | Option value inspection (Use / Load) | Consumer implementation reading contract options |
 | **`typedBy`** | AST | 11 | Option type-system binding | Contract options bound to custom submodule types |
 | **`implements`** | Onto | 7 | Contract fulfillment | Explicit architectural relationship in `primitives/implementation.nix` |
@@ -99,14 +99,14 @@ graph TD
 
 ## 4. Node Classification
 
-The graph indexes **225 nodes** partitioned into distinct functional roles:
+The graph indexes **227 nodes** partitioned into distinct functional roles:
 
 | Node Category | Count | Example Canonical URNs | Description |
 | :--- | :---: | :--- | :--- |
-| **NixOS Modules** | 57 | `urn:nixconf:ast:module:ssh`, `urn:nixconf:ast:module:caddy` | Composable NixOS system modules exported on `flake.nixosModules`. |
+| **NixOS Modules** | 58 | `urn:nixconf:ast:module:ssh`, `urn:nixconf:ast:module:caddy` | Composable NixOS system modules exported on `flake.nixosModules`. |
 | **Library Functions** | 40 | `urn:nixconf:ast:function:stripLeadingIndentation` | Pure library helper functions with RFC 145 docstring metadata. |
 | **Contract Options** | 25 | `urn:nixconf:ast:option:persistence.directories` | Public contract interface options with types and descriptions. |
-| **Features** | 26 | `urn:nixconf:onto:feature:ssh`, `urn:nixconf:onto:feature:git` | High-level system and desktop capability bundles. |
+| **Features** | 27 | `urn:nixconf:onto:feature:ssh`, `urn:nixconf:onto:feature:git` | High-level system and desktop capability bundles. |
 | **Library Symbols** | 12 | `urn:nixconf:ast:symbol:defaultLayout` | Exported library values and constants. |
 | **Custom Types** | 11 | `urn:nixconf:ast:type:persistence.user` | RFC-typed submodule types defined in contracts. |
 | **Exported Packages** | 10 | `urn:nixconf:drv:package:caddy`, `urn:nixconf:drv:package:git` | Executable packages and derivations exported on `flake.packages`. |

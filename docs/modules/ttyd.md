@@ -18,6 +18,7 @@ Hosts that import this module into their system configurations:
 
 ```nix
           self.nixosModules.ttyd
+          self.nixosModules.uchiyomi
         ];
 ```
 

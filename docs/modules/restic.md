@@ -20,6 +20,7 @@ Hosts that import this module into their system configurations:
           self.nixosModules.restic
           self.nixosModules.vaultwarden
           self.nixosModules.ttyd
+          self.nixosModules.uchiyomi
         ];
 ```
 

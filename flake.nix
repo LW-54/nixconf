@@ -41,6 +41,7 @@ generate iso s (vm) for hosts
 mini live usb host (inspired by sonic)
 sops public secrets provisioning
 non conflicting ports provisioning
+service contract or helpers virtualisation backend, port atribution etcmonitoring and more
 
 LSP support
 test if bootable

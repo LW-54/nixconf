@@ -19,6 +19,7 @@ Hosts that import this module into their system configurations:
 ```nix
           self.nixosModules.vaultwarden
           self.nixosModules.ttyd
+          self.nixosModules.uchiyomi
         ];
 ```
 

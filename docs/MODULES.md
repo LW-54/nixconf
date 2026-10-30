@@ -51,6 +51,7 @@ Complete directory of all NixOS modules exported on `flake.nixosModules`.
 | [`ssh`](modules/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](modules/ssh.md) |
 | [`tack`](modules/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](modules/tack.md) |
 | [`ttyd`](modules/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](modules/ttyd.md) |
+| [`uchiyomi`](modules/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](modules/uchiyomi.md) |
 | [`uwsm`](modules/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [More →](modules/uwsm.md) |
 | [`vaultwarden`](modules/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](modules/vaultwarden.md) |
 | [`vivaldi`](modules/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](modules/vivaldi.md) |
