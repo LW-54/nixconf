@@ -40,14 +40,8 @@
             };
           }
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
-          (self.lib.persistence.mkConfig {
-            inherit config;
-            cfg = cfg.persistence;
-          })
-          (self.lib.backup.mkConfig {
-            inherit config;
-            cfg = cfg.backup;
-          })
+          (self.lib.persistence.mkConfig {inherit config cfg;})
+          (self.lib.backup.mkConfig {inherit config cfg;})
         ]);
       };
     };
