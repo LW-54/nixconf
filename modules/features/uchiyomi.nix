@@ -174,6 +174,17 @@
               };
             };
 
+            systemd.tmpfiles.rules = [
+              "d ${cfg.dataDir} 0755 root root -"
+              "d ${cfg.dataDir}/data 0755 root root -"
+              "d ${cfg.dataDir}/config 0755 root root -"
+              "d ${cfg.dataDir}/suwayomi 0755 root root -"
+              "d ${cfg.dataDir}/backups 0755 root root -"
+              "d ${cfg.libraryPath} 0755 root root -"
+              "d ${cfg.downloadsPath} 0755 root root -"
+              "d ${cfg.cacheDir} 0755 root root -"
+            ];
+
             systemd.services =
               {
                 "oci-network-${networkName}" = {
