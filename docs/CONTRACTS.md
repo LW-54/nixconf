@@ -38,6 +38,7 @@ contract.example = {
 | [`default-user`](contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](implementations/lw.md) | [More →](contracts/default-user.md) |
 | [`home`](contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [`hjem`](implementations/hjem.md) | [More →](contracts/home.md) |
 | [`persistence`](contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](implementations/impermanence.md) | [More →](contracts/persistence.md) |
+| [`resources`](contracts/resources.md) | System resource limits, cgroup slices, memory/CPU quotas, and power-aware throttling. | [`cgroups`](implementations/cgroups.md) | [More →](contracts/resources.md) |
 | [`reverse-proxy`](contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](implementations/caddy.md) | [More →](contracts/reverse-proxy.md) |
 | [`secrets`](contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](implementations/sops.md) | [More →](contracts/secrets.md) |
 | [`wayland`](contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [`uwsm`](implementations/uwsm.md) | [More →](contracts/wayland.md) |

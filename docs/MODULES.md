@@ -22,6 +22,7 @@ Complete directory of all NixOS modules exported on `flake.nixosModules`.
 | [`bitwarden-desktop`](modules/bitwarden-desktop.md) | System service module exported by the 'bitwarden' feature. | [More →](modules/bitwarden-desktop.md) |
 | [`bw`](modules/bw.md) | System service module exported by the 'bitwarden' feature. | [More →](modules/bw.md) |
 | [`caddy`](modules/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](modules/caddy.md) |
+| [`cgroups`](modules/cgroups.md) | Systemd control groups slice hierarchy and resource quotas implementation. | [More →](modules/cgroups.md) |
 | [`contracts`](modules/contracts.md) | Central contract registry importing all declared contract interfaces. | [More →](modules/contracts.md) |
 | [`cosmic`](modules/cosmic.md) | Next-generation COSMIC desktop environment and greeter. | [More →](modules/cosmic.md) |
 | [`cursor`](modules/cursor.md) | XCursor theme configuration and icon assets. | [More →](modules/cursor.md) |
@@ -44,6 +45,7 @@ Complete directory of all NixOS modules exported on `flake.nixosModules`.
 | [`nix`](modules/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](modules/nix.md) |
 | [`noctalia`](modules/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](modules/noctalia.md) |
 | [`persistence`](modules/persistence.md) | Contract interface defining 'persistence' option schemas and custom types. | [More →](modules/persistence.md) |
+| [`resources`](modules/resources.md) | Contract interface defining 'resources' option schemas and custom types. | [More →](modules/resources.md) |
 | [`restic`](modules/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [More →](modules/restic.md) |
 | [`reverse-proxy`](modules/reverse-proxy.md) | Contract interface defining 'reverse-proxy' option schemas and custom types. | [More →](modules/reverse-proxy.md) |
 | [`secrets`](modules/secrets.md) | Contract interface defining 'secrets' option schemas and custom types. | [More →](modules/secrets.md) |

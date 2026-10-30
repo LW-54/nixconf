@@ -19,6 +19,11 @@
             port = 7681;
             basicAuth = {admin = "$2a$14$vYmK17NeNy4sdgvOm6SAheSigD5Lnus70w8aJfQgLBceSG0hlVrPK";};
           }
+          // self.lib.resources.mkOption {
+            profile = "standard";
+            memory.high = "256M";
+            memory.max = "512M";
+          }
           // {
             user = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
@@ -53,6 +58,10 @@
             };
           }
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+          (self.lib.resources.mkConfig {
+            inherit config cfg;
+            serviceName = "ttyd-web";
+          })
         ]);
       };
     };

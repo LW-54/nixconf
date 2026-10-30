@@ -19,6 +19,7 @@ Hosts that import this module into their system configurations:
 ```nix
           self.nixosModules.bw
           self.nixosModules.ssh
+          self.nixosModules.cgroups
           self.nixosModules.docker
         ];
 ```

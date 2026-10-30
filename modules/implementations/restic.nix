@@ -62,6 +62,15 @@
           timerConfig = cfg.timerConfig;
           initialize = true;
         };
+
+        resources.services.restic-backups-main = lib.mkIf (config.resources.enable or false) {
+          profile = "background";
+          memory.high = "512M";
+          battery = {
+            throttleOnBattery = true;
+            pauseOnBattery = true;
+          };
+        };
       };
     };
   };
