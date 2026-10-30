@@ -33,7 +33,6 @@ in {
           self.nixosModules.tack
           self.nixosModules.bw
           self.nixosModules.ssh
-          self.nixosModules.cgroups
           self.nixosModules.docker
         ];
       };

@@ -17,11 +17,6 @@
             subdomain = "vaultwarden";
             port = 8222;
           }
-          // self.lib.resources.mkOption {
-            profile = "critical";
-            memory.guarantee = "64M";
-            memory.limit = "512M";
-          }
           // self.lib.persistence.mkOption {
             directories = ["/var/lib/vaultwarden"];
           }
@@ -45,10 +40,6 @@
             };
           }
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
-          (self.lib.resources.mkConfig {
-            inherit config cfg;
-            serviceName = "vaultwarden";
-          })
           (self.lib.persistence.mkConfig {inherit config cfg;})
           (self.lib.backup.mkConfig {inherit config cfg;})
         ]);

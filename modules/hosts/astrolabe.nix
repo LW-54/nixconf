@@ -38,7 +38,6 @@
           self.nixosModules.contracts
           self.nixosModules.sops
           self.nixosModules.lw
-          self.nixosModules.cgroups
           self.nixosModules.nix
           self.nixosModules.locale
           self.nixosModules.ssh

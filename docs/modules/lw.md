@@ -18,7 +18,6 @@ Hosts that import this module into their system configurations:
 
 ```nix
           self.nixosModules.lw
-          self.nixosModules.cgroups
           self.nixosModules.nix
           self.nixosModules.locale
           self.nixosModules.ssh

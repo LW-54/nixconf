@@ -14,8 +14,8 @@ The complete semantic graph extracted from pure Nix evaluation:
 
 | Dimension | Metric | Description |
 | :--- | :--- | :--- |
-| **Total Nodes** | **242** | Deduplicated primitives, hosts, configurations, modules, options, types, packages, devShells, and functions. |
-| **Total Edges** | **461** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
+| **Total Nodes** | **225** | Deduplicated primitives, hosts, configurations, modules, options, types, packages, devShells, and functions. |
+| **Total Edges** | **427** | Directed relationships across Ontological, AST, Eval, and Derivation strata. |
 | **Relations** | **10** | Canonical Computer Science relation predicates (`contains`, `declares`, `dependsOn`, `flowsTo`, `implements`, `imports`, `outputs`, `reads`, `typedBy`, `writes`). |
 | **Strata** | **4** | Ontological Intent (`onto`), Syntactic AST (`ast`), Operational Fixpoint (`eval`), Derivation Substrate (`drv`). |
 | **Evaluation** | **100% Pure** | Zero `--impure` dependencies, zero regex text-scanning, zero heuristic disk path reads. |
@@ -28,15 +28,15 @@ Every edge in the CPG represents an exact computer science relation across the f
 
 | Relation | Stratum | Count | Description | Nix Implementation Grounding |
 | :--- | :---: | :---: | :--- | :--- |
-| **`outputs`** | AST / Eval / Drv | 119 | Flake artifact or component emission | Primitives outputting standard configurations, modules, packages, devShells, and functions |
-| **`imports`** | Eval | 70 | Compilation unit composition | Evaluated NixOS configurations importing concrete NixOS modules |
-| **`contains`** | Onto | 61 | Lexical parent-child containment | Primitives containing declared instances |
-| **`writes`** | Eval | 54 | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
-| **`declares`** | AST | 44 | Interface specification declaration | Contracts declaring public options and custom types |
-| **`flowsTo`** | Eval | 44 | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
-| **`reads`** | Eval | 23 | Option value inspection (Use / Load) | Consumer implementation reading contract options |
-| **`typedBy`** | AST | 15 | Option type-system binding | Contract options bound to custom submodule types |
-| **`implements`** | Onto | 8 | Contract fulfillment | Explicit architectural relationship in `primitives/implementation.nix` |
+| **`outputs`** | AST / Eval / Drv | 114 | Flake artifact or component emission | Primitives outputting standard configurations, modules, packages, devShells, and functions |
+| **`imports`** | Eval | 66 | Compilation unit composition | Evaluated NixOS configurations importing concrete NixOS modules |
+| **`contains`** | Onto | 58 | Lexical parent-child containment | Primitives containing declared instances |
+| **`writes`** | Eval | 50 | Option value definition (Def / Store) | Module fixpoint definition extracted via `definitionsWithLocations` |
+| **`declares`** | AST | 36 | Interface specification declaration | Contracts declaring public options and custom types |
+| **`flowsTo`** | Eval | 40 | End-to-end data dependence channel | Directed channel connecting option writer to consuming implementation |
+| **`reads`** | Eval | 22 | Option value inspection (Use / Load) | Consumer implementation reading contract options |
+| **`typedBy`** | AST | 11 | Option type-system binding | Contract options bound to custom submodule types |
+| **`implements`** | Onto | 7 | Contract fulfillment | Explicit architectural relationship in `primitives/implementation.nix` |
 | **`dependsOn`** | Drv | 23 | Software package dependency | Modules and devShells depending on executable packages |
 
 ---
@@ -99,20 +99,20 @@ graph TD
 
 ## 4. Node Classification
 
-The graph indexes **242 nodes** partitioned into distinct functional roles:
+The graph indexes **225 nodes** partitioned into distinct functional roles:
 
 | Node Category | Count | Example Canonical URNs | Description |
 | :--- | :---: | :--- | :--- |
-| **NixOS Modules** | 59 | `urn:nixconf:ast:module:ssh`, `urn:nixconf:ast:module:caddy` | Composable NixOS system modules exported on `flake.nixosModules`. |
-| **Library Functions** | 42 | `urn:nixconf:ast:function:stripLeadingIndentation` | Pure library helper functions with RFC 145 docstring metadata. |
-| **Contract Options** | 29 | `urn:nixconf:ast:option:persistence.directories` | Public contract interface options with types and descriptions. |
+| **NixOS Modules** | 57 | `urn:nixconf:ast:module:ssh`, `urn:nixconf:ast:module:caddy` | Composable NixOS system modules exported on `flake.nixosModules`. |
+| **Library Functions** | 40 | `urn:nixconf:ast:function:stripLeadingIndentation` | Pure library helper functions with RFC 145 docstring metadata. |
+| **Contract Options** | 25 | `urn:nixconf:ast:option:persistence.directories` | Public contract interface options with types and descriptions. |
 | **Features** | 26 | `urn:nixconf:onto:feature:ssh`, `urn:nixconf:onto:feature:git` | High-level system and desktop capability bundles. |
-| **Library Symbols** | 14 | `urn:nixconf:ast:symbol:defaultLayout` | Exported library values and constants. |
-| **Custom Types** | 15 | `urn:nixconf:ast:type:persistence.user` | RFC-typed submodule types defined in contracts. |
+| **Library Symbols** | 12 | `urn:nixconf:ast:symbol:defaultLayout` | Exported library values and constants. |
+| **Custom Types** | 11 | `urn:nixconf:ast:type:persistence.user` | RFC-typed submodule types defined in contracts. |
 | **Exported Packages** | 10 | `urn:nixconf:drv:package:caddy`, `urn:nixconf:drv:package:git` | Executable packages and derivations exported on `flake.packages`. |
-| **Library Submodules** | 17 | `urn:nixconf:onto:lib:core`, `urn:nixconf:onto:lib:parser` | Library namespaces grouping functions and symbols. |
-| **Implementations** | 8 | `urn:nixconf:onto:implementation:caddy` | Concrete capability provider implementations. |
-| **Contracts** | 8 | `urn:nixconf:onto:contract:reverse-proxy` | Typed contract interfaces. |
+| **Library Submodules** | 16 | `urn:nixconf:onto:lib:core`, `urn:nixconf:onto:lib:parser` | Library namespaces grouping functions and symbols. |
+| **Implementations** | 7 | `urn:nixconf:onto:implementation:caddy` | Concrete capability provider implementations. |
+| **Contracts** | 7 | `urn:nixconf:onto:contract:reverse-proxy` | Typed contract interfaces. |
 | **Primitives** | 6 | `urn:nixconf:onto:primitive:host` | Meta-primitives defining schema construction rules. |
 | **Exported DevShells** | 4 | `urn:nixconf:drv:devShell:master-ssh` | Interactive development and administrative shells. |
 | **Target Hosts** | 2 | `urn:nixconf:onto:host:astrolabe`, `urn:nixconf:onto:host:x240` | Root evaluated target machine wrappers. |

@@ -55,5 +55,13 @@ rendering
 docs
 
 antikythera
+
+lldap
+authelia
+homepage
+grafana + prometheus +loki
+romm
+goldilocks
+meguru
 */
 

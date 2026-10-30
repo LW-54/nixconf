@@ -21,23 +21,13 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
-    urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
     urn__nixconf__ast__module__ttyd["nixosModule/ttyd"]:::defaultNode
-    urn__nixconf__ast__option__resources_defaultSlices_enable[/"resources.defaultSlices.enable"/]:::optNode
-    urn__nixconf__ast__option__resources_enable[/"resources.enable"/]:::optNode
-    urn__nixconf__ast__option__resources_services[/"resources.services"/]:::optNode
-    urn__nixconf__ast__option__resources_slices[/"resources.slices"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_domain[/"reverse-proxy.domain"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_enable[/"reverse-proxy.enable"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
-    urn__nixconf__ast__type__resources_byteSize[["resources.byteSize"]]:::typeNode
-    urn__nixconf__ast__type__resources_cgroupWeight[["resources.cgroupWeight"]]:::typeNode
-    urn__nixconf__ast__type__resources_service[["resources.service"]]:::typeNode
-    urn__nixconf__ast__type__resources_slice[["resources.slice"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_fqdn[["reverse-proxy.fqdn"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_host[["reverse-proxy.host"]]:::typeNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
-    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
@@ -67,7 +57,6 @@ flowchart LR
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
-    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
@@ -78,19 +67,10 @@ flowchart LR
 
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
-    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__resources_services
-    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_services
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__cgroups
-    urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__resources_services
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
-    urn__nixconf__ast__option__resources_services -.->|typedBy| urn__nixconf__ast__type__resources_service
-    urn__nixconf__ast__option__resources_services -.->|typedBy| urn__nixconf__ast__type__resources_slice
-    urn__nixconf__ast__option__resources_slices -.->|typedBy| urn__nixconf__ast__type__resources_service
-    urn__nixconf__ast__option__resources_slices -.->|typedBy| urn__nixconf__ast__type__resources_slice
     urn__nixconf__ast__option__reverse_proxy_domain -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__ast__option__reverse_proxy_hosts -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -99,25 +79,14 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__cgroups
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_defaultSlices_enable
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_enable
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_services
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_slices
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_byteSize
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_cgroupWeight
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_service
-    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_slice
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_enable
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
-    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_disk
@@ -135,18 +104,12 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
-    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
-    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__audio
@@ -184,10 +147,8 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
-    click urn__nixconf__ast__module__cgroups href "../modules/cgroups.md" "cgroups"
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
-    click urn__nixconf__onto__contract__resources href "../contracts/resources.md" "resources"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
@@ -217,7 +178,6 @@ flowchart LR
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__cgroups href "../implementations/cgroups.md" "cgroups"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
@@ -260,21 +220,6 @@ flowchart LR
 ## Consumed Contracts
 
 Contracts configured by this feature:
-
-<details>
-<summary><code><a href="../contracts/resources.md">resources</a></code></summary>
-
-Configures options: *general capability bindings*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
 
 <details>
 <summary><code><a href="../contracts/reverse-proxy.md">reverse-proxy</a></code></summary>
