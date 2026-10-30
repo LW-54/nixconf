@@ -345,6 +345,7 @@ Evaluated persisted directories and state preserved across boots by Impermanence
   ├── /var/cache/uchiyomi/
   ├── /var/lib/caddy/
   ├── /var/lib/uchiyomi/
+  ├── /var/lib/vaultwarden/
   ├── /etc/ssh/ssh_host_ed25519_key
   ├── /etc/ssh/ssh_host_ed25519_key.pub
   ├── /etc/ssh/ssh_host_rsa_key

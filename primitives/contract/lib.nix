@@ -38,9 +38,11 @@
         mkConfig = {
           config,
           cfg ? config.${name},
-        }:
-          lib.mkIf (cfg.enable or false) {
-            ${name} = lib.genAttrs coll (optName: cfg.${optName} or []);
+        }: let
+          targetCfg = cfg.${name} or cfg;
+        in
+          lib.mkIf (targetCfg.enable or false) {
+            ${name} = lib.genAttrs coll (optName: targetCfg.${optName} or []);
           };
       }
       else {
