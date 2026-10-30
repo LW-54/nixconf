@@ -155,6 +155,7 @@
                       else "http://${cfg.address}:${toString cfg.port}";
                     FLARESOLVERR_URL = "http://${flaresolverrHost}:8191";
                     SUWAYOMI_URL = "http://${suwayomiHost}:4567";
+                    SUWAYOMI_MAX_SOURCES = "100";
                     EXTENSION_ENGINE = "1";
                     SOURCES_DIR = "/sources";
                     CUSTOM_SITES_FILE = "/config/sites.json";
