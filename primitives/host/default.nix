@@ -76,28 +76,28 @@
       self,
       config,
       ...
-    }:
+    }: let
+      systemArgs =
+        lib.mapAttrs (name: host: {
+          specialArgs =
+            {
+              inherit self inputs;
+            }
+            // host.specialArgs;
+          modules = [
+            config.flake.nixosModules.${name}
+          ];
+        })
+        instances;
+    in
       lib.mkMerge [
         (output.standard instances)
         {
-          flake.nixosConfigurations =
-            lib.mapAttrs (
-              name: host:
-                inputs.nixpkgs.lib.nixosSystem {
-                  specialArgs =
-                    {
-                      inherit self inputs;
-                    }
-                    // host.specialArgs;
-                  modules = [
-                    config.flake.nixosModules.${name}
-                  ];
-                }
-            )
-            instances;
+          flake.nixosConfigurations = lib.mapAttrs (_: inputs.nixpkgs.lib.nixosSystem) systemArgs;
 
           flake.lib.host = {
             inherit (hostLib) collectHostImportedModules;
+            inherit systemArgs;
           };
         }
       ];

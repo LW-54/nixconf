@@ -25,7 +25,18 @@
           in
             lib.unique (builtins.filter (x: x != null) (map getKey lines))
           else ["master"];
+
+        inherit (config.testing) credentials;
+        port = toString cfg.listenPort;
+        clientKey = pkgs.writeText "nixconf-test-ssh-client-key" credentials.sshPrivateKey;
+        knownHosts = pkgs.writeText "nixconf-test-known-hosts" "nixconf-test-host ${credentials.sshHostPublicKey}\n";
+        hostKeyOptions =
+          if hasHostKeySecret
+          then "-o UserKnownHostsFile=${knownHosts} -o HostKeyAlias=nixconf-test-host -o StrictHostKeyChecking=yes -o HostKeyAlgorithms=ssh-ed25519"
+          else "-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
       in {
+        imports = [self.nixosModules.testing];
+
         options.services.ssh = {
           enable = lib.mkEnableOption "standard SSH configuration" // {default = true;};
 
@@ -77,6 +88,7 @@
                     file = ../../secrets/ssh/public.yaml;
                     key = name;
                     mode = "0444";
+                    testValue = credentials.sshPublicKey;
                   };
                 })
                 publicKeys)
@@ -85,8 +97,38 @@
                   file = hostKeySecretPath;
                   key = "ed25519";
                   mode = "0600";
+                  testValue = credentials.sshHostPrivateKey;
                 };
               };
+
+            testing.checks = {
+              ssh-daemon = {
+                description = "sshd listens on port ${port}${lib.optionalString hasHostKeySecret " with the provisioned host key"}";
+                script =
+                  ''
+                    machine.wait_for_open_port(${port})
+                  ''
+                  + lib.optionalString hasHostKeySecret ''
+                    machine.wait_for_unit("provision-ssh-host-key.service")
+                    _hostkey = machine.succeed("${pkgs.openssh}/bin/ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key").split()[1]
+                    assert _hostkey == ${builtins.toJSON (builtins.elemAt (lib.splitString " " credentials.sshHostPublicKey) 1)}, "SSH host key was not provisioned from secrets"
+                  '';
+              };
+
+              ssh-login = {
+                description = "SSH login from another machine as ${lib.concatStringsSep ", " cfg.authorizeForUsers}";
+                remote = true;
+                script = ''
+                  machine.wait_for_open_port(${port})
+                  client.wait_for_unit("multi-user.target")
+                  client.succeed("install -D -m 0600 ${clientKey} /root/.ssh/nixconf-test-key")
+                  for _user in ${builtins.toJSON cfg.authorizeForUsers}:
+                      client.wait_until_succeeds(
+                          f"${pkgs.openssh}/bin/ssh -p ${port} -i /root/.ssh/nixconf-test-key -o BatchMode=yes ${hostKeyOptions} {_user}@${config.networking.hostName} true"
+                      )
+                '';
+              };
+            };
 
             # Provision host SSH key from secrets if missing or different
             systemd.services.provision-ssh-host-key = lib.mkIf hasHostKeySecret {

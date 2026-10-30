@@ -44,9 +44,17 @@ in {
     contract = "default-user";
     description = "Primary human user account orchestration and identity provisioning.";
     lib = Identity;
-    module = {config, ...}: let
+    module = {
+      config,
+      lib,
+      ...
+    }: let
       cfg = config.default-user;
+      inherit (config.testing) credentials;
+      user = config.users.users.${cfg.username};
     in {
+      imports = [self.nixosModules.testing];
+
       default-user = {
         username = Identity.username.value;
         githubUsername = Identity.githubUsername.value;
@@ -57,6 +65,25 @@ in {
         file = ../../secrets/users/default.yaml;
         key = "passwordHash";
         neededForUsers = true;
+        testValue = credentials.hashedPassword;
+      };
+
+      testing.checks = {
+        default-user-login = {
+          description = "${cfg.username} can log in on a virtual console with a password";
+          script = self.lib.testing.mkTtyLogin {
+            user = cfg.username;
+            inherit (credentials) password;
+          };
+        };
+
+        default-user-sudo = lib.mkIf (config.security.sudo.enable && builtins.elem "wheel" user.extraGroups) {
+          description = "${cfg.username} can escalate privileges with sudo";
+          script = ''
+            machine.wait_for_unit("multi-user.target")
+            machine.succeed(${builtins.toJSON "su - ${cfg.username} -c ${lib.escapeShellArg "echo ${lib.escapeShellArg credentials.password} | sudo -S -k true"}"})
+          '';
+        };
       };
 
       users.users.${cfg.username} = {

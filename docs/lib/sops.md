@@ -66,3 +66,34 @@ self.lib.sops.mkHostShell { inherit pkgs; }
 ```
 
 
+
+<a id="mkTestSecrets"></a>
+### `mkTestSecrets`
+
+Builds a deterministic test age key plus SOPS-encrypted files holding test stand-in values, used in test mode.
+
+
+
+#### Inputs
+
+- `pkgs`: Nixpkgs package set.
+- `secrets`: Attribute set of `{ key, format, value }` keyed by secret name.
+
+
+#### Type
+
+```
+mkTestSecrets :: { pkgs, secrets } -> Derivation
+```
+
+
+#### Examples
+
+```nix
+self.lib.sops.mkTestSecrets {
+  inherit pkgs;
+  secrets.api-token = { key = "token"; format = "yaml"; value = "dummy"; };
+}
+```
+
+

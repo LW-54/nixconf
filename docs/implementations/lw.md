@@ -48,6 +48,22 @@ flowchart LR
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__testing_checks[/"testing.checks"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_hashedPassword[/"testing.credentials.hashedPassword"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_password[/"testing.credentials.password"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshHostPrivateKey[/"testing.credentials.sshHostPrivateKey"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshHostPublicKey[/"testing.credentials.sshHostPublicKey"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshPrivateKey[/"testing.credentials.sshPrivateKey"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshPublicKey[/"testing.credentials.sshPublicKey"/]:::optNode
+    urn__nixconf__ast__option__testing_enable[/"testing.enable"/]:::optNode
+    urn__nixconf__ast__option__testing_evalChecks[/"testing.evalChecks"/]:::optNode
+    urn__nixconf__ast__option__testing_install_enable[/"testing.install.enable"/]:::optNode
+    urn__nixconf__ast__option__testing_name[/"testing.name"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_allowedFailedUnits[/"testing.vm.allowedFailedUnits"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_cores[/"testing.vm.cores"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_enable[/"testing.vm.enable"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_memorySize[/"testing.vm.memorySize"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_sshForwardPort[/"testing.vm.sshForwardPort"/]:::optNode
     urn__nixconf__ast__type__home_file[["home.file"]]:::typeNode
     urn__nixconf__ast__type__home_files[["home.files"]]:::typeNode
     urn__nixconf__ast__type__home_relativeHomePath[["home.relativeHomePath"]]:::typeNode
@@ -63,6 +79,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
@@ -93,6 +110,7 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__nixos_test["nixos-test"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -105,6 +123,7 @@ flowchart LR
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__impermanence -.->|writes| urn__nixconf__ast__option__testing_checks
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -117,7 +136,9 @@ flowchart LR
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__testing_checks
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__testing_evalChecks
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
@@ -168,6 +189,22 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_checks
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_hashedPassword
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_password
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshHostPrivateKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshHostPublicKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshPrivateKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshPublicKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_enable
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_evalChecks
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_install_enable
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_name
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_allowedFailedUnits
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_cores
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_enable
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_memorySize
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_sshForwardPort
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -176,14 +213,17 @@ flowchart LR
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__greetd -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -247,19 +287,24 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
+    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__nixos_test ==>|implements| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
@@ -267,6 +312,7 @@ flowchart LR
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
     urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
@@ -274,6 +320,7 @@ flowchart LR
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__nixos_test
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
@@ -304,6 +351,7 @@ flowchart LR
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__testing href "../contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
@@ -334,6 +382,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__nixos_test href "../implementations/nixos-test.md" "nixos-test"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
@@ -464,6 +513,21 @@ config = {
 
 <details>
 <summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
+
+Configures options: *general capability bindings*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/testing.md">testing</a></code></summary>
 
 Configures options: *general capability bindings*
 

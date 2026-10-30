@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  self,
+  ...
+}: {
   /**
   Ephemeral root filesystem persistence and state binding via impermanence.
   */
@@ -54,8 +58,17 @@
             ++ cfg.files;
         };
       };
+      entryPath = entry:
+        if builtins.isString entry
+        then entry
+        else entry.directory or entry.file;
+      persistedDirectories = map entryPath systemPersistence.${systemRoot}.directories;
+      ephemeralRoot = (config.fileSystems."/".fsType or "") == "tmpfs";
     in {
-      imports = [inputs.impermanence.nixosModules.impermanence];
+      imports = [
+        inputs.impermanence.nixosModules.impermanence
+        self.nixosModules.testing
+      ];
 
       config = {
         assertions =
@@ -73,6 +86,28 @@
         programs.fuse.userAllowOther = true;
         boot.tmp.cleanOnBoot = true;
         fileSystems."/persist".neededForBoot = true;
+
+        # Only meaningful on the real disk layout, i.e. in the install tier.
+        testing.checks.persistence = {
+          description = "state under ${systemRoot} survives a reboot${lib.optionalString ephemeralRoot " while the root is wiped"}";
+          tiers = ["install"];
+          # Reboots the machine, so run after the other checks but before `failed-units`.
+          priority = 9000;
+          script =
+            ''
+              for _dir in ${builtins.toJSON persistedDirectories}:
+                  machine.succeed(f"mountpoint -q {_dir}")
+              machine.succeed("echo persisted > /var/lib/nixos/nixconf-test-persist")
+              machine.succeed("echo ephemeral > /etc/nixconf-test-ephemeral")
+              machine.shutdown()
+              machine.start()
+              machine.wait_for_unit("multi-user.target")
+              machine.succeed("grep -qx persisted /var/lib/nixos/nixconf-test-persist")
+            ''
+            + lib.optionalString ephemeralRoot ''
+              machine.fail("test -e /etc/nixconf-test-ephemeral")
+            '';
+        };
 
         environment.persistence = lib.mkMerge (
           [systemPersistence]

@@ -33,6 +33,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
@@ -64,10 +65,12 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -87,6 +90,7 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -94,6 +98,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
@@ -101,6 +106,7 @@ flowchart LR
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
@@ -125,6 +131,7 @@ flowchart LR
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__testing href "../contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"

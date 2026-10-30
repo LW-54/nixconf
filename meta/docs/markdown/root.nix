@@ -178,6 +178,25 @@
       ```
     '';
 
+    hostTestsMatrix = let
+      tierCell = h: tier:
+        if (config.flake.legacyPackages.${h.properties.system or "x86_64-linux"}.hostTests.${h.name} or {}) ? ${tier}
+        then "✅"
+        else "—";
+    in
+      graphLib.renderTable {
+        headers = ["Host" "`eval`" "`inspect`" "`vm`" "`install`" "Checks"];
+        columns = [
+          (h: "[`${h.name}`](docs/hosts/${h.name}.md#testing)")
+          (h: tierCell h "eval")
+          (h: tierCell h "inspect")
+          (h: tierCell h "vm")
+          (h: tierCell h "install")
+          (h: "[List →](docs/hosts/${h.name}.md#testing)")
+        ];
+        rows = hosts;
+      };
+
     renderShellBlock = s: ''
       #### [`${s.name}`](docs/DEVSHELLS.md#${s.name})
       ${s.properties.description}
@@ -264,7 +283,7 @@
     Before installing a host, verify:
     1. **Architecture & Firmware**: 64-bit x86 target system booted in UEFI mode with network connectivity.
     2. **Disko Partitioning**: The disk definition in the host configuration matches the physical disk device path (e.g. `/dev/sda` or `/dev/nvme0n1`).
-    3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/var/lib/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
+    3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
 
     #### Track 1: Remote Automated Deployment via `nixos-anywhere`
 
@@ -277,7 +296,7 @@
     # 2. Deploy system, format partitions via Disko, and copy SOPS secret key
     nix run github:nix-community/nixos-anywhere -- \
       --flake .#<HOST> \
-      --copy-secret /path/to/host-key.txt /persist/var/lib/sops-nix/key.txt \
+      --copy-secret /path/to/host-key.txt /persist/sops-nix/key.txt \
       root@<TARGET-IP>
     ```
 
@@ -299,10 +318,10 @@
       --flake .#<HOST>
 
     # 4. Provision SOPS age secret key on mounted persistence volume
-    mkdir -p /mnt/persist/var/lib/sops-nix
-    chmod 0700 /mnt/persist/var/lib/sops-nix
-    cp /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
-    chmod 0400 /mnt/persist/var/lib/sops-nix/key.txt
+    mkdir -p /mnt/persist/sops-nix
+    chmod 0700 /mnt/persist/sops-nix
+    cp /path/to/host-key.txt /mnt/persist/sops-nix/key.txt
+    chmod 0400 /mnt/persist/sops-nix/key.txt
 
     # 5. Install the NixOS system configuration to /mnt
     nixos-install --flake .#<HOST> --no-root-passwd
@@ -378,6 +397,50 @@
     ${lib.concatMapStringsSep "\n" renderShellBlock shells}
 
     </details>
+
+    ## Host Testing
+
+    Every host is verified automatically, without access to any real secret. Modules declare what to check through the [`testing`](docs/contracts/testing.md) contract, the [`nixos-test`](docs/implementations/nixos-test.md) implementation adds the built-in essentials, and the harness in [`meta/tests/default.nix`](meta/tests/default.nix) derives the tiers below for every `host.<name>`. New hosts and modules get their tests with no changes to the harness.
+
+    | Tier | Cost | What it proves | Where it runs |
+    | --- | --- | --- | --- |
+    | `eval` | seconds, builds nothing | The full system evaluates (all NixOS assertions) and essentials hold: boot loader enabled, accounts login-ready, SSH reachable, `system.stateVersion` set, hostname matches flake attribute. | pre-commit (`nix flake check --no-build`), CI |
+    | `inspect` | seconds, builds artifacts | Verifies generated `/etc` artifacts (fstab, shells, pam.d/login, pam.d/sshd, sudoers, sshd_config, systemd) in a pure sandbox without needing KVM. | CI, pre-push |
+    | `vm` | minutes, needs KVM | The real system closure boots in QEMU, secrets decrypt through sops-nix, password login and `sudo` work, SSH login verifies the provisioned host key, services come up, and 0 failed units. | CI (`nix flake check`) |
+    | `install` | slow, needs KVM | The real Disko layout is partitioned, installed, and booted through its real boot loader, and Impermanence keeps `/persist` while wiping root across reboot. | weekly / manual CI job |
+
+    ${hostTestsMatrix}
+
+    ```bash
+    nix run .#test                       # eval tier for every host (fast feedback while editing)
+    nix run .#test -- inspect            # validate built system artifacts without KVM
+    nix run .#test -- vm astrolabe       # boot one host and run its checks
+    nix run .#test -- install x240       # partition, install and reboot through the boot loader
+    nix run .#test -- run astrolabe      # interactive VM with stand-in secrets (SSH on localhost:2222)
+    nix run .#test -- interactive x240   # NixOS test driver REPL
+    nix run .#test -- list               # hosts, tiers and their checks
+    ```
+
+    **Stand-in secrets.** Test variants set `testing.enable`. The secrets implementation then re-encrypts each secret's `secrets.files.<name>.testValue` with a throwaway age key generated at build time, and decrypts it through the regular sops-nix path. Modules give format-sensitive secrets meaningful stand-ins, for example the password hash of `test` or the nixpkgs snakeoil SSH keys. Production systems are unaffected: their derivations stay identical.
+
+    **Adding checks.** Any module can contribute checks, and every host importing it inherits them:
+
+    ```nix
+    testing.checks.my-service = {
+      description = "my-service answers on its port";
+      script = '''
+        machine.wait_for_unit("my-service.service")
+        machine.wait_for_open_port(8080)
+      ''';
+    };
+    testing.evalChecks.my-port = {
+      assertion = config.services.my-service.port != 22;
+      message = "my-service must not take the SSH port.";
+    };
+    secrets.files.my-token.testValue = "TOKEN=dummy";
+    ```
+
+    Hosts tune or opt out with `testing.evalChecks.<name>.enable`, `testing.checks.<name>.enable`, `testing.vm.allowedFailedUnits`, `testing.vm.memorySize`, `testing.vm.enable`, and `testing.install.enable`.
 
     ## Documentation
 

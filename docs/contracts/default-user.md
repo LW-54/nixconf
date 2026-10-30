@@ -26,6 +26,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
@@ -53,6 +54,7 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
@@ -60,6 +62,7 @@ flowchart LR
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
 
@@ -71,6 +74,7 @@ flowchart LR
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__testing href "../contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"

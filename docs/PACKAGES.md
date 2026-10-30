@@ -105,3 +105,13 @@ Exported Labeled Property Graph (LPG) representation of repository architecture 
 nix run .#nixconf-json
 ```
 
+
+<a id="test"></a>
+### `test`
+
+Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.
+
+```bash
+nix run .#test
+```
+

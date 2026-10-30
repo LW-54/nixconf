@@ -66,6 +66,7 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__nixos_test["nixos-test"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -170,6 +171,7 @@ flowchart LR
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__nixos_test
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
@@ -218,6 +220,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__nixos_test href "../implementations/nixos-test.md" "nixos-test"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"

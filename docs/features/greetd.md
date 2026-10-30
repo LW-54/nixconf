@@ -23,7 +23,24 @@ flowchart LR
     urn__nixconf__ast__module__x240_packages["nixosModule/x240-packages"]:::defaultNode
     urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
     urn__nixconf__ast__module__x240_system_features["nixosModule/x240-system-features"]:::defaultNode
+    urn__nixconf__ast__option__testing_checks[/"testing.checks"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_hashedPassword[/"testing.credentials.hashedPassword"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_password[/"testing.credentials.password"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshHostPrivateKey[/"testing.credentials.sshHostPrivateKey"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshHostPublicKey[/"testing.credentials.sshHostPublicKey"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshPrivateKey[/"testing.credentials.sshPrivateKey"/]:::optNode
+    urn__nixconf__ast__option__testing_credentials_sshPublicKey[/"testing.credentials.sshPublicKey"/]:::optNode
+    urn__nixconf__ast__option__testing_enable[/"testing.enable"/]:::optNode
+    urn__nixconf__ast__option__testing_evalChecks[/"testing.evalChecks"/]:::optNode
+    urn__nixconf__ast__option__testing_install_enable[/"testing.install.enable"/]:::optNode
+    urn__nixconf__ast__option__testing_name[/"testing.name"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_allowedFailedUnits[/"testing.vm.allowedFailedUnits"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_cores[/"testing.vm.cores"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_enable[/"testing.vm.enable"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_memorySize[/"testing.vm.memorySize"/]:::optNode
+    urn__nixconf__ast__option__testing_vm_sshForwardPort[/"testing.vm.sshForwardPort"/]:::optNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
@@ -52,14 +69,18 @@ flowchart LR
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__nixos_test["nixos-test"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
+    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
     urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
     urn__nixconf__onto__primitive__host["host"]:::defaultNode
 
+    urn__nixconf__ast__module__greetd -.->|writes| urn__nixconf__ast__option__testing_checks
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__greetd
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop_features
@@ -68,8 +89,27 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_packages
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system_features
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_checks
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_hashedPassword
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_password
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshHostPrivateKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshHostPublicKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshPrivateKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_credentials_sshPublicKey
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_enable
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_evalChecks
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_install_enable
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_name
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_allowedFailedUnits
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_cores
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_enable
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_memorySize
+    urn__nixconf__onto__contract__testing -->|declares| urn__nixconf__ast__option__testing_vm_sshForwardPort
     urn__nixconf__onto__feature__greetd -->|outputs| urn__nixconf__ast__module__greetd
+    urn__nixconf__onto__feature__greetd -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop_features
@@ -106,7 +146,14 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__testing
+    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__testing
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
+    urn__nixconf__onto__implementation__nixos_test ==>|implements| urn__nixconf__onto__contract__testing
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__testing
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__audio
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
@@ -146,6 +193,7 @@ flowchart LR
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__contract__testing href "../contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
@@ -174,9 +222,11 @@ flowchart LR
     click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__nixos_test href "../implementations/nixos-test.md" "nixos-test"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
 
@@ -218,4 +268,17 @@ flowchart LR
 
 Contracts configured by this feature:
 
-*No contracts consumed by this feature.*
+<details>
+<summary><code><a href="../contracts/testing.md">testing</a></code></summary>
+
+Configures options: *general capability bindings*
+
+```nix
+config = {
+
+};
+
+```
+
+</details>
+

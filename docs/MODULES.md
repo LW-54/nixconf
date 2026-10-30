@@ -42,6 +42,7 @@ Complete directory of all NixOS modules exported on `flake.nixosModules`.
 | [`locale`](modules/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](modules/locale.md) |
 | [`lw`](modules/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](modules/lw.md) |
 | [`nix`](modules/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](modules/nix.md) |
+| [`nixos-test`](modules/nixos-test.md) | Host verification through the NixOS test driver: built-in essentials, QEMU VM sizing, and Disko install tests. | [More →](modules/nixos-test.md) |
 | [`noctalia`](modules/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](modules/noctalia.md) |
 | [`persistence`](modules/persistence.md) | Contract interface defining 'persistence' option schemas and custom types. | [More →](modules/persistence.md) |
 | [`restic`](modules/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [More →](modules/restic.md) |
@@ -50,6 +51,7 @@ Complete directory of all NixOS modules exported on `flake.nixosModules`.
 | [`sops`](modules/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](modules/sops.md) |
 | [`ssh`](modules/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](modules/ssh.md) |
 | [`tack`](modules/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](modules/tack.md) |
+| [`testing`](modules/testing.md) | Contract interface defining 'testing' option schemas and custom types. | [More →](modules/testing.md) |
 | [`ttyd`](modules/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](modules/ttyd.md) |
 | [`uwsm`](modules/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [More →](modules/uwsm.md) |
 | [`vaultwarden`](modules/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](modules/vaultwarden.md) |

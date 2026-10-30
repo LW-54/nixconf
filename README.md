@@ -54,6 +54,7 @@ flowchart TD
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
 end
 
@@ -96,6 +97,7 @@ end
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__nixos_test["nixos-test"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -116,6 +118,7 @@ end
     urn__nixconf__onto__lib__reverse_proxy["reverse-proxy"]:::defaultNode
     urn__nixconf__onto__lib__secrets["secrets"]:::defaultNode
     urn__nixconf__onto__lib__sops["sops"]:::defaultNode
+    urn__nixconf__onto__lib__testing["testing"]:::defaultNode
     urn__nixconf__onto__lib__user["user"]:::defaultNode
     urn__nixconf__onto__lib__wayland["wayland"]:::defaultNode
 end
@@ -128,14 +131,17 @@ end
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__greetd -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -184,16 +190,21 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__nixos_test ==>|implements| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -203,6 +214,7 @@ end
     click urn__nixconf__onto__contract__persistence href "docs/contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "docs/contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "docs/contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__testing href "docs/contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "docs/contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "docs/features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "docs/features/audio.md" "audio"
@@ -236,6 +248,7 @@ end
     click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "docs/implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__nixos_test href "docs/implementations/nixos-test.md" "nixos-test"
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
@@ -253,6 +266,7 @@ end
     click urn__nixconf__onto__lib__reverse_proxy href "docs/lib/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__lib__secrets href "docs/lib/secrets.md" "secrets"
     click urn__nixconf__onto__lib__sops href "docs/lib/sops.md" "sops"
+    click urn__nixconf__onto__lib__testing href "docs/lib/testing.md" "testing"
     click urn__nixconf__onto__lib__user href "docs/lib/user.md" "user"
     click urn__nixconf__onto__lib__wayland href "docs/lib/wayland.md" "wayland"
 
@@ -336,7 +350,7 @@ Target hosts in this configuration are partitioned declaratively with Disko, per
 Before installing a host, verify:
 1. **Architecture & Firmware**: 64-bit x86 target system booted in UEFI mode with network connectivity.
 2. **Disko Partitioning**: The disk definition in the host configuration matches the physical disk device path (e.g. `/dev/sda` or `/dev/nvme0n1`).
-3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/var/lib/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
+3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
 
 #### Track 1: Remote Automated Deployment via `nixos-anywhere`
 
@@ -349,7 +363,7 @@ ssh root@<TARGET-IP>
 # 2. Deploy system, format partitions via Disko, and copy SOPS secret key
 nix run github:nix-community/nixos-anywhere -- \
   --flake .#<HOST> \
-  --copy-secret /path/to/host-key.txt /persist/var/lib/sops-nix/key.txt \
+  --copy-secret /path/to/host-key.txt /persist/sops-nix/key.txt \
   root@<TARGET-IP>
 ```
 
@@ -371,10 +385,10 @@ nix --extra-experimental-features 'nix-command flakes' run github:nix-community/
   --flake .#<HOST>
 
 # 4. Provision SOPS age secret key on mounted persistence volume
-mkdir -p /mnt/persist/var/lib/sops-nix
-chmod 0700 /mnt/persist/var/lib/sops-nix
-cp /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
-chmod 0400 /mnt/persist/var/lib/sops-nix/key.txt
+mkdir -p /mnt/persist/sops-nix
+chmod 0700 /mnt/persist/sops-nix
+cp /path/to/host-key.txt /mnt/persist/sops-nix/key.txt
+chmod 0400 /mnt/persist/sops-nix/key.txt
 
 # 5. Install the NixOS system configuration to /mnt
 nixos-install --flake .#<HOST> --no-root-passwd
@@ -410,6 +424,7 @@ Pure contract interfaces declared via `options.contract` in [`primitives/contrac
 | [`persistence`](docs/contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](docs/implementations/impermanence.md) | [More →](docs/contracts/persistence.md) |
 | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](docs/implementations/caddy.md) | [More →](docs/contracts/reverse-proxy.md) |
 | [`secrets`](docs/contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](docs/implementations/sops.md) | [More →](docs/contracts/secrets.md) |
+| [`testing`](docs/contracts/testing.md) | Declarative host verification: evaluation-time essentials, runtime VM checks, and test stand-ins for secrets. | [`nixos-test`](docs/implementations/nixos-test.md) | [More →](docs/contracts/testing.md) |
 | [`wayland`](docs/contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [`uwsm`](docs/implementations/uwsm.md) | [More →](docs/contracts/wayland.md) |
 
 </details>
@@ -425,6 +440,7 @@ Concrete contract providers declared via `options.implementation` in [`primitive
 | [`hjem`](docs/implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [`home`](docs/contracts/home.md) | [More →](docs/implementations/hjem.md) |
 | [`impermanence`](docs/implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`persistence`](docs/contracts/persistence.md) | [More →](docs/implementations/impermanence.md) |
 | [`lw`](docs/implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [`default-user`](docs/contracts/default-user.md) | [More →](docs/implementations/lw.md) |
+| [`nixos-test`](docs/implementations/nixos-test.md) | Host verification through the NixOS test driver: built-in essentials, QEMU VM sizing, and Disko install tests. | [`testing`](docs/contracts/testing.md) | [More →](docs/implementations/nixos-test.md) |
 | [`restic`](docs/implementations/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [`backup`](docs/contracts/backup.md) | [More →](docs/implementations/restic.md) |
 | [`sops`](docs/implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`secrets`](docs/contracts/secrets.md) | [More →](docs/implementations/sops.md) |
 | [`uwsm`](docs/implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [`wayland`](docs/contracts/wayland.md) | [More →](docs/implementations/uwsm.md) |
@@ -488,6 +504,7 @@ Pure reusable helper functions, data types, calculations, and presets declared v
 | [`flake.lib.reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |
 | [`flake.lib.secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' contract. | [More →](docs/lib/secrets.md) |
 | [`flake.lib.sops`](docs/lib/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](docs/lib/sops.md) |
+| [`flake.lib.testing`](docs/lib/testing.md) | Library helpers and constructors for the 'testing' contract. | [More →](docs/lib/testing.md) |
 | [`flake.lib.user`](docs/lib/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/lib/user.md) |
 | [`flake.lib.wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' contract. | [More →](docs/lib/wayland.md) |
 
@@ -568,6 +585,13 @@ Exported Labeled Property Graph (LPG) representation of repository architecture 
 nix run .#nixconf-json
 ```
 
+#### [`test`](docs/PACKAGES.md#test)
+Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.
+
+```bash
+nix run .#test
+```
+
 
 </details>
 
@@ -606,6 +630,53 @@ nix develop .#sops-host
 
 
 </details>
+
+## Host Testing
+
+Every host is verified automatically, without access to any real secret. Modules declare what to check through the [`testing`](docs/contracts/testing.md) contract, the [`nixos-test`](docs/implementations/nixos-test.md) implementation adds the built-in essentials, and the harness in [`meta/tests/default.nix`](meta/tests/default.nix) derives the tiers below for every `host.<name>`. New hosts and modules get their tests with no changes to the harness.
+
+| Tier | Cost | What it proves | Where it runs |
+| --- | --- | --- | --- |
+| `eval` | seconds, builds nothing | The full system evaluates (all NixOS assertions) and essentials hold: boot loader enabled, accounts login-ready, SSH reachable, `system.stateVersion` set, hostname matches flake attribute. | pre-commit (`nix flake check --no-build`), CI |
+| `inspect` | seconds, builds artifacts | Verifies generated `/etc` artifacts (fstab, shells, pam.d/login, pam.d/sshd, sudoers, sshd_config, systemd) in a pure sandbox without needing KVM. | CI, pre-push |
+| `vm` | minutes, needs KVM | The real system closure boots in QEMU, secrets decrypt through sops-nix, password login and `sudo` work, SSH login verifies the provisioned host key, services come up, and 0 failed units. | CI (`nix flake check`) |
+| `install` | slow, needs KVM | The real Disko layout is partitioned, installed, and booted through its real boot loader, and Impermanence keeps `/persist` while wiping root across reboot. | weekly / manual CI job |
+
+| Host | `eval` | `inspect` | `vm` | `install` | Checks |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| [`astrolabe`](docs/hosts/astrolabe.md#testing) | ✅ | ✅ | ✅ | ✅ | [List →](docs/hosts/astrolabe.md#testing) |
+| [`x240`](docs/hosts/x240.md#testing) | ✅ | ✅ | ✅ | ✅ | [List →](docs/hosts/x240.md#testing) |
+
+```bash
+nix run .#test                       # eval tier for every host (fast feedback while editing)
+nix run .#test -- inspect            # validate built system artifacts without KVM
+nix run .#test -- vm astrolabe       # boot one host and run its checks
+nix run .#test -- install x240       # partition, install and reboot through the boot loader
+nix run .#test -- run astrolabe      # interactive VM with stand-in secrets (SSH on localhost:2222)
+nix run .#test -- interactive x240   # NixOS test driver REPL
+nix run .#test -- list               # hosts, tiers and their checks
+```
+
+**Stand-in secrets.** Test variants set `testing.enable`. The secrets implementation then re-encrypts each secret's `secrets.files.<name>.testValue` with a throwaway age key generated at build time, and decrypts it through the regular sops-nix path. Modules give format-sensitive secrets meaningful stand-ins, for example the password hash of `test` or the nixpkgs snakeoil SSH keys. Production systems are unaffected: their derivations stay identical.
+
+**Adding checks.** Any module can contribute checks, and every host importing it inherits them:
+
+```nix
+testing.checks.my-service = {
+  description = "my-service answers on its port";
+  script = ''
+    machine.wait_for_unit("my-service.service")
+    machine.wait_for_open_port(8080)
+  '';
+};
+testing.evalChecks.my-port = {
+  assertion = config.services.my-service.port != 22;
+  message = "my-service must not take the SSH port.";
+};
+secrets.files.my-token.testValue = "TOKEN=dummy";
+```
+
+Hosts tune or opt out with `testing.evalChecks.<name>.enable`, `testing.checks.<name>.enable`, `testing.vm.allowedFailedUnits`, `testing.vm.memorySize`, `testing.vm.enable`, and `testing.install.enable`.
 
 ## Documentation
 

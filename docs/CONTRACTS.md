@@ -40,4 +40,5 @@ contract.example = {
 | [`persistence`](contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](implementations/impermanence.md) | [More →](contracts/persistence.md) |
 | [`reverse-proxy`](contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](implementations/caddy.md) | [More →](contracts/reverse-proxy.md) |
 | [`secrets`](contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](implementations/sops.md) | [More →](contracts/secrets.md) |
+| [`testing`](contracts/testing.md) | Declarative host verification: evaluation-time essentials, runtime VM checks, and test stand-ins for secrets. | [`nixos-test`](implementations/nixos-test.md) | [More →](contracts/testing.md) |
 | [`wayland`](contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [`uwsm`](implementations/uwsm.md) | [More →](contracts/wayland.md) |

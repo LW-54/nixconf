@@ -39,6 +39,7 @@ flowchart LR
     urn__nixconf__ast__module__secrets["nixosModule/secrets"]:::defaultNode
     urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
+    urn__nixconf__ast__module__testing["nixosModule/testing"]:::defaultNode
     urn__nixconf__ast__module__ttyd["nixosModule/ttyd"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
     urn__nixconf__ast__module__wayland["nixosModule/wayland"]:::defaultNode
@@ -59,6 +60,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
@@ -121,6 +123,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__secrets
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__testing
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__wayland
@@ -138,10 +141,12 @@ flowchart LR
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
@@ -178,14 +183,17 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
+    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -193,6 +201,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
@@ -200,6 +209,7 @@ flowchart LR
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
     urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
@@ -239,6 +249,7 @@ flowchart LR
     click urn__nixconf__ast__module__secrets href "../modules/secrets.md" "secrets"
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
+    click urn__nixconf__ast__module__testing href "../modules/testing.md" "testing"
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
     click urn__nixconf__ast__module__wayland href "../modules/wayland.md" "wayland"
@@ -254,6 +265,7 @@ flowchart LR
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__testing href "../contracts/testing.md" "testing"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
@@ -472,6 +484,20 @@ Host-specific configuration submodules partitioning hardware, disks, and local s
 
 
 
+## Testing
+
+Checks are contributed by the modules this host imports through the [`testing`](../contracts/testing.md) contract and run with stand-in secrets, so no private key is needed. See [Host Testing](../../README.md#host-testing) for the tiers.
+
+| Tier | Command | Checks |
+| :--- | :--- | :--- |
+| `eval` | `nix run .#test -- eval astrolabe` | `bootloader`, `hostname`, `login`, `sops-secrets-via-contract`, `ssh-reachable`, `state-version` |
+| `inspect` | `nix run .#test -- inspect astrolabe` | `passwd`, `shadow`, `pam`, `users`, `systemd` |
+| `vm` | `nix run .#test -- vm astrolabe` | `boot`: boots to multi-user.target<br>`secrets-provisioned`: secrets are decrypted with the declared ownership<br>`default-user-login`: lw can log in on a virtual console with a password<br>`default-user-sudo`: lw can escalate privileges with sudo<br>`reverse-proxy`: Caddy serves 2 virtual host(s)<br>`ssh-daemon`: sshd listens on port 22 with the provisioned host key<br>`ssh-login`: SSH login from another machine as root, lw (from a client VM)<br>`failed-units`: no systemd unit failed |
+| `install` | `nix run .#test -- install astrolabe` | `boot`: boots to multi-user.target<br>`secrets-provisioned`: secrets are decrypted with the declared ownership<br>`default-user-login`: lw can log in on a virtual console with a password<br>`default-user-sudo`: lw can escalate privileges with sudo<br>`reverse-proxy`: Caddy serves 2 virtual host(s)<br>`ssh-daemon`: sshd listens on port 22 with the provisioned host key<br>`persistence`: state under /persist/system survives a reboot while the root is wiped<br>`failed-units`: no systemd unit failed |
+
+Interactive VM with stand-in secrets: `nix run .#test -- run astrolabe` (console password `test`); test driver REPL: `nix run .#test -- interactive astrolabe`.
+
+
 ## Installation
 
 ### Track 1: Remote Automated Provisioning via `nixos-anywhere`
@@ -479,7 +505,7 @@ Host-specific configuration submodules partitioning hardware, disks, and local s
 ```bash
 nix run github:nix-community/nixos-anywhere -- \
   --flake .#astrolabe \
-  --copy-secret /path/to/key.txt /persist/var/lib/sops-nix/key.txt \
+  --copy-secret /path/to/key.txt /persist/sops-nix/key.txt \
   root@<TARGET-IP>
 ```
 

@@ -34,6 +34,44 @@
       then trees.generatePersistTree hCfg
       else "";
 
+    ageKeyFile =
+      if hCfg != null
+      then hCfg.config.sops.age.keyFile or "/persist/sops-nix/key.txt"
+      else "/persist/sops-nix/key.txt";
+
+    hostTests = config.flake.legacyPackages.${systemArch}.hostTests.${name} or null;
+    testingSection = let
+      t = hostTests;
+      tcfg = t.variant.config.testing;
+      tiers = lib.filter (tier: t ? ${tier}) ["eval" "inspect" "vm" "install"];
+      describe = tier:
+        if tier == "eval"
+        then lib.concatMapStringsSep ", " (c: "`${c}`") t.checks.eval
+        else if tier == "inspect"
+        then lib.concatMapStringsSep ", " (c: "`${c}`") t.checks.inspect
+        else
+          lib.concatMapStringsSep "<br>" (c: "`${c}`: ${tcfg.checks.${c}.description}${lib.optionalString tcfg.checks.${c}.remote " (from a client VM)"}")
+          t.checks.${tier};
+      table = graphLib.renderTable {
+        headers = ["Tier" "Command" "Checks"];
+        columns = [
+          (tier: "`${tier}`")
+          (tier: "`nix run .#test -- ${tier} ${name}`")
+          describe
+        ];
+        rows = tiers;
+      };
+    in
+      lib.optionalString (t != null) ''
+        ## Testing
+
+        Checks are contributed by the modules this host imports through the [`testing`](../contracts/testing.md) contract and run with stand-in secrets, so no private key is needed. See [Host Testing](../../README.md#host-testing) for the tiers.
+
+        ${table}
+
+        Interactive VM with stand-in secrets: `nix run .#test -- run ${name}` (console password `${tcfg.credentials.password}`); test driver REPL: `nix run .#test -- interactive ${name}`.
+      '';
+
     hostNeighborhood = graphLib.getNeighborhood {
       inherit graph;
       nodeId = hostNode.id;
@@ -177,6 +215,8 @@
       else ""
     }
 
+    ${testingSection}
+
     ## Installation
 
     ### Track 1: Remote Automated Provisioning via `nixos-anywhere`
@@ -184,7 +224,7 @@
     ```bash
     nix run github:nix-community/nixos-anywhere -- \
       --flake .#${name} \
-      --copy-secret /path/to/key.txt /persist/var/lib/sops-nix/key.txt \
+      --copy-secret /path/to/key.txt ${ageKeyFile} \
       root@<TARGET-IP>
     ```
 
