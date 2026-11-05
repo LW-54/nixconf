@@ -58,6 +58,7 @@ NixOS options declared directly by this module:
 | `options.disko.imageBuilder.name` | `string` | name for the disk images |
 | `options.disko.imageBuilder.pkgs` | `attribute set` | the pkgs instance used when building disk images via make-disk-image.nix. Useful when the config's kernel won't boot in the image-builder. |
 | `options.disko.imageBuilder.qemu` | `null or string` | the qemu emulator string used when building disk images via make-disk-image.nix. Useful when using binfmt on your build host, and wanting to build disk images for a foreign architecture |
+| `options.disko.imageBuilder.useVirtualDevices` | `boolean` | Replace device names with ones usable in VMs. Ex: `/dev/vda`. Disable this if the disk image is for use on real hardware. |
 | `options.disko.memSize` | `signed integer` | size of the memory passed to runInLinuxVM, in megabytes |
 | `options.disko.rootMountPoint` | `string` | Where the device tree should be mounted by the mountScript |
 | `options.disko.testMode` | `boolean` | this is true if the system is being run in test mode. like a vm test or an interactive vm |

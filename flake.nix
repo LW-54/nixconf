@@ -48,6 +48,7 @@ test if bootable
 graph cli
 interactive graph ui
 meta/monitoring
+nixconf devenv
 
 make TO DO work correctly
 make more clickable
