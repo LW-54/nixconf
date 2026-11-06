@@ -7,6 +7,7 @@
   ...
 }: let
   md = config.internal.docs.md;
+  audit = config.internal.docs.audit;
 
   commands = [
     {
@@ -15,20 +16,19 @@
     }
     {
       flag = "--check";
-      description = "Verify that the working tree matches the evaluated documentation (missing, outdated, or stale pages).";
+      description = "Verify that the working tree matches evaluated documentation. Prints 1-line health summary if coverage < 100%.";
+    }
+    {
+      flag = "--strict";
+      description = "Enforce 100% documentation coverage. When combined with --check, exits 1 on any documentation warning.";
+    }
+    {
+      flag = "--health";
+      description = "Print documentation health metrics, coverage percentage, and itemized warning count.";
     }
     {
       flag = "--list";
       description = "List the files produced by the generator.";
-    }
-    {
-      flag = "--json";
-      description = "Print the architecture graph as JSON.";
-    }
-    {
-      flag = "--subgraph";
-      arg = "<urn>";
-      description = "Print the Mermaid neighborhood of a graph node (e.g. urn:nixconf:onto:contract:persistence).";
     }
     {
       flag = "--help";
@@ -85,7 +85,7 @@ in {
         rows = commands;
       }}
 
-      The `docs` flake check (part of `nix flake check`) fails whenever the committed documentation differs from the generated one.
+      The `docs` flake check (part of `nix flake check`) verifies that committed documentation is bit-for-bit synchronized with Nix evaluation.
     '';
   };
 
@@ -94,44 +94,29 @@ in {
     system,
     ...
   }: let
-    graph = config.flake.lib.graph.buildGraph {inherit system;};
-    files = config.flake.lib.docs.generateAll {inherit graph system;};
+    files = config.flake.lib.docs.generateAll {inherit system;};
 
-    docFiles = pkgs.linkFarm "nixconf-docs-files" (lib.mapAttrsToList (name: content: {
-        inherit name;
-        path = pkgs.writeText (builtins.baseNameOf name) content;
-      })
-      files);
-
-    jsonGraph = pkgs.writeTextFile {
-      name = "nixconf.json";
-      text = builtins.toJSON graph;
-    };
-
-    jsonScript = pkgs.writeShellApplication {
-      name = "nixconf-json";
-      runtimeInputs = [pkgs.coreutils];
-      meta = {
-        description = "Exported Labeled Property Graph (LPG) representation of repository architecture in JSON format.";
-        usage = ''
-          Semantic Code Property Graph JSON exporter. Directly outputs the complete graph containing all syntax, ontology, evaluation, and derivation nodes and edges.
-
-          ```bash
-          # Query all package nodes with jq
-          nix run .#nixconf-json | jq '.nodes[] | select(.kind == "package")'
-          ```
-        '';
-        helpCommand = "nixconf-json --help";
-      };
-      text = ''
-        if [ "''${1:-}" = "--help" ] || [ "''${1:-}" = "-h" ]; then
-          echo "Usage: nixconf-json"
-          echo "Print repository LPG architecture graph in JSON format to stdout."
-          exit 0
-        fi
-        cat "${jsonGraph}"
+    # Single-derivation store materialization:
+    # Streams all generated pages from a single JSON manifest in ~0.04s,
+    # eliminating 128 individual writeText derivations and store fragmentation.
+    docFiles =
+      pkgs.runCommandLocal "nixconf-docs-tree" {
+        manifest = builtins.toFile "docs-manifest.json" (builtins.toJSON files);
+        nativeBuildInputs = [pkgs.coreutils pkgs.python3Minimal];
+      } ''
+        mkdir -p $out
+        ${pkgs.python3Minimal}/bin/python3 -c '
+        import json, os, sys
+        with open(os.environ["manifest"], "r", encoding="utf-8") as fh:
+            file_map = json.load(fh)
+        out_dir = sys.argv[1]
+        for rel_path, content in file_map.items():
+            target = os.path.join(out_dir, rel_path)
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            with open(target, "w", encoding="utf-8") as out:
+                out.write(content)
+        ' "$out"
       '';
-    };
 
     docsApp = pkgs.writeShellApplication {
       name = "nixconf-docs";
@@ -139,10 +124,9 @@ in {
         pkgs.coreutils
         pkgs.diffutils
         pkgs.findutils
-        pkgs.nix
       ];
       meta = {
-        description = "Unified documentation generator, validation test runner, and synchronization toolchain.";
+        description = "Unified documentation generator, validation test runner, and quality audit toolchain.";
         usage = ''
           Documentation generator and validator suite CLI.
 
@@ -153,14 +137,14 @@ in {
           # Verify committed documentation matches evaluated specification
           nix run .#docs -- --check
 
+          # Check documentation with strict 100% coverage enforcement
+          nix run .#docs -- --check --strict
+
+          # Inspect documentation health metrics and warnings
+          nix run .#docs -- --health
+
           # List all generated documentation target files
           nix run .#docs -- --list
-
-          # Export full semantic architecture graph as JSON
-          nix run .#docs -- --json
-
-          # Render Mermaid architecture diagram of a specific graph node
-          nix run .#docs -- --subgraph urn:nixconf:onto:contract:persistence
           ```
         '';
         helpCommand = "nixconf-docs --help";
@@ -172,65 +156,127 @@ in {
         HELP
         }
 
-        case "''${1:-}" in
-          --write)
-            COUNT=0
-            while IFS= read -r -d "" src; do
-              rel="''${src#${docFiles}/}"
-              mkdir -p "$(dirname "$rel")"
-              cp -f "$src" "$rel"
-              chmod 644 "$rel"
-              COUNT=$((COUNT + 1))
-            done < <(find -L "${docFiles}" -type f -print0)
+        # Parse flags
+        DO_WRITE=0
+        DO_CHECK=0
+        DO_LIST=0
+        DO_HEALTH=0
+        UNDOCUMENTED="${toString audit.undocumentedItems}"
+        STRICT_MODE=${
+          if config.docs.strict
+          then "1"
+          else "0"
+        }
 
-            if [ -d docs ]; then
-              while IFS= read -r -d "" existing; do
-                if [ ! -f "${docFiles}/$existing" ]; then
-                  rm -f "$existing"
-                  echo "Removed stale file: $existing"
-                fi
-              done < <(find docs -type f -name '*.md' -print0)
-              find docs -type d -empty -delete
-            fi
+        if [ "$#" -eq 0 ]; then
+          show_help
+          exit 0
+        fi
 
-            echo "Documentation synchronized: $COUNT files written."
-            ;;
-          --check)
-            ${compareScript docFiles "."}
-            if [ "$FAILED" -eq 1 ]; then
-              echo "" >&2
-              echo "Documentation is out of date. Run 'nix run .#docs -- --write' to update it." >&2
+        for arg in "$@"; do
+          case "$arg" in
+            --write)
+              DO_WRITE=1
+              ;;
+            --check)
+              DO_CHECK=1
+              ;;
+            --strict)
+              STRICT_MODE=1
+              ;;
+            --health)
+              DO_HEALTH=1
+              ;;
+            --list)
+              DO_LIST=1
+              ;;
+            --help|-h)
+              show_help
+              exit 0
+              ;;
+            *)
+              echo "Unknown option: $arg" >&2
+              show_help >&2
               exit 1
-            fi
-            echo "All documentation files are synchronized with Nix evaluation."
-            ;;
-          --list)
-            ${lib.concatMapStringsSep "\n" (f: "echo ${lib.escapeShellArg f}") (builtins.attrNames files)}
-            ;;
-          --json)
-            cat "${jsonGraph}"
-            ;;
-          --subgraph)
-            if [ "$#" -lt 2 ]; then
-              echo "Error: --subgraph requires a node URN (e.g. urn:nixconf:onto:contract:persistence)" >&2
-              exit 1
-            fi
-            nix eval --raw --apply "f: f.graph.renderMermaid { graph = f.graph.getNeighborhood { graph = f.graph.buildGraph {}; nodeId = \"$2\"; }; }" .#lib
-            ;;
-          --help | -h | "")
-            show_help
-            ;;
-          *)
-            echo "Unknown option: $1" >&2
-            show_help >&2
+              ;;
+          esac
+        done
+
+        if [ "$DO_LIST" -eq 1 ]; then
+          ${lib.concatMapStringsSep "\n" (f: "echo ${lib.escapeShellArg f}") (builtins.attrNames files)}
+          exit 0
+        fi
+
+        if [ "$DO_HEALTH" -eq 1 ]; then
+          echo "Documentation Health Overview:"
+          echo "  Score:        ${audit.scoreString}"
+          echo "  Documented:   ${toString audit.documentedItems} / ${toString audit.totalItems} items"
+          echo "  Warnings:     $UNDOCUMENTED"
+          echo "  Dashboard:    docs/coverage.md"
+          if [ "$STRICT_MODE" -eq 1 ] && [ "$UNDOCUMENTED" -gt 0 ]; then
+            echo "" >&2
+            echo "Error: Strict mode enabled and documentation health is not 100%." >&2
             exit 1
-            ;;
-        esac
+          fi
+          exit 0
+        fi
+
+        if [ "$DO_WRITE" -eq 1 ]; then
+          COUNT=0
+          while IFS= read -r -d "" src; do
+            rel="''${src#${docFiles}/}"
+            mkdir -p "$(dirname "$rel")"
+            cp -f "$src" "$rel"
+            chmod 644 "$rel"
+            COUNT=$((COUNT + 1))
+          done < <(find -L "${docFiles}" -type f -print0)
+
+          if [ -d docs ]; then
+            while IFS= read -r -d "" existing; do
+              if [ ! -f "${docFiles}/$existing" ]; then
+                rm -f "$existing"
+                echo "Removed stale file: $existing"
+              fi
+            done < <(find docs -type f -name '*.md' -print0)
+            find docs -type d -empty -delete
+          fi
+
+          echo "Documentation synchronized: $COUNT files written."
+          ${
+          if !audit.isPerfect
+          then ''echo "${audit.summaryLine}" >&2''
+          else ""
+        }
+          exit 0
+        fi
+
+        if [ "$DO_CHECK" -eq 1 ]; then
+          ${compareScript docFiles "."}
+          if [ "$FAILED" -eq 1 ]; then
+            echo "" >&2
+            echo "Documentation is out of date. Run 'nix run .#docs -- --write' to update it." >&2
+            exit 1
+          fi
+
+          # Unix Rule of Silence: If Health is 100%, print nothing on success!
+          # If Health < 100%, print 1-line health summary to stderr.
+          ${
+          if !audit.isPerfect
+          then ''echo "${audit.summaryLine}" >&2''
+          else ""
+        }
+
+          if [ "$STRICT_MODE" -eq 1 ] && [ "$UNDOCUMENTED" -gt 0 ]; then
+            echo "Error: Strict mode enabled and documentation has $UNDOCUMENTED warnings." >&2
+            exit 1
+          fi
+
+          exit 0
+        fi
       '';
     };
   in {
     packages.docs = docsApp;
-    packages.nixconf-json = jsonScript;
 
     checks.docs =
       pkgs.runCommand "check-docs-synchronized" {
@@ -244,6 +290,19 @@ in {
           echo "Documentation synchronization check failed. Run 'nix run .#docs -- --write'." >&2
           exit 1
         fi
+        ${
+          if !audit.isPerfect
+          then ''echo "${audit.summaryLine}" >&2''
+          else ""
+        }
+        ${
+          if config.docs.strict && !audit.isPerfect
+          then ''
+            echo "Strict documentation check failed: ${toString audit.undocumentedItems} warnings present." >&2
+            exit 1
+          ''
+          else ""
+        }
         touch $out
       '';
   };

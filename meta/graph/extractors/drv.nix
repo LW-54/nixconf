@@ -12,7 +12,9 @@
     features = config.feature or {};
     implementations = config.implementation or {};
     nixosConfigs = config.flake.nixosConfigurations or {};
-    flakePackages = config.flake.packages.${system} or {};
+    metaPackageNames = ["graph" "docs" "cpg-json" "nixconf-json"];
+    rawPackages = config.flake.packages.${system} or {};
+    flakePackages = lib.filterAttrs (name: _: !builtins.elem name metaPackageNames) rawPackages;
     flakeDevShells = config.flake.devShells.${system} or {};
 
     packageNames = builtins.attrNames flakePackages;

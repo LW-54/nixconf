@@ -98,8 +98,55 @@
       if file == null
       then "*unknown*"
       else "[`${file}`](${link file})";
+
+    resolvedCPG =
+      if cpg != null
+      then cpg
+      else graphLib.buildCPG {inherit system;};
+
+    query = {
+      onto = k: n: config.${k}.${n} or null;
+      ast = {
+        module = mName: config.flake.nixosModules.${mName} or null;
+        lib = lName: (config.lib or {}).${lName} or ((config.primitive.lib or {}).${lName} or null);
+        option = optPath: let
+          pathList = lib.splitString "." optPath;
+        in
+          lib.attrByPath pathList null (config.options or {});
+      };
+      eval = hName: attrPath: default: let
+        hostCfg = config.flake.nixosConfigurations.${hName}.config or {};
+        res = builtins.tryEval (lib.attrByPath (lib.toList attrPath) default hostCfg);
+      in
+        if res.success
+        then res.value
+        else default;
+      drv = sys: pkgName: attrPath: default: let
+        pkg = config.flake.packages.${sys}.${pkgName} or null;
+        res =
+          if pkg != null
+          then builtins.tryEval (lib.attrByPath (lib.toList attrPath) default pkg)
+          else {success = false;};
+      in
+        if res.success
+        then res.value
+        else default;
+      neighborhood = {
+        nodeId,
+        depth ? 1,
+        g ? graph,
+      }:
+        graphLib.getNeighborhood {
+          inherit nodeId depth;
+          graph = g;
+        };
+    };
+
+    hostQuery = pathList: default:
+      query.eval inferredName pathList default;
   in {
-    inherit config graph cpg system md page pages link nodeLink sourceLink;
+    inherit config graph system md page pages link nodeLink sourceLink query hostQuery;
+    cpg = resolvedCPG;
     inherit id;
     name = inferredName;
     kind = inferredKind;
@@ -391,7 +438,7 @@
 
   generateAll = {
     system ? "x86_64-linux",
-    cpg ? graphLib.buildCPG {inherit system;},
+    cpg ? null,
     graph ? graphLib.buildGraph {inherit system;},
   }: let
     byPath = lib.groupBy (id: pages.${id}.path) (builtins.attrNames pages);
@@ -463,6 +510,18 @@ in {
           ```
         '';
         value = md.relPath;
+      };
+
+      audit = {
+        docstring = ''
+          Documentation coverage and quality health report.
+
+          # Type
+          ```
+          audit :: AttrSet
+          ```
+        '';
+        value = config.internal.docs.audit;
       };
     };
   };

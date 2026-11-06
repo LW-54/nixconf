@@ -81,7 +81,7 @@
 
                 - **Host**: `${name}`
                 - **System**: `${host.system or "x86_64-linux"}`
-                - **State Version**: `${((config.flake.nixosConfigurations.${name} or {}).config or {}).system.stateVersion or (host.stateVersion or "25.11")}`
+                - **State Version**: `${ctx.query.eval name ["system" "stateVersion"] (host.stateVersion or "25.11")}`
                 - **Definition File**: ${ctx.sourceLink (ctx.sourceOf "host" name)}
               '';
             };

@@ -4,6 +4,10 @@ How the documentation is generated from code, and where to declare the documenta
 
 [← Back to Main README](../README.md)
 
+> [!TIP]
+> **Documentation Health**: **90.6%** (146/161 items documented, **15 warnings**).
+> See the full [Documentation Coverage & Quality Audit](coverage.md) for detailed metrics and the missing documentation registry.
+
 ## Principles
 
 - **Structure comes from code.** Pages, catalogs, option schemas, relationships, diagrams, source links, and examples are computed from primitives, evaluated option declarations, module definition locations, and the architecture graph.
@@ -22,7 +26,9 @@ Generator sources:
 
 | File | Role |
 | :--- | :--- |
+| [`meta/docs/audit.nix`](../meta/docs/audit.nix) | Documentation Quality & Coverage Audit Engine Analyzes repository docstrings, schema options, library symbols, and primitives. Evaluates purely on AST and Onto spine in < 0.4s without forcing host fixpoints. |
 | [`meta/docs/cli.nix`](../meta/docs/cli.nix) | `nix run .#docs` CLI and the `checks.docs` flake check. Command-line flags are declared once in `commands` and reused for `--help` and the docs page. |
+| [`meta/docs/compose.nix`](../meta/docs/compose.nix) | Documentation Composition & Synthesis Engine Automatically synthesizes docs/coverage.md (Quality & Coverage Dashboard) and injects the condensed health status card into docs/documentation.md. |
 | [`meta/docs/lib/markdown.nix`](../meta/docs/lib/markdown.nix) | Markdown toolkit shared by every page: relative links, tables, code blocks, collapsible details, ASCII trees, and compact value rendering (`ctx.md`). |
 | [`meta/docs/options.nix`](../meta/docs/options.nix) | Schema of the documentation registry: `docs.pages` (pages made of sections), `docs.sections.<kind>` (instance page templates), and `docs.project` metadata. |
 | [`meta/docs/pages/guide.nix`](../meta/docs/pages/guide.nix) | Developer guide of the documentation system itself (docs/documentation.md): how pages are generated and where to put hand-written documentation. |
@@ -42,6 +48,7 @@ Modules currently contributing pages or cross-primitive sections:
 - [`meta/docs/pages/readme.nix`](../meta/docs/pages/readme.nix)
 - [`meta/docs/pages/outputs.nix`](../meta/docs/pages/outputs.nix)
 - [`meta/docs/pages/guide.nix`](../meta/docs/pages/guide.nix)
+- [`meta/docs/compose.nix`](../meta/docs/compose.nix)
 - [`meta/docs/cli.nix`](../meta/docs/cli.nix)
 - [`modules/features/tack.nix`](../modules/features/tack.nix)
 - [`modules/features/disko.nix`](../modules/features/disko.nix)
@@ -89,13 +96,13 @@ docs.pages.troubleshooting = {
 | Command | Description |
 | :--- | :--- |
 | `nix run .#docs -- --write` | Write the generated documentation (README.md, docs/**/*.md) to the working tree and delete stale pages. |
-| `nix run .#docs -- --check` | Verify that the working tree matches the evaluated documentation (missing, outdated, or stale pages). |
+| `nix run .#docs -- --check` | Verify that the working tree matches evaluated documentation. Prints 1-line health summary if coverage < 100%. |
+| `nix run .#docs -- --strict` | Enforce 100% documentation coverage. When combined with --check, exits 1 on any documentation warning. |
+| `nix run .#docs -- --health` | Print documentation health metrics, coverage percentage, and itemized warning count. |
 | `nix run .#docs -- --list` | List the files produced by the generator. |
-| `nix run .#docs -- --json` | Print the architecture graph as JSON. |
-| `nix run .#docs -- --subgraph <urn>` | Print the Mermaid neighborhood of a graph node (e.g. urn:nixconf:onto:contract:persistence). |
 | `nix run .#docs -- --help` | Show this help message. |
 
-The `docs` flake check (part of `nix flake check`) fails whenever the committed documentation differs from the generated one.
+The `docs` flake check (part of `nix flake check`) verifies that committed documentation is bit-for-bit synchronized with Nix evaluation.
 
 ## Option Reference
 
@@ -112,3 +119,4 @@ The `docs` flake check (part of `nix flake check`) fails whenever the committed 
 | `docs.sections.<name>.<name>.body` | `null or string or function that evaluates to a(n) (null or string)` | `null` | Markdown template string or function (ctx -> str \| null). Alias for content. |
 | `docs.sections.<name>.<name>.content` | `null or string or function that evaluates to a(n) (null or string)` | `null` | Markdown template string or function (ctx -> str \| null). |
 | `docs.sections.<name>.<name>.order` | `signed integer` | `100` | Visual sort order within the page. |
+| `docs.strict` | `boolean` | `false` | Enforce 100% documentation coverage and fail checks on any documentation warning. |

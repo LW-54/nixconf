@@ -94,7 +94,7 @@ in {
   docs.sections.host.persistence = {
     order = 46;
     content = ctx: let
-      roots = ((ctx.config.flake.nixosConfigurations.${ctx.name} or {}).config or {}).environment.persistence or {};
+      roots = ctx.query.eval ctx.name ["environment" "persistence"] {};
       treeText = ctx.md.formatPersistence {inherit roots;};
     in
       if treeText == null

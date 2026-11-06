@@ -15,6 +15,8 @@ flowchart LR
   urn__nixconf__ast__function__graph_backwardSlice["graph.backwardSlice"]:::defaultNode
     urn__nixconf__ast__function__graph_buildCPG["graph.buildCPG"]:::defaultNode
     urn__nixconf__ast__function__graph_buildGraph["graph.buildGraph"]:::defaultNode
+    urn__nixconf__ast__function__graph_buildSpine["graph.buildSpine"]:::defaultNode
+    urn__nixconf__ast__function__graph_buildSpineGraph["graph.buildSpineGraph"]:::defaultNode
     urn__nixconf__ast__function__graph_filterGraph["graph.filterGraph"]:::defaultNode
     urn__nixconf__ast__function__graph_findConsumers["graph.findConsumers"]:::defaultNode
     urn__nixconf__ast__function__graph_findImplementers["graph.findImplementers"]:::defaultNode
@@ -35,6 +37,8 @@ flowchart LR
     urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_backwardSlice
     urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_buildCPG
     urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_buildGraph
+    urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_buildSpine
+    urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_buildSpineGraph
     urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_filterGraph
     urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_findConsumers
     urn__nixconf__onto__lib__graph -->|outputs| urn__nixconf__ast__function__graph_findImplementers
@@ -55,6 +59,8 @@ flowchart LR
     click urn__nixconf__ast__function__graph_backwardSlice href "graph.md" "graph.backwardSlice"
     click urn__nixconf__ast__function__graph_buildCPG href "graph.md" "graph.buildCPG"
     click urn__nixconf__ast__function__graph_buildGraph href "graph.md" "graph.buildGraph"
+    click urn__nixconf__ast__function__graph_buildSpine href "graph.md" "graph.buildSpine"
+    click urn__nixconf__ast__function__graph_buildSpineGraph href "graph.md" "graph.buildSpineGraph"
     click urn__nixconf__ast__function__graph_filterGraph href "graph.md" "graph.filterGraph"
     click urn__nixconf__ast__function__graph_findConsumers href "graph.md" "graph.findConsumers"
     click urn__nixconf__ast__function__graph_findImplementers href "graph.md" "graph.findImplementers"
@@ -140,6 +146,7 @@ Extracts and constructs the unified Semantic Code Property Graph (CPG) merging O
 #### Inputs
 
 - `system`: Architecture target system string (defaults to "x86_64-linux").
+- `includeDataFlow`: Boolean flag indicating whether to extract fine-grained contract option dataflow edges (defaults to true).
 
 #### Type
 
@@ -154,12 +161,43 @@ Builds the complete macro architectural graph directly from evaluated flake decl
 
 #### Inputs
 
+- `spineOnly`: Boolean flag to restrict graph construction to the lightweight structural spine (defaults to false).
 - `system`: Architecture target system string (defaults to "x86_64-linux").
 
 #### Type
 
 ```
 buildGraph :: AttrSet -> AttrSet
+```
+
+<a id="buildSpine"></a>
+### `buildSpine`
+
+Extracts the lightweight structural spine (Onto, AST, and Structural Configurations) without evaluating full machine module fixpoints.
+
+#### Inputs
+
+- `system`: Architecture target system string (defaults to "x86_64-linux").
+
+#### Type
+
+```
+buildSpine :: AttrSet -> AttrSet
+```
+
+<a id="buildSpineGraph"></a>
+### `buildSpineGraph`
+
+Builds the lightweight architectural graph (LPG) from the structural spine without evaluating NixOS configuration fixpoints.
+
+#### Inputs
+
+- `system`: Architecture target system string (defaults to "x86_64-linux").
+
+#### Type
+
+```
+buildSpineGraph :: AttrSet -> AttrSet
 ```
 
 <a id="filterGraph"></a>

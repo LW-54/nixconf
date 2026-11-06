@@ -24,7 +24,7 @@
 
     relationships = {};
 
-    options = primitiveSubmodule.options;
+    options = (primitiveSubmodule {inherit config;}).options;
 
     outputs = let
       primitives = lib.filterAttrs (name: _: name != "primitive") config.primitive;

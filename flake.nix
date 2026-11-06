@@ -15,55 +15,14 @@
       }).config.primitives;
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = import inputs.systems;
       imports = [
         primitives
         (inputs.import-tree ./meta)
         (inputs.import-tree ./modules)
       ];
+      perSystem = {pkgs, ...}: {
+        formatter = pkgs.alejandra;
+      };
     };
 }
-/*
-updates
-monitoring
-ressource allocation
-
-bunq
-uchiyomi
-ttyd auth
-rss
-
-keybinds contract
-hettznerbox
-utilise google storage
-gemini scheduled
-
-generate iso s (vm) for hosts
-mini live usb host (inspired by sonic)
-sops public secrets provisioning
-non conflicting ports provisioning
-service contract or helpers virtualisation backend, port atribution etcmonitoring and more
-
-LSP support
-test if bootable
-graph cli
-interactive graph ui
-meta/monitoring
-nixconf devenv
-
-make TO DO work correctly
-make more clickable
-
-rendering
-docs
-
-antikythera
-
-lldap
-authelia
-homepage
-grafana + prometheus +loki
-romm
-goldilocks
-meguru
-*/
-

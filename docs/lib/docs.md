@@ -14,14 +14,17 @@ Documentation generator turning the `docs` page registry, primitive metadata, an
 flowchart LR
   urn__nixconf__ast__function__docs_generateAll["docs.generateAll"]:::defaultNode
     urn__nixconf__ast__function__docs_relPath["docs.relPath"]:::defaultNode
+    urn__nixconf__ast__symbol__docs_audit["docs.audit"]:::defaultNode
     urn__nixconf__onto__lib__docs["docs"]:::defaultNode
 
     urn__nixconf__onto__lib__docs -->|outputs| urn__nixconf__ast__function__docs_generateAll
     urn__nixconf__onto__lib__docs -->|outputs| urn__nixconf__ast__function__docs_relPath
+    urn__nixconf__onto__lib__docs -->|outputs| urn__nixconf__ast__symbol__docs_audit
 
 
     click urn__nixconf__ast__function__docs_generateAll href "docs.md" "docs.generateAll"
     click urn__nixconf__ast__function__docs_relPath href "docs.md" "docs.relPath"
+    click urn__nixconf__ast__symbol__docs_audit href "docs.md" "docs.audit"
     click urn__nixconf__onto__lib__docs href "docs.md" "docs"
 
   %% Semantic Visual Classes
@@ -47,7 +50,7 @@ This library namespace can be consumed both internally within repository modules
 
 ```nix
 { self, lib, pkgs, ... }: {
-  example = self.lib.docs.generateAll;
+  example = self.lib.docs.audit;
 }
 ```
 
@@ -58,12 +61,23 @@ This library namespace can be consumed both internally within repository modules
   inputs.nixconf.url = "github:LW-54/nixconf";
 
   outputs = { self, nixconf, ... }: {
-    example = nixconf.lib.docs.generateAll;
+    example = nixconf.lib.docs.audit;
   };
 }
 ```
 
 ## Exported Symbols
+
+<a id="audit"></a>
+### `audit`
+
+Documentation coverage and quality health report.
+
+#### Type
+
+```
+audit :: AttrSet
+```
 
 <a id="generateAll"></a>
 ### `generateAll`

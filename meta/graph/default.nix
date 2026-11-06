@@ -55,15 +55,32 @@
   buildCPGFn = cpgExtractor.buildCPGFn;
 
   /**
+  Builds the lightweight structural spine of the repository graph.
+  */
+  buildSpineFn = cpgExtractor.buildSpineFn;
+
+  /**
   Projects the fine-grained CPG into the macro Labeled Property Graph (LPG) format.
   */
   toArchitectureLPGFn = architectureProj.toArchitectureLPG;
 
-  buildGraphFn = {system ? "x86_64-linux"}: let
-    cpg = buildCPGFn {inherit system;};
-    arch = toArchitectureLPGFn {inherit cpg;};
+  buildSpineGraphFn = {system ? "x86_64-linux"}: let
+    spine = buildSpineFn {inherit system;};
+    arch = toArchitectureLPGFn {cpg = spine;};
   in
-    algebra.overlay arch cpg;
+    algebra.overlay arch spine;
+
+  buildGraphFn = {
+    system ? "x86_64-linux",
+    spineOnly ? false,
+  }:
+    if spineOnly
+    then buildSpineGraphFn {inherit system;}
+    else let
+      cpg = buildCPGFn {inherit system;};
+      arch = toArchitectureLPGFn {inherit cpg;};
+    in
+      algebra.overlay arch cpg;
 
   /**
   Filters a graph using node and edge predicates.
@@ -154,11 +171,33 @@ in {
     symbols = {
       buildCPG = cpgExtractor.buildCPG;
 
+      buildSpine = cpgExtractor.buildSpine;
+
+      buildSpineGraph = {
+        docstring = ''
+          Builds the lightweight architectural graph (LPG) from the structural spine without evaluating NixOS configuration fixpoints.
+
+          # Inputs
+
+          `system`
+          : Architecture target system string (defaults to "x86_64-linux").
+
+          # Type
+          ```
+          buildSpineGraph :: AttrSet -> AttrSet
+          ```
+        '';
+        value = buildSpineGraphFn;
+      };
+
       buildGraph = {
         docstring = ''
           Builds the complete macro architectural graph directly from evaluated flake declarations.
 
           # Inputs
+
+          `spineOnly`
+          : Boolean flag to restrict graph construction to the lightweight structural spine (defaults to false).
 
           `system`
           : Architecture target system string (defaults to "x86_64-linux").
@@ -577,5 +616,67 @@ in {
         value = mermaidFlowchart.renderFlowchart;
       };
     };
+  };
+
+  perSystem = {
+    pkgs,
+    system,
+    ...
+  }: let
+    graphLib = config.flake.lib.graph;
+    graph = graphLib.buildGraph {inherit system;};
+    cpg = graphLib.buildCPG {inherit system;};
+
+    jsonCPG = pkgs.writeText "nixconf-cpg.json" (builtins.toJSON cpg);
+    jsonGraph = pkgs.writeText "nixconf-graph.json" (builtins.toJSON graph);
+
+    graphCli = pkgs.writeShellApplication {
+      name = "nixconf-graph";
+      runtimeInputs = [pkgs.coreutils];
+      text = ''
+        show_help() {
+          echo "Usage: nixconf-graph [OPTION]"
+          echo ""
+          echo "Options:"
+          echo "  --json             Print the architecture LPG as JSON"
+          echo "  --cpg-json         Print the full multi-strata CPG as JSON"
+          echo "  --subgraph <urn>   Print the Mermaid neighborhood for a node URN"
+          echo "  --stats            Print graph node/edge/relation counts"
+          echo "  --help, -h         Show this help message"
+        }
+
+        case "''${1:-}" in
+          --json)
+            cat "${jsonGraph}"
+            ;;
+          --cpg-json)
+            cat "${jsonCPG}"
+            ;;
+          --subgraph)
+            if [ "$#" -lt 2 ]; then
+              echo "Error: --subgraph requires a node URN (e.g. urn:nixconf:onto:contract:persistence)" >&2
+              exit 1
+            fi
+            nix eval --raw --apply "f: f.graph.renderMermaid { graph = f.graph.getNeighborhood { graph = f.graph.buildGraph {}; nodeId = \"$2\"; }; }" .#lib
+            ;;
+          --stats)
+            echo "Architecture LPG: ${toString (builtins.length (builtins.attrValues graph.nodes))} nodes, ${toString (builtins.length graph.edges)} edges"
+            echo "Multi-Strata CPG: ${toString (builtins.length (builtins.attrValues cpg.nodes))} nodes, ${toString (builtins.length cpg.edges)} edges"
+            ;;
+          --help|-h|"")
+            show_help
+            ;;
+          *)
+            echo "Unknown option: $1" >&2
+            show_help >&2
+            exit 1
+            ;;
+        esac
+      '';
+    };
+  in {
+    packages.graph = graphCli;
+    packages.cpg-json = jsonCPG;
+    packages.nixconf-json = jsonGraph;
   };
 }

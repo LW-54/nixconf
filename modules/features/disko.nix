@@ -172,7 +172,7 @@ in {
   docs.sections.host.storage = {
     order = 45;
     content = ctx: let
-      devices = ((ctx.config.flake.nixosConfigurations.${ctx.name} or {}).config or {}).disko.devices or {};
+      devices = ctx.query.eval ctx.name ["disko" "devices"] {};
       layout = ctx.md.formatDiskLayout {inherit devices;};
     in
       if devices == {}

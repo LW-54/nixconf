@@ -104,42 +104,6 @@ bw --help
 
 Official Documentation: [https://bitwarden.com/help/cli/](https://bitwarden.com/help/cli/)
 
-<a id="docs"></a>
-### `docs`
-
-Unified documentation generator, validation test runner, and synchronization toolchain.
-
-Provided by lib [`docs`](lib/docs.md).
-
-```bash
-nix run .#docs
-```
-
-```bash
-nix run github:LW-54/nixconf#docs
-```
-
-#### Usage
-
-Documentation generator and validator suite CLI.
-
-```bash
-# Write generated markdown documentation to repository tree
-nix run .#docs -- --write
-
-# Verify committed documentation matches evaluated specification
-nix run .#docs -- --check
-
-# List all generated documentation target files
-nix run .#docs -- --list
-
-# Export full semantic architecture graph as JSON
-nix run .#docs -- --json
-
-# Render Mermaid architecture diagram of a specific graph node
-nix run .#docs -- --subgraph urn:nixconf:onto:contract:persistence
-```
-
 <a id="dolphin"></a>
 ### `dolphin`
 
@@ -214,25 +178,3 @@ git --help
 ```
 
 Official Documentation: [https://git-scm.com/doc](https://git-scm.com/doc)
-
-<a id="nixconf-json"></a>
-### `nixconf-json`
-
-Exported Labeled Property Graph (LPG) representation of repository architecture in JSON format.
-
-```bash
-nix run .#nixconf-json
-```
-
-```bash
-nix run github:LW-54/nixconf#nixconf-json
-```
-
-#### Usage
-
-Semantic Code Property Graph JSON exporter. Directly outputs the complete graph containing all syntax, ontology, evaluation, and derivation nodes and edges.
-
-```bash
-# Query all package nodes with jq
-nix run .#nixconf-json | jq '.nodes[] | select(.kind == "package")'
-```

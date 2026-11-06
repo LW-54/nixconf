@@ -543,17 +543,6 @@ nix run .#bw
 nix run github:LW-54/nixconf#bw
 ```
 
-#### [`docs`](docs/packages.md#docs)
-Unified documentation generator, validation test runner, and synchronization toolchain.
-
-```bash
-nix run .#docs
-```
-
-```bash
-nix run github:LW-54/nixconf#docs
-```
-
 #### [`dolphin`](docs/packages.md#dolphin)
 Dolphin file manager wrapper bundled with QtWayland plugins and breeze theme assets.
 
@@ -585,17 +574,6 @@ nix run .#git
 
 ```bash
 nix run github:LW-54/nixconf#git
-```
-
-#### [`nixconf-json`](docs/packages.md#nixconf-json)
-Exported Labeled Property Graph (LPG) representation of repository architecture in JSON format.
-
-```bash
-nix run .#nixconf-json
-```
-
-```bash
-nix run github:LW-54/nixconf#nixconf-json
 ```
 
 </details>

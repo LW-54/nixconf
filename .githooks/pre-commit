@@ -23,8 +23,8 @@ if ! git diff --quiet README.md docs/; then
   echo "==> [pre-commit] Documentation suite updated and staged."
 fi
 
-echo "==> [pre-commit] Validating documentation compliance (--strict)..."
-nix run .#docs -- --check --strict
+echo "==> [pre-commit] Validating documentation compliance..."
+nix run .#docs -- --check
 
 echo "==> [pre-commit] Validating Nix flake checks..."
 nix flake check

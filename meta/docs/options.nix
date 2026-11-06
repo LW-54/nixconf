@@ -79,6 +79,12 @@ in {
         Section templates added to every instance page of a primitive, keyed by primitive kind (or target page id).
       '';
     };
+
+    strict = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enforce 100% documentation coverage and fail checks on any documentation warning.";
+    };
   };
 
   options.internal.docs = mkOption {
