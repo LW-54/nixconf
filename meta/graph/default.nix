@@ -1,177 +1,12 @@
-{
-  lib,
-  config,
-  ...
-}: let
-  cpgExtractor = config.internal.graph.extractors.cpg;
-  architectureProj = config.internal.graph.projections.architecture;
-  capabilitiesProj = config.internal.graph.projections.capabilities;
-  dataflowProj = config.internal.graph.projections.dataflow;
-  algebra = config.internal.graph.core.algebra;
-  types = config.internal.graph.core.types;
-  container = config.internal.graph.core.container;
-  query = config.internal.graph.query;
-  markdownTable = config.internal.graph.render.markdown.table;
-  markdownMatrix = config.internal.graph.render.markdown.matrix;
-  markdownTree = config.internal.graph.render.markdown.tree;
-  markdownEntity = config.internal.graph.render.markdown.entity;
-  mermaidTheme = config.internal.graph.render.mermaid.theme;
-  mermaidFlowchart = config.internal.graph.render.mermaid.flowchart;
-
-  renderMarkdown = {
-    inherit (markdownTable) renderTable renderNodeTable renderEdgeTable escapeCell;
-    inherit (markdownMatrix) renderMatrix;
-    inherit (markdownTree) renderMarkdownBullets renderAsciiTree renderTree;
-    inherit (markdownEntity) renderEntity;
-  };
-
-  renderMermaid = {
-    inherit (mermaidTheme) sanitizeId escapeLabel classDefs getNodeClass formatNode formatEdge;
-    inherit (mermaidFlowchart) renderFlowchart;
-  };
-
-  render = {
-    markdown = renderMarkdown;
-    mermaid = renderMermaid;
-
-    # Universal presentation shortcuts
-    table = markdownTable.renderTable;
-    nodeTable = markdownTable.renderNodeTable;
-    edgeTable = markdownTable.renderEdgeTable;
-    matrix = markdownMatrix.renderMatrix;
-    tree = markdownTree.renderTree;
-    entity = markdownEntity.renderEntity;
-    flowchart = mermaidFlowchart.renderFlowchart;
-  };
-  serializers = {
-    json = config.internal.graph.serializers.json;
-    mermaid = config.internal.graph.serializers.mermaid;
-    dot = config.internal.graph.serializers.dot;
-  };
-
-  /**
-  Builds the complete multi-strata Semantic Code Property Graph (CPG).
-  */
-  buildCPGFn = cpgExtractor.buildCPGFn;
-
-  /**
-  Builds the lightweight structural spine of the repository graph.
-  */
-  buildSpineFn = cpgExtractor.buildSpineFn;
-
-  /**
-  Projects the fine-grained CPG into the macro Labeled Property Graph (LPG) format.
-  */
-  toArchitectureLPGFn = architectureProj.toArchitectureLPG;
-
-  buildSpineGraphFn = {system ? "x86_64-linux"}: let
-    spine = buildSpineFn {inherit system;};
-    arch = toArchitectureLPGFn {cpg = spine;};
-  in
-    algebra.overlay arch spine;
-
-  buildGraphFn = {
-    system ? "x86_64-linux",
-    spineOnly ? false,
-  }:
-    if spineOnly
-    then buildSpineGraphFn {inherit system;}
-    else let
-      cpg = buildCPGFn {inherit system;};
-      arch = toArchitectureLPGFn {inherit cpg;};
-    in
-      algebra.overlay arch cpg;
-
-  /**
-  Filters a graph using node and edge predicates.
-  */
-  filterGraphFn = {
-    nodeFilter ? (_: true),
-    edgeFilter ? (_: true),
-    graph ? null,
-  }: let
-    apply = g: algebra.filterGraph {inherit nodeFilter edgeFilter;} g;
-  in
-    if graph != null
-    then apply graph
-    else g: apply g;
-
-  /**
-  Extracts an undirected k-hop neighborhood surrounding a center node.
-  */
-  getNeighborhoodFn = {
-    graph,
-    nodeId,
-    depth ? 1,
-  }:
-    algebra.neighborhood {
-      center = nodeId;
-      radius = depth;
-    }
-    graph;
-
-  /**
-  Computes a forward program slice along outgoing edges.
-  */
-  forwardSliceFn = {
-    cpg,
-    nodeId,
-    maxDepth ? 10,
-    layers ? null,
-    relations ? null,
-  }:
-    algebra.slice {
-      target = nodeId;
-      direction = "forward";
-      strata = layers;
-      inherit relations maxDepth;
-    }
-    cpg;
-
-  /**
-  Computes a backward program slice along incoming edges.
-  */
-  backwardSliceFn = {
-    cpg,
-    nodeId,
-    maxDepth ? 10,
-    layers ? null,
-    relations ? null,
-  }:
-    algebra.slice {
-      target = nodeId;
-      direction = "backward";
-      strata = layers;
-      inherit relations maxDepth;
-    }
-    cpg;
-
-  /**
-  Finds all active implementers fulfilling a target contract.
-  */
-  findImplementersFn = capabilitiesProj.findImplementers;
-
-  /**
-  Finds all consumer instances defining options or sending data into a target contract.
-  */
-  findConsumersFn = capabilitiesProj.findConsumers;
-
-  /**
-  Extracts the dataflow channels for an option path.
-  */
-  findOptionFlowsFn = dataflowProj.findOptionFlows;
-
-  /**
-  Retrieves the scalar resolved value for a contract option on a specific host from the CPG.
-  */
-  getOptionValueFn = dataflowProj.getOptionValue;
+{config, ...}: let
+  pipeline = config.internal.graph.pipeline;
 in {
   lib.graph = {
     description = "Canonical Semantic Code Property Graph (CPG) framework, algebraic calculus, and architectural projection functors.";
     symbols = {
-      buildCPG = cpgExtractor.buildCPG;
+      buildCPG = pipeline.buildCPG;
 
-      buildSpine = cpgExtractor.buildSpine;
+      buildSpine = pipeline.buildSpine;
 
       buildSpineGraph = {
         docstring = ''
@@ -187,7 +22,7 @@ in {
           buildSpineGraph :: AttrSet -> AttrSet
           ```
         '';
-        value = buildSpineGraphFn;
+        value = pipeline.buildSpineGraphFn;
       };
 
       buildGraph = {
@@ -207,7 +42,7 @@ in {
           buildGraph :: AttrSet -> AttrSet
           ```
         '';
-        value = buildGraphFn;
+        value = pipeline.buildGraphFn;
       };
 
       toArchitectureLPG = {
@@ -224,7 +59,7 @@ in {
           toArchitectureLPG :: AttrSet -> AttrSet
           ```
         '';
-        value = toArchitectureLPGFn;
+        value = pipeline.toArchitectureLPGFn;
       };
 
       filterGraph = {
@@ -247,7 +82,7 @@ in {
           filterGraph :: AttrSet -> AttrSet -> AttrSet
           ```
         '';
-        value = filterGraphFn;
+        value = pipeline.filterGraphFn;
       };
 
       getNeighborhood = {
@@ -270,7 +105,7 @@ in {
           getNeighborhood :: AttrSet -> AttrSet
           ```
         '';
-        value = getNeighborhoodFn;
+        value = pipeline.getNeighborhoodFn;
       };
 
       forwardSlice = {
@@ -299,7 +134,7 @@ in {
           forwardSlice :: AttrSet -> AttrSet
           ```
         '';
-        value = forwardSliceFn;
+        value = pipeline.forwardSliceFn;
       };
 
       backwardSlice = {
@@ -328,7 +163,7 @@ in {
           backwardSlice :: AttrSet -> AttrSet
           ```
         '';
-        value = backwardSliceFn;
+        value = pipeline.backwardSliceFn;
       };
 
       findImplementers = {
@@ -348,7 +183,7 @@ in {
           findImplementers :: AttrSet -> AttrSet
           ```
         '';
-        value = findImplementersFn;
+        value = pipeline.findImplementersFn;
       };
 
       findConsumers = {
@@ -368,7 +203,7 @@ in {
           findConsumers :: AttrSet -> AttrSet
           ```
         '';
-        value = findConsumersFn;
+        value = pipeline.findConsumersFn;
       };
 
       findOptionFlows = {
@@ -388,7 +223,7 @@ in {
           findOptionFlows :: AttrSet -> AttrSet
           ```
         '';
-        value = findOptionFlowsFn;
+        value = pipeline.findOptionFlowsFn;
       };
 
       getOptionValue = {
@@ -411,7 +246,7 @@ in {
           getOptionValue :: AttrSet -> Any
           ```
         '';
-        value = getOptionValueFn;
+        value = pipeline.getOptionValueFn;
       };
 
       query = {
@@ -423,7 +258,7 @@ in {
           query :: AttrSet
           ```
         '';
-        value = query;
+        value = pipeline.query;
       };
 
       render = {
@@ -435,7 +270,7 @@ in {
           render :: AttrSet
           ```
         '';
-        value = render;
+        value = pipeline.render;
       };
 
       renderTable = {
@@ -467,7 +302,7 @@ in {
           renderTable :: AttrSet -> String
           ```
         '';
-        value = render.table;
+        value = pipeline.render.table;
       };
 
       renderMatrix = {
@@ -505,7 +340,7 @@ in {
           renderMatrix :: AttrSet -> String
           ```
         '';
-        value = render.matrix;
+        value = pipeline.render.matrix;
       };
 
       renderTree = {
@@ -540,7 +375,7 @@ in {
           renderTree :: AttrSet -> String
           ```
         '';
-        value = render.tree;
+        value = pipeline.render.tree;
       };
 
       renderEntity = {
@@ -566,7 +401,7 @@ in {
           renderEntity :: AttrSet -> String
           ```
         '';
-        value = render.entity;
+        value = pipeline.render.entity;
       };
 
       renderMermaid = {
@@ -613,70 +448,8 @@ in {
           renderMermaid :: AttrSet -> String
           ```
         '';
-        value = mermaidFlowchart.renderFlowchart;
+        value = pipeline.renderFlowchart;
       };
     };
-  };
-
-  perSystem = {
-    pkgs,
-    system,
-    ...
-  }: let
-    graphLib = config.flake.lib.graph;
-    graph = graphLib.buildGraph {inherit system;};
-    cpg = graphLib.buildCPG {inherit system;};
-
-    jsonCPG = pkgs.writeText "nixconf-cpg.json" (builtins.toJSON cpg);
-    jsonGraph = pkgs.writeText "nixconf-graph.json" (builtins.toJSON graph);
-
-    graphCli = pkgs.writeShellApplication {
-      name = "nixconf-graph";
-      runtimeInputs = [pkgs.coreutils];
-      text = ''
-        show_help() {
-          echo "Usage: nixconf-graph [OPTION]"
-          echo ""
-          echo "Options:"
-          echo "  --json             Print the architecture LPG as JSON"
-          echo "  --cpg-json         Print the full multi-strata CPG as JSON"
-          echo "  --subgraph <urn>   Print the Mermaid neighborhood for a node URN"
-          echo "  --stats            Print graph node/edge/relation counts"
-          echo "  --help, -h         Show this help message"
-        }
-
-        case "''${1:-}" in
-          --json)
-            cat "${jsonGraph}"
-            ;;
-          --cpg-json)
-            cat "${jsonCPG}"
-            ;;
-          --subgraph)
-            if [ "$#" -lt 2 ]; then
-              echo "Error: --subgraph requires a node URN (e.g. urn:nixconf:onto:contract:persistence)" >&2
-              exit 1
-            fi
-            nix eval --raw --apply "f: f.graph.renderMermaid { graph = f.graph.getNeighborhood { graph = f.graph.buildGraph {}; nodeId = \"$2\"; }; }" .#lib
-            ;;
-          --stats)
-            echo "Architecture LPG: ${toString (builtins.length (builtins.attrValues graph.nodes))} nodes, ${toString (builtins.length graph.edges)} edges"
-            echo "Multi-Strata CPG: ${toString (builtins.length (builtins.attrValues cpg.nodes))} nodes, ${toString (builtins.length cpg.edges)} edges"
-            ;;
-          --help|-h|"")
-            show_help
-            ;;
-          *)
-            echo "Unknown option: $1" >&2
-            show_help >&2
-            exit 1
-            ;;
-        esac
-      '';
-    };
-  in {
-    packages.graph = graphCli;
-    packages.cpg-json = jsonCPG;
-    packages.nixconf-json = jsonGraph;
   };
 }

@@ -16,12 +16,12 @@
         config = lib.mkIf cfg.enable {
           environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.dolphin];
 
-          persistence.users = lib.mapAttrs (_: _: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data = {
               directories = [".local/share/dolphin"];
               files = [".config/dolphinrc"];
             };
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
     };

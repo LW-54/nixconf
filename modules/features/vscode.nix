@@ -1,4 +1,4 @@
-{...}: {
+{self, ...}: {
   feature.vscode = {
     description = "Visual Studio Code editor environment and persistence.";
     modules = {
@@ -15,9 +15,9 @@
         config = lib.mkIf cfg.enable {
           environment.systemPackages = [pkgs.vscode];
 
-          persistence.users = lib.mapAttrs (_: _: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data.directories = [".config/Code" ".vscode"];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
     };

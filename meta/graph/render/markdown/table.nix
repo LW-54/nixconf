@@ -4,12 +4,7 @@
       if val == null
       then ""
       else if builtins.isBool val
-      then
-        (
-          if val
-          then "true"
-          else "false"
-        )
+      then lib.boolToString val
       else val
     );
     noNewlines = builtins.replaceStrings ["\n" "\r"] [" " " "] s;
@@ -100,10 +95,10 @@
       id = n: "`${n.id}`";
       kind = n: "`${n.kind}`";
       stratum = n: "`${n.stratum}`";
-      description = n: (n.properties or {}).description or ((n.meta or {}).doc or "");
+      description = n: (n.meta or {}).description or ((n.meta or {}).doc or "");
       file = n:
-        if (n.properties or {}) ? file
-        then "[`${n.properties.file}`](${n.properties.file})"
+        if (n.meta or {}) ? file
+        then "[`${n.meta.file}`](${n.meta.file})"
         else "—";
     };
 

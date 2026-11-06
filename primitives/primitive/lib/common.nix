@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}: let
+{lib, ...}: let
   unwrapLib = attrs:
     lib.mapAttrs (
       _: s:
@@ -25,7 +21,7 @@
   mkDualOption = defaultDesc: optFn: let
     base = optFn defaultDesc;
     functor = {
-      __functor = self: customDesc:
+      __functor = _self: customDesc:
         optFn (
           if customDesc != null
           then customDesc

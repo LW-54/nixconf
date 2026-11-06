@@ -22,8 +22,8 @@
     name = node.name or node.id;
     kind = node.kind or "entity";
     stratum = node.stratum or "unknown";
-    desc = (node.properties or {}).description or ((node.meta or {}).doc or "");
-    file = (node.properties or {}).file or null;
+    desc = (node.meta or {}).description or ((node.meta or {}).doc or "");
+    file = (node.meta or {}).file or null;
 
     inEdges = lib.filter (e: e.target == node.id) graph.edges;
     outEdges = lib.filter (e: e.source == node.id) graph.edges;
@@ -53,7 +53,7 @@
           if builtins.isString v
           then v
           else "`${builtins.toJSON v}`";
-      }) (builtins.removeAttrs (node.meta or {}) ["doc"]));
+      }) (builtins.removeAttrs (node.meta or {}) ["doc" "description" "file"]));
 
     metaTable = tableLib.renderTable {
       headers = [

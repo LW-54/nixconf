@@ -25,7 +25,7 @@
 
                 ${ctx.md.bullets [
                   "**Declared as**: `contract.<name>` in any flake-parts module under `modules/contracts/`"
-                  "**Primitive definition**: ${ctx.sourceLink "primitives/contract/default.nix"}"
+                  "**Primitive definition**: ${ctx.sourceLink (ctx.sourceOf "primitive" "contract")}"
                   "**Instances**: ${toString (builtins.length (builtins.attrNames (config.contract or {})))}"
                 ]}
               '';

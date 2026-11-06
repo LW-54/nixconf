@@ -247,10 +247,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/vivaldi.nix
 ...
-23: persistence.users = lib.mapAttrs (_: _: {
+23: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 24: data.directories = [".config/vivaldi"];
 25: cache.directories = [".cache/vivaldi"];
-26: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+26: });
 ...
 ```
 

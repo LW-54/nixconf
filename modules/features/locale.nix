@@ -1,4 +1,4 @@
-{self, ...}: {
+{...}: {
   feature.locale = {
     description = "System internationalization, time zone, and language locale configuration.";
     modules = {

@@ -17,26 +17,66 @@
         description = "Pure algebraic graph calculus.";
       };
     };
+    pipeline = lib.mkOption {
+      type = lib.types.raw;
+      default = {};
+      description = "Core graph construction and pipeline query operations.";
+    };
     extractors = {
+      source = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Source file resolution and AST syntax extraction utilities.";
+      };
       onto = lib.mkOption {
         type = lib.types.raw;
         default = {};
         description = "Ontological Intent stratum extractor.";
+      };
+      ontoMetadata = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Ontological instance metadata builder.";
       };
       ast = lib.mkOption {
         type = lib.types.raw;
         default = {};
         description = "Syntactic AST stratum extractor.";
       };
+      astModules = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Syntactic AST module node and edge extractor.";
+      };
+      astContracts = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Syntactic AST contract option and type extractor.";
+      };
+      astSymbols = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Syntactic AST library symbol extractor.";
+      };
       eval = lib.mkOption {
         type = lib.types.raw;
         default = {};
         description = "Operational fixpoint PDG extractor.";
       };
+      evalDataflow = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Operational fixpoint dataflow channel extractor.";
+      };
       drv = lib.mkOption {
         type = lib.types.raw;
         default = {};
         description = "Derivation substrate extractor.";
+      };
+      drvDependencies = lib.mkOption {
+        type = lib.types.raw;
+        default = {};
+        description = "Derivation dependency edge extractor.";
       };
       cpg = lib.mkOption {
         type = lib.types.raw;

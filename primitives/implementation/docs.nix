@@ -25,7 +25,7 @@
 
                 ${ctx.md.bullets [
                   "**Declared as**: `implementation.<name>` in any flake-parts module under `modules/implementations/`"
-                  "**Primitive definition**: ${ctx.sourceLink "primitives/implementation/default.nix"}"
+                  "**Primitive definition**: ${ctx.sourceLink (ctx.sourceOf "primitive" "implementation")}"
                   "**Instances**: ${toString (builtins.length (builtins.attrNames (config.implementation or {})))}"
                 ]}
               '';

@@ -308,7 +308,7 @@ Capability contracts configured by this feature:
 59: generator = lib.generators.toINI {};
 60: value = cfg.settings;
 ...
-70: home.users = lib.mapAttrs (userName: uCfg:
+70: home.users = lib.mapAttrs (_: uCfg:
 ...
 ```
 

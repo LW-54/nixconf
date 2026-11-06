@@ -2,11 +2,7 @@
   feature.direnv = {
     description = "Per-directory declarative shell environment integration via nix-direnv.";
     modules = {
-      direnv = {
-        config,
-        lib,
-        ...
-      }: {
+      direnv = {config, ...}: {
         config = {
           programs.direnv = {
             enable = true;
@@ -16,9 +12,9 @@
             nix-direnv.enable = true;
           };
 
-          persistence.users = lib.mapAttrs (_: _: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             cache.directories = [".cache/direnv"];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
     };

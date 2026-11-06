@@ -502,7 +502,6 @@ astrolabe-services = {...}: {
 ```nix
 astrolabe-system = {
   imports = [
-    self.nixosModules.contracts
     self.nixosModules.sops
     self.nixosModules.lw
     self.nixosModules.nix
@@ -513,6 +512,7 @@ astrolabe-system = {
 
   config = {
     networking.hostName = "astrolabe";
+    system.configurationRevision = self.rev or self.dirtyRev or "unknown";
     system.stateVersion = "25.11";
   };
 };
@@ -586,7 +586,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-34: persistence.directories = [
+35: persistence.directories = [
 ...
 ```
 
@@ -601,7 +601,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-32: reverse-proxy.domain = "adje.app";
+33: reverse-proxy.domain = "adje.app";
 ...
 ```
 
@@ -609,21 +609,24 @@ Capability contracts configured by `astrolabe`:
 
 ## Installation & Deployment
 
-### Track 1: Remote Automated Provisioning (`nixos-anywhere`)
+### Track 1: Remote Automated Deployment via `nixos-anywhere`
 
-For remote servers or headless machines booted into a live environment:
+For headless cloud instances or network-accessible hosts booted into a live environment:
 
 ```bash
-# Remote deployment over SSH with SOPS secret key copy
+# 1. Obtain and verify SSH root access to target IP
+ssh root@<TARGET-IP>
+
+# 2. Deploy system, format partitions via Disko, and copy SOPS secret key
 nix run github:nix-community/nixos-anywhere -- \
   --flake .#astrolabe \
-  --copy-secret /path/to/host-key.txt /persist/var/lib/sops-nix/key.txt \
+  --copy-secret /path/to/host-key.txt /persist/sops-nix/key.txt \
   root@<TARGET-IP>
 ```
 
-### Track 2: Local Installation from Live ISO
+### Track 2: Local Host Installation (NixOS Live ISO)
 
-For physical machines booted from a NixOS Live ISO installer drive:
+For bare-metal physical hosts booted from a standard NixOS Live ISO USB drive:
 
 ```bash
 # 1. Elevate to root in the live environment
@@ -639,20 +642,20 @@ nix --extra-experimental-features 'nix-command flakes' run github:nix-community/
   --flake .#astrolabe
 
 # 4. Provision SOPS age secret key on mounted persistence volume
-install -d -m 0700 /mnt/persist/var/lib/sops-nix
-install -m 0400 /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
+install -d -m 0700 /mnt/persist/sops-nix
+install -m 0400 /path/to/host-key.txt /mnt/persist/sops-nix/key.txt
 
 # 5. Install NixOS to target disk and reboot
 nixos-install --flake .#astrolabe --no-root-passwd
 reboot
 ```
 
-### Track 3: Routine Maintenance & System Rebuilds
+### Track 3: Host Maintenance & System Rebuilds
 
 ```bash
-# Local rebuild and switch on running system
+# Rebuild and switch locally on the host
 sudo nixos-rebuild switch --flake .#astrolabe
 
-# Remote rebuild over SSH from a management machine
+# Remote deployment over SSH from a management machine
 nixos-rebuild switch --flake .#astrolabe --target-host root@<TARGET-IP>
 ```

@@ -247,7 +247,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/noctalia.nix
 ...
-169: persistence.users = lib.mapAttrs (_: _: {
+169: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 170: data.directories = [
 171: ".config/noctalia"
 172: ".local/state/noctalia"

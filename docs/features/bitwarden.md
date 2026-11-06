@@ -282,15 +282,15 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/bitwarden.nix
 ...
-132: persistence.users = lib.mapAttrs (_: _: {
-133: data.directories = [".config/Bitwarden CLI"];
-134: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
-135: };
+131: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+132: data.directories = [".config/Bitwarden CLI"];
+133: });
+134: };
 ...
-150: persistence.users = lib.mapAttrs (_: _: {
-151: data.directories = [".config/Bitwarden"];
-152: cache.directories = [".cache/com.bitwarden.desktop"];
-153: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+149: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+150: data.directories = [".config/Bitwarden"];
+151: cache.directories = [".cache/com.bitwarden.desktop"];
+152: });
 ...
 ```
 

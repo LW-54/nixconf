@@ -5,7 +5,7 @@ How the documentation is generated from code, and where to declare the documenta
 [← Back to Main README](../README.md)
 
 > [!TIP]
-> **Documentation Health**: **100.0%** (158/158 items documented).
+> **Documentation Health**: **100.0%** (159/159 items documented).
 > See the full [Documentation Coverage & Quality Audit](coverage.md).
 
 ## Principles
@@ -28,13 +28,18 @@ Generator sources:
 | :--- | :--- |
 | [`meta/docs/audit.nix`](../meta/docs/audit.nix) | Documentation Quality & Coverage Audit Engine Analyzes repository docstrings, schema options, library symbols, and primitives. Evaluates purely on AST and Onto spine in < 0.4s without forcing host fixpoints. |
 | [`meta/docs/cli.nix`](../meta/docs/cli.nix) | `nix run .#docs` CLI and the `checks.docs` flake check. Command-line flags are declared once in `commands` and reused for `--help` and the docs page. |
-| [`meta/docs/compose.nix`](../meta/docs/compose.nix) | Documentation Composition & Synthesis Engine Automatically synthesizes docs/coverage.md (Quality & Coverage Dashboard) and injects the condensed health status card into docs/documentation.md. |
+| [`meta/docs/lib/context.nix`](../meta/docs/lib/context.nix) | Context engine: builds the per-page evaluation and querying context (`ctx`) passed to section rendering functions. |
+| [`meta/docs/lib/install.nix`](../meta/docs/lib/install.nix) | Shared host installation & deployment guide renderer. Used by both README.md (generic template) and host pages (targeted host). |
 | [`meta/docs/lib/markdown.nix`](../meta/docs/lib/markdown.nix) | Markdown toolkit shared by every page: relative links, tables, code blocks, collapsible details, ASCII trees, and compact value rendering (`ctx.md`). |
+| [`meta/docs/lib/outputs.nix`](../meta/docs/lib/outputs.nix) | Helpers for documenting non-primitive flake outputs: NixOS modules, packages, and development shells. |
 | [`meta/docs/options.nix`](../meta/docs/options.nix) | Schema of the documentation registry: `docs.pages` (pages made of sections), `docs.sections.<kind>` (instance page templates), and `docs.project` metadata. |
+| [`meta/docs/pages/coverage.nix`](../meta/docs/pages/coverage.nix) | Documentation Composition & Synthesis Engine Automatically synthesizes docs/coverage.md (Quality & Coverage Dashboard) and injects the condensed health status card into docs/documentation.md. |
+| [`meta/docs/pages/devshells.nix`](../meta/docs/pages/devshells.nix) | Documentation page for interactive development shells (docs/devshells.md). |
 | [`meta/docs/pages/guide.nix`](../meta/docs/pages/guide.nix) | Developer guide of the documentation system itself (docs/documentation.md): how pages are generated and where to put hand-written documentation. |
-| [`meta/docs/pages/outputs.nix`](../meta/docs/pages/outputs.nix) | Pages documenting flake outputs that are not primitive instances: NixOS modules, packages, and development shells. |
+| [`meta/docs/pages/modules.nix`](../meta/docs/pages/modules.nix) | Documentation pages for NixOS modules: catalog page (docs/modules/README.md) and individual module pages (docs/modules/<name>.md). |
+| [`meta/docs/pages/packages.nix`](../meta/docs/pages/packages.nix) | Documentation page for executable packages (docs/packages.md). |
 | [`meta/docs/pages/readme.nix`](../meta/docs/pages/readme.nix) | Root repository README.md declaration. |
-| [`meta/docs/render.nix`](../meta/docs/render.nix) | Rendering engine: builds the per-page context (links, graph lookups, diagrams), renders sections in order, and exposes `lib.docs.generateAll`. |
+| [`meta/docs/render.nix`](../meta/docs/render.nix) | Rendering engine: renders sections in order, and exposes `lib.docs.generateAll`. |
 
 Modules currently contributing pages or cross-primitive sections:
 
@@ -46,9 +51,11 @@ Modules currently contributing pages or cross-primitive sections:
 - [`primitives/primitive/docs.nix`](../primitives/primitive/docs.nix)
 - [`meta/graph/docs.nix`](../meta/graph/docs.nix)
 - [`meta/docs/pages/readme.nix`](../meta/docs/pages/readme.nix)
-- [`meta/docs/pages/outputs.nix`](../meta/docs/pages/outputs.nix)
+- [`meta/docs/pages/packages.nix`](../meta/docs/pages/packages.nix)
+- [`meta/docs/pages/modules.nix`](../meta/docs/pages/modules.nix)
 - [`meta/docs/pages/guide.nix`](../meta/docs/pages/guide.nix)
-- [`meta/docs/compose.nix`](../meta/docs/compose.nix)
+- [`meta/docs/pages/devshells.nix`](../meta/docs/pages/devshells.nix)
+- [`meta/docs/pages/coverage.nix`](../meta/docs/pages/coverage.nix)
 - [`meta/docs/cli.nix`](../meta/docs/cli.nix)
 - [`modules/features/tack.nix`](../modules/features/tack.nix)
 - [`modules/features/disko.nix`](../modules/features/disko.nix)

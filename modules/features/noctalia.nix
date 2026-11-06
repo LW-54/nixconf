@@ -166,13 +166,13 @@
             })
           ];
 
-          persistence.users = lib.mapAttrs (_: _: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data.directories = [
               ".config/noctalia"
               ".local/state/noctalia"
               "Pictures/Wallpapers"
             ];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
     };

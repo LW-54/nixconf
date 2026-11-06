@@ -124,7 +124,7 @@
               openssh.authorizedKeys.keys = cfg.authorizedKeys;
             });
 
-            persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+            persistence.files = lib.mkIf config.persistence.enable [
               "/etc/ssh/ssh_host_ed25519_key"
               "/etc/ssh/ssh_host_ed25519_key.pub"
               "/etc/ssh/ssh_host_rsa_key"

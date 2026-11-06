@@ -25,7 +25,7 @@
 
                 ${ctx.md.bullets [
                   "**Declared as**: `feature.<name>` in any flake-parts module under `modules/features/`"
-                  "**Primitive definition**: ${ctx.sourceLink "primitives/feature.nix"}"
+                  "**Primitive definition**: ${ctx.sourceLink (ctx.sourceOf "primitive" "feature")}"
                   "**Instances**: ${toString (builtins.length (builtins.attrNames (config.feature or {})))}"
                 ]}
               '';

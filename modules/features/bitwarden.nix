@@ -123,15 +123,14 @@ in {
     modules = {
       bw = {
         config,
-        lib,
         pkgs,
         ...
       }: {
         environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.bw];
 
-        persistence.users = lib.mapAttrs (_: _: {
+        persistence.users = self.lib.user.forNormalUsers config (_: _: {
           data.directories = [".config/Bitwarden CLI"];
-        }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+        });
       };
 
       bitwarden-desktop = {
@@ -147,10 +146,10 @@ in {
         config = lib.mkIf cfg.enable {
           environment.systemPackages = [pkgs.bitwarden-desktop];
 
-          persistence.users = lib.mapAttrs (_: _: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data.directories = [".config/Bitwarden"];
             cache.directories = [".cache/com.bitwarden.desktop"];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
     };

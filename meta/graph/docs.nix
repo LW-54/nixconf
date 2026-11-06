@@ -202,13 +202,13 @@ in {
             nix run .#nixconf-json
 
             # Summary of nodes, edges and relation counts
-            nix run .#docs -- --json | jq '{nodes: (.nodes | length), edges: (.edges | length)}'
+            nix run .#graph -- --json | jq '{nodes: (.nodes | length), edges: (.edges | length)}'
 
             # Inspect every option write with source file provenance
-            nix run .#docs -- --json | jq '.edges[] | select(.relation == "writes") | {source, target, file: .meta.file}'
+            nix run .#graph -- --json | jq '.edges[] | select(.relation == "writes") | {source, target, file: .meta.file}'
 
             # Render the Mermaid neighborhood of a specific entity
-            nix run .#docs -- --subgraph ${contract}
+            nix run .#graph -- --subgraph ${contract}
           ''}
 
           ### Evaluation Queries

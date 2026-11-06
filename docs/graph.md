@@ -8,8 +8,8 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Dimension | Value | Description |
 | :--- | :--- | :--- |
-| **Nodes** | 224 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
-| **Edges** | 446 | Typed semantic directed edges connecting graph entities. |
+| **Nodes** | 225 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
+| **Edges** | 447 | Typed semantic directed edges connecting graph entities. |
 | **Relations** | 10 | Unique relation kinds expressing dependencies, flows, definitions, and bindings. |
 | **Node kinds** | 14 | Structural node classifications (e.g. host, contract, feature, module, option, package). |
 | **Strata** | 4 | Orthogonal graph evaluation layers (Ontology, AST, Evaluation, Derivation). |
@@ -18,7 +18,7 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Stratum | Name | Nodes | Description |
 | :--- | :--- | :--- | :--- |
-| `ast` | Syntactic Structure | 147 | Modules, options, types, and library symbols as declared in Nix expressions. |
+| `ast` | Syntactic Structure | 148 | Modules, options, types, and library symbols as declared in Nix expressions. |
 | `drv` | Derivation Substrate | 11 | Packages, development shells, and their store-level dependencies. |
 | `eval` | Operational Fixpoint | 2 | Evaluated NixOS configurations, option definitions, and data dependences. |
 | `onto` | Ontological Intent | 64 | Primitives and their declared instances: what the repository intends to exist. |
@@ -105,7 +105,7 @@ end
 | `flowsTo` | `eval` | 48 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
 | `implements` | `onto` | 7 | Contract fulfillment. | Primitive relationships such as `implementation.<name>.contract`. |
 | `imports` | `eval` | 67 | Compilation unit composition. | Evaluated NixOS configurations importing concrete NixOS modules. |
-| `outputs` | `ast` | 116 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
+| `outputs` | `ast` | 117 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
 | `reads` | `eval` | 22 | Option value inspection (use / load). | Implementations reading contract options. |
 | `typedBy` | `ast` | 11 | Option type-system binding. | Contract options bound to custom submodule types. |
 | `writes` | `eval` | 58 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
@@ -126,7 +126,7 @@ end
 | `option` | `ast` | 25 | `urn:nixconf:ast:option:backup.enable` | Public contract options with types and descriptions. |
 | `package` | `drv` | 7 | `urn:nixconf:drv:package:antigravity` | Packages exported on `flake.packages`. |
 | `primitive` | `onto` | 6 | `urn:nixconf:onto:primitive:contract` | Meta-primitives defining how instances are declared and exported. |
-| `symbol` | `ast` | 13 | `urn:nixconf:ast:symbol:backup.defaultPruneOpts` | Non-function library values and constants. |
+| `symbol` | `ast` | 14 | `urn:nixconf:ast:symbol:backup.defaultPruneOpts` | Non-function library values and constants. |
 | `type` | `ast` | 11 | `urn:nixconf:ast:type:home.file` | Custom option types declared by contracts and features. |
 
 ## Querying & Inspecting the Graph
@@ -148,13 +148,13 @@ Graph algorithms, traversal engines, and Mermaid exporters are implemented as pu
 nix run .#nixconf-json
 
 # Summary of nodes, edges and relation counts
-nix run .#docs -- --json | jq '{nodes: (.nodes | length), edges: (.edges | length)}'
+nix run .#graph -- --json | jq '{nodes: (.nodes | length), edges: (.edges | length)}'
 
 # Inspect every option write with source file provenance
-nix run .#docs -- --json | jq '.edges[] | select(.relation == "writes") | {source, target, file: .meta.file}'
+nix run .#graph -- --json | jq '.edges[] | select(.relation == "writes") | {source, target, file: .meta.file}'
 
 # Render the Mermaid neighborhood of a specific entity
-nix run .#docs -- --subgraph urn:nixconf:onto:contract:backup
+nix run .#graph -- --subgraph urn:nixconf:onto:contract:backup
 ```
 
 ### Evaluation Queries

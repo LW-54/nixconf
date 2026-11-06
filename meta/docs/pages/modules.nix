@@ -1,5 +1,5 @@
-# Pages documenting flake outputs that are not primitive instances:
-# NixOS modules, packages, and development shells.
+# Documentation pages for NixOS modules:
+# catalog page (docs/modules/README.md) and individual module pages (docs/modules/<name>.md).
 {
   lib,
   config,
@@ -9,68 +9,7 @@
   types = config.internal.graph.core.types;
   urn = stratum: kind: id: types.mkURN {inherit stratum kind id;};
   ast = config.internal.graph.extractors.ast;
-
-  # "Provided by" reference: the producing instance, or else the instance carrying the same name.
-  producer = ctx: node: let
-    declaredKind = node.properties.producerPrimitive or (node.origin.primitive or null);
-    declaredInst = node.properties.producerInstance or (node.origin.instance or null);
-    sameNameKind = lib.findFirst (k: k != "primitive" && (config.${k} or {}) ? ${node.name}) null (builtins.attrNames config.primitive);
-    resolved =
-      if declaredKind != null && declaredInst != null && config.primitive ? ${declaredKind}
-      then {
-        kind = declaredKind;
-        inst = declaredInst;
-      }
-      else if sameNameKind != null
-      then {
-        kind = sameNameKind;
-        inst = node.name;
-      }
-      else null;
-  in
-    if resolved == null
-    then null
-    else "${resolved.kind} ${ctx.instanceLink resolved.kind resolved.inst}";
-
-  derivationPage = {
-    path,
-    title,
-    description,
-    kind,
-    commandsFor,
-    renderHelp ? (_: null),
-  }: {
-    inherit path;
-    sections = {
-      header = {
-        order = 10;
-        content = ctx: ''
-          # ${title}
-
-          ${description}
-
-          ${ctx.backTo "readme" "Main README"}
-        '';
-      };
-      catalog = {
-        order = 50;
-        content = ctx: let
-          flake = config.docs.project.flakeRef;
-        in
-          md.blocks (map (n: let
-            by = producer ctx n;
-            helpContent = renderHelp n;
-          in
-            md.blocks [
-              "<a id=\"${n.name}\"></a>\n### `${n.name}`"
-              (md.oneLine (n.properties.description or ""))
-              (lib.optionalString (by != null) "Provided by ${by}.")
-              (commandsFor flake n.name)
-              (lib.optionalString (helpContent != null) helpContent)
-            ]) (ctx.nodes kind));
-      };
-    };
-  };
+  producer = config.internal.docs.outputs.producer;
 in {
   docs.pages =
     {
@@ -107,63 +46,6 @@ in {
               };
           };
         };
-      };
-
-      packages = derivationPage {
-        path = "docs/packages.md";
-        title = "Packages";
-        description = "Executable packages exported on `flake.packages`.";
-        kind = "package";
-        commandsFor = flake: name:
-          md.blocks [
-            (md.code "bash" "nix run .#${name}")
-            (md.code "bash" "nix run ${flake}#${name}")
-          ];
-        renderHelp = n: let
-          usage = n.properties.usage or null;
-          helpCommand = n.properties.helpCommand or null;
-          homepage = n.properties.homepage or null;
-        in
-          if usage != null
-          then ''
-            #### Usage
-
-            ${usage}
-          ''
-          else if helpCommand != null || homepage != null
-          then ''
-            #### Help & Documentation
-
-            ${lib.optionalString (helpCommand != null) ''
-              Display command-line flags and subcommands:
-
-              ${md.code "bash" helpCommand}
-            ''}
-            ${lib.optionalString (homepage != null) "Official Documentation: [${homepage}](${homepage})"}
-          ''
-          else null;
-      };
-
-      devshells = derivationPage {
-        path = "docs/devshells.md";
-        title = "Development Shells";
-        description = "Interactive environments exported on `flake.devShells`.";
-        kind = "devShell";
-        commandsFor = flake: name:
-          md.blocks [
-            (md.code "bash" "nix develop .#${name}")
-            (md.code "bash" "nix develop ${flake}#${name}")
-          ];
-        renderHelp = n: let
-          usage = n.properties.usage or null;
-        in
-          if usage != null
-          then ''
-            #### Usage
-
-            ${usage}
-          ''
-          else null;
       };
     }
     // lib.mapAttrs' (name: _:

@@ -318,7 +318,7 @@ Capability contracts configured by this feature:
 108: })
 ...
 113: home.users =
-114: lib.mapAttrs (userName: uCfg: {
+114: lib.mapAttrs (_: uCfg: {
 115: xdg.config =
 116: (lib.optionalAttrs (uCfg.rc != null) {
 ...

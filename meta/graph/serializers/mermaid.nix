@@ -1,5 +1,5 @@
 {lib, ...}: let
-  sanitizeId = s: builtins.replaceStrings [":" "." "-" "/" "@"] ["_" "_" "_" "_" "_"] s;
+  sanitizeId = s: builtins.replaceStrings [":" "." "-" "/" "@" "~" " "] ["_" "_" "_" "_" "_" "_" "_"] s;
 
   formatNode = node: let
     safeId = sanitizeId node.id;

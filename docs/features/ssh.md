@@ -334,7 +334,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/ssh.nix
 ...
-127: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+127: persistence.files = lib.mkIf config.persistence.enable [
 ...
 ```
 

@@ -111,7 +111,7 @@ in {
             });
 
           home.users =
-            lib.mapAttrs (userName: uCfg: {
+            lib.mapAttrs (_: uCfg: {
               xdg.config =
                 (lib.optionalAttrs (uCfg.rc != null) {
                   "labwc/rc.xml".text = uCfg.rc;

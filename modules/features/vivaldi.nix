@@ -1,4 +1,4 @@
-{...}: {
+{self, ...}: {
   feature.vivaldi = {
     description = "Vivaldi web browser with Widevine and proprietary media codecs.";
     modules = {
@@ -20,10 +20,10 @@
             })
           ];
 
-          persistence.users = lib.mapAttrs (_: _: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data.directories = [".config/vivaldi"];
             cache.directories = [".cache/vivaldi"];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
     };

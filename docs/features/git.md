@@ -334,7 +334,7 @@ Capability contracts configured by this feature:
 61: value = cfg.settings;
 62: };
 ...
-64: home.users = lib.mapAttrs (userName: uCfg:
+64: home.users = lib.mapAttrs (_: uCfg:
 ...
 ```
 

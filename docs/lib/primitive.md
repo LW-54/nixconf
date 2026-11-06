@@ -17,6 +17,7 @@ flowchart LR
     urn__nixconf__ast__symbol__primitive_option["primitive.option"]:::defaultNode
     urn__nixconf__ast__symbol__primitive_output["primitive.output"]:::defaultNode
     urn__nixconf__ast__symbol__primitive_parser["primitive.parser"]:::defaultNode
+    urn__nixconf__ast__symbol__primitive_schemas["primitive.schemas"]:::defaultNode
     urn__nixconf__onto__lib__primitive["primitive"]:::defaultNode
 
     urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__function__primitive_unwrapLib
@@ -24,6 +25,7 @@ flowchart LR
     urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_option
     urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_output
     urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_parser
+    urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_schemas
 
 
     click urn__nixconf__ast__function__primitive_unwrapLib href "primitive.md" "primitive.unwrapLib"
@@ -31,6 +33,7 @@ flowchart LR
     click urn__nixconf__ast__symbol__primitive_option href "primitive.md" "primitive.option"
     click urn__nixconf__ast__symbol__primitive_output href "primitive.md" "primitive.output"
     click urn__nixconf__ast__symbol__primitive_parser href "primitive.md" "primitive.parser"
+    click urn__nixconf__ast__symbol__primitive_schemas href "primitive.md" "primitive.schemas"
     click urn__nixconf__onto__lib__primitive href "primitive.md" "primitive"
 
   %% Semantic Visual Classes
@@ -138,6 +141,22 @@ parser :: AttrSet
 # Values
 - `stripLeadingIndentation text`: Strips common indentation whitespace.
 - `parseDocstring rawComment`: Parses structured RFC 145 docstring sections.
+```
+
+<a id="schemas"></a>
+### `schemas`
+
+Helper functions for synthesizing primitive options, compiling flake-schemas v1, and verifying evalChecks.
+
+#### Type
+
+```
+schemas :: AttrSet
+
+# Values
+- `synthesizeOptions args`: Generates top-level options for declared primitives.
+- `buildFlakeSchemas args`: Compiles Determinate Systems flake-schemas v1 specifications.
+- `checkFlakeSchemas args`: Evaluates and asserts that all schema evalChecks pass.
 ```
 
 <a id="unwrapLib"></a>

@@ -49,6 +49,12 @@
         '';
       in {
         options.services.wifi-eduroam = {
+          enable =
+            lib.mkEnableOption "Eduroam 802.1X wireless networking integration"
+            // {
+              default = true;
+            };
+
           secretFile = lib.mkOption {
             type = lib.types.path;
             default = ../../secrets/wifi/wifi_eduroam.yaml;
@@ -58,15 +64,17 @@
           usernameKey = lib.mkOption {
             type = lib.types.str;
             default = "username";
+            description = "Key name within secretFile containing the Eduroam identity.";
           };
 
           passwordKey = lib.mkOption {
             type = lib.types.str;
             default = "password";
+            description = "Key name within secretFile containing the Eduroam password.";
           };
         };
 
-        config = {
+        config = lib.mkIf cfg.enable {
           networking.networkmanager.enable = true;
           environment.etc."ssl/certs/eduroam-harica-root-ca.pem".source = caCertificate;
 

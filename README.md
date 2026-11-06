@@ -345,9 +345,9 @@ Target hosts in this configuration are partitioned declaratively with Disko, per
 Before installing a host, verify:
 1. **Architecture & Firmware**: 64-bit x86 target system booted in UEFI mode with network connectivity.
 2. **Disko Partitioning**: The disk definition in the host configuration matches the physical disk device path (e.g. `/dev/sda` or `/dev/nvme0n1`).
-3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/var/lib/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
+3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
 
-#### Track 1: Remote Automated Deployment via `nixos-anywhere`
+### Track 1: Remote Automated Deployment via `nixos-anywhere`
 
 For headless cloud instances or network-accessible hosts booted into a live environment:
 
@@ -358,11 +358,11 @@ ssh root@<TARGET-IP>
 # 2. Deploy system, format partitions via Disko, and copy SOPS secret key
 nix run github:nix-community/nixos-anywhere -- \
   --flake .#<HOST> \
-  --copy-secret /path/to/host-key.txt /persist/var/lib/sops-nix/key.txt \
+  --copy-secret /path/to/host-key.txt /persist/sops-nix/key.txt \
   root@<TARGET-IP>
 ```
 
-#### Track 2: Local Host Installation (NixOS Live ISO)
+### Track 2: Local Host Installation (NixOS Live ISO)
 
 For bare-metal physical hosts booted from a standard NixOS Live ISO USB drive:
 
@@ -380,15 +380,15 @@ nix --extra-experimental-features 'nix-command flakes' run github:nix-community/
   --flake .#<HOST>
 
 # 4. Provision SOPS age secret key on mounted persistence volume
-install -d -m 0700 /mnt/persist/var/lib/sops-nix
-install -m 0400 /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
+install -d -m 0700 /mnt/persist/sops-nix
+install -m 0400 /path/to/host-key.txt /mnt/persist/sops-nix/key.txt
 
 # 5. Install NixOS to target disk and reboot
 nixos-install --flake .#<HOST> --no-root-passwd
 reboot
 ```
 
-#### Track 3: Host Maintenance & System Rebuilds
+### Track 3: Host Maintenance & System Rebuilds
 
 ```bash
 # Rebuild and switch locally on the host

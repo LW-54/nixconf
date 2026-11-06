@@ -104,7 +104,7 @@ flowchart LR
 
 | Symbol | Type | Description | Docs |
 | :--- | :--- | :--- | :--- |
-| [`defaultPruneOpts`](../lib/backup.md#defaultPruneOpts) | `defaultPruneOpts :: [String]` | Default snapshot retention rules passed to the restic prune command. Preserves 7 daily, 4 weekly, and 12 monthly snapshots. | [More →](../lib/backup.md#defaultPruneOpts) |
+| [`defaultPruneOpts`](../lib/backup.md#defaultPruneOpts) | `defaultPruneOpts :: [String]` | Default snapshot retention rules passed to the backup backend pruning command. Preserves 7 daily, 4 weekly, and 12 monthly snapshots. | [More →](../lib/backup.md#defaultPruneOpts) |
 | [`defaultTimerConfig`](../lib/backup.md#defaultTimerConfig) | `defaultTimerConfig :: AttrSet` | Default systemd timer configuration for automated backup operations. Executes daily at 04:00 with persistent timer catch-up. | [More →](../lib/backup.md#defaultTimerConfig) |
 | [`mkConfig`](../lib/backup.md#mkConfig) | `backup.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'backup' contract. | [More →](../lib/backup.md#mkConfig) |
 | [`mkOption`](../lib/backup.md#mkOption) | `backup.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'backup' contract. | [More →](../lib/backup.md#mkOption) |

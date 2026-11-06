@@ -37,11 +37,7 @@ in {
         ];
       };
 
-      x240-system = {
-        config,
-        lib,
-        ...
-      }: {
+      x240-system = {...}: {
         imports = [
           self.nixosModules.sops
           self.nixosModules.lw

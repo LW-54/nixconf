@@ -16,7 +16,7 @@
           services.desktopManager.cosmic.enable = config.cosmic.enable;
           services.displayManager.cosmic-greeter.enable = config.cosmic.greeter.enable;
 
-          persistence.users = lib.mkIf config.cosmic.enable (lib.mapAttrs (_: _: {
+          persistence.users = lib.mkIf config.cosmic.enable (self.lib.user.forNormalUsers config (_: _: {
             data.directories = [
               ".config/cosmic"
               ".config/dconf"
@@ -24,7 +24,7 @@
               ".local/state/cosmic-comp"
             ];
             cache.directories = [".cache/cosmic-settings"];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users));
+          }));
 
           persistence.directories = lib.mkIf config.services.displayManager.cosmic-greeter.enable [
             "/var/lib/cosmic-greeter"

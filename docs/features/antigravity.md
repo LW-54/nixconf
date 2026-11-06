@@ -282,10 +282,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/antigravity.nix
 ...
-32: persistence.users = lib.mapAttrs (_: _: {
-33: data.directories = [
-34: ".antigravity-ide"
-35: ".gemini"
+38: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+39: data.directories = [
+40: ".antigravity-ide"
+41: ".gemini"
 ...
 ```
 

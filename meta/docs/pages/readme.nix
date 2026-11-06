@@ -34,11 +34,11 @@ in {
 
           The repository architecture is governed by five first-class, symmetrical primitives:
 
-          - [**Hosts (`host`)**](${ctx.link ctx.pages.hosts.path}): Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.
-          - [**Contracts (`contract`)**](${ctx.link ctx.pages.contracts.path}): Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
-          - [**Implementations (`implementation`)**](${ctx.link ctx.pages.implementations.path}): Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations.
-          - [**Features (`feature`)**](${ctx.link ctx.pages.features.path}): Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.
-          - [**Libraries (`lib`)**](${ctx.link ctx.pages.lib.path}): Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository.
+          - [**Hosts (`host`)**](${ctx.link ctx.pages.hosts.path}): ${config.primitive.host.description}
+          - [**Contracts (`contract`)**](${ctx.link ctx.pages.contracts.path}): ${config.primitive.contract.description}
+          - [**Implementations (`implementation`)**](${ctx.link ctx.pages.implementations.path}): ${config.primitive.implementation.description}
+          - [**Features (`feature`)**](${ctx.link ctx.pages.features.path}): ${config.primitive.feature.description}
+          - [**Libraries (`lib`)**](${ctx.link ctx.pages.lib.path}): ${config.primitive.lib.description}
 
           ```mermaid
           flowchart TD
@@ -209,58 +209,9 @@ in {
             Before installing a host, verify:
             1. **Architecture & Firmware**: 64-bit x86 target system booted in UEFI mode with network connectivity.
             2. **Disko Partitioning**: The disk definition in the host configuration matches the physical disk device path (e.g. `/dev/sda` or `/dev/nvme0n1`).
-            3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/var/lib/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
+            3. **SOPS Age Private Key**: The host's age decryption key must be placed at `/persist/sops-nix/key.txt` with permissions `0400` so secrets decrypt on first boot.
 
-            #### Track 1: Remote Automated Deployment via `nixos-anywhere`
-
-            For headless cloud instances or network-accessible hosts booted into a live environment:
-
-            ```bash
-            # 1. Obtain and verify SSH root access to target IP
-            ssh root@<TARGET-IP>
-
-            # 2. Deploy system, format partitions via Disko, and copy SOPS secret key
-            nix run github:nix-community/nixos-anywhere -- \
-              --flake .#<HOST> \
-              --copy-secret /path/to/host-key.txt /persist/var/lib/sops-nix/key.txt \
-              root@<TARGET-IP>
-            ```
-
-            #### Track 2: Local Host Installation (NixOS Live ISO)
-
-            For bare-metal physical hosts booted from a standard NixOS Live ISO USB drive:
-
-            ```bash
-            # 1. Elevate to root in the live environment
-            sudo -i
-
-            # 2. Clone repository to live memory
-            git clone ${config.docs.project.url} /tmp/nixconf
-            cd /tmp/nixconf
-
-            # 3. Format disk and mount partitions declaratively via Disko
-            nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- \
-              --mode zap_create_mount \
-              --flake .#<HOST>
-
-            # 4. Provision SOPS age secret key on mounted persistence volume
-            install -d -m 0700 /mnt/persist/var/lib/sops-nix
-            install -m 0400 /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
-
-            # 5. Install NixOS to target disk and reboot
-            nixos-install --flake .#<HOST> --no-root-passwd
-            reboot
-            ```
-
-            #### Track 3: Host Maintenance & System Rebuilds
-
-            ```bash
-            # Rebuild and switch locally on the host
-            sudo nixos-rebuild switch --flake .#<HOST>
-
-            # Remote deployment over SSH from a management machine
-            nixos-rebuild switch --flake .#<HOST> --target-host root@<TARGET-IP>
-            ```
+            ${config.internal.docs.installGuide {}}
           '';
         in ''
           ## Configuration Catalog

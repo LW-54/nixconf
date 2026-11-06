@@ -247,10 +247,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/direnv.nix
 ...
-19: persistence.users = lib.mapAttrs (_: _: {
-20: cache.directories = [".cache/direnv"];
-21: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
-22: };
+15: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+16: cache.directories = [".cache/direnv"];
+17: });
+18: };
 ...
 ```
 

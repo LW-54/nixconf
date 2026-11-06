@@ -37,6 +37,7 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
       imports = [
         self.nixosModules.astrolabe-hardware
         self.nixosModules.astrolabe-disk
+        self.nixosModules.contracts
         self.nixosModules.astrolabe-system
         self.nixosModules.astrolabe-services
         self.nixosModules.astrolabe-packages
@@ -71,7 +72,6 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
 
       astrolabe-system = {
         imports = [
-          self.nixosModules.contracts
           self.nixosModules.sops
           self.nixosModules.lw
           self.nixosModules.nix
@@ -82,6 +82,7 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
 
         config = {
           networking.hostName = "astrolabe";
+          system.configurationRevision = self.rev or self.dirtyRev or "unknown";
           system.stateVersion = "25.11";
         };
       };

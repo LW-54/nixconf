@@ -1,8 +1,7 @@
 {lib, ...}: let
   normalUsers = config: lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users;
-  normalUserNames = config: builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
-  forNormalUsers = config: f:
-    lib.mapAttrs (userName: user: f userName user) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+  normalUserNames = config: builtins.attrNames (normalUsers config);
+  forNormalUsers = config: f: lib.mapAttrs f (normalUsers config);
 in {
   feature.user = {
     description = "Normal user account helper functions and querying utilities.";

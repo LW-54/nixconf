@@ -26,13 +26,13 @@
               apply = user:
                 if user == null
                 then let
-                  normalNames = builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+                  normalNames = self.lib.user.normalUserNames config;
                 in
                   if normalNames != []
                   then builtins.head normalNames
                   else "root"
                 else user;
-              description = "System user to run ttyd and session as";
+              description = "System user to run ttyd and session as.";
             };
           };
 

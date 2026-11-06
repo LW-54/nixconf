@@ -135,46 +135,6 @@
         };
       };
 
-      schemas = {
-        docstring = ''
-          Helper generating Determinate Systems `flake.schemas` v1 declarations for primitive instances.
-
-          # Inputs
-
-          `kind`
-          : Primitive kind string (e.g. "contract", "feature", "host", "implementation", "lib").
-
-          `instances`
-          : Attribute set of primitive instances declared under `config.<primitive>`.
-
-          `children`
-          : Function `(name: instance: { ... })` returning an attribute set of schema inventory children.
-
-          # Type
-          ```
-          schemas :: AttrSet -> AttrSet
-          ```
-        '';
-        value = {
-          kind,
-          instances,
-          children ? (_: _: {}),
-        }: {
-          flake.schemas =
-            lib.mapAttrs' (
-              name: inst:
-                lib.nameValuePair "${kind}/${name}" {
-                  version = 1;
-                  doc = inst.description or "${kind} instance '${name}'.";
-                  inventory = _: {
-                    children = children name inst;
-                  };
-                }
-            )
-            instances;
-        };
-      };
-
       childOutputs = {
         docstring = ''
           Helper creating schema inventory children for instance `packages` and `devShells`.

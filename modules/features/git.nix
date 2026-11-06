@@ -61,7 +61,7 @@ in {
               value = cfg.settings;
             };
 
-            home.users = lib.mapAttrs (userName: uCfg:
+            home.users = lib.mapAttrs (_: uCfg:
               lib.mkIf (uCfg.enable != false) {
                 xdg.config."git/config" = {
                   generator = lib.generators.toINI {};

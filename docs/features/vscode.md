@@ -5,7 +5,7 @@ Visual Studio Code editor environment and persistence.
 [← Back to Features Documentation](README.md) | [← Back to Main README](../../README.md)
 
 - **Feature**: `vscode`
-- **Definition File**: [`modules/features/vcode.nix`](../../modules/features/vcode.nix)
+- **Definition File**: [`modules/features/vscode.nix`](../../modules/features/vscode.nix)
 
 <details>
 <summary>Architecture Diagram (click to expand)</summary>
@@ -245,13 +245,13 @@ Capability contracts configured by this feature:
 **Configures options**: `persistence.users`
 
 ```nix
-# modules/features/vcode.nix
+# modules/features/vscode.nix
 ...
 3: description = "Visual Studio Code editor environment and persistence.";
 ...
-18: persistence.users = lib.mapAttrs (_: _: {
+18: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 19: data.directories = [".config/Code" ".vscode"];
-20: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+20: });
 21: };
 ...
 ```

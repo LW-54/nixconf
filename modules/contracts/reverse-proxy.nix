@@ -81,25 +81,25 @@ in {
       subdomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = subdomain;
-        description = "Subdomain prefix for reverse proxy";
+        description = "Subdomain prefix for reverse proxy.";
       };
 
       port = lib.mkOption {
         type = lib.types.port;
         default = port;
-        description = "Local service port";
+        description = "Local service port.";
       };
 
       address = lib.mkOption {
         type = lib.types.str;
         default = address;
-        description = "Local service bind address";
+        description = "Local service bind address.";
       };
 
       basicAuth = lib.mkOption {
         type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
         default = basicAuth;
-        description = "Basic auth credentials for the reverse-proxied service";
+        description = "Basic auth credentials for the reverse-proxied service.";
       };
     };
 

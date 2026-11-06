@@ -4,7 +4,6 @@
   ...
 }: let
   container = config.internal.graph.core.container;
-  types = config.internal.graph.core.types;
 
   /**
   Overlays (unions) two graphs: V = V1 ∪ V2, E = E1 ∪ E2.
@@ -151,7 +150,7 @@
               lib.filter (eId: let
                 e = edgeMap.${eId};
                 relOk = viaRelations == null || builtins.elem e.relation viaRelations;
-                stratOk = viaStrata == null || builtins.elem e.stratum stratOk;
+                stratOk = viaStrata == null || builtins.elem e.stratum viaStrata;
               in
                 relOk && stratOk)
               rawIds

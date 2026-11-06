@@ -208,10 +208,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/wifi.nix
 ...
-73: secrets.files = {
-74: ${usernameSecret} = {
-75: file = cfg.secretFile;
-76: key = cfg.usernameKey;
+81: secrets.files = {
+82: ${usernameSecret} = {
+83: file = cfg.secretFile;
+84: key = cfg.usernameKey;
 ...
 ```
 

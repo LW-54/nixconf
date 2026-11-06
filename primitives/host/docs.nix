@@ -25,7 +25,7 @@
 
                 ${ctx.md.bullets [
                   "**Declared as**: `host.<name>` in any flake-parts module under `modules/hosts/`"
-                  "**Primitive definition**: ${ctx.sourceLink "primitives/host/default.nix"}"
+                  "**Primitive definition**: ${ctx.sourceLink (ctx.sourceOf "primitive" "host")}"
                   "**Instances**: ${toString (builtins.length (builtins.attrNames (config.host or {})))}"
                 ]}
               '';
@@ -240,53 +240,7 @@
               content = ctx: ''
                 ## Installation & Deployment
 
-                ### Track 1: Remote Automated Provisioning (`nixos-anywhere`)
-
-                For remote servers or headless machines booted into a live environment:
-
-                ```bash
-                # Remote deployment over SSH with SOPS secret key copy
-                nix run github:nix-community/nixos-anywhere -- \
-                  --flake .#${name} \
-                  --copy-secret /path/to/host-key.txt /persist/var/lib/sops-nix/key.txt \
-                  root@<TARGET-IP>
-                ```
-
-                ### Track 2: Local Installation from Live ISO
-
-                For physical machines booted from a NixOS Live ISO installer drive:
-
-                ```bash
-                # 1. Elevate to root in the live environment
-                sudo -i
-
-                # 2. Clone repository to live memory
-                git clone ${config.docs.project.url} /tmp/nixconf
-                cd /tmp/nixconf
-
-                # 3. Format disk and mount partitions declaratively via Disko
-                nix --extra-experimental-features 'nix-command flakes' run github:nix-community/disko -- \
-                  --mode zap_create_mount \
-                  --flake .#${name}
-
-                # 4. Provision SOPS age secret key on mounted persistence volume
-                install -d -m 0700 /mnt/persist/var/lib/sops-nix
-                install -m 0400 /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
-
-                # 5. Install NixOS to target disk and reboot
-                nixos-install --flake .#${name} --no-root-passwd
-                reboot
-                ```
-
-                ### Track 3: Routine Maintenance & System Rebuilds
-
-                ```bash
-                # Local rebuild and switch on running system
-                sudo nixos-rebuild switch --flake .#${name}
-
-                # Remote rebuild over SSH from a management machine
-                nixos-rebuild switch --flake .#${name} --target-host root@<TARGET-IP>
-                ```
+                ${config.internal.docs.installGuide {target = name;}}
               '';
             };
           };

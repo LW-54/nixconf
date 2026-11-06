@@ -1,3 +1,4 @@
+# Derivation substrate extractor for packages, developer shells, and build dependencies.
 {
   inputs,
   self,
@@ -7,6 +8,7 @@
 }: let
   types = config.internal.graph.core.types;
   container = config.internal.graph.core.container;
+  deps = config.internal.graph.extractors.drvDependencies;
 
   extractDRV = {system ? "x86_64-linux"}: let
     features = config.feature or {};
@@ -19,7 +21,6 @@
 
     packageNames = builtins.attrNames flakePackages;
     devShellNames = builtins.attrNames flakeDevShells;
-    featureNames = builtins.attrNames features;
     hostNames = builtins.attrNames (config.host or {});
 
     pkgs =
@@ -33,7 +34,7 @@
         packages = flakePackages;
         devShells = flakeDevShells;
       };
-      system = system;
+      inherit system;
     };
 
     # 1. Generative Provenance Mapping for Packages
@@ -213,156 +214,20 @@
     devShellNodes = lib.listToAttrs (map (d: lib.nameValuePair d.node.id d.node) devShellData);
     devShellOutputEdges = lib.concatMap (d: d.outputEdge) devShellData;
 
-    # 5. Pure Package Dependency Matching Helper
+    # 5. Dependency Edges
     featurePackageNames = builtins.attrNames featurePackageMap;
 
-    matchPackageDep = pDef: pName: drvList: let
-      pnameTarget =
-        pDef.pname or (
-          if pDef ? name
-          then lib.removeSuffix "-${pDef.version or ""}" pDef.name
-          else pName
-        );
-    in
-      builtins.any (
-        inp: let
-          inpName =
-            inp.pname or (
-              if inp ? name
-              then lib.removeSuffix "-${inp.version or ""}" inp.name
-              else ""
-            );
-        in
-          inpName == pName || inpName == pnameTarget || (inp.name or "") == pName
-      )
-      drvList;
+    devShellDependsOnPackageEdges = deps.extractDevShellDeps {
+      inherit flakeDevShells flakePackages featurePackageNames;
+    };
 
-    # 6. DevShell DEPENDS_ON Package Edges
-    devShellDependsOnPackageEdges = lib.concatMap (sName: let
-      sDef = flakeDevShells.${sName} or {};
-      shellInputs = (sDef.buildInputs or []) ++ (sDef.nativeBuildInputs or []);
-      sURN = types.mkURN {
-        stratum = types.strata.drv;
-        kind = "devShell";
-        id = sName;
-      };
-    in
-      lib.concatMap (pName: let
-        pDef = flakePackages.${pName} or null;
-        isDep = pDef != null && matchPackageDep pDef pName shellInputs;
-        pURN = types.mkURN {
-          stratum = types.strata.drv;
-          kind = "package";
-          id = pName;
-        };
-      in
-        if isDep
-        then [
-          (types.mkEdge {
-            source = sURN;
-            target = pURN;
-            relation = types.relations.DEPENDS_ON;
-            stratum = types.strata.drv;
-            meta = {
-              devShell = sName;
-              package = pName;
-            };
-          })
-        ]
-        else [])
-      featurePackageNames)
-    devShellNames;
+    configDependsOnPackageEdges = deps.extractConfigDeps {
+      inherit hostNames nixosConfigs flakePackages featurePackageNames;
+    };
 
-    # 7. Configuration DEPENDS_ON Package Edges
-    configDependsOnPackageEdges = lib.concatMap (hName: let
-      hCfg = nixosConfigs.${hName} or null;
-      sysPackages =
-        if hCfg != null && hCfg ? config && hCfg.config ? environment && hCfg.config.environment ? systemPackages
-        then hCfg.config.environment.systemPackages
-        else [];
-      cURN = types.mkURN {
-        stratum = types.strata.eval;
-        kind = "configuration";
-        id = hName;
-      };
-    in
-      lib.concatMap (pName: let
-        pDef = flakePackages.${pName} or null;
-        isDep = pDef != null && matchPackageDep pDef pName sysPackages;
-        pURN = types.mkURN {
-          stratum = types.strata.drv;
-          kind = "package";
-          id = pName;
-        };
-      in
-        if isDep
-        then [
-          (types.mkEdge {
-            source = cURN;
-            target = pURN;
-            relation = types.relations.DEPENDS_ON;
-            stratum = types.strata.drv;
-            meta = {
-              host = hName;
-              package = pName;
-            };
-          })
-        ]
-        else [])
-      featurePackageNames)
-    hostNames;
-
-    # 8. Feature Module DEPENDS_ON Package Edges
-    moduleDependsOnPackageEdges = lib.concatMap (fName: let
-      fDef = features.${fName};
-      featPkgNames =
-        if fDef ? packages
-        then
-          builtins.attrNames (
-            if builtins.isFunction fDef.packages
-            then fDef.packages pkgArgs
-            else fDef.packages
-          )
-        else [];
-      featModNames =
-        (
-          if fDef ? module
-          then [fName]
-          else []
-        )
-        ++ (map (m:
-          if m == "default"
-          then fName
-          else m) (builtins.attrNames (fDef.modules or {})));
-    in
-      lib.concatMap (mName:
-        lib.concatMap (pName: let
-          mURN = types.mkURN {
-            stratum = types.strata.ast;
-            kind = "module";
-            id = mName;
-          };
-          pURN = types.mkURN {
-            stratum = types.strata.drv;
-            kind = "package";
-            id = pName;
-          };
-        in [
-          (types.mkEdge {
-            source = mURN;
-            target = pURN;
-            relation = types.relations.DEPENDS_ON;
-            stratum = types.strata.drv;
-            meta = {
-              feature = fName;
-              module = mName;
-              package = pName;
-            };
-          })
-        ])
-        featPkgNames)
-      featModNames)
-    featureNames;
+    moduleDependsOnPackageEdges = deps.extractModuleDeps {
+      inherit features pkgArgs;
+    };
 
     allNodes = packageNodes // devShellNodes;
     allEdges =

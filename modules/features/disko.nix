@@ -126,54 +126,209 @@
       };
     };
 
-  # ASCII tree of the evaluated Disko layout of a NixOS configuration.
-  layoutTree = devices: let
-    mount = c:
-      lib.optionalString ((c.mountpoint or null) != null) " -> ${c.mountpoint}";
-    contentChildren = c:
-      if (c.type or null) == "gpt"
-      then lib.mapAttrsToList partition (c.partitions or {})
-      else if (c.type or null) == "btrfs"
+  # Canonical lsblk-style columnar ASCII tree of Disko storage devices
+  formatDiskLayout = {devices, ...}: let
+    visualWidth = s: builtins.stringLength (builtins.replaceStrings ["├─" "└─" "│"] ["--" "--" "|"] (toString s));
+    pad = width: str: let
+      s = toString str;
+      len = visualWidth s;
+    in
+      if len >= width
+      then s
+      else s + lib.concatStrings (lib.genList (_: " ") (width - len));
+
+    subvolRows = svName: sv: {
+      name = "subvol:${svName}";
+      type = "subvolume";
+      fstype = "btrfs";
+      size = "";
+      mountpoint =
+        if (sv.mountpoint or null) != null
+        then sv.mountpoint
+        else if (sv.swap or {}) != {}
+        then "(swapfile)"
+        else "(snapshot)";
+      children = [];
+    };
+
+    lvRows = lvName: lv: let
+      content = lv.content or {};
+      cType = content.type or "";
+    in {
+      name = lvName;
+      type = "lvm_lv";
+      fstype =
+        if cType == "btrfs"
+        then "btrfs"
+        else (content.format or cType);
+      size = lv.size or "";
+      mountpoint = content.mountpoint or "";
+      children =
+        if cType == "btrfs"
+        then lib.mapAttrsToList subvolRows (content.subvolumes or {})
+        else [];
+    };
+
+    vgRows = vgName: vg: {
+      name = vgName;
+      type = "lvm_vg";
+      fstype = "";
+      size = "";
+      mountpoint = "";
+      children = lib.mapAttrsToList lvRows (vg.lvs or {});
+    };
+
+    partRows = pName: p: let
+      content = p.content or {};
+      cType = content.type or "";
+      isLvmPv = cType == "lvm_pv";
+      vgName = content.vg or "";
+      matchedVg =
+        if isLvmPv && vgName != "" && devices ? lvm_vg && devices.lvm_vg ? ${vgName}
+        then [(vgRows vgName devices.lvm_vg.${vgName})]
+        else [];
+    in {
+      name = pName;
+      type = "part";
+      fstype =
+        if isLvmPv
+        then "lvm_pv"
+        else (content.format or cType);
+      size = p.size or "";
+      mountpoint = content.mountpoint or "";
+      children = matchedVg;
+    };
+
+    diskRows = dName: d: let
+      content = d.content or {};
+    in {
+      name = d.device or dName;
+      type = "disk";
+      fstype = content.type or "";
+      size = "";
+      mountpoint = "";
+      children =
+        if (content.type or "") == "gpt"
+        then lib.mapAttrsToList partRows (content.partitions or {})
+        else [];
+    };
+
+    referencedVgs = lib.concatLists (lib.mapAttrsToList (_: d: let
+      content = d.content or {};
+    in
+      if (content.type or "") == "gpt"
       then
-        lib.mapAttrsToList (name: sv: {
-          label = "${name} (subvolume)${mount sv}${lib.optionalString ((sv.swap or {}) != {}) " (swapfile)"}";
-        }) (c.subvolumes or {})
-      else [];
-    contentSummary = c:
-      if c == null
-      then ""
-      else if (c.type or null) == "filesystem"
-      then ", ${c.format or "filesystem"}"
-      else if (c.type or null) == "lvm_pv"
-      then ", LVM PV of '${c.vg or "?"}'"
-      else ", ${c.type or "raw"}";
-    partition = name: p: {
-      label = "${name} (${p.size or "?"}${contentSummary (p.content or null)})${mount (p.content or {})}";
-      children = contentChildren (p.content or {});
-    };
-    volume = name: lv: {
-      label = "${name} (${lv.size or "?"}${contentSummary (lv.content or null)})${mount (lv.content or {})}";
-      children = contentChildren (lv.content or {});
-    };
+        lib.concatMap (p:
+          if (p.content.type or "") == "lvm_pv"
+          then [(p.content.vg or "")]
+          else [])
+        (builtins.attrValues (content.partitions or {}))
+      else []) (devices.disk or {}));
+
+    standaloneVgs = lib.mapAttrsToList vgRows (lib.filterAttrs (name: _: !builtins.elem name referencedVgs) (devices.lvm_vg or {}));
+
+    allRoots =
+      lib.mapAttrsToList diskRows (devices.disk or {})
+      ++ standaloneVgs
+      ++ (
+        if (devices.nodev or {}) != {}
+        then [
+          {
+            name = "[nodev]";
+            type = "";
+            fstype = "";
+            size = "";
+            mountpoint = "";
+            children =
+              lib.mapAttrsToList (mp: fs: {
+                name = fs.fsType or "tmpfs";
+                type = "nodev";
+                fstype = fs.fsType or "tmpfs";
+                size =
+                  if fs ? mountOptions
+                  then let
+                    sizeOpt = lib.findFirst (opt: lib.hasPrefix "size=" opt) null fs.mountOptions;
+                  in
+                    if sizeOpt != null
+                    then builtins.substring 5 (builtins.stringLength sizeOpt) sizeOpt
+                    else ""
+                  else "";
+                mountpoint = mp;
+                children = [];
+              })
+              devices.nodev;
+          }
+        ]
+        else []
+      );
+
+    flatten = depth: prefix: isLast: node: let
+      branch =
+        if depth == 0
+        then ""
+        else if isLast
+        then "└─"
+        else "├─";
+      nextPrefix =
+        if depth == 0
+        then ""
+        else if isLast
+        then prefix + "  "
+        else prefix + "│ ";
+      nChildren = builtins.length node.children;
+      row = {
+        name = prefix + branch + node.name;
+        inherit (node) type fstype size mountpoint;
+      };
+      childRows = lib.concatLists (lib.imap0 (i: child: flatten (depth + 1) nextPrefix (i == nChildren - 1) child) node.children);
+    in
+      [row] ++ childRows;
+
+    rows = lib.concatMap (root: flatten 0 "" true root) allRoots;
+
+    maxLen = fn:
+      lib.foldl' (acc: r: let
+        v = fn r;
+        str =
+          if v != null
+          then toString v
+          else "";
+      in
+        lib.max acc (visualWidth str))
+      0
+      rows;
+    colNameW = lib.max (builtins.stringLength "NAME") (maxLen (r: r.name));
+    colTypeW = lib.max (builtins.stringLength "TYPE") (maxLen (r: r.type));
+    colFsW = lib.max (builtins.stringLength "FSTYPE") (maxLen (r: r.fstype));
+    colSizeW = lib.max (builtins.stringLength "SIZE") (maxLen (r: r.size));
+    gutter = "  ";
+
+    trimRight = s: let
+      m = builtins.match "(.*[^ ]) *" s;
+    in
+      if m != null
+      then builtins.head m
+      else "";
+
+    header = "${pad colNameW "NAME"}${gutter}${pad colTypeW "TYPE"}${gutter}${pad colFsW "FSTYPE"}${gutter}${pad colSizeW "SIZE"}${gutter}MOUNTPOINT";
+    formatRow = r: let
+      mp =
+        if (r.mountpoint or null) != null
+        then toString r.mountpoint
+        else "";
+      raw = "${pad colNameW (r.name or "")}${gutter}${pad colTypeW (r.type or "")}${gutter}${pad colFsW (r.fstype or "")}${gutter}${pad colSizeW (r.size or "")}${gutter}${mp}";
+    in
+      trimRight raw;
+    lines = [header] ++ map formatRow rows;
   in
-    lib.mapAttrsToList (name: disk: {
-      label = "${disk.device or name} (disk '${name}', ${disk.content.type or "raw"})";
-      children = contentChildren (disk.content or {});
-    }) (devices.disk or {})
-    ++ lib.mapAttrsToList (name: vg: {
-      label = "${name} (LVM volume group)";
-      children = lib.mapAttrsToList volume (vg.lvs or {});
-    }) (devices.lvm_vg or {})
-    ++ lib.mapAttrsToList (mountpoint: fs: {
-      label = "${mountpoint} (${fs.fsType or "nodev"}${lib.optionalString ((fs.mountOptions or []) != []) ", ${lib.concatStringsSep "," fs.mountOptions}"})";
-    }) (devices.nodev or {});
+    lib.concatStringsSep "\n" lines;
 in {
   # Storage layout section on every host page using Disko.
   docs.sections.host.storage = {
     order = 45;
     content = ctx: let
       devices = ctx.query.eval ctx.name ["disko" "devices"] {};
-      layout = ctx.md.formatDiskLayout {inherit devices;};
+      layout = formatDiskLayout {inherit devices;};
     in
       if devices == {}
       then null

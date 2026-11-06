@@ -23,7 +23,11 @@
       mapHome = _: home: {
         enable = home.enable;
         packages = homeCfg.shared.packages ++ home.packages;
-        files = mapFiles (homeCfg.shared.files // home.files);
+        files = mapFiles (
+          homeCfg.shared.files
+          // home.files
+          // lib.mapAttrs' (p: v: lib.nameValuePair ".local/bin/${p}" v) (homeCfg.shared.xdg.bin // home.xdg.bin)
+        );
         xdg = {
           cache.files = mapFiles (homeCfg.shared.xdg.cache // home.xdg.cache);
           config.files = mapFiles (homeCfg.shared.xdg.config // home.xdg.config);

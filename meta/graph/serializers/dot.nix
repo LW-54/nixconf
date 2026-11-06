@@ -6,7 +6,7 @@
     label = builtins.replaceStrings ["\""] ["'"] (node.label or node.name or node.id);
     shape =
       if node.kind == "host" || node.kind == "configuration"
-      then "stadium"
+      then "oval"
       else if node.kind == "contract"
       then "hexagon"
       else if node.kind == "implementation"

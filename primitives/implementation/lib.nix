@@ -1,4 +1,4 @@
-{lib, ...}: let
+{...}: let
   /**
   Wraps a raw implementation module function or attribute set with contract enablement
   and conditional gating.

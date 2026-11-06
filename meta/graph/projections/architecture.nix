@@ -4,7 +4,6 @@
   ...
 }: let
   types = config.internal.graph.core.types;
-  algebra = config.internal.graph.core.algebra;
   container = config.internal.graph.core.container;
 
   /**

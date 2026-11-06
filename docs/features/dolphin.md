@@ -258,7 +258,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/dolphin.nix
 ...
-19: persistence.users = lib.mapAttrs (_: _: {
+19: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 20: data = {
 21: directories = [".local/share/dolphin"];
 22: files = [".config/dolphinrc"];

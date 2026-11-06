@@ -1,11 +1,7 @@
 # Documentation Composition & Synthesis Engine
 # Automatically synthesizes docs/coverage.md (Quality & Coverage Dashboard)
 # and injects the condensed health status card into docs/documentation.md.
-{
-  lib,
-  config,
-  ...
-}: let
+{config, ...}: let
   audit = config.internal.docs.audit;
 in {
   docs.pages = {

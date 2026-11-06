@@ -67,7 +67,7 @@ in {
             };
           };
 
-          home.users = lib.mapAttrs (userName: uCfg:
+          home.users = lib.mapAttrs (_: uCfg:
             lib.mkIf (uCfg.enable != false) {
               xdg.config."foot/foot.ini" = {
                 generator = lib.generators.toINI {};

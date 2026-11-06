@@ -5,6 +5,7 @@
       imports = [
         self.nixosModules.astrolabe-hardware
         self.nixosModules.astrolabe-disk
+        self.nixosModules.contracts
         self.nixosModules.astrolabe-system
         self.nixosModules.astrolabe-services
         self.nixosModules.astrolabe-packages
@@ -39,7 +40,6 @@
 
       astrolabe-system = {
         imports = [
-          self.nixosModules.contracts
           self.nixosModules.sops
           self.nixosModules.lw
           self.nixosModules.nix
@@ -50,6 +50,7 @@
 
         config = {
           networking.hostName = "astrolabe";
+          system.configurationRevision = self.rev or self.dirtyRev or "unknown";
           system.stateVersion = "25.11";
         };
       };

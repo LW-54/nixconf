@@ -25,7 +25,7 @@
 
                 ${ctx.md.bullets [
                   "**Declared as**: `lib.<name>` in any flake-parts module under `modules/` or `primitives/`"
-                  "**Primitive definition**: ${ctx.sourceLink "primitives/lib.nix"}"
+                  "**Primitive definition**: ${ctx.sourceLink (ctx.sourceOf "primitive" "lib")}"
                   "**Instances**: ${toString (builtins.length (builtins.attrNames (config.lib or {})))}"
                 ]}
               '';

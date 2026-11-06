@@ -7,7 +7,7 @@ Reusable system configurations, applications, desktop environments, development 
 ## Specification
 
 - **Declared as**: `feature.<name>` in any flake-parts module under `modules/features/`
-- **Primitive definition**: [`primitives/feature.nix`](../../primitives/feature.nix)
+- **Primitive definition**: [`primitives/feature/default.nix`](../../primitives/feature/default.nix)
 - **Instances**: 27
 
 ## Option Schema (`feature.<name>`)
@@ -67,5 +67,5 @@ Smallest declaration in the repository, [`modules/features/fonts.nix`](../../mod
 | [`user`](user.md) | Normal user account helper functions and querying utilities. | — | [`modules/features/user.nix`](../../modules/features/user.nix) | [More →](user.md) |
 | [`vaultwarden`](vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [`vaultwarden`](../modules/vaultwarden.md) (module) | [`modules/features/vaultwarden.nix`](../../modules/features/vaultwarden.nix) | [More →](vaultwarden.md) |
 | [`vivaldi`](vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [`vivaldi`](../modules/vivaldi.md) (module) | [`modules/features/vivaldi.nix`](../../modules/features/vivaldi.nix) | [More →](vivaldi.md) |
-| [`vscode`](vscode.md) | Visual Studio Code editor environment and persistence. | [`vscode`](../modules/vscode.md) (module) | [`modules/features/vcode.nix`](../../modules/features/vcode.nix) | [More →](vscode.md) |
+| [`vscode`](vscode.md) | Visual Studio Code editor environment and persistence. | [`vscode`](../modules/vscode.md) (module) | [`modules/features/vscode.nix`](../../modules/features/vscode.nix) | [More →](vscode.md) |
 | [`wifi-eduroam`](wifi-eduroam.md) | Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager. | [`wifi-eduroam`](../modules/wifi-eduroam.md) (module) | [`modules/features/wifi.nix`](../../modules/features/wifi.nix) | [More →](wifi-eduroam.md) |

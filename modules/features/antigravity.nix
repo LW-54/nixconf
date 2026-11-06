@@ -2,87 +2,70 @@
   inputs,
   self,
   ...
-}: {
+}: let
+  mkModule = {
+    name,
+    prettyName,
+    extraConfig ? (_: {}),
+  }: {
+    config,
+    lib,
+    pkgs,
+    ...
+  }: {
+    options.${name}.enable = lib.mkEnableOption prettyName // {default = true;};
+
+    config = lib.mkIf config.${name}.enable (lib.mkMerge [
+      {
+        environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.${name}];
+      }
+      (extraConfig {inherit config lib pkgs;})
+    ]);
+  };
+in {
   feature.antigravity = {
     description = "Google Antigravity IDE, agentic workflow tools, and CLI runtime.";
     modules = {
-      antigravity = {
-        config,
-        lib,
-        pkgs,
-        ...
-      }: {
-        options.antigravity.enable = lib.mkEnableOption "Antigravity" // {default = true;};
-
-        config = lib.mkIf config.antigravity.enable {
-          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.antigravity];
-        };
+      antigravity = mkModule {
+        name = "antigravity";
+        prettyName = "Antigravity";
       };
 
-      antigravity-ide = {
-        config,
-        lib,
-        pkgs,
-        ...
-      }: {
-        options.antigravity-ide.enable = lib.mkEnableOption "Antigravity IDE" // {default = true;};
-
-        config = lib.mkIf config.antigravity-ide.enable {
-          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-ide];
-          persistence.users = lib.mapAttrs (_: _: {
+      antigravity-ide = mkModule {
+        name = "antigravity-ide";
+        prettyName = "Antigravity IDE";
+        extraConfig = {config, ...}: {
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data.directories = [
               ".antigravity-ide"
               ".gemini"
             ];
-          }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+          });
         };
       };
 
-      antigravity-cli = {
-        config,
-        lib,
-        pkgs,
-        ...
-      }: {
-        options.antigravity-cli.enable = lib.mkEnableOption "Antigravity CLI" // {default = true;};
-
-        config = lib.mkIf config.antigravity-cli.enable {
-          environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.antigravity-cli];
-        };
+      antigravity-cli = mkModule {
+        name = "antigravity-cli";
+        prettyName = "Antigravity CLI";
       };
     };
 
-    packages = {pkgs, ...}: {
-      antigravity =
-        inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    packages = {pkgs, ...}: let
+      upstream = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system};
+      wrap = pkg: helpCommand:
+        pkg
         // {
           meta =
-            (inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default.meta or {})
+            (pkg.meta or {})
             // {
-              helpCommand = "antigravity --help";
+              inherit helpCommand;
               homepage = "https://github.com/jacopone/antigravity-nix";
             };
         };
-      antigravity-ide =
-        inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
-        // {
-          meta =
-            (inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide.meta or {})
-            // {
-              helpCommand = "antigravity-ide --help";
-              homepage = "https://github.com/jacopone/antigravity-nix";
-            };
-        };
-      antigravity-cli =
-        inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
-        // {
-          meta =
-            (inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli.meta or {})
-            // {
-              helpCommand = "antigravity --help";
-              homepage = "https://github.com/jacopone/antigravity-nix";
-            };
-        };
+    in {
+      antigravity = wrap upstream.default "antigravity --help";
+      antigravity-ide = wrap upstream.google-antigravity-ide "antigravity-ide --help";
+      antigravity-cli = wrap upstream.google-antigravity-cli "antigravity --help";
     };
   };
 }

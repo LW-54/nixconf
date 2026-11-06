@@ -383,7 +383,7 @@ flowchart LR
 | Option | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `persistence.directories` | `list of (string or attribute set of anything)` | `[ ]` | List of directory paths to persist across reboots, as absolute system paths under `/persist/system`. Can be string paths or attribute sets defining custom ownership and bind-mount modes. |
-| `persistence.enable` | `boolean` | `true` | Whether to enable declarative filesystem persistence contract mapped to impermanence. |
+| `persistence.enable` | `boolean` | `true` | Whether to enable declarative filesystem persistence contract. |
 | `persistence.files` | `list of (string or attribute set of anything)` | `[ ]` | List of individual file paths to persist across reboots, as absolute system paths under `/persist/system`. Can be string paths or attribute sets defining custom ownership and bind-mount modes. |
 | `persistence.users` | `attribute set of (submodule)` | `{ }` | Per-user persistence declarations keyed by username. `data` and `cache` root names are repository conventions, not upstream impermanence requirements. |
 
@@ -409,7 +409,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-34: persistence.directories = [
+35: persistence.directories = [
 ...
 ```
 
@@ -463,10 +463,10 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/antigravity.nix
 ...
-32: persistence.users = lib.mapAttrs (_: _: {
-33: data.directories = [
-34: ".antigravity-ide"
-35: ".gemini"
+38: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+39: data.directories = [
+40: ".antigravity-ide"
+41: ".gemini"
 ...
 ```
 
@@ -481,15 +481,15 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/bitwarden.nix
 ...
-132: persistence.users = lib.mapAttrs (_: _: {
-133: data.directories = [".config/Bitwarden CLI"];
-134: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
-135: };
+131: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+132: data.directories = [".config/Bitwarden CLI"];
+133: });
+134: };
 ...
-150: persistence.users = lib.mapAttrs (_: _: {
-151: data.directories = [".config/Bitwarden"];
-152: cache.directories = [".cache/com.bitwarden.desktop"];
-153: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+149: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+150: data.directories = [".config/Bitwarden"];
+151: cache.directories = [".cache/com.bitwarden.desktop"];
+152: });
 ...
 ```
 
@@ -504,10 +504,10 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/direnv.nix
 ...
-19: persistence.users = lib.mapAttrs (_: _: {
-20: cache.directories = [".cache/direnv"];
-21: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
-22: };
+15: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+16: cache.directories = [".cache/direnv"];
+17: });
+18: };
 ...
 ```
 
@@ -539,7 +539,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/dolphin.nix
 ...
-19: persistence.users = lib.mapAttrs (_: _: {
+19: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 20: data = {
 21: directories = [".local/share/dolphin"];
 22: files = [".config/dolphinrc"];
@@ -611,7 +611,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/noctalia.nix
 ...
-169: persistence.users = lib.mapAttrs (_: _: {
+169: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 170: data.directories = [
 171: ".config/noctalia"
 172: ".local/state/noctalia"
@@ -629,7 +629,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/ssh.nix
 ...
-127: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+127: persistence.files = lib.mkIf config.persistence.enable [
 ...
 ```
 
@@ -674,10 +674,10 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/vivaldi.nix
 ...
-23: persistence.users = lib.mapAttrs (_: _: {
+23: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 24: data.directories = [".config/vivaldi"];
 25: cache.directories = [".cache/vivaldi"];
-26: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+26: });
 ...
 ```
 
@@ -690,13 +690,13 @@ Modules and instances configuring options under the `persistence` contract capab
 **Configures options**: `persistence.users`
 
 ```nix
-# modules/features/vcode.nix
+# modules/features/vscode.nix
 ...
 3: description = "Visual Studio Code editor environment and persistence.";
 ...
-18: persistence.users = lib.mapAttrs (_: _: {
+18: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 19: data.directories = [".config/Code" ".vscode"];
-20: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+20: });
 21: };
 ...
 ```

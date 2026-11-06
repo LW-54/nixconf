@@ -1,4 +1,4 @@
-{lib, ...}: let
+{...}: let
   sanitizeId = s: builtins.replaceStrings [":" "." "-" "/" "@" "~" " "] ["__" "_" "_" "_" "_" "_" "_"] s;
   escapeLabel = s: builtins.replaceStrings ["\""] ["'"] s;
 

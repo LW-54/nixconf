@@ -66,7 +66,7 @@
             };
           };
 
-          home.users = lib.mapAttrs (userName: uCfg:
+          home.users = lib.mapAttrs (_: uCfg:
             lib.mkIf (uCfg.flags != null) {
               files.".config/helium-browser-flags.conf".text = lib.concatStringsSep "\n" uCfg.flags;
             })

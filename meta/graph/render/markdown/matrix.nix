@@ -21,11 +21,7 @@
     colLabel ? (c: c.name or c.id),
     cellFn ? null,
   }: let
-    defaultCellFn = {
-      matched,
-      edges,
-      ...
-    }:
+    defaultCellFn = {matched, ...}:
       if matched
       then "✓"
       else "·";

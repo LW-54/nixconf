@@ -1,4 +1,4 @@
-{self, ...}: let
+{...}: let
   Identity = {
     username = {
       docstring = ''

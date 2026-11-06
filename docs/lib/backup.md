@@ -74,7 +74,7 @@ This library namespace can be consumed both internally within repository modules
 <a id="defaultPruneOpts"></a>
 ### `defaultPruneOpts`
 
-Default snapshot retention rules passed to the restic prune command.
+Default snapshot retention rules passed to the backup backend pruning command.
 Preserves 7 daily, 4 weekly, and 12 monthly snapshots.
 
 #### Type
