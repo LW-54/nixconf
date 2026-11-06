@@ -69,6 +69,7 @@ flowchart LR
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
+    urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
@@ -88,6 +89,8 @@ flowchart LR
     urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__bw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__bw -.->|writes| urn__nixconf__ast__option__persistence_users
@@ -134,7 +137,9 @@ flowchart LR
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__noctalia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__noctalia -.->|writes| urn__nixconf__ast__option__persistence_users
@@ -227,6 +232,9 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vscode
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wayland
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__onto__feature__disko -->|outputs| urn__nixconf__ast__module__disko
@@ -234,12 +242,16 @@ flowchart LR
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__package__git
     urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -->|outputs| urn__nixconf__ast__module__uchiyomi
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_disk
@@ -248,6 +260,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
@@ -263,9 +276,12 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
+    urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
 
@@ -325,6 +341,7 @@ flowchart LR
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__eval__configuration__astrolabe href "astrolabe.md" "astrolabe"
     click urn__nixconf__eval__configuration__x240 href "x240.md" "x240"
+    click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
@@ -470,6 +487,9 @@ astrolabe-services = {...}: {
   config = {
     reverse-proxy.domain = "adje.app";
     services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
+    persistence.directories = [
+      "/var/lib/containers"
+    ];
   };
 };
 ```
@@ -530,6 +550,7 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /tmp/
 ├── [dir]  /var/cache/uchiyomi/
 ├── [dir]  /var/lib/caddy/
+├── [dir]  /var/lib/containers/
 ├── [dir]  /var/lib/nixos/
 ├── [dir]  /var/lib/systemd/coredump/
 ├── [dir]  /var/lib/uchiyomi/
@@ -540,6 +561,10 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [file] /etc/ssh/ssh_host_ed25519_key.pub
 ├── [file] /etc/ssh/ssh_host_rsa_key
 └── [file] /etc/ssh/ssh_host_rsa_key.pub
+
+/persist/users/lw/cache
+├── [dir]  ~lw/.cache/nix-index/
+└── [dir]  ~lw/.cache/nix/
 
 /persist/users/lw/data
 ├── [dir]  ~lw/.ssh/
@@ -552,6 +577,21 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ## Consumed Contracts
 
 Capability contracts configured by `astrolabe`:
+
+<details>
+<summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
+
+**Configures options**: `persistence.directories`
+
+```nix
+# modules/hosts/astrolabe.nix
+...
+34: persistence.directories = [
+...
+```
+
+</details>
+
 
 <details>
 <summary><code><a href="../contracts/reverse-proxy.md">reverse-proxy</a></code></summary>

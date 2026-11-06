@@ -1,4 +1,8 @@
-{inputs, ...}: {
+{
+  inputs,
+  self,
+  ...
+}: {
   feature.nix = {
     description = "Nix package manager daemon settings, binary caches, garbage collection, and nix-ld.";
     modules = {
@@ -56,6 +60,13 @@
           systemd.services.cachix-watch-store-agent.serviceConfig.KillMode = lib.mkIf config.nix.cachixWatchStore (lib.mkForce "control-group");
           nixpkgs.config.allowUnfree = true;
           environment.systemPackages = [pkgs.nixd];
+
+          persistence.users = self.lib.user.forNormalUsers config (_: _: {
+            cache.directories = [
+              ".cache/nix"
+              ".cache/nix-index"
+            ];
+          });
         };
       };
     };

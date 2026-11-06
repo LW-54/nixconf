@@ -56,6 +56,7 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
@@ -63,6 +64,7 @@ flowchart LR
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
@@ -228,12 +230,12 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/features/nix.nix
 ...
-24: secrets.files = lib.mkIf config.nix.cachixWatchStore {
-25: cachix-token = {
-26: file = ../../secrets/cachix/cachix.yaml;
-27: key = "token";
+28: secrets.files = lib.mkIf config.nix.cachixWatchStore {
+29: cachix-token = {
+30: file = ../../secrets/cachix/cachix.yaml;
+31: key = "token";
 ...
-54: cachixTokenFile = config.secrets.files.cachix-token.path;
+58: cachixTokenFile = config.secrets.files.cachix-token.path;
 ...
 ```
 

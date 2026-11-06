@@ -31,6 +31,9 @@
         config = {
           reverse-proxy.domain = "adje.app";
           services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
+          persistence.directories = [
+            "/var/lib/containers"
+          ];
         };
       };
 

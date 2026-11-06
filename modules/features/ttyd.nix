@@ -47,7 +47,7 @@
               serviceConfig = {
                 User = cfg.user;
                 WorkingDirectory = "/home/${cfg.user}";
-                ExecStart = "${pkgs.ttyd}/bin/ttyd -i ${cfg.address} -p ${toString cfg.port} -W ${pkgs.bashInteractive}/bin/bash";
+                ExecStart = "${pkgs.ttyd}/bin/ttyd -i ${cfg.address} -p ${toString cfg.port} -W ${pkgs.bashInteractive}/bin/bash -l";
                 Restart = "always";
               };
             };

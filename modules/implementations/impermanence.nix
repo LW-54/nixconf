@@ -44,7 +44,10 @@
               "/var/lib/nixos"
               "/var/lib/systemd/coredump"
               "/etc/NetworkManager/system-connections"
-              "/tmp"
+              {
+                directory = "/tmp";
+                mode = "1777";
+              }
             ]
             ++ cfg.directories;
           files =
