@@ -53,9 +53,36 @@
     };
 
     packages = {pkgs, ...}: {
-      antigravity = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      antigravity-ide = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide;
-      antigravity-cli = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli;
+      antigravity =
+        inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+        // {
+          meta =
+            (inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default.meta or {})
+            // {
+              helpCommand = "antigravity --help";
+              homepage = "https://github.com/jacopone/antigravity-nix";
+            };
+        };
+      antigravity-ide =
+        inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
+        // {
+          meta =
+            (inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide.meta or {})
+            // {
+              helpCommand = "antigravity-ide --help";
+              homepage = "https://github.com/jacopone/antigravity-nix";
+            };
+        };
+      antigravity-cli =
+        inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
+        // {
+          meta =
+            (inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli.meta or {})
+            // {
+              helpCommand = "antigravity --help";
+              homepage = "https://github.com/jacopone/antigravity-nix";
+            };
+        };
     };
   };
 }

@@ -2,15 +2,13 @@
 
 Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.
 
-[← Back to Contracts Documentation](../CONTRACTS.md) | [← Back to Main README](../../README.md)
+[← Back to Contracts Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Contract Name**: `reverse-proxy`
-- **Description**: Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.
+- **Contract**: `reverse-proxy`
 - **Definition File**: [`modules/contracts/reverse-proxy.nix`](../../modules/contracts/reverse-proxy.nix)
 
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -31,12 +29,8 @@ flowchart LR
     urn__nixconf__ast__type__reverse_proxy_host[["reverse-proxy.host"]]:::typeNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
-    urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
-    urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
-    urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
-    urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
@@ -51,10 +45,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
@@ -82,11 +72,7 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
-    urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -->|outputs| urn__nixconf__ast__module__uchiyomi
@@ -122,35 +108,8 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__uchiyomi
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -163,14 +122,15 @@ flowchart LR
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
+    click urn__nixconf__ast__option__reverse_proxy_domain href "reverse-proxy.md" "reverse-proxy.domain"
+    click urn__nixconf__ast__option__reverse_proxy_enable href "reverse-proxy.md" "reverse-proxy.enable"
+    click urn__nixconf__ast__option__reverse_proxy_hosts href "reverse-proxy.md" "reverse-proxy.hosts"
+    click urn__nixconf__ast__type__reverse_proxy_fqdn href "reverse-proxy.md" "reverse-proxy.fqdn"
+    click urn__nixconf__ast__type__reverse_proxy_host href "reverse-proxy.md" "reverse-proxy.host"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
-    click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
-    click urn__nixconf__onto__contract__default_user href "../contracts/default-user.md" "default-user"
-    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
-    click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
-    click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
-    click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
+    click urn__nixconf__onto__contract__backup href "backup.md" "backup"
+    click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
@@ -199,77 +159,80 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
-
-## Option Schema Definitions
-
-| Option | Type | Default | Example | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `options.reverse-proxy.domain` | `null or (Fully qualified domain name)` | *null* | `adje.app` | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
-| `options.reverse-proxy.enable` | `boolean` | `` | `1` | Whether to enable system reverse proxy contract. |
-| `options.reverse-proxy.hosts` | `attribute set of (submodule)` | `{ ... }` | `{ ... }` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |
+</details>
 
 ## Outputs
 
-### Custom Submodule Types
+### NixOS Modules
 
-| Type | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`reverse-proxy.fqdn`](../lib/reverse-proxy.md#reverse-proxy.fqdn) | Fully qualified domain name | [More →](../lib/reverse-proxy.md#reverse-proxy.fqdn) |
-| [`reverse-proxy.host`](../lib/reverse-proxy.md#reverse-proxy.host) | submodule | [More →](../lib/reverse-proxy.md#reverse-proxy.host) |
+| [`reverse-proxy`](../modules/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [More →](../modules/reverse-proxy.md) |
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.reverse-proxy.mkOption`](../lib/reverse-proxy.md#mkOption) | Contract option constructor / binding helper | [More →](../lib/reverse-proxy.md#mkOption) |
-| [`flake.lib.reverse-proxy.mkConfig`](../lib/reverse-proxy.md#mkConfig) | Contract option constructor / binding helper | [More →](../lib/reverse-proxy.md#mkConfig) |
-| [`flake.lib.reverse-proxy.types`](../lib/reverse-proxy.md#types) | Contract option constructor / binding helper | [More →](../lib/reverse-proxy.md#types) |
+| Symbol | Type | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`mkConfig`](../lib/reverse-proxy.md#mkConfig) | `reverse-proxy.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'reverse-proxy' contract. | [More →](../lib/reverse-proxy.md#mkConfig) |
+| [`mkOption`](../lib/reverse-proxy.md#mkOption) | `reverse-proxy.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'reverse-proxy' contract. | [More →](../lib/reverse-proxy.md#mkOption) |
 
-## Implementations
+### Custom Types
+
+- `fqdn`: Fully qualified domain name
+- `host`: submodule
+
+## Option Schema Definitions
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `reverse-proxy.domain` | `null or (Fully qualified domain name)` | *null* | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
+| `reverse-proxy.enable` | `boolean` | `false` | Whether to enable system reverse proxy contract. |
+| `reverse-proxy.hosts` | `attribute set of (submodule)` | `{ }` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |
+
+## Fulfilling Implementations
 
 Providers satisfying the `reverse-proxy` contract capability:
 
-| Implementation | Description | Docs |
-| :--- | :--- | :--- |
-| [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](../implementations/caddy.md) |
+| Implementation | Description | Definition | Docs |
+| :--- | :--- | :--- | :--- |
+| [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`modules/implementations/caddy.nix`](../../modules/implementations/caddy.nix) | [More →](../implementations/caddy.md) |
 
 ## Contract Consumers
 
-Modules configuring options under the `reverse-proxy` contract capability:
+Modules and instances configuring options under the `reverse-proxy` contract capability:
 
 ### Hosts
 
 <details>
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `reverse-proxy.domain`
 
 ```nix
-config = {
-
-};
-
+# modules/hosts/astrolabe.nix
+...
+32: reverse-proxy.domain = "adje.app";
+...
 ```
 
 </details>
 
 
-### Implementations
 
-*No implementations configure this contract.*
+
 
 ### Features
 
 <details>
 <summary><code><a href="../features/ttyd.md">ttyd</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `reverse-proxy.hosts`
 
 ```nix
-config = {
-
-};
-
+# modules/features/ttyd.nix
+...
+55: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+...
 ```
 
 </details>
@@ -278,13 +241,15 @@ config = {
 <details>
 <summary><code><a href="../features/uchiyomi.md">uchiyomi</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `reverse-proxy.hosts`
 
 ```nix
-config = {
-
-};
-
+# modules/features/uchiyomi.nix
+...
+23: domain = config.reverse-proxy.domain or null;
+...
+210: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+...
 ```
 
 </details>
@@ -293,14 +258,15 @@ config = {
 <details>
 <summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `reverse-proxy.hosts`
 
 ```nix
-config = {
-
-};
-
+# modules/features/vaultwarden.nix
+...
+33: domain = config.reverse-proxy.domain or null;
+...
+42: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+...
 ```
 
 </details>
-

@@ -89,4 +89,22 @@ in {
       };
     };
   };
+
+  # Persisted state section on every host page, rendered from evaluated persistence.
+  docs.sections.host.persistence = {
+    order = 46;
+    content = ctx: let
+      roots = ((ctx.config.flake.nixosConfigurations.${ctx.name} or {}).config or {}).environment.persistence or {};
+      treeText = ctx.md.formatPersistence {inherit roots;};
+    in
+      if treeText == null
+      then null
+      else ''
+        ## Persisted State
+
+        State preserved across reboots by fulfilling the ${ctx.instanceLink "contract" "persistence"} contract:
+
+        ${ctx.md.code "text" treeText}
+      '';
+  };
 }

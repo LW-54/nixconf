@@ -1,22 +1,12 @@
 # Module: `bitwarden-desktop`
 
-System service module exported by the 'bitwarden' feature.
+NixOS module exported by feature 'bitwarden'.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.bitwarden-desktop`
-- **Description**: System service module exported by the 'bitwarden' feature.
-
-## Importing Hosts
-
-Hosts that import this module into their system configurations:
-
-*Not currently imported by any host.*
+- **Attribute**: `flake.nixosModules.bitwarden-desktop`
+- **Provided by**: feature [`bitwarden`](../features/bitwarden.md)
 
 ## Declared Options
-
-NixOS options declared directly by this module:
 
 *No direct top-level options declared.*

@@ -81,17 +81,24 @@ in {
     };
 
     packages = {pkgs, ...}: {
-      git = inputs.wrapper-modules.wrappers.git.wrap {
-        inherit pkgs;
-        settings =
-          defaultSettings
-          // {
-            user = {
-              name = self.lib.lw.githubUsername;
-              email = self.lib.lw.email;
+      git =
+        (inputs.wrapper-modules.wrappers.git.wrap {
+          inherit pkgs;
+          settings =
+            defaultSettings
+            // {
+              user = {
+                name = self.lib.lw.githubUsername;
+                email = self.lib.lw.email;
+              };
             };
+        })
+        // {
+          meta = {
+            helpCommand = "git --help";
+            homepage = "https://git-scm.com/doc";
           };
-      };
+        };
     };
 
     devShells = {
@@ -102,7 +109,14 @@ in {
       github-ssh = self.lib.bitwarden.mkShell {
         inherit pkgs;
         bw = self'.packages.bw;
-        meta.description = "Development shell configured with Bitwarden-authenticated GitHub SSH deploy keys.";
+        meta = {
+          description = "Development shell configured with Bitwarden-authenticated GitHub SSH deploy keys.";
+          usage = ''
+            Development shell configured with Bitwarden-authenticated GitHub deploy keys.
+
+            Loads the GitHub deploy key from Bitwarden item `334fd4e6-1911-4017-9232-9463e6b70e21` into a secure temporary file in `$TMPDIR` (mode `0600`) and exports `GIT_SSH_COMMAND` to use it with `IdentitiesOnly=yes`. The temporary key file is automatically removed on shell exit via `trap`.
+          '';
+        };
         shellHook = ''
           umask 077
           github_ssh_key="$(mktemp "''${TMPDIR:-/tmp}/github-ssh.XXXXXX")"

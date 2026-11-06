@@ -2,15 +2,13 @@
 
 Default primary user account identification, credentials, and configuration injection.
 
-[← Back to Contracts Documentation](../CONTRACTS.md) | [← Back to Main README](../../README.md)
+[← Back to Contracts Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Contract Name**: `default-user`
-- **Description**: Default primary user account identification, credentials, and configuration injection.
+- **Contract**: `default-user`
 - **Definition File**: [`modules/contracts/default-user.nix`](../../modules/contracts/default-user.nix)
 
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -20,18 +18,13 @@ flowchart LR
     urn__nixconf__ast__option__default_user_fullName[/"default-user.fullName"/]:::optNode
     urn__nixconf__ast__option__default_user_githubUsername[/"default-user.githubUsername"/]:::optNode
     urn__nixconf__ast__option__default_user_username[/"default-user.username"/]:::optNode
-    urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
-    urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
-    urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_email
     urn__nixconf__ast__module__lw -.->|reads| urn__nixconf__ast__option__default_user_githubUsername
@@ -44,9 +37,7 @@ flowchart LR
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_fullName
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_githubUsername
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_username
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
@@ -54,24 +45,18 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
 
 
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
-    click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
-    click urn__nixconf__onto__contract__default_user href "../contracts/default-user.md" "default-user"
-    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
-    click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
-    click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
-    click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
+    click urn__nixconf__ast__option__default_user_email href "default-user.md" "default-user.email"
+    click urn__nixconf__ast__option__default_user_enable href "default-user.md" "default-user.enable"
+    click urn__nixconf__ast__option__default_user_fullName href "default-user.md" "default-user.fullName"
+    click urn__nixconf__ast__option__default_user_githubUsername href "default-user.md" "default-user.githubUsername"
+    click urn__nixconf__ast__option__default_user_username href "default-user.md" "default-user.username"
+    click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
+    click urn__nixconf__onto__contract__home href "home.md" "home"
+    click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
@@ -89,90 +74,55 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
-
-## Option Schema Definitions
-
-| Option | Type | Default | Example | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `options.default-user.email` | `string` | *null* | `alice@example.com` | Primary email address associated with the default user. |
-| `options.default-user.enable` | `boolean` | `1` | `1` | Whether to enable system default user contract. |
-| `options.default-user.fullName` | `null or string` | *null* | `Alice Smith` | Display name / GECOS description of the default user. |
-| `options.default-user.githubUsername` | `string` | *null* | `alice` | GitHub username of the default user. |
-| `options.default-user.username` | `string` | *null* | `alice` | Username of the default user account. |
+</details>
 
 ## Outputs
 
-### Custom Submodule Types
+### NixOS Modules
 
-*No custom types declared.*
+| Module | Description | Docs |
+| :--- | :--- | :--- |
+| [`default-user`](../modules/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [More →](../modules/default-user.md) |
 
-### Library Helpers
+## Option Schema Definitions
 
-*No library symbols exported.*
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `default-user.email` | `string` | *null* | Primary email address associated with the default user. |
+| `default-user.enable` | `boolean` | `true` | Whether to enable system default user contract. |
+| `default-user.fullName` | `null or string` | *null* | Display name / GECOS description of the default user. |
+| `default-user.githubUsername` | `string` | *null* | GitHub username of the default user. |
+| `default-user.username` | `string` | *null* | Username of the default user account. |
 
-## Implementations
+## Fulfilling Implementations
 
 Providers satisfying the `default-user` contract capability:
 
-| Implementation | Description | Docs |
-| :--- | :--- | :--- |
-| [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](../implementations/lw.md) |
+| Implementation | Description | Definition | Docs |
+| :--- | :--- | :--- | :--- |
+| [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [`modules/implementations/lw.nix`](../../modules/implementations/lw.nix) | [More →](../implementations/lw.md) |
 
 ## Contract Consumers
 
-Modules configuring options under the `default-user` contract capability:
+Modules and instances configuring options under the `default-user` contract capability:
 
-### Hosts
 
-*No hosts configure this contract directly.*
 
 ### Implementations
 
 <details>
 <summary><code><a href="../implementations/lw.md">lw</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `default-user.email`, `default-user.githubUsername`, `default-user.username`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+50: default-user = {
+51: username = Identity.username.value;
+52: githubUsername = Identity.githubUsername.value;
+53: email = Identity.email.value;
+...
 ```
 
 </details>
-
-
-<details>
-<summary><code><a href="../implementations/lw.md">lw</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../implementations/lw.md">lw</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-### Features
-
-*No features configure this contract.*

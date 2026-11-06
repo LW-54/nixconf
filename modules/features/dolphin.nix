@@ -44,6 +44,8 @@
         meta = {
           mainProgram = "dolphin";
           description = "Dolphin file manager wrapper bundled with QtWayland plugins and breeze theme assets.";
+          helpCommand = "dolphin --help";
+          homepage = "https://apps.kde.org/dolphin/";
         };
         postBuild = ''
           wrapProgram $out/bin/dolphin \

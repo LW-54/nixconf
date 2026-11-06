@@ -42,7 +42,22 @@ in {
         }:
           pkgs.mkShell {
             packages = [pkgs.age pkgs.sops];
-            meta.description = "Host-level development shell configured to decrypt local host SOPS secrets.";
+            meta = {
+              description = "Host-level development shell configured to decrypt local host SOPS secrets.";
+              usage = ''
+                Operational host inspection shell configured with the host's local age key.
+
+                Reads the age private key from `${keyFile}` (prompting for `sudo` if the key file is restricted) and exports `SOPS_AGE_KEY` so host secrets can be directly inspected, decrypted, and verified on the machine without requiring administrative Bitwarden master vault credentials:
+
+                ```bash
+                # Inspect and decrypt all secrets in file
+                sops -d modules/secrets/secrets.yaml
+
+                # Extract a specific secret value
+                sops -d --extract '["default-user-password-hash"]' modules/secrets/secrets.yaml
+                ```
+              '';
+            };
             shellHook = let
               keyFileArg = pkgs.lib.escapeShellArg keyFile;
             in ''
@@ -101,7 +116,22 @@ in {
         inherit pkgs;
         bw = self'.packages.bw;
         packages = [pkgs.age pkgs.sops];
-        meta.description = "Administrative secret editing shell with Bitwarden-authenticated master SOPS age key.";
+        meta = {
+          description = "Administrative secret editing shell with Bitwarden-authenticated master SOPS age key.";
+          usage = ''
+            Operational administration shell containing `sops` and age decryption keys.
+
+            Used to inspect, edit, and re-key encrypted repository secrets in `modules/secrets/secrets.yaml`:
+
+            ```bash
+            # Edit secrets file
+            sops modules/secrets/secrets.yaml
+
+            # Update keys across file
+            sops updatekeys modules/secrets/secrets.yaml
+            ```
+          '';
+        };
         shellHook = self.lib.bitwarden.mkValue {
           itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";
           variable = "SOPS_AGE_KEY";

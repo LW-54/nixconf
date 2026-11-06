@@ -2,30 +2,15 @@
 
 Docker application container engine, socket activation, and state persistence.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.docker`
-- **Description**: Docker application container engine, socket activation, and state persistence.
+- **Attribute**: `flake.nixosModules.docker`
+- **Provided by**: feature [`docker`](../features/docker.md)
 
 ## Importing Hosts
 
-Hosts that import this module into their system configurations:
-
-<details>
-<summary><code><a href="../hosts/x240.md">x240</a></code></summary>
-
-```nix
-          self.nixosModules.docker
-        ];
-```
-
-</details>
-
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
 
 ## Declared Options
-
-NixOS options declared directly by this module:
 
 *No direct top-level options declared.*

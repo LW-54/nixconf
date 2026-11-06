@@ -1,28 +1,18 @@
 # Module: `default-user`
 
-Contract interface defining 'default-user' option schemas and custom types.
+Default primary user account identification, credentials, and configuration injection.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.default-user`
-- **Description**: Contract interface defining 'default-user' option schemas and custom types.
-
-## Importing Hosts
-
-Hosts that import this module into their system configurations:
-
-*Not currently imported by any host.*
+- **Attribute**: `flake.nixosModules.default-user`
+- **Provided by**: contract [`default-user`](../contracts/default-user.md)
 
 ## Declared Options
 
-NixOS options declared directly by this module:
-
-| Option Path | Type | Description |
-| :--- | :--- | :--- |
-| `options.default-user.email` | `string` | Primary email address associated with the default user. |
-| `options.default-user.enable` | `boolean` | Whether to enable system default user contract. |
-| `options.default-user.fullName` | `null or string` | Display name / GECOS description of the default user. |
-| `options.default-user.githubUsername` | `string` | GitHub username of the default user. |
-| `options.default-user.username` | `string` | Username of the default user account. |
+| Option Path | Type | Default | Example | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `default-user.email` | `string` | — | `"alice@example.com"` | Primary email address associated with the default user. |
+| `default-user.enable` | `boolean` | `true` | `true` | Whether to enable system default user contract. |
+| `default-user.fullName` | `null or string` | — | `"Alice Smith"` | Display name / GECOS description of the default user. |
+| `default-user.githubUsername` | `string` | — | `"alice"` | GitHub username of the default user. |
+| `default-user.username` | `string` | — | `"alice"` | Username of the default user account. |

@@ -2,16 +2,14 @@
 
 Lightweight declarative home directory files and XDG environment manager.
 
-[← Back to Implementations Documentation](../IMPLEMENTATIONS.md) | [← Back to Main README](../../README.md)
+[← Back to Implementations Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
+- **Implementation**: `hjem`
+- **Fulfills Contract**: [`home`](../contracts/home.md)
+- **Definition File**: [`modules/implementations/hjem.nix`](../../modules/implementations/hjem.nix)
 
-- **Provider Name**: `hjem`
-- **Contract Satisfied**: [`home`](../contracts/home.md)
-- **Contract Description**: Declarative user home dotfile tree, XDG directory specifications, and session environment.
-- **Source File**: [`modules/implementations/hjem.nix`](../../modules/implementations/hjem.nix)
-
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -62,16 +60,11 @@ flowchart LR
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
-    urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
-    urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__foot -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__home_shared
@@ -163,16 +156,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
@@ -189,6 +172,14 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__ast__option__home_enable href "../contracts/home.md" "home.enable"
+    click urn__nixconf__ast__option__home_shared href "../contracts/home.md" "home.shared"
+    click urn__nixconf__ast__option__home_users href "../contracts/home.md" "home.users"
+    click urn__nixconf__ast__type__home_file href "../contracts/home.md" "home.file"
+    click urn__nixconf__ast__type__home_files href "../contracts/home.md" "home.files"
+    click urn__nixconf__ast__type__home_relativeHomePath href "../contracts/home.md" "home.relativeHomePath"
+    click urn__nixconf__ast__type__home_userHome href "../contracts/home.md" "home.userHome"
+    click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
@@ -214,13 +205,11 @@ flowchart LR
     click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
-    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
-    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
-    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
-    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
+    click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
+    click urn__nixconf__onto__implementation__uwsm href "uwsm.md" "uwsm"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -235,35 +224,16 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`hjem`](../modules/hjem.md) | Provider module satisfying `home` contract | [More →](../modules/hjem.md) |
-
-### Executable Packages
-
-*No packages exported.*
-
-### Development Shells
-
-*No development shells exported.*
-
-### Library Helpers
-
-*No library symbols exported.*
+| [`hjem`](../modules/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [More →](../modules/hjem.md) |
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`home`](../contracts/home.md) contract:
-
-- [`x240`](../hosts/x240.md) (`x86_64-linux`): ThinkPad Laptop Workstation (Desktop graphical workstation).
-
-## Consumed Contracts
-
-Contracts configured by this implementation:
-
-*No external contracts consumed by this implementation.*
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).

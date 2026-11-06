@@ -2,15 +2,13 @@
 
 Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager.
 
-[← Back to Features Documentation](../FEATURES.md) | [← Back to Main README](../../README.md)
+[← Back to Features Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Feature Name**: `wifi-eduroam`
-- **Description**: Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager.
+- **Feature**: `wifi-eduroam`
 - **Definition File**: [`modules/features/wifi.nix`](../../modules/features/wifi.nix)
 
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -34,7 +32,6 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
-    urn__nixconf__onto__feature__cosmic("cosmic"):::featureNode
     urn__nixconf__onto__feature__cursor("cursor"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
@@ -44,17 +41,12 @@ flowchart LR
     urn__nixconf__onto__feature__foot("foot"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__greetd("greetd"):::featureNode
-    urn__nixconf__onto__feature__helium("helium"):::featureNode
     urn__nixconf__onto__feature__labwc("labwc"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
-    urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
-    urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
-    urn__nixconf__onto__feature__user("user"):::featureNode
-    urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
@@ -65,9 +57,6 @@ flowchart LR
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
 
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -132,36 +121,6 @@ flowchart LR
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__audio
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cosmic
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cursor
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__docker
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__fonts
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__greetd
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__helium
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__tack
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ttyd
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__uchiyomi
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__user
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__wifi_eduroam
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
 
 
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
@@ -174,36 +133,34 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
+    click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
+    click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
-    click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
-    click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
-    click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
-    click urn__nixconf__onto__feature__cosmic href "../features/cosmic.md" "cosmic"
-    click urn__nixconf__onto__feature__cursor href "../features/cursor.md" "cursor"
-    click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
-    click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
-    click urn__nixconf__onto__feature__docker href "../features/docker.md" "docker"
-    click urn__nixconf__onto__feature__dolphin href "../features/dolphin.md" "dolphin"
-    click urn__nixconf__onto__feature__fonts href "../features/fonts.md" "fonts"
-    click urn__nixconf__onto__feature__foot href "../features/foot.md" "foot"
-    click urn__nixconf__onto__feature__git href "../features/git.md" "git"
-    click urn__nixconf__onto__feature__greetd href "../features/greetd.md" "greetd"
-    click urn__nixconf__onto__feature__helium href "../features/helium.md" "helium"
-    click urn__nixconf__onto__feature__labwc href "../features/labwc.md" "labwc"
-    click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
-    click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
-    click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
-    click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
-    click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
-    click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
-    click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
-    click urn__nixconf__onto__feature__user href "../features/user.md" "user"
-    click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
-    click urn__nixconf__onto__feature__vivaldi href "../features/vivaldi.md" "vivaldi"
-    click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
-    click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__feature__antigravity href "antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__audio href "audio.md" "audio"
+    click urn__nixconf__onto__feature__bitwarden href "bitwarden.md" "bitwarden"
+    click urn__nixconf__onto__feature__cursor href "cursor.md" "cursor"
+    click urn__nixconf__onto__feature__direnv href "direnv.md" "direnv"
+    click urn__nixconf__onto__feature__disko href "disko.md" "disko"
+    click urn__nixconf__onto__feature__docker href "docker.md" "docker"
+    click urn__nixconf__onto__feature__dolphin href "dolphin.md" "dolphin"
+    click urn__nixconf__onto__feature__fonts href "fonts.md" "fonts"
+    click urn__nixconf__onto__feature__foot href "foot.md" "foot"
+    click urn__nixconf__onto__feature__git href "git.md" "git"
+    click urn__nixconf__onto__feature__greetd href "greetd.md" "greetd"
+    click urn__nixconf__onto__feature__labwc href "labwc.md" "labwc"
+    click urn__nixconf__onto__feature__locale href "locale.md" "locale"
+    click urn__nixconf__onto__feature__nix href "nix.md" "nix"
+    click urn__nixconf__onto__feature__noctalia href "noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__ssh href "ssh.md" "ssh"
+    click urn__nixconf__onto__feature__tack href "tack.md" "tack"
+    click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
+    click urn__nixconf__onto__feature__vscode href "vscode.md" "vscode"
+    click urn__nixconf__onto__feature__wifi_eduroam href "wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
@@ -225,42 +182,37 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`wifi-eduroam`](../modules/wifi-eduroam.md) | System service module exported by `wifi-eduroam` | [More →](../modules/wifi-eduroam.md) |
+| [`wifi-eduroam`](../modules/wifi-eduroam.md) | Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager. | [More →](../modules/wifi-eduroam.md) |
 
-### Executable Packages
+## Importing Hosts
 
-*No packages exported.*
-
-### Development Shells
-
-*No development shells exported.*
-
-### Library Helpers
-
-*No library symbols exported.*
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
 
 ## Consumed Contracts
 
-Contracts configured by this feature:
+Capability contracts configured by this feature:
 
 <details>
 <summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/features/wifi.nix
+...
+73: secrets.files = {
+74: ${usernameSecret} = {
+75: file = cfg.secretFile;
+76: key = cfg.usernameKey;
+...
 ```
 
 </details>
-

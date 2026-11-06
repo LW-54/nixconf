@@ -1,8 +1,52 @@
-# Library Namespace: `flake.lib.primitive`
+# Library: `primitive`
 
 Primitives framework helper functions, option constructors, and utilities.
 
-[← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
+[← Back to Library Documentation](README.md) | [← Back to Main README](../../README.md)
+
+- **Library**: `flake.lib.primitive`
+- **Definition File**: [`primitives/primitive/default.nix`](../../primitives/primitive/default.nix)
+
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
+
+```mermaid
+flowchart LR
+  urn__nixconf__ast__function__primitive_unwrapLib["primitive.unwrapLib"]:::defaultNode
+    urn__nixconf__ast__symbol__primitive_check["primitive.check"]:::defaultNode
+    urn__nixconf__ast__symbol__primitive_option["primitive.option"]:::defaultNode
+    urn__nixconf__ast__symbol__primitive_output["primitive.output"]:::defaultNode
+    urn__nixconf__ast__symbol__primitive_parser["primitive.parser"]:::defaultNode
+    urn__nixconf__onto__lib__primitive["primitive"]:::defaultNode
+
+    urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__function__primitive_unwrapLib
+    urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_check
+    urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_option
+    urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_output
+    urn__nixconf__onto__lib__primitive -->|outputs| urn__nixconf__ast__symbol__primitive_parser
+
+
+    click urn__nixconf__ast__function__primitive_unwrapLib href "primitive.md" "primitive.unwrapLib"
+    click urn__nixconf__ast__symbol__primitive_check href "primitive.md" "primitive.check"
+    click urn__nixconf__ast__symbol__primitive_option href "primitive.md" "primitive.option"
+    click urn__nixconf__ast__symbol__primitive_output href "primitive.md" "primitive.output"
+    click urn__nixconf__ast__symbol__primitive_parser href "primitive.md" "primitive.parser"
+    click urn__nixconf__onto__lib__primitive href "primitive.md" "primitive"
+
+  %% Semantic Visual Classes
+  classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+  classDef contractNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+  classDef implNode fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+  classDef featureNode fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f8fafc;
+  classDef optNode fill:#422006,stroke:#facc15,stroke-width:1px,color:#fefce8;
+  classDef typeNode fill:#3b0764,stroke:#c084fc,stroke-width:1px,color:#faf5ff;
+  classDef pkgNode fill:#4c0519,stroke:#fb7185,stroke-width:1px,color:#fff1f2;
+  classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
+  classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
+  classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
+
+</details>
 
 ## Usage
 
@@ -10,65 +54,30 @@ This library namespace can be consumed both internally within repository modules
 
 ### Internal Usage
 
-Within repository modules, NixOS configurations, or packages, access functions directly through `self.lib.primitive`:
-
 ```nix
 { self, lib, pkgs, ... }: {
-  # Access helpers directly from self.lib.primitive
-  example = self.lib.primitive.unwrapLib;
+  example = self.lib.primitive.check;
 }
 ```
 
 ### External Usage
 
-When consuming this flake as an input in another `flake.nix`:
-
 ```nix
 {
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixconf.url = "github:LW-54/nixconf";
-  };
+  inputs.nixconf.url = "github:LW-54/nixconf";
 
-  outputs = { self, nixpkgs, nixconf, ... }: {
-    # Access exported helpers from inputs.nixconf.lib.primitive
-    example = nixconf.lib.primitive.unwrapLib;
+  outputs = { self, nixconf, ... }: {
+    example = nixconf.lib.primitive.check;
   };
 }
 ```
 
 ## Exported Symbols
 
-<a id="unwrapLib"></a>
-### `unwrapLib`
-
-Unwraps documented symbols from an attribute set, extracting `.value` if present or stripping `.docstring` metadata.
-
-
-
-#### Inputs
-
-- `attrs`: Attribute set containing documented symbol definitions.
-
-
-#### Type
-
-```
-unwrapLib :: AttrSet -> AttrSet
-```
-
-
-
-
-
 <a id="check"></a>
 ### `check`
 
 Generic validation check constructors, predicates, and style specification verifiers.
-
-
-
-
 
 #### Type
 
@@ -94,18 +103,10 @@ check :: AttrSet
 - `all checkList [message]`: Validates that all checks pass.
 ```
 
-
-
-
-
 <a id="option"></a>
 ### `option`
 
 Pre-configured option constructors for primitive definitions with automatic descriptions and functor override support.
-
-
-
-
 
 #### Type
 
@@ -113,18 +114,10 @@ Pre-configured option constructors for primitive definitions with automatic desc
 option :: AttrSet
 ```
 
-
-
-
-
 <a id="output"></a>
 ### `output`
 
 Pre-configured output generator helpers for aggregating flake outputs.
-
-
-
-
 
 #### Type
 
@@ -132,18 +125,10 @@ Pre-configured output generator helpers for aggregating flake outputs.
 output :: AttrSet
 ```
 
-
-
-
-
 <a id="parser"></a>
 ### `parser`
 
 Pure-Nix RFC 145 docstring parser utilities for functions and library symbols.
-
-
-
-
 
 #### Type
 
@@ -155,6 +140,17 @@ parser :: AttrSet
 - `parseDocstring rawComment`: Parses structured RFC 145 docstring sections.
 ```
 
+<a id="unwrapLib"></a>
+### `unwrapLib`
 
+Unwraps documented symbols from an attribute set, extracting `.value` if present or stripping `.docstring` metadata.
 
+#### Inputs
 
+- `attrs`: Attribute set containing documented symbol definitions.
+
+#### Type
+
+```
+unwrapLib :: AttrSet -> AttrSet
+```

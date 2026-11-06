@@ -2,15 +2,13 @@
 
 Wayland compositor registration, session targets, and graphical environment management.
 
-[← Back to Contracts Documentation](../CONTRACTS.md) | [← Back to Main README](../../README.md)
+[← Back to Contracts Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Contract Name**: `wayland`
-- **Description**: Wayland compositor registration, session targets, and graphical environment management.
+- **Contract**: `wayland`
 - **Definition File**: [`modules/contracts/wayland.nix`](../../modules/contracts/wayland.nix)
 
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -28,12 +26,8 @@ flowchart LR
     urn__nixconf__ast__option__wayland_enable[/"wayland.enable"/]:::optNode
     urn__nixconf__ast__type__wayland_compositor[["wayland.compositor"]]:::typeNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
-    urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
-    urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
-    urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
-    urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
@@ -62,10 +56,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__labwc -.->|flowsTo| urn__nixconf__ast__module__uwsm
     urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__wayland_compositors
@@ -99,13 +89,10 @@ flowchart LR
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop_features
@@ -144,48 +131,10 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm -->|outputs| urn__nixconf__ast__module__uwsm
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__audio
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__cursor
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__docker
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__fonts
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__greetd
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__locale
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__tack
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__wifi_eduroam
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__labwc href "../modules/labwc.md" "labwc"
@@ -198,14 +147,13 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__ast__option__wayland_compositors href "wayland.md" "wayland.compositors"
+    click urn__nixconf__ast__option__wayland_enable href "wayland.md" "wayland.enable"
+    click urn__nixconf__ast__type__wayland_compositor href "wayland.md" "wayland.compositor"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
-    click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
-    click urn__nixconf__onto__contract__default_user href "../contracts/default-user.md" "default-user"
-    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
-    click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
-    click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
-    click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
+    click urn__nixconf__onto__contract__home href "home.md" "home"
+    click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__wayland href "wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
@@ -247,76 +195,81 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
-
-## Option Schema Definitions
-
-| Option | Type | Default | Example | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `options.wayland.compositors` | `attribute set of (submodule)` | `{ ... }` | `{ ... }` | Declarative Wayland compositor registrations managed by the session manager. |
-| `options.wayland.enable` | `boolean` | `` | `1` | Whether to enable system-level Wayland session orchestration. When enabled, Wayland compositor backends (such as UWSM) will configure systemd graphical session targets, environment variables, and startup units. |
+</details>
 
 ## Outputs
 
-### Custom Submodule Types
+### NixOS Modules
 
-| Type | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`wayland.compositor`](../lib/wayland.md#wayland.compositor) | submodule | [More →](../lib/wayland.md#wayland.compositor) |
+| [`wayland`](../modules/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [More →](../modules/wayland.md) |
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.wayland.mkOption`](../lib/wayland.md#mkOption) | Contract option constructor / binding helper | [More →](../lib/wayland.md#mkOption) |
-| [`flake.lib.wayland.mkConfig`](../lib/wayland.md#mkConfig) | Contract option constructor / binding helper | [More →](../lib/wayland.md#mkConfig) |
-| [`flake.lib.wayland.types`](../lib/wayland.md#types) | Contract option constructor / binding helper | [More →](../lib/wayland.md#types) |
+| Symbol | Type | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`mkConfig`](../lib/wayland.md#mkConfig) | `wayland.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'wayland' contract. | [More →](../lib/wayland.md#mkConfig) |
+| [`mkOption`](../lib/wayland.md#mkOption) | `wayland.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'wayland' contract. | [More →](../lib/wayland.md#mkOption) |
 
-## Implementations
+### Custom Types
+
+- `compositor`: submodule
+
+## Option Schema Definitions
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `wayland.compositors` | `attribute set of (submodule)` | `{ }` | Declarative Wayland compositor registrations managed by the session manager. |
+| `wayland.enable` | `boolean` | `false` | Whether to enable system-level Wayland session orchestration. When enabled, Wayland compositor backends (such as UWSM) will configure systemd graphical session targets, environment variables, and startup units. |
+
+## Fulfilling Implementations
 
 Providers satisfying the `wayland` contract capability:
 
-| Implementation | Description | Docs |
-| :--- | :--- | :--- |
-| [`uwsm`](../implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [More →](../implementations/uwsm.md) |
+| Implementation | Description | Definition | Docs |
+| :--- | :--- | :--- | :--- |
+| [`uwsm`](../implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [`modules/implementations/uwsm.nix`](../../modules/implementations/uwsm.nix) | [More →](../implementations/uwsm.md) |
 
 ## Contract Consumers
 
-Modules configuring options under the `wayland` contract capability:
+Modules and instances configuring options under the `wayland` contract capability:
 
 ### Hosts
 
 <details>
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `wayland.enable`
 
 ```nix
-config = {
-
-};
-
+# modules/hosts/x240.nix
+...
+90: wayland.enable = true;
+...
 ```
 
 </details>
 
 
-### Implementations
 
-*No implementations configure this contract.*
+
 
 ### Features
 
 <details>
 <summary><code><a href="../features/labwc.md">labwc</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `wayland.compositors`
 
 ```nix
-config = {
-
-};
-
+# modules/features/labwc.nix
+...
+98: wayland.compositors.labwc = {
+99: prettyName = "Labwc";
+100: comment = "Labwc Wayland compositor";
+101: binPath = lib.getExe pkgs.labwc;
+...
 ```
 
 </details>
-

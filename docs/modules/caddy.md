@@ -2,34 +2,15 @@
 
 Automated TLS virtual host reverse proxy implementation using Caddy.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.caddy`
-- **Description**: Automated TLS virtual host reverse proxy implementation using Caddy.
+- **Attribute**: `flake.nixosModules.caddy`
+- **Provided by**: implementation [`caddy`](../implementations/caddy.md)
 
 ## Importing Hosts
 
-Hosts that import this module into their system configurations:
-
-<details>
-<summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
-
-```nix
-          self.nixosModules.caddy
-          self.nixosModules.restic
-          self.nixosModules.vaultwarden
-          self.nixosModules.ttyd
-          self.nixosModules.uchiyomi
-        ];
-```
-
-</details>
-
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
 ## Declared Options
-
-NixOS options declared directly by this module:
 
 *No direct top-level options declared.*

@@ -2,16 +2,14 @@
 
 Primary human user account orchestration and identity provisioning.
 
-[← Back to Implementations Documentation](../IMPLEMENTATIONS.md) | [← Back to Main README](../../README.md)
+[← Back to Implementations Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
+- **Implementation**: `lw`
+- **Fulfills Contract**: [`default-user`](../contracts/default-user.md)
+- **Definition File**: [`modules/implementations/lw.nix`](../../modules/implementations/lw.nix)
 
-- **Provider Name**: `lw`
-- **Contract Satisfied**: [`default-user`](../contracts/default-user.md)
-- **Contract Description**: Default primary user account identification, credentials, and configuration injection.
-- **Source File**: [`modules/implementations/lw.nix`](../../modules/implementations/lw.nix)
-
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -97,9 +95,6 @@ flowchart LR
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
@@ -266,21 +261,6 @@ flowchart LR
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -301,6 +281,29 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__ast__option__default_user_email href "../contracts/default-user.md" "default-user.email"
+    click urn__nixconf__ast__option__default_user_enable href "../contracts/default-user.md" "default-user.enable"
+    click urn__nixconf__ast__option__default_user_fullName href "../contracts/default-user.md" "default-user.fullName"
+    click urn__nixconf__ast__option__default_user_githubUsername href "../contracts/default-user.md" "default-user.githubUsername"
+    click urn__nixconf__ast__option__default_user_username href "../contracts/default-user.md" "default-user.username"
+    click urn__nixconf__ast__option__home_enable href "../contracts/home.md" "home.enable"
+    click urn__nixconf__ast__option__home_shared href "../contracts/home.md" "home.shared"
+    click urn__nixconf__ast__option__home_users href "../contracts/home.md" "home.users"
+    click urn__nixconf__ast__option__persistence_directories href "../contracts/persistence.md" "persistence.directories"
+    click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
+    click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
+    click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
+    click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
+    click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
+    click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__type__home_file href "../contracts/home.md" "home.file"
+    click urn__nixconf__ast__type__home_files href "../contracts/home.md" "home.files"
+    click urn__nixconf__ast__type__home_relativeHomePath href "../contracts/home.md" "home.relativeHomePath"
+    click urn__nixconf__ast__type__home_userHome href "../contracts/home.md" "home.userHome"
+    click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
+    click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
+    click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
+    click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__default_user href "../contracts/default-user.md" "default-user"
@@ -335,13 +338,13 @@ flowchart LR
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
-    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
-    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
-    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
-    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__implementation__caddy href "caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
+    click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
+    click urn__nixconf__onto__implementation__uwsm href "uwsm.md" "uwsm"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -356,82 +359,46 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`lw`](../modules/lw.md) | Provider module satisfying `default-user` contract | [More →](../modules/lw.md) |
-
-### Executable Packages
-
-*No packages exported.*
-
-### Development Shells
-
-*No development shells exported.*
+| [`lw`](../modules/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](../modules/lw.md) |
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.lw.email`](../lib/lw.md#email) | Library helper symbol | [More →](../lib/lw.md#email) |
-| [`flake.lib.lw.githubUsername`](../lib/lw.md#githubUsername) | Library helper symbol | [More →](../lib/lw.md#githubUsername) |
-| [`flake.lib.lw.username`](../lib/lw.md#username) | Library helper symbol | [More →](../lib/lw.md#username) |
+| Symbol | Type | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`email`](../lib/lw.md#email) | `email :: String` | Primary email address for user account lw. | [More →](../lib/lw.md#email) |
+| [`githubUsername`](../lib/lw.md#githubUsername) | `githubUsername :: String` | Primary GitHub account username for user account lw. | [More →](../lib/lw.md#githubUsername) |
+| [`username`](../lib/lw.md#username) | `username :: String` | Primary login username for user account lw. | [More →](../lib/lw.md#username) |
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`default-user`](../contracts/default-user.md) contract:
-
-- [`astrolabe`](../hosts/astrolabe.md) (`x86_64-linux`): Headless VPS Server (adje.app public edge and core services).
-- [`x240`](../hosts/x240.md) (`x86_64-linux`): ThinkPad Laptop Workstation (Desktop graphical workstation).
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
 
 ## Consumed Contracts
 
-Contracts configured by this implementation:
+Capability contracts configured by this implementation:
 
 <details>
 <summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `default-user.email`, `default-user.githubUsername`, `default-user.username`
 
 ```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
-
-Configures options: *general capability bindings*
-
-```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../contracts/default-user.md">default-user</a></code></summary>
-
-Configures options: *general capability bindings*
-
-```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+50: default-user = {
+51: username = Identity.username.value;
+52: githubUsername = Identity.githubUsername.value;
+53: email = Identity.email.value;
+...
 ```
 
 </details>
@@ -440,13 +407,13 @@ config = {
 <details>
 <summary><code><a href="../contracts/home.md">home</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `home.users`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+73: home.users.${cfg.username} = {};
+...
 ```
 
 </details>
@@ -455,13 +422,16 @@ config = {
 <details>
 <summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+75: persistence.users.${cfg.username} = {
+76: data.directories = [
+77: "nixconf"
+78: "Documents"
+...
 ```
 
 </details>
@@ -470,14 +440,20 @@ config = {
 <details>
 <summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+56: secrets.files.default-user-password-hash = {
+57: file = ../../secrets/users/default.yaml;
+58: key = "passwordHash";
+59: neededForUsers = true;
+...
+66: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+...
+70: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+...
 ```
 
 </details>
-

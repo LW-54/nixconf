@@ -61,6 +61,94 @@
     DEPENDS_ON = "dependsOn";
   };
 
+  /*
+  Documentation of the closed enumerations above. Kept next to the
+  enumerations so that adding a stratum, relation, or node kind and
+  documenting it happen in the same place (rendered on docs/graph.md).
+  */
+  strataInfo = {
+    onto = {
+      label = "Ontological Intent";
+      description = "Primitives and their declared instances: what the repository intends to exist.";
+    };
+    ast = {
+      label = "Syntactic Structure";
+      description = "Modules, options, types, and library symbols as declared in Nix expressions.";
+    };
+    eval = {
+      label = "Operational Fixpoint";
+      description = "Evaluated NixOS configurations, option definitions, and data dependences.";
+    };
+    drv = {
+      label = "Derivation Substrate";
+      description = "Packages, development shells, and their store-level dependencies.";
+    };
+  };
+
+  relationInfo = {
+    contains = {
+      description = "Lexical parent-child containment.";
+      grounding = "Primitives containing their declared instances.";
+    };
+    declares = {
+      description = "Interface specification declaration.";
+      grounding = "Contracts declaring public options and custom types.";
+    };
+    outputs = {
+      description = "Flake artifact emission.";
+      grounding = "Primitive instances emitting configurations, modules, packages, devShells, and functions.";
+    };
+    typedBy = {
+      description = "Option type-system binding.";
+      grounding = "Contract options bound to custom submodule types.";
+    };
+    documents = {
+      description = "Documentation attachment.";
+      grounding = "Docstrings attached to library symbols.";
+    };
+    imports = {
+      description = "Compilation unit composition.";
+      grounding = "Evaluated NixOS configurations importing concrete NixOS modules.";
+    };
+    writes = {
+      description = "Option value definition (def / store).";
+      grounding = "Module definitions extracted via `definitionsWithLocations`.";
+    };
+    reads = {
+      description = "Option value inspection (use / load).";
+      grounding = "Implementations reading contract options.";
+    };
+    flowsTo = {
+      description = "End-to-end data dependence channel.";
+      grounding = "Option writers connected to the implementations consuming them.";
+    };
+    implements = {
+      description = "Contract fulfillment.";
+      grounding = "Primitive relationships such as `implementation.<name>.contract`.";
+    };
+    dependsOn = {
+      description = "Software package dependency.";
+      grounding = "Modules and devShells depending on executable packages.";
+    };
+  };
+
+  kindInfo = {
+    primitive = "Meta-primitives defining how instances are declared and exported.";
+    host = "Target machines evaluated into NixOS systems.";
+    contract = "Typed contract interfaces.";
+    implementation = "Concrete providers fulfilling contracts.";
+    feature = "Reusable system and desktop capability bundles.";
+    lib = "Library namespaces grouping functions and symbols.";
+    configuration = "Evaluated NixOS configurations on `flake.nixosConfigurations`.";
+    module = "NixOS modules exported on `flake.nixosModules`.";
+    option = "Public contract options with types and descriptions.";
+    type = "Custom option types declared by contracts and features.";
+    function = "Library functions with RFC 145 docstring metadata.";
+    symbol = "Non-function library values and constants.";
+    package = "Packages exported on `flake.packages`.";
+    devShell = "Development shells exported on `flake.devShells`.";
+  };
+
   /**
   Constructs a canonical typed CPG Node.
   */
@@ -116,6 +204,9 @@ in {
       parseURN
       strata
       relations
+      strataInfo
+      relationInfo
+      kindInfo
       mkNode
       mkEdge
       ;

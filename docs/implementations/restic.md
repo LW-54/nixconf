@@ -2,16 +2,14 @@
 
 Automated encrypted remote backups using Restic and systemd timers.
 
-[← Back to Implementations Documentation](../IMPLEMENTATIONS.md) | [← Back to Main README](../../README.md)
+[← Back to Implementations Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
+- **Implementation**: `restic`
+- **Fulfills Contract**: [`backup`](../contracts/backup.md)
+- **Definition File**: [`modules/implementations/restic.nix`](../../modules/implementations/restic.nix)
 
-- **Provider Name**: `restic`
-- **Contract Satisfied**: [`backup`](../contracts/backup.md)
-- **Contract Description**: Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules.
-- **Source File**: [`modules/implementations/restic.nix`](../../modules/implementations/restic.nix)
-
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -49,15 +47,10 @@ flowchart LR
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
-    urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
-    urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
@@ -127,17 +120,6 @@ flowchart LR
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -150,6 +132,15 @@ flowchart LR
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
+    click urn__nixconf__ast__option__backup_enable href "../contracts/backup.md" "backup.enable"
+    click urn__nixconf__ast__option__backup_exclude href "../contracts/backup.md" "backup.exclude"
+    click urn__nixconf__ast__option__backup_paths href "../contracts/backup.md" "backup.paths"
+    click urn__nixconf__ast__option__backup_pruneOpts href "../contracts/backup.md" "backup.pruneOpts"
+    click urn__nixconf__ast__option__backup_timerConfig href "../contracts/backup.md" "backup.timerConfig"
+    click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
+    click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
+    click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
@@ -164,13 +155,11 @@ flowchart LR
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
-    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
-    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
-    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
-    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__implementation__caddy href "caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -185,48 +174,41 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`restic`](../modules/restic.md) | Provider module satisfying `backup` contract | [More →](../modules/restic.md) |
-
-### Executable Packages
-
-*No packages exported.*
-
-### Development Shells
-
-*No development shells exported.*
-
-### Library Helpers
-
-*No library symbols exported.*
+| [`restic`](../modules/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [More →](../modules/restic.md) |
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`backup`](../contracts/backup.md) contract:
-
-- [`astrolabe`](../hosts/astrolabe.md) (`x86_64-linux`): Headless VPS Server (adje.app public edge and core services).
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
 ## Consumed Contracts
 
-Contracts configured by this implementation:
+Capability contracts configured by this implementation:
 
 <details>
 <summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/restic.nix
+...
+37: secrets.files = {
+38: restic-env = lib.mkIf (resticCfg.environmentFile == null) {
+39: file = ../../secrets/backup/restic.yaml;
+40: key = "env";
+...
+54: else config.secrets.files.restic-env.path;
+...
+58: else config.secrets.files.restic-password.path;
+...
 ```
 
 </details>
-

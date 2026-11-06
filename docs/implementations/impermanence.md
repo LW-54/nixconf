@@ -2,16 +2,14 @@
 
 Ephemeral root filesystem with persistent state bind-mounts via Impermanence.
 
-[← Back to Implementations Documentation](../IMPLEMENTATIONS.md) | [← Back to Main README](../../README.md)
+[← Back to Implementations Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
+- **Implementation**: `impermanence`
+- **Fulfills Contract**: [`persistence`](../contracts/persistence.md)
+- **Definition File**: [`modules/implementations/impermanence.nix`](../../modules/implementations/impermanence.nix)
 
-- **Provider Name**: `impermanence`
-- **Contract Satisfied**: [`persistence`](../contracts/persistence.md)
-- **Contract Description**: Declarative state preservation across ephemeral reboots for system and user directories.
-- **Source File**: [`modules/implementations/impermanence.nix`](../../modules/implementations/impermanence.nix)
-
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -89,9 +87,6 @@ flowchart LR
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__persistence_users
@@ -266,18 +261,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
@@ -310,6 +293,12 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__ast__option__persistence_directories href "../contracts/persistence.md" "persistence.directories"
+    click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
+    click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
+    click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
+    click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
+    click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
@@ -341,13 +330,13 @@ flowchart LR
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
-    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
-    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
-    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
-    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__implementation__caddy href "caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
+    click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
+    click urn__nixconf__onto__implementation__uwsm href "uwsm.md" "uwsm"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -362,36 +351,17 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`impermanence`](../modules/impermanence.md) | Provider module satisfying `persistence` contract | [More →](../modules/impermanence.md) |
-
-### Executable Packages
-
-*No packages exported.*
-
-### Development Shells
-
-*No development shells exported.*
-
-### Library Helpers
-
-*No library symbols exported.*
+| [`impermanence`](../modules/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [More →](../modules/impermanence.md) |
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`persistence`](../contracts/persistence.md) contract:
-
-- [`astrolabe`](../hosts/astrolabe.md) (`x86_64-linux`): Headless VPS Server (adje.app public edge and core services).
-- [`x240`](../hosts/x240.md) (`x86_64-linux`): ThinkPad Laptop Workstation (Desktop graphical workstation).
-
-## Consumed Contracts
-
-Contracts configured by this implementation:
-
-*No external contracts consumed by this implementation.*
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).

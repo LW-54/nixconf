@@ -2,16 +2,14 @@
 
 Automated TLS virtual host reverse proxy implementation using Caddy.
 
-[← Back to Implementations Documentation](../IMPLEMENTATIONS.md) | [← Back to Main README](../../README.md)
+[← Back to Implementations Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
+- **Implementation**: `caddy`
+- **Fulfills Contract**: [`reverse-proxy`](../contracts/reverse-proxy.md)
+- **Definition File**: [`modules/implementations/caddy.nix`](../../modules/implementations/caddy.nix)
 
-- **Provider Name**: `caddy`
-- **Contract Satisfied**: [`reverse-proxy`](../contracts/reverse-proxy.md)
-- **Contract Description**: Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.
-- **Source File**: [`modules/implementations/caddy.nix`](../../modules/implementations/caddy.nix)
-
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -60,15 +58,10 @@ flowchart LR
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
-    urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
-    urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
@@ -163,16 +156,6 @@ flowchart LR
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -186,6 +169,17 @@ flowchart LR
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
+    click urn__nixconf__ast__option__persistence_directories href "../contracts/persistence.md" "persistence.directories"
+    click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
+    click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
+    click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
+    click urn__nixconf__ast__option__reverse_proxy_domain href "../contracts/reverse-proxy.md" "reverse-proxy.domain"
+    click urn__nixconf__ast__option__reverse_proxy_enable href "../contracts/reverse-proxy.md" "reverse-proxy.enable"
+    click urn__nixconf__ast__option__reverse_proxy_hosts href "../contracts/reverse-proxy.md" "reverse-proxy.hosts"
+    click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
+    click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
+    click urn__nixconf__ast__type__reverse_proxy_fqdn href "../contracts/reverse-proxy.md" "reverse-proxy.fqdn"
+    click urn__nixconf__ast__type__reverse_proxy_host href "../contracts/reverse-proxy.md" "reverse-proxy.host"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
@@ -208,13 +202,11 @@ flowchart LR
     click urn__nixconf__onto__feature__vivaldi href "../features/vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
-    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
-    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
-    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
-    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__implementation__caddy href "caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -229,48 +221,34 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`caddy`](../modules/caddy.md) | Provider module satisfying `reverse-proxy` contract | [More →](../modules/caddy.md) |
-
-### Executable Packages
-
-*No packages exported.*
-
-### Development Shells
-
-*No development shells exported.*
-
-### Library Helpers
-
-*No library symbols exported.*
+| [`caddy`](../modules/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](../modules/caddy.md) |
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`reverse-proxy`](../contracts/reverse-proxy.md) contract:
-
-- [`astrolabe`](../hosts/astrolabe.md) (`x86_64-linux`): Headless VPS Server (adje.app public edge and core services).
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
 ## Consumed Contracts
 
-Contracts configured by this implementation:
+Capability contracts configured by this implementation:
 
 <details>
 <summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
 
-Configures options: *general capability bindings*
+**Configures options**: `persistence.directories`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/caddy.nix
+...
+36: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+...
 ```
 
 </details>
-

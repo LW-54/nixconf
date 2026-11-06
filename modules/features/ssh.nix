@@ -146,7 +146,14 @@
       master-ssh = self.lib.bitwarden.mkShell {
         inherit pkgs;
         bw = self'.packages.bw;
-        meta.description = "Administrative development shell configured with Bitwarden-managed master SSH private keys.";
+        meta = {
+          description = "Administrative development shell configured with Bitwarden-managed master SSH private keys.";
+          usage = ''
+            Administrative shell configured with the master SSH deployment key.
+
+            Extracts the master deployment identity (`6b22304d-b9cf-43ca-a483-3c97ceca6717`) from Bitwarden and exports `GIT_SSH_COMMAND` for remote machine deployment, maintenance, and cluster orchestration.
+          '';
+        };
         shellHook = ''
           umask 077
           master_ssh_key="$(mktemp "''${TMPDIR:-/tmp}/master-ssh.XXXXXX")"

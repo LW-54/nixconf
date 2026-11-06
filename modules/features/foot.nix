@@ -84,10 +84,17 @@ in {
     };
 
     packages = {pkgs, ...}: {
-      foot = inputs.wrapper-modules.wrappers.foot.wrap {
-        inherit pkgs;
-        settings = defaultSettings;
-      };
+      foot =
+        (inputs.wrapper-modules.wrappers.foot.wrap {
+          inherit pkgs;
+          settings = defaultSettings;
+        })
+        // {
+          meta = {
+            helpCommand = "foot --help";
+            homepage = "https://codeberg.org/dnkl/foot";
+          };
+        };
     };
   };
 }

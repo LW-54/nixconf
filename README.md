@@ -6,11 +6,11 @@
 
 The repository architecture is governed by five first-class, symmetrical primitives:
 
-- **Hosts (`host`)**: Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.
-- **Contracts (`contract`)**: Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
-- **Implementations (`implementation`)**: Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations.
-- **Features (`feature`)**: Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.
-- **Libraries (`lib`)**: Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository.
+- [**Hosts (`host`)**](docs/hosts/README.md): Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.
+- [**Contracts (`contract`)**](docs/contracts/README.md): Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.
+- [**Implementations (`implementation`)**](docs/implementations/README.md): Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations.
+- [**Features (`feature`)**](docs/features/README.md): Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.
+- [**Libraries (`lib`)**](docs/lib/README.md): Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository.
 
 ```mermaid
 flowchart TD
@@ -28,6 +28,12 @@ flowchart TD
     Implementation -.->|"provides"| Library
     Feature -.->|"provides"| Library
 
+    click Host "docs/hosts/README.md" "Hosts Documentation"
+    click Contract "docs/contracts/README.md" "Contracts Documentation"
+    click Implementation "docs/implementations/README.md" "Implementations Documentation"
+    click Feature "docs/features/README.md" "Features Documentation"
+    click Library "docs/lib/README.md" "Library Documentation"
+
     classDef default fill:#1e1e2e,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4;
     classDef contract fill:#181825,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4;
     classDef impl fill:#181825,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4;
@@ -40,7 +46,6 @@ flowchart TD
     class Feature feat;
     class Library lib;
 ```
-
 
 <details>
 <summary>Full Architecture Diagram (Click to expand)</summary>
@@ -107,8 +112,7 @@ end
     urn__nixconf__onto__lib__bitwarden["bitwarden"]:::defaultNode
     urn__nixconf__onto__lib__default_user["default-user"]:::defaultNode
     urn__nixconf__onto__lib__disko["disko"]:::defaultNode
-    urn__nixconf__onto__lib__docsMarkdown["docsMarkdown"]:::defaultNode
-    urn__nixconf__onto__lib__docsParser["docsParser"]:::defaultNode
+    urn__nixconf__onto__lib__docs["docs"]:::defaultNode
     urn__nixconf__onto__lib__graph["graph"]:::defaultNode
     urn__nixconf__onto__lib__home["home"]:::defaultNode
     urn__nixconf__onto__lib__lw["lw"]:::defaultNode
@@ -249,8 +253,7 @@ end
     click urn__nixconf__onto__lib__bitwarden href "docs/lib/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__lib__default_user href "docs/lib/default-user.md" "default-user"
     click urn__nixconf__onto__lib__disko href "docs/lib/disko.md" "disko"
-    click urn__nixconf__onto__lib__docsMarkdown href "docs/lib/docsMarkdown.md" "docsMarkdown"
-    click urn__nixconf__onto__lib__docsParser href "docs/lib/docsParser.md" "docsParser"
+    click urn__nixconf__onto__lib__docs href "docs/lib/docs.md" "docs"
     click urn__nixconf__onto__lib__graph href "docs/lib/graph.md" "graph"
     click urn__nixconf__onto__lib__home href "docs/lib/home.md" "home"
     click urn__nixconf__onto__lib__lw href "docs/lib/lw.md" "lw"
@@ -274,7 +277,6 @@ end
   classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
-
 
 </details>
 
@@ -308,23 +310,22 @@ The repository infrastructure is structured around four foundational components:
 <details>
 <summary><h3>Primitives</h3></summary>
 
-Foundational abstractions governing components across the repository, declared in [`primitives/`](primitives/). See [Primitives Documentation](docs/PRIMITIVES.md) for full specifications.
+Foundational structural primitives governing repository architecture, typing, and outputs. Declared in `primitives/`. See [Primitives Documentation](docs/primitives/README.md).
 
-| Primitive | Description | Source File |
-| :--- | :--- | :--- |
-| **`primitive`** | Meta-primitive defining how primitives are constructed and registered. | [`primitives/primitive/default.nix`](primitives/primitive/default.nix) |
-| **`host`** | Declarative NixOS target machines binding hardware, platform, and enabled features. | [`primitives/host/default.nix`](primitives/host/default.nix) |
-| **`contract`** | Abstract contract interfaces defining shared option schemas decoupled from backends. | [`primitives/contract/default.nix`](primitives/contract/default.nix) |
-| **`implementation`** | Concrete capability providers satisfying contract interfaces with services and packages. | [`primitives/implementation.nix`](primitives/implementation.nix) |
-| **`feature`** | Reusable system configurations and desktop services consuming contracts. | [`primitives/feature.nix`](primitives/feature.nix) |
-| **`lib`** | Pure reusable helper functions, data types, calculations, and presets. | [`primitives/lib.nix`](primitives/lib.nix) |
+| Primitive | Description | Instances | Docs |
+| :--- | :--- | :--- | :--- |
+| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 7 | [More →](docs/contracts/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 27 | [More →](docs/features/README.md) |
+| [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
+| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 7 | [More →](docs/implementations/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 15 | [More →](docs/lib/README.md) |
 
 </details>
 
 <details>
 <summary><h3>Hosts</h3></summary>
 
-Master registry of target hosts declared via `options.host` in [`primitives/host/default.nix`](primitives/host/default.nix). See [Hosts Documentation](docs/HOSTS.md) for full metadata.
+Master registry of target hosts declared via `host.<name>`. See [Hosts Documentation](docs/hosts/README.md).
 
 | Host | Description | System | Docs |
 | :--- | :--- | :--- | :--- |
@@ -334,8 +335,8 @@ Master registry of target hosts declared via `options.host` in [`primitives/host
 ### Host Installation & Deployment
 
 Target hosts in this configuration are partitioned declaratively with Disko, persisted through Impermanence, and configured via Nix flakes. Host-specific copy-paste commands are documented on each host's deep-dive page:
-- [`astrolabe`](docs/hosts/astrolabe.md#installation): Headless public edge and VPS server.
-- [`x240`](docs/hosts/x240.md#installation): Graphical workstation laptop.
+- [`astrolabe`](docs/hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
+- [`x240`](docs/hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
 
 #### Prerequisites & Requirements
 
@@ -377,27 +378,21 @@ nix --extra-experimental-features 'nix-command flakes' run github:nix-community/
   --flake .#<HOST>
 
 # 4. Provision SOPS age secret key on mounted persistence volume
-mkdir -p /mnt/persist/var/lib/sops-nix
-chmod 0700 /mnt/persist/var/lib/sops-nix
-cp /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
-chmod 0400 /mnt/persist/var/lib/sops-nix/key.txt
+install -d -m 0700 /mnt/persist/var/lib/sops-nix
+install -m 0400 /path/to/host-key.txt /mnt/persist/var/lib/sops-nix/key.txt
 
-# 5. Install the NixOS system configuration to /mnt
+# 5. Install NixOS to target disk and reboot
 nixos-install --flake .#<HOST> --no-root-passwd
-
-# 6. Reboot into the installed system
 reboot
 ```
 
-#### Track 3: Host Configuration Maintenance & Rebuild
-
-To apply configuration changes on a running system:
+#### Track 3: Host Maintenance & System Rebuilds
 
 ```bash
-# Local rebuild and activation
+# Rebuild and switch locally on the host
 sudo nixos-rebuild switch --flake .#<HOST>
 
-# Remote rebuild and activation over SSH
+# Remote deployment over SSH from a management machine
 nixos-rebuild switch --flake .#<HOST> --target-host root@<TARGET-IP>
 ```
 
@@ -406,7 +401,7 @@ nixos-rebuild switch --flake .#<HOST> --target-host root@<TARGET-IP>
 <details>
 <summary><h3>Contracts</h3></summary>
 
-Pure contract interfaces declared via `options.contract` in [`primitives/contract/default.nix`](primitives/contract/default.nix). See [Contracts Documentation](docs/CONTRACTS.md) for full contract specifications.
+Pure contract interfaces defining shared option schemas decoupled from backends. Declared via `contract.<name>`. See [Contracts Documentation](docs/contracts/README.md).
 
 | Contract | Description | Implementations | Docs |
 | :--- | :--- | :--- | :--- |
@@ -423,7 +418,7 @@ Pure contract interfaces declared via `options.contract` in [`primitives/contrac
 <details>
 <summary><h3>Implementations</h3></summary>
 
-Concrete contract providers declared via `options.implementation` in [`primitives/implementation.nix`](primitives/implementation.nix). See [Implementations Documentation](docs/IMPLEMENTATIONS.md) for provider assignments.
+Concrete capability providers satisfying contract interfaces with services and packages. Declared via `implementation.<name>`. See [Implementations Documentation](docs/implementations/README.md).
 
 | Implementation | Description | Contract | Docs |
 | :--- | :--- | :--- | :--- |
@@ -440,7 +435,7 @@ Concrete contract providers declared via `options.implementation` in [`primitive
 <details>
 <summary><h3>Features</h3></summary>
 
-Reusable system services and applications declared via `options.feature` in [`primitives/feature.nix`](primitives/feature.nix). See [Features Documentation](docs/FEATURES.md) for exported outputs.
+Reusable system configurations and desktop services consuming contracts. Declared via `feature.<name>`. See [Features Documentation](docs/features/README.md).
 
 | Feature | Description | Docs |
 | :--- | :--- | :--- |
@@ -477,157 +472,199 @@ Reusable system services and applications declared via `options.feature` in [`pr
 <details>
 <summary><h3>Libraries</h3></summary>
 
-Pure reusable helper functions, data types, calculations, and presets declared via `options.lib` in [`primitives/lib.nix`](primitives/lib.nix). See [Library Documentation](docs/LIB.md) for full function signatures and docstrings.
+Pure reusable helper functions, data types, calculations, and presets. Declared via `lib.<name>`. See [Library Documentation](docs/lib/README.md).
 
 | Library Namespace | Description | Docs |
 | :--- | :--- | :--- |
-| [`flake.lib.backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' contract. | [More →](docs/lib/backup.md) |
-| [`flake.lib.bitwarden`](docs/lib/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/lib/bitwarden.md) |
-| [`flake.lib.default-user`](docs/lib/default-user.md) | Library helpers and constructors for the 'default-user' contract. | [More →](docs/lib/default-user.md) |
-| [`flake.lib.disko`](docs/lib/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](docs/lib/disko.md) |
-| [`flake.lib.docsMarkdown`](docs/lib/docsMarkdown.md) | Markdown documentation rendering engine for Nixconf architecture. | [More →](docs/lib/docsMarkdown.md) |
-| [`flake.lib.docsParser`](docs/lib/docsParser.md) | Pure-Nix RFC 145 docstring parser utilities for functions and library symbols. | [More →](docs/lib/docsParser.md) |
-| [`flake.lib.graph`](docs/lib/graph.md) | Canonical Semantic Code Property Graph (CPG) framework, algebraic calculus, and architectural projection functors. | [More →](docs/lib/graph.md) |
-| [`flake.lib.home`](docs/lib/home.md) | Library helpers and constructors for the 'home' contract. | [More →](docs/lib/home.md) |
-| [`flake.lib.lw`](docs/lib/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](docs/lib/lw.md) |
-| [`flake.lib.persistence`](docs/lib/persistence.md) | Library helpers and constructors for the 'persistence' contract. | [More →](docs/lib/persistence.md) |
-| [`flake.lib.primitive`](docs/lib/primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [More →](docs/lib/primitive.md) |
-| [`flake.lib.reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |
-| [`flake.lib.secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' contract. | [More →](docs/lib/secrets.md) |
-| [`flake.lib.sops`](docs/lib/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](docs/lib/sops.md) |
-| [`flake.lib.user`](docs/lib/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/lib/user.md) |
-| [`flake.lib.wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' contract. | [More →](docs/lib/wayland.md) |
+| [`backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' contract. | [More →](docs/lib/backup.md) |
+| [`bitwarden`](docs/lib/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/lib/bitwarden.md) |
+| [`default-user`](docs/lib/default-user.md) | Library helpers and constructors for the 'default-user' contract. | [More →](docs/lib/default-user.md) |
+| [`disko`](docs/lib/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](docs/lib/disko.md) |
+| [`docs`](docs/lib/docs.md) | Documentation generator turning the `docs` page registry, primitive metadata, and the architecture graph into markdown. | [More →](docs/lib/docs.md) |
+| [`graph`](docs/lib/graph.md) | Canonical Semantic Code Property Graph (CPG) framework, algebraic calculus, and architectural projection functors. | [More →](docs/lib/graph.md) |
+| [`home`](docs/lib/home.md) | Library helpers and constructors for the 'home' contract. | [More →](docs/lib/home.md) |
+| [`lw`](docs/lib/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](docs/lib/lw.md) |
+| [`persistence`](docs/lib/persistence.md) | Library helpers and constructors for the 'persistence' contract. | [More →](docs/lib/persistence.md) |
+| [`primitive`](docs/lib/primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [More →](docs/lib/primitive.md) |
+| [`reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |
+| [`secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' contract. | [More →](docs/lib/secrets.md) |
+| [`sops`](docs/lib/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](docs/lib/sops.md) |
+| [`user`](docs/lib/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/lib/user.md) |
+| [`wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' contract. | [More →](docs/lib/wayland.md) |
 
 </details>
 
 <details>
 <summary><h3>Packages</h3></summary>
 
-Executable packages exported on `flake.packages`. See [Packages Documentation](docs/PACKAGES.md) for the full catalog.
+Executable packages exported across target platforms on `flake.packages`. See [Packages Documentation](docs/packages.md).
 
-#### [`antigravity`](docs/PACKAGES.md#antigravity)
+#### [`antigravity`](docs/packages.md#antigravity)
 Google Antigravity
 
 ```bash
 nix run .#antigravity
 ```
 
-#### [`antigravity-cli`](docs/PACKAGES.md#antigravity-cli)
+```bash
+nix run github:LW-54/nixconf#antigravity
+```
+
+#### [`antigravity-cli`](docs/packages.md#antigravity-cli)
 Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
 
 ```bash
 nix run .#antigravity-cli
 ```
 
-#### [`antigravity-ide`](docs/PACKAGES.md#antigravity-ide)
+```bash
+nix run github:LW-54/nixconf#antigravity-cli
+```
+
+#### [`antigravity-ide`](docs/packages.md#antigravity-ide)
 Google Antigravity IDE
 
 ```bash
 nix run .#antigravity-ide
 ```
 
-#### [`bw`](docs/PACKAGES.md#bw)
+```bash
+nix run github:LW-54/nixconf#antigravity-ide
+```
+
+#### [`bw`](docs/packages.md#bw)
 Bitwarden CLI wrapper providing automated server configuration and session management.
 
 ```bash
 nix run .#bw
 ```
 
-#### [`diagrams`](docs/PACKAGES.md#diagrams)
-Unified documentation generator, validation test runner, and synchronization toolchain.
-
 ```bash
-nix run .#diagrams
+nix run github:LW-54/nixconf#bw
 ```
 
-#### [`docs`](docs/PACKAGES.md#docs)
+#### [`docs`](docs/packages.md#docs)
 Unified documentation generator, validation test runner, and synchronization toolchain.
 
 ```bash
 nix run .#docs
 ```
 
-#### [`dolphin`](docs/PACKAGES.md#dolphin)
+```bash
+nix run github:LW-54/nixconf#docs
+```
+
+#### [`dolphin`](docs/packages.md#dolphin)
 Dolphin file manager wrapper bundled with QtWayland plugins and breeze theme assets.
 
 ```bash
 nix run .#dolphin
 ```
 
-#### [`foot`](docs/PACKAGES.md#foot)
-Fast, lightweight and minimalistic Wayland terminal emulator
+```bash
+nix run github:LW-54/nixconf#dolphin
+```
+
+#### [`foot`](docs/packages.md#foot)
+Application package foot.
 
 ```bash
 nix run .#foot
 ```
 
-#### [`git`](docs/PACKAGES.md#git)
-Distributed version control system
+```bash
+nix run github:LW-54/nixconf#foot
+```
+
+#### [`git`](docs/packages.md#git)
+Application package git.
 
 ```bash
 nix run .#git
 ```
 
-#### [`nixconf-json`](docs/PACKAGES.md#nixconf-json)
+```bash
+nix run github:LW-54/nixconf#git
+```
+
+#### [`nixconf-json`](docs/packages.md#nixconf-json)
 Exported Labeled Property Graph (LPG) representation of repository architecture in JSON format.
 
 ```bash
 nix run .#nixconf-json
 ```
 
+```bash
+nix run github:LW-54/nixconf#nixconf-json
+```
 
 </details>
 
 <details>
 <summary><h3>DevShells</h3></summary>
 
-Interactive shell environments exported on `flake.devShells`. See [DevShells Documentation](docs/DEVSHELLS.md) for administrative environments.
+Interactive development and administrative shells exported on `flake.devShells`. See [DevShells Documentation](docs/devshells.md).
 
-#### [`github-ssh`](docs/DEVSHELLS.md#github-ssh)
+#### [`github-ssh`](docs/devshells.md#github-ssh)
 Development shell configured with Bitwarden-authenticated GitHub SSH deploy keys.
 
 ```bash
 nix develop .#github-ssh
 ```
 
-#### [`master-ssh`](docs/DEVSHELLS.md#master-ssh)
+```bash
+nix develop github:LW-54/nixconf#github-ssh
+```
+
+#### [`master-ssh`](docs/devshells.md#master-ssh)
 Administrative development shell configured with Bitwarden-managed master SSH private keys.
 
 ```bash
 nix develop .#master-ssh
 ```
 
-#### [`sops-admin`](docs/DEVSHELLS.md#sops-admin)
+```bash
+nix develop github:LW-54/nixconf#master-ssh
+```
+
+#### [`sops-admin`](docs/devshells.md#sops-admin)
 Administrative secret editing shell with Bitwarden-authenticated master SOPS age key.
 
 ```bash
 nix develop .#sops-admin
 ```
 
-#### [`sops-host`](docs/DEVSHELLS.md#sops-host)
+```bash
+nix develop github:LW-54/nixconf#sops-admin
+```
+
+#### [`sops-host`](docs/devshells.md#sops-host)
 Host-level development shell configured to decrypt local host SOPS secrets.
 
 ```bash
 nix develop .#sops-host
 ```
 
+```bash
+nix develop github:LW-54/nixconf#sops-host
+```
 
 </details>
 
 ## Documentation
 
-Comprehensive documentation is generated directly from Nix evaluation using the pure-Nix Labeled Property Graph (LPG) pipeline.
+Comprehensive documentation is generated directly from Nix evaluation using the pure-Nix Labeled Property Graph (LPG) pipeline:
 
-- [Hosts Documentation](docs/HOSTS.md): Target host declarations, architecture specs, and hardware manifests.
-- [Contracts Documentation](docs/CONTRACTS.md): Pure contract interfaces, schema options, and custom types.
-- [Implementations Documentation](docs/IMPLEMENTATIONS.md): Provider implementations satisfying contracts.
-- [Features Documentation](docs/FEATURES.md): Modular system services, applications, and desktop environments.
-- [Modules Documentation](docs/MODULES.md): Directory of all exported NixOS modules.
-- [Packages Documentation](docs/PACKAGES.md): Executable packages exported across platforms.
-- [DevShells Documentation](docs/DEVSHELLS.md): Administrative and development shell environments.
-- [Library Documentation](docs/LIB.md): Flake library functions, type signatures, and RFC 145 docstrings.
-- [Semantic Code Property Graph Architecture](docs/GRAPH.md): Unified pure-Nix CPG merging AST, CFG, and PDG.
-- [Documentation Pipeline Reference](docs/DOCS.md): Pure-Nix LPG graph IR and documentation generator guide.
+- **[Hosts Documentation](docs/hosts/README.md)**: Target host declarations, architecture specs, and hardware manifests.
+- **[Contracts Documentation](docs/contracts/README.md)**: Pure contract interfaces, schema options, and custom types.
+- **[Implementations Documentation](docs/implementations/README.md)**: Provider implementations satisfying contracts.
+- **[Features Documentation](docs/features/README.md)**: Modular system services, applications, and desktop environments.
+- **[Modules Documentation](docs/modules/README.md)**: Directory of all exported NixOS modules.
+- **[Packages Documentation](docs/packages.md)**: Executable packages exported across platforms.
+- **[DevShells Documentation](docs/devshells.md)**: Administrative and development shell environments.
+- **[Library Documentation](docs/lib/README.md)**: Flake library functions, type signatures, and RFC 145 docstrings.
+- **[Semantic Code Property Graph Architecture](docs/graph.md)**: Unified pure-Nix CPG merging AST, CFG, and PDG.
+- **[Documentation Pipeline Reference](docs/documentation.md)**: Pure-Nix LPG graph IR and documentation generator guide.
 
 To re-generate or verify documentation integrity, use the `docs` CLI package:
 

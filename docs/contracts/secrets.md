@@ -2,15 +2,13 @@
 
 Declarative encrypted secrets provisioning, filesystem mounting, and permission management.
 
-[← Back to Contracts Documentation](../CONTRACTS.md) | [← Back to Main README](../../README.md)
+[← Back to Contracts Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Contract Name**: `secrets`
-- **Description**: Declarative encrypted secrets provisioning, filesystem mounting, and permission management.
+- **Contract**: `secrets`
 - **Definition File**: [`modules/contracts/secrets.nix`](../../modules/contracts/secrets.nix)
 
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -31,9 +29,7 @@ flowchart LR
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
-    urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
-    urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
@@ -42,9 +38,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
@@ -70,13 +63,11 @@ flowchart LR
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
@@ -95,19 +86,6 @@ flowchart LR
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__wifi_eduroam
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
 
 
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
@@ -116,16 +94,18 @@ flowchart LR
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__wifi_eduroam href "../modules/wifi-eduroam.md" "wifi-eduroam"
-    click urn__nixconf__drv__devShell__master_ssh href "../DEVSHELLS.md#master-ssh" "master-ssh"
-    click urn__nixconf__drv__devShell__sops_admin href "../DEVSHELLS.md#sops-admin" "sops-admin"
-    click urn__nixconf__drv__devShell__sops_host href "../DEVSHELLS.md#sops-host" "sops-host"
-    click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
-    click urn__nixconf__onto__contract__default_user href "../contracts/default-user.md" "default-user"
-    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
-    click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
-    click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
-    click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
+    click urn__nixconf__ast__option__secrets_defaultFile href "secrets.md" "secrets.defaultFile"
+    click urn__nixconf__ast__option__secrets_enable href "secrets.md" "secrets.enable"
+    click urn__nixconf__ast__option__secrets_files href "secrets.md" "secrets.files"
+    click urn__nixconf__ast__type__secrets_secret href "secrets.md" "secrets.secret"
+    click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
+    click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
+    click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
+    click urn__nixconf__onto__contract__backup href "backup.md" "backup"
+    click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
+    click urn__nixconf__onto__contract__home href "home.md" "home"
+    click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
@@ -148,59 +128,68 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
-
-## Option Schema Definitions
-
-| Option | Type | Default | Example | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `options.secrets.defaultFile` | `null or absolute path` | *null* | `{ ... }` | Default YAML/JSON file containing encrypted secrets for this host. Can be overridden on a per-secret basis by consumer features. |
-| `options.secrets.enable` | `boolean` | `1` | `1` | Whether to enable system secrets management contract. |
-| `options.secrets.files` | `attribute set of (submodule)` | `{ ... }` | `{ ... }` | Attribute set of declarative secret items required by system services. Mapped to the active secrets provider implementation (e.g. SOPS). |
+</details>
 
 ## Outputs
 
-### Custom Submodule Types
+### NixOS Modules
 
-| Type | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`secrets.secret`](../lib/secrets.md#secrets.secret) | submodule | [More →](../lib/secrets.md#secrets.secret) |
+| [`secrets`](../modules/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [More →](../modules/secrets.md) |
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.secrets.mkOption`](../lib/secrets.md#mkOption) | Contract option constructor / binding helper | [More →](../lib/secrets.md#mkOption) |
-| [`flake.lib.secrets.mkConfig`](../lib/secrets.md#mkConfig) | Contract option constructor / binding helper | [More →](../lib/secrets.md#mkConfig) |
-| [`flake.lib.secrets.types`](../lib/secrets.md#types) | Contract option constructor / binding helper | [More →](../lib/secrets.md#types) |
+| Symbol | Type | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`mkConfig`](../lib/secrets.md#mkConfig) | `secrets.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'secrets' contract. | [More →](../lib/secrets.md#mkConfig) |
+| [`mkOption`](../lib/secrets.md#mkOption) | `secrets.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'secrets' contract. | [More →](../lib/secrets.md#mkOption) |
 
-## Implementations
+### Custom Types
+
+- `secret`: submodule
+
+## Option Schema Definitions
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `secrets.defaultFile` | `null or absolute path` | *null* | Default YAML/JSON file containing encrypted secrets for this host. Can be overridden on a per-secret basis by consumer features. |
+| `secrets.enable` | `boolean` | `true` | Whether to enable system secrets management contract. |
+| `secrets.files` | `attribute set of (submodule)` | `{ }` | Attribute set of declarative secret items required by system services. Mapped to the active secrets provider implementation (e.g. SOPS). |
+
+## Fulfilling Implementations
 
 Providers satisfying the `secrets` contract capability:
 
-| Implementation | Description | Docs |
-| :--- | :--- | :--- |
-| [`sops`](../implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](../implementations/sops.md) |
+| Implementation | Description | Definition | Docs |
+| :--- | :--- | :--- | :--- |
+| [`sops`](../implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](../implementations/sops.md) |
 
 ## Contract Consumers
 
-Modules configuring options under the `secrets` contract capability:
+Modules and instances configuring options under the `secrets` contract capability:
 
-### Hosts
 
-*No hosts configure this contract directly.*
 
 ### Implementations
 
 <details>
 <summary><code><a href="../implementations/lw.md">lw</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+56: secrets.files.default-user-password-hash = {
+57: file = ../../secrets/users/default.yaml;
+58: key = "passwordHash";
+59: neededForUsers = true;
+...
+66: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+...
+70: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+...
 ```
 
 </details>
@@ -209,16 +198,24 @@ config = {
 <details>
 <summary><code><a href="../implementations/restic.md">restic</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/restic.nix
+...
+37: secrets.files = {
+38: restic-env = lib.mkIf (resticCfg.environmentFile == null) {
+39: file = ../../secrets/backup/restic.yaml;
+40: key = "env";
+...
+54: else config.secrets.files.restic-env.path;
+...
+58: else config.secrets.files.restic-password.path;
+...
 ```
 
 </details>
+
 
 
 ### Features
@@ -226,13 +223,18 @@ config = {
 <details>
 <summary><code><a href="../features/nix.md">nix</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/features/nix.nix
+...
+24: secrets.files = lib.mkIf config.nix.cachixWatchStore {
+25: cachix-token = {
+26: file = ../../secrets/cachix/cachix.yaml;
+27: key = "token";
+...
+54: cachixTokenFile = config.secrets.files.cachix-token.path;
+...
 ```
 
 </details>
@@ -241,13 +243,22 @@ config = {
 <details>
 <summary><code><a href="../features/ssh.md">ssh</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/features/ssh.nix
+...
+73: secrets.files =
+74: lib.listToAttrs (map (name: {
+75: name = "ssh/public/${name}";
+76: value = {
+...
+102: if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
+...
+104: install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
+...
+120: AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
+...
 ```
 
 </details>
@@ -256,14 +267,16 @@ config = {
 <details>
 <summary><code><a href="../features/wifi-eduroam.md">wifi-eduroam</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `secrets.files`
 
 ```nix
-config = {
-
-};
-
+# modules/features/wifi.nix
+...
+73: secrets.files = {
+74: ${usernameSecret} = {
+75: file = cfg.secretFile;
+76: key = cfg.usernameKey;
+...
 ```
 
 </details>
-

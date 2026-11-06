@@ -2,30 +2,15 @@
 
 Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.uchiyomi`
-- **Description**: Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack.
+- **Attribute**: `flake.nixosModules.uchiyomi`
+- **Provided by**: feature [`uchiyomi`](../features/uchiyomi.md)
 
 ## Importing Hosts
 
-Hosts that import this module into their system configurations:
-
-<details>
-<summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
-
-```nix
-          self.nixosModules.uchiyomi
-        ];
-```
-
-</details>
-
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
 ## Declared Options
-
-NixOS options declared directly by this module:
 
 *No direct top-level options declared.*

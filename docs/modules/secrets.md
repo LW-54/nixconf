@@ -1,26 +1,16 @@
 # Module: `secrets`
 
-Contract interface defining 'secrets' option schemas and custom types.
+Declarative encrypted secrets provisioning, filesystem mounting, and permission management.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.secrets`
-- **Description**: Contract interface defining 'secrets' option schemas and custom types.
-
-## Importing Hosts
-
-Hosts that import this module into their system configurations:
-
-*Not currently imported by any host.*
+- **Attribute**: `flake.nixosModules.secrets`
+- **Provided by**: contract [`secrets`](../contracts/secrets.md)
 
 ## Declared Options
 
-NixOS options declared directly by this module:
-
-| Option Path | Type | Description |
-| :--- | :--- | :--- |
-| `options.secrets.defaultFile` | `null or absolute path` | Default YAML/JSON file containing encrypted secrets for this host. Can be overridden on a per-secret basis by consumer features. |
-| `options.secrets.enable` | `boolean` | Whether to enable system secrets management contract. |
-| `options.secrets.files` | `attribute set of (submodule)` | Attribute set of declarative secret items required by system services. Mapped to the active secrets provider implementation (e.g. SOPS). |
+| Option Path | Type | Default | Example | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `secrets.defaultFile` | `null or absolute path` | — | `./secrets/secrets.yaml` | Default YAML/JSON file containing encrypted secrets for this host. Can be overridden on a per-secret basis by consumer features. |
+| `secrets.enable` | `boolean` | `true` | `true` | Whether to enable system secrets management contract. |
+| `secrets.files` | `attribute set of (submodule)` | `{ }` | `{ ... }` | Attribute set of declarative secret items required by system services. Mapped to the active secrets provider implementation (e.g. SOPS). |

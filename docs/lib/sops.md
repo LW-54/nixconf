@@ -1,8 +1,40 @@
-# Library Namespace: `flake.lib.sops`
+# Library: `sops`
 
 Declarative encrypted secrets provisioning using SOPS and age keys.
 
-[← Back to Library Documentation](../LIB.md) | [← Back to Main README](../../README.md)
+[← Back to Library Documentation](README.md) | [← Back to Main README](../../README.md)
+
+- **Library**: `flake.lib.sops`
+- **Definition File**: [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix)
+
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
+
+```mermaid
+flowchart LR
+  urn__nixconf__ast__function__sops_mkHostShell["sops.mkHostShell"]:::defaultNode
+    urn__nixconf__onto__lib__sops["sops"]:::defaultNode
+
+    urn__nixconf__onto__lib__sops -->|outputs| urn__nixconf__ast__function__sops_mkHostShell
+
+
+    click urn__nixconf__ast__function__sops_mkHostShell href "sops.md" "sops.mkHostShell"
+    click urn__nixconf__onto__lib__sops href "sops.md" "sops"
+
+  %% Semantic Visual Classes
+  classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+  classDef contractNode fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#f8fafc;
+  classDef implNode fill:#0f172a,stroke:#34d399,stroke-width:2px,color:#f8fafc;
+  classDef featureNode fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f8fafc;
+  classDef optNode fill:#422006,stroke:#facc15,stroke-width:1px,color:#fefce8;
+  classDef typeNode fill:#3b0764,stroke:#c084fc,stroke-width:1px,color:#faf5ff;
+  classDef pkgNode fill:#4c0519,stroke:#fb7185,stroke-width:1px,color:#fff1f2;
+  classDef devShellNode fill:#451a03,stroke:#fb923c,stroke-width:1px,color:#fff7ed;
+  classDef drvNode fill:#18181b,stroke:#a1a1aa,stroke-width:1px,color:#f4f4f5;
+  classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
+```
+
+</details>
 
 ## Usage
 
@@ -10,28 +42,19 @@ This library namespace can be consumed both internally within repository modules
 
 ### Internal Usage
 
-Within repository modules, NixOS configurations, or packages, access functions directly through `self.lib.sops`:
-
 ```nix
 { self, lib, pkgs, ... }: {
-  # Access helpers directly from self.lib.sops
   example = self.lib.sops.mkHostShell;
 }
 ```
 
 ### External Usage
 
-When consuming this flake as an input in another `flake.nix`:
-
 ```nix
 {
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    nixconf.url = "github:LW-54/nixconf";
-  };
+  inputs.nixconf.url = "github:LW-54/nixconf";
 
-  outputs = { self, nixpkgs, nixconf, ... }: {
-    # Access exported helpers from inputs.nixconf.lib.sops
+  outputs = { self, nixconf, ... }: {
     example = nixconf.lib.sops.mkHostShell;
   };
 }
@@ -44,13 +67,10 @@ When consuming this flake as an input in another `flake.nix`:
 
 Constructs a developer shell configured to decrypt host SOPS secrets with the host's age key.
 
-
-
 #### Inputs
 
 - `pkgs`: Nixpkgs package set.
 - `keyFile`: Path to the age private key file on the host (default: `/persist/sops-nix/key.txt`).
-
 
 #### Type
 
@@ -58,11 +78,8 @@ Constructs a developer shell configured to decrypt host SOPS secrets with the ho
 mkHostShell :: { pkgs, keyFile ? Path } -> Derivation
 ```
 
-
 #### Examples
 
 ```nix
 self.lib.sops.mkHostShell { inherit pkgs; }
 ```
-
-

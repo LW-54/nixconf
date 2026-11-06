@@ -2,15 +2,13 @@
 
 Declarative state preservation across ephemeral reboots for system and user directories.
 
-[← Back to Contracts Documentation](../CONTRACTS.md) | [← Back to Main README](../../README.md)
+[← Back to Contracts Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Contract Name**: `persistence`
-- **Description**: Declarative state preservation across ephemeral reboots for system and user directories.
+- **Contract**: `persistence`
 - **Definition File**: [`modules/contracts/persistence.nix`](../../modules/contracts/persistence.nix)
 
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -71,9 +69,6 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__feature["feature"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity
     urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
@@ -211,29 +206,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__antigravity
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__bitwarden
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__docker
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__dolphin
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__noctalia
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__uchiyomi
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vaultwarden
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vivaldi
-    urn__nixconf__onto__primitive__feature -->|contains| urn__nixconf__onto__feature__vscode
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
 
 
     click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
@@ -255,20 +227,26 @@ flowchart LR
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
     click urn__nixconf__ast__module__vivaldi href "../modules/vivaldi.md" "vivaldi"
     click urn__nixconf__ast__module__vscode href "../modules/vscode.md" "vscode"
-    click urn__nixconf__drv__devShell__master_ssh href "../DEVSHELLS.md#master-ssh" "master-ssh"
-    click urn__nixconf__drv__package__antigravity href "../PACKAGES.md#antigravity" "antigravity"
-    click urn__nixconf__drv__package__antigravity_cli href "../PACKAGES.md#antigravity-cli" "antigravity-cli"
-    click urn__nixconf__drv__package__antigravity_ide href "../PACKAGES.md#antigravity-ide" "antigravity-ide"
-    click urn__nixconf__drv__package__bw href "../PACKAGES.md#bw" "bw"
-    click urn__nixconf__drv__package__dolphin href "../PACKAGES.md#dolphin" "dolphin"
-    click urn__nixconf__drv__package__foot href "../PACKAGES.md#foot" "foot"
-    click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
-    click urn__nixconf__onto__contract__default_user href "../contracts/default-user.md" "default-user"
-    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
-    click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
-    click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
-    click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
+    click urn__nixconf__ast__option__persistence_directories href "persistence.md" "persistence.directories"
+    click urn__nixconf__ast__option__persistence_enable href "persistence.md" "persistence.enable"
+    click urn__nixconf__ast__option__persistence_files href "persistence.md" "persistence.files"
+    click urn__nixconf__ast__option__persistence_users href "persistence.md" "persistence.users"
+    click urn__nixconf__ast__type__persistence_entries href "persistence.md" "persistence.entries"
+    click urn__nixconf__ast__type__persistence_user href "persistence.md" "persistence.user"
+    click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
+    click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
+    click urn__nixconf__drv__package__antigravity_cli href "../packages.md#antigravity-cli" "antigravity-cli"
+    click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
+    click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
+    click urn__nixconf__drv__package__dolphin href "../packages.md#dolphin" "dolphin"
+    click urn__nixconf__drv__package__foot href "../packages.md#foot" "foot"
+    click urn__nixconf__onto__contract__backup href "backup.md" "backup"
+    click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
+    click urn__nixconf__onto__contract__home href "home.md" "home"
+    click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
+    click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
+    click urn__nixconf__onto__contract__wayland href "wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
@@ -301,60 +279,64 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
-
-## Option Schema Definitions
-
-| Option | Type | Default | Example | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| `options.persistence.directories` | `list of (string or attribute set of anything)` | `[ ... ]` | `[ ... ]` | List of directory paths to persist across reboots, as absolute system paths under `/persist/system`. Can be string paths or attribute sets defining custom ownership and bind-mount modes. |
-| `options.persistence.enable` | `boolean` | `1` | `1` | Whether to enable declarative filesystem persistence contract mapped to impermanence. |
-| `options.persistence.files` | `list of (string or attribute set of anything)` | `[ ... ]` | `[ ... ]` | List of individual file paths to persist across reboots, as absolute system paths under `/persist/system`. Can be string paths or attribute sets defining custom ownership and bind-mount modes. |
-| `options.persistence.users` | `attribute set of (submodule)` | `{ ... }` | `{ ... }` | Per-user persistence declarations keyed by username. `data` and `cache` root names are repository conventions, not upstream impermanence requirements. |
+</details>
 
 ## Outputs
 
-### Custom Submodule Types
+### NixOS Modules
 
-| Type | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`persistence.entries`](../lib/persistence.md#persistence.entries) | list of (string or attribute set of anything) | [More →](../lib/persistence.md#persistence.entries) |
-| [`persistence.user`](../lib/persistence.md#persistence.user) | submodule | [More →](../lib/persistence.md#persistence.user) |
+| [`persistence`](../modules/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](../modules/persistence.md) |
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.persistence.types`](../lib/persistence.md#types) | Contract option constructor / binding helper | [More →](../lib/persistence.md#types) |
-| [`flake.lib.persistence.entries`](../lib/persistence.md#entries) | Contract option constructor / binding helper | [More →](../lib/persistence.md#entries) |
+| Symbol | Type | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`entries`](../lib/persistence.md#entries) | `entries :: Type` | List of directory or file paths to persist, either strings or custom bind-mount attribute sets. | [More →](../lib/persistence.md#entries) |
+| [`mkConfig`](../lib/persistence.md#mkConfig) | `persistence.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'persistence' contract. | [More →](../lib/persistence.md#mkConfig) |
+| [`mkOption`](../lib/persistence.md#mkOption) | `persistence.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'persistence' contract. | [More →](../lib/persistence.md#mkOption) |
 
-## Implementations
+### Custom Types
+
+- `entries`: list of (string or attribute set of anything)
+- `user`: submodule
+
+## Option Schema Definitions
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `persistence.directories` | `list of (string or attribute set of anything)` | `[ ]` | List of directory paths to persist across reboots, as absolute system paths under `/persist/system`. Can be string paths or attribute sets defining custom ownership and bind-mount modes. |
+| `persistence.enable` | `boolean` | `true` | Whether to enable declarative filesystem persistence contract mapped to impermanence. |
+| `persistence.files` | `list of (string or attribute set of anything)` | `[ ]` | List of individual file paths to persist across reboots, as absolute system paths under `/persist/system`. Can be string paths or attribute sets defining custom ownership and bind-mount modes. |
+| `persistence.users` | `attribute set of (submodule)` | `{ }` | Per-user persistence declarations keyed by username. `data` and `cache` root names are repository conventions, not upstream impermanence requirements. |
+
+## Fulfilling Implementations
 
 Providers satisfying the `persistence` contract capability:
 
-| Implementation | Description | Docs |
-| :--- | :--- | :--- |
-| [`impermanence`](../implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [More →](../implementations/impermanence.md) |
+| Implementation | Description | Definition | Docs |
+| :--- | :--- | :--- | :--- |
+| [`impermanence`](../implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`modules/implementations/impermanence.nix`](../../modules/implementations/impermanence.nix) | [More →](../implementations/impermanence.md) |
 
 ## Contract Consumers
 
-Modules configuring options under the `persistence` contract capability:
+Modules and instances configuring options under the `persistence` contract capability:
 
-### Hosts
 
-*No hosts configure this contract directly.*
 
 ### Implementations
 
 <details>
 <summary><code><a href="../implementations/caddy.md">caddy</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.directories`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/caddy.nix
+...
+36: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+...
 ```
 
 </details>
@@ -363,16 +345,20 @@ config = {
 <details>
 <summary><code><a href="../implementations/lw.md">lw</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/implementations/lw.nix
+...
+75: persistence.users.${cfg.username} = {
+76: data.directories = [
+77: "nixconf"
+78: "Documents"
+...
 ```
 
 </details>
+
 
 
 ### Features
@@ -380,13 +366,16 @@ config = {
 <details>
 <summary><code><a href="../features/antigravity.md">antigravity</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/antigravity.nix
+...
+32: persistence.users = lib.mapAttrs (_: _: {
+33: data.directories = [
+34: ".antigravity-ide"
+35: ".gemini"
+...
 ```
 
 </details>
@@ -395,13 +384,21 @@ config = {
 <details>
 <summary><code><a href="../features/bitwarden.md">bitwarden</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/bitwarden.nix
+...
+132: persistence.users = lib.mapAttrs (_: _: {
+133: data.directories = [".config/Bitwarden CLI"];
+134: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+135: };
+...
+150: persistence.users = lib.mapAttrs (_: _: {
+151: data.directories = [".config/Bitwarden"];
+152: cache.directories = [".cache/com.bitwarden.desktop"];
+153: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+...
 ```
 
 </details>
@@ -410,13 +407,16 @@ config = {
 <details>
 <summary><code><a href="../features/direnv.md">direnv</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/direnv.nix
+...
+19: persistence.users = lib.mapAttrs (_: _: {
+20: cache.directories = [".cache/direnv"];
+21: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+22: };
+...
 ```
 
 </details>
@@ -425,13 +425,15 @@ config = {
 <details>
 <summary><code><a href="../features/docker.md">docker</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.directories`
 
 ```nix
-config = {
-
-};
-
+# modules/features/docker.nix
+...
+3: description = "Docker application container engine, socket activation, and state persistence.";
+...
+21: persistence.directories = ["/var/lib/docker"];
+...
 ```
 
 </details>
@@ -440,13 +442,16 @@ config = {
 <details>
 <summary><code><a href="../features/dolphin.md">dolphin</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/dolphin.nix
+...
+19: persistence.users = lib.mapAttrs (_: _: {
+20: data = {
+21: directories = [".local/share/dolphin"];
+22: files = [".config/dolphinrc"];
+...
 ```
 
 </details>
@@ -455,13 +460,16 @@ config = {
 <details>
 <summary><code><a href="../features/foot.md">foot</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/foot.nix
+...
+79: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+80: data.directories = [".config/foot"];
+81: });
+82: };
+...
 ```
 
 </details>
@@ -470,13 +478,16 @@ config = {
 <details>
 <summary><code><a href="../features/labwc.md">labwc</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/labwc.nix
+...
+125: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+126: data.directories = [".config/labwc"];
+127: });
+128: };
+...
 ```
 
 </details>
@@ -485,13 +496,16 @@ config = {
 <details>
 <summary><code><a href="../features/noctalia.md">noctalia</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/noctalia.nix
+...
+169: persistence.users = lib.mapAttrs (_: _: {
+170: data.directories = [
+171: ".config/noctalia"
+172: ".local/state/noctalia"
+...
 ```
 
 </details>
@@ -500,13 +514,13 @@ config = {
 <details>
 <summary><code><a href="../features/ssh.md">ssh</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.files`
 
 ```nix
-config = {
-
-};
-
+# modules/features/ssh.nix
+...
+127: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+...
 ```
 
 </details>
@@ -515,28 +529,13 @@ config = {
 <details>
 <summary><code><a href="../features/uchiyomi.md">uchiyomi</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.directories`, `persistence.files`
 
 ```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../features/uchiyomi.md">uchiyomi</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
+# modules/features/uchiyomi.nix
+...
+211: (self.lib.persistence.mkConfig {inherit config cfg;})
+...
 ```
 
 </details>
@@ -545,28 +544,13 @@ config = {
 <details>
 <summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.directories`, `persistence.files`
 
 ```nix
-config = {
-
-};
-
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
-
-Configures options: *general contract configuration*
-
-```nix
-config = {
-
-};
-
+# modules/features/vaultwarden.nix
+...
+43: (self.lib.persistence.mkConfig {inherit config cfg;})
+...
 ```
 
 </details>
@@ -575,13 +559,16 @@ config = {
 <details>
 <summary><code><a href="../features/vivaldi.md">vivaldi</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/vivaldi.nix
+...
+23: persistence.users = lib.mapAttrs (_: _: {
+24: data.directories = [".config/vivaldi"];
+25: cache.directories = [".cache/vivaldi"];
+26: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+...
 ```
 
 </details>
@@ -590,14 +577,18 @@ config = {
 <details>
 <summary><code><a href="../features/vscode.md">vscode</a></code></summary>
 
-Configures options: *general contract configuration*
+**Configures options**: `persistence.users`
 
 ```nix
-config = {
-
-};
-
+# modules/features/vcode.nix
+...
+3: description = "Visual Studio Code editor environment and persistence.";
+...
+18: persistence.users = lib.mapAttrs (_: _: {
+19: data.directories = [".config/Code" ".vscode"];
+20: }) (lib.filterAttrs (_: u: u.isNormalUser or false) config.users.users);
+21: };
+...
 ```
 
 </details>
-

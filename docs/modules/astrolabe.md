@@ -1,35 +1,16 @@
 # Module: `astrolabe`
 
-Unified NixOS system configuration root module for host 'astrolabe'.
+Headless VPS Server (adje.app public edge and core services).
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.astrolabe`
-- **Description**: Unified NixOS system configuration root module for host 'astrolabe'.
+- **Attribute**: `flake.nixosModules.astrolabe`
+- **Provided by**: host [`astrolabe`](../hosts/astrolabe.md)
 
 ## Importing Hosts
 
-Hosts that import this module into their system configurations:
-
-<details>
-<summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
-
-```nix
-        self.nixosModules.astrolabe-hardware
-        self.nixosModules.astrolabe-disk
-        self.nixosModules.astrolabe-system
-        self.nixosModules.astrolabe-services
-        self.nixosModules.astrolabe-packages
-      ];
-```
-
-</details>
-
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
 ## Declared Options
-
-NixOS options declared directly by this module:
 
 *No direct top-level options declared.*

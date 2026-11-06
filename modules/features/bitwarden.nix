@@ -159,7 +159,11 @@ in {
       bw = pkgs.writeShellApplication {
         name = "bw";
         runtimeInputs = [pkgs.bitwarden-cli];
-        meta.description = "Bitwarden CLI wrapper providing automated server configuration and session management.";
+        meta = {
+          description = "Bitwarden CLI wrapper providing automated server configuration and session management.";
+          helpCommand = "bw --help";
+          homepage = "https://bitwarden.com/help/cli/";
+        };
         text = ''
           config_dir="''${HOME}/.config/Bitwarden CLI"
           data_file="''${config_dir}/data.json"

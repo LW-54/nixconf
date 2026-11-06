@@ -1,10 +1,127 @@
 {
   lib,
   config,
+  options,
+  self,
   ...
 }: let
   types = config.internal.graph.core.types;
   container = config.internal.graph.core.container;
+
+  # Repository-relative path of a module-system definition file.
+  relativeSource = file: let
+    noVia = builtins.head (lib.splitString ", via option" (toString file));
+    stripped = lib.removePrefix "${toString self.outPath}/" noVia;
+    storeMatch = builtins.match "/nix/store/[^/]+/(.*)" stripped;
+  in
+    if storeMatch != null
+    then builtins.head storeMatch
+    else stripped;
+
+  # Any evaluated NixOS configuration, used to instantiate per-system attributes
+  # (package sets, option trees) of instances that are not host-specific.
+  referenceConfiguration = lib.findFirst (_: true) {} (builtins.attrValues (config.flake.nixosConfigurations or {}));
+
+  # Raw definitions `{ file; value; }` of a primitive instance, as written in source files.
+  instanceDefinitions = pName: iName:
+    map (d: {
+      inherit (d) file;
+      value = d.value.${iName};
+    }) (lib.filter (d: builtins.isAttrs d.value && d.value ? ${iName}) (options.${pName}.definitionsWithLocations or []));
+
+  # Repository-relative file declaring a primitive instance (the definition carrying its description).
+  resolveFile = pName: iName:
+    if pName == "lib"
+    then
+      if config.feature ? ${iName}
+      then resolveFile "feature" iName
+      else if config.implementation ? ${iName}
+      then resolveFile "implementation" iName
+      else if config.contract ? ${iName}
+      then resolveFile "contract" iName
+      else if config.primitive ? ${iName}
+      then
+        (
+          if builtins.pathExists (self + "/primitives/${iName}/default.nix")
+          then "primitives/${iName}/default.nix"
+          else if builtins.pathExists (self + "/primitives/${iName}.nix")
+          then "primitives/${iName}.nix"
+          else null
+        )
+      else let
+        defs = lib.filter (d: let f = relativeSource d.file; in builtins.pathExists (self + "/${f}") && f != "primitives/default.nix") (instanceDefinitions "lib" iName);
+        primary = lib.filter (d: builtins.isAttrs d.value && d.value ? description) defs;
+        chosen =
+          if primary != []
+          then primary
+          else defs;
+      in
+        if chosen == []
+        then null
+        else relativeSource (builtins.head chosen).file
+    else if pName == "primitive"
+    then
+      if builtins.pathExists (self + "/primitives/${iName}/default.nix")
+      then "primitives/${iName}/default.nix"
+      else if builtins.pathExists (self + "/primitives/${iName}.nix")
+      then "primitives/${iName}.nix"
+      else null
+    else let
+      defs = lib.filter (d: let f = relativeSource d.file; in builtins.pathExists (self + "/${f}")) (instanceDefinitions pName iName);
+      primary = lib.filter (d: builtins.isAttrs d.value && d.value ? description) defs;
+      chosen =
+        if primary != []
+        then primary
+        else defs;
+    in
+      if chosen == []
+      then null
+      else relativeSource (builtins.head chosen).file;
+
+  # Source text of the file declaring a primitive instance.
+  instanceSourceText = pName: iName: let
+    file = resolveFile pName iName;
+  in
+    if file != null && builtins.pathExists (self + "/${file}")
+    then builtins.readFile (self + "/${file}")
+    else "";
+
+  # Source code of an attribute (e.g. a host submodule), located via its definition position.
+  attrSourceCode = pName: iName: path: attr: let
+    positions = lib.concatMap (d: let
+      container = lib.attrByPath path null d.value;
+    in
+      lib.optional (builtins.isAttrs container && container ? ${attr}) (builtins.unsafeGetAttrPos attr container))
+    (instanceDefinitions pName iName);
+    pos = lib.findFirst (p: p != null) null positions;
+  in
+    if pos == null
+    then ""
+    else let
+      lines = lib.splitString "\n" (builtins.readFile pos.file);
+      rem = lib.drop (pos.line - 1) lines;
+      countChars = char: s: builtins.length (lib.filter (c: c == char) (lib.stringToCharacters s));
+      folder = acc: line:
+        if acc.isFinished
+        then acc
+        else let
+          newDepth = acc.depth + countChars "{" line - countChars "}" line;
+        in {
+          depth = newDepth;
+          lines = acc.lines ++ [line];
+          isFinished = (acc.depth > 0 || countChars "{" line > 0) && newDepth <= 0;
+        };
+      block =
+        (lib.foldl' folder {
+            depth = 0;
+            lines = [];
+            isFinished = false;
+          }
+          rem).lines;
+      indentOf = line: builtins.stringLength (builtins.head (builtins.match "( *).*" line));
+      indent = lib.foldl' lib.min (pos.column - 1) (map indentOf (lib.filter (l: lib.trim l != "") block));
+    in
+      lib.concatMapStringsSep "\n" (l: builtins.substring indent (builtins.stringLength l) l) block;
 
   /**
   Extracts the Ontological Intent Stratum (primitives, instances, contracts, implementations).
@@ -41,31 +158,6 @@
       lib.nameValuePair urn node)
     primitives;
 
-    resolveFile = pName: iName:
-      if pName == "host"
-      then "modules/hosts/${iName}.nix"
-      else if pName == "implementation"
-      then "modules/implementations/${iName}.nix"
-      else if pName == "lib"
-      then "modules/lib/${iName}.nix"
-      else if pName == "contract"
-      then
-        if builtins.pathExists ../../../modules/contracts/${iName}/default.nix
-        then "modules/contracts/${iName}/default.nix"
-        else "modules/contracts/${iName}.nix"
-      else if pName == "feature"
-      then
-        if builtins.pathExists ../../../modules/features/${iName}/default.nix
-        then "modules/features/${iName}/default.nix"
-        else if builtins.pathExists ../../../modules/features/${iName}.nix
-        then "modules/features/${iName}.nix"
-        else if iName == "wifi-eduroam" && builtins.pathExists ../../../modules/features/wifi.nix
-        then "modules/features/wifi.nix"
-        else if iName == "vscode" && builtins.pathExists ../../../modules/features/vcode.nix
-        then "modules/features/vcode.nix"
-        else "modules/features/${iName}.nix"
-      else "modules/${pName}s/${iName}.nix";
-
     # Primitive Instance Nodes (host:x240, feature:git, contract:secrets, ...)
     instanceNodes = lib.concatMapAttrs (pName: _: let
       instances = config.${pName} or {};
@@ -87,7 +179,7 @@
             implementers = lib.mapAttrsToList (implName: impl: {
               name = implName;
               description = impl.description;
-              file = "modules/implementations/${implName}.nix";
+              file = resolveFile "implementation" implName;
             }) (lib.filterAttrs (_: impl: impl.contract == iName) (config.implementation or {}));
             types = builtins.attrNames (iDef.types or {});
             lib =
@@ -111,7 +203,7 @@
               if builtins.isFunction (iDef.packages or {})
               then
                 iDef.packages {
-                  pkgs = (config.flake.nixosConfigurations.astrolabe or {}).pkgs;
+                  pkgs = (referenceConfiguration).pkgs or null;
                   self' = {};
                 }
               else (iDef.packages or {})
@@ -120,7 +212,7 @@
               if builtins.isFunction (iDef.devShells or {})
               then
                 iDef.devShells {
-                  pkgs = (config.flake.nixosConfigurations.astrolabe or {}).pkgs;
+                  pkgs = (referenceConfiguration).pkgs or null;
                   self' = {};
                 }
               else (iDef.devShells or {})
@@ -138,7 +230,7 @@
               if builtins.isFunction (iDef.packages or {})
               then
                 iDef.packages {
-                  pkgs = (config.flake.nixosConfigurations.astrolabe or {}).pkgs;
+                  pkgs = (referenceConfiguration).pkgs or null;
                   self' = {};
                 }
               else (iDef.packages or {})
@@ -147,18 +239,14 @@
               if builtins.isFunction (iDef.devShells or {})
               then
                 iDef.devShells {
-                  pkgs = (config.flake.nixosConfigurations.astrolabe or {}).pkgs;
+                  pkgs = (referenceConfiguration).pkgs or null;
                   self' = {};
                 }
               else (iDef.devShells or {})
             );
             importingHosts = lib.filter (
               hName: let
-                hostFile = ../../../modules/hosts/${hName}.nix;
-                hostContent =
-                  if builtins.pathExists hostFile
-                  then builtins.readFile hostFile
-                  else "";
+                hostContent = instanceSourceText "host" hName;
               in
                 lib.hasInfix "nixosModules.${iName}" hostContent
                 || builtins.elem (config.flake.nixosModules.${iName} or null) ((config.host.${hName} or {}).modules or [])
@@ -173,7 +261,7 @@
               if builtins.isFunction (iDef.packages or {})
               then
                 iDef.packages {
-                  pkgs = (config.flake.nixosConfigurations.astrolabe or {}).pkgs;
+                  pkgs = (referenceConfiguration).pkgs or null;
                   self' = {};
                 }
               else (iDef.packages or {})
@@ -182,18 +270,14 @@
               if builtins.isFunction (iDef.devShells or {})
               then
                 iDef.devShells {
-                  pkgs = (config.flake.nixosConfigurations.astrolabe or {}).pkgs;
+                  pkgs = (referenceConfiguration).pkgs or null;
                   self' = {};
                 }
               else (iDef.devShells or {})
             );
             importingHosts = lib.filter (
               hName: let
-                hostFile = ../../../modules/hosts/${hName}.nix;
-                hostContent =
-                  if builtins.pathExists hostFile
-                  then builtins.readFile hostFile
-                  else "";
+                hostContent = instanceSourceText "host" hName;
               in
                 lib.hasInfix "nixosModules.${iName}" hostContent
                 || builtins.any (
@@ -211,11 +295,7 @@
           else if pName == "host"
           then let
             hCfg = config.flake.nixosConfigurations.${iName} or null;
-            hostFile = ../../../modules/hosts/${iName}.nix;
-            hostContent =
-              if builtins.pathExists hostFile
-              then builtins.readFile hostFile
-              else "";
+            hostContent = instanceSourceText "host" iName;
             activeImpls = lib.filter (
               implName:
                 lib.hasInfix "nixosModules.${implName}" hostContent
@@ -270,40 +350,7 @@
               activeFeatures;
             subModulesList = map (subName: {
               name = subName;
-              code = let
-                lines = lib.splitString "\n" hostContent;
-                indexed = lib.imap1 (i: l: {inherit i l;}) lines;
-                startMatches = lib.filter (x: lib.hasInfix "${subName} =" x.l) indexed;
-              in
-                if startMatches == []
-                then ""
-                else let
-                  startLine = (builtins.head startMatches).i;
-                  rem = lib.sublist (startLine - 1) (builtins.length lines) lines;
-                  countChars = char: s: builtins.length (lib.filter (c: c == char) (lib.stringToCharacters s));
-                  folder = acc: line:
-                    if acc.isFinished
-                    then acc
-                    else let
-                      opens = countChars "{" line;
-                      closes = countChars "}" line;
-                      newDepth = acc.depth + opens - closes;
-                      newLines = acc.lines ++ [line];
-                      isDone = acc.depth > 0 && newDepth <= 0;
-                    in {
-                      depth = newDepth;
-                      lines = newLines;
-                      isFinished = isDone;
-                    };
-                  scan =
-                    lib.foldl' folder {
-                      depth = 0;
-                      lines = [];
-                      isFinished = false;
-                    }
-                    rem;
-                in
-                  lib.concatStringsSep "\n" scan.lines;
+              code = attrSourceCode "host" iName ["subModules"] subName;
             }) (builtins.attrNames (iDef.subModules or {}));
           in {
             system =
@@ -430,5 +477,6 @@
 in {
   internal.graph.extractors.onto = {
     extract = extractOnto;
+    inherit relativeSource instanceDefinitions resolveFile instanceSourceText attrSourceCode referenceConfiguration;
   };
 }

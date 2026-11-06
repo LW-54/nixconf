@@ -1,26 +1,16 @@
 # Module: `reverse-proxy`
 
-Contract interface defining 'reverse-proxy' option schemas and custom types.
+Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.reverse-proxy`
-- **Description**: Contract interface defining 'reverse-proxy' option schemas and custom types.
-
-## Importing Hosts
-
-Hosts that import this module into their system configurations:
-
-*Not currently imported by any host.*
+- **Attribute**: `flake.nixosModules.reverse-proxy`
+- **Provided by**: contract [`reverse-proxy`](../contracts/reverse-proxy.md)
 
 ## Declared Options
 
-NixOS options declared directly by this module:
-
-| Option Path | Type | Description |
-| :--- | :--- | :--- |
-| `options.reverse-proxy.domain` | `null or (Fully qualified domain name)` | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
-| `options.reverse-proxy.enable` | `boolean` | Whether to enable system reverse proxy contract. |
-| `options.reverse-proxy.hosts` | `attribute set of (submodule)` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |
+| Option Path | Type | Default | Example | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `reverse-proxy.domain` | `null or (Fully qualified domain name)` | — | `"adje.app"` | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
+| `reverse-proxy.enable` | `boolean` | `false` | `true` | Whether to enable system reverse proxy contract. |
+| `reverse-proxy.hosts` | `attribute set of (submodule)` | `{ }` | `{ ... }` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |

@@ -49,6 +49,63 @@
     then true
     else false;
 
+  # Generative provenance mapping: flake.nixosModules attribute -> producing primitive instance.
+  # Mirrors the conventions of `output.nixosModules` for every primitive kind:
+  # `module` / `configuration` export under the instance name, `modules` and
+  # `subModules` under their own keys (`default` maps to the instance name).
+  moduleProducerMap = let
+    kinds = builtins.attrNames (lib.filterAttrs (n: _: n != "primitive" && n != "lib") (config.primitive or {}));
+    entry = kind: instance: facet: {
+      primitive = kind;
+      inherit instance facet;
+    };
+    forInstance = kind: iName: iDef:
+      lib.optionalAttrs (iDef ? configuration) {${iName} = entry kind iName "configuration";}
+      // lib.mapAttrs (_: _: entry kind iName "subModules") (iDef.subModules or {})
+      // lib.optionalAttrs (iDef ? module) {${iName} = entry kind iName "module";}
+      // lib.mapAttrs' (mKey: _:
+        lib.nameValuePair (
+          if mKey == "default"
+          then iName
+          else mKey
+        ) (entry kind iName "modules"))
+      (iDef.modules or {});
+  in
+    lib.foldl' (acc: kind: acc // lib.concatMapAttrs (forInstance kind) (config.${kind} or {})) {} kinds;
+
+  /*
+  Describes an exported NixOS module without hardcoded prose. Resolution order:
+  1. `docs.modules.<name>` declared on the producing primitive instance,
+  2. `docs.modules.<name>` declared on any primitive (modules synthesized by primitive outputs),
+  3. the description of a primitive instance carrying the same name as the module,
+  4. a generic sentence naming the producing instance.
+  */
+  describeModule = {
+    name,
+    producer ? moduleProducerMap.${name} or null,
+  }: let
+    primitives = lib.filterAttrs (n: _: n != "primitive") (config.primitive or {});
+    producerInst =
+      if producer != null && primitives ? ${producer.primitive or ""}
+      then (config.${producer.primitive} or {}).${producer.instance} or null
+      else null;
+    fromProducer =
+      if producerInst != null
+      then producerInst.docs.modules.${name} or null
+      else null;
+    fromPrimitives = lib.findFirst (d: d != null) null (lib.mapAttrsToList (_: p: p.docs.modules.${name} or null) (config.primitive or {}));
+    sameName = lib.findFirst (d: d != null) null (lib.mapAttrsToList (kind: _: ((config.${kind} or {}).${name} or {}).description or null) primitives);
+  in
+    if fromProducer != null
+    then fromProducer
+    else if fromPrimitives != null
+    then fromPrimitives
+    else if sameName != null
+    then sameName
+    else if producerInst != null
+    then "NixOS module exported by ${producer.primitive} '${producer.instance}'."
+    else "Exported NixOS module '${name}'.";
+
   extractAST = {}: let
     contracts = config.contract or {};
     implementations = config.implementation or {};
@@ -59,73 +116,6 @@
 
     moduleNames = builtins.attrNames flakeModules;
     contractNames = builtins.attrNames contracts;
-
-    # 1. Generative Provenance Mapping for Modules
-    moduleProducerMap =
-      (lib.concatMapAttrs (
-          iName: iDef:
-            if iDef ? module
-            then {
-              ${iName} = {
-                primitive = "implementation";
-                instance = iName;
-                facet = "module";
-              };
-            }
-            else {}
-        )
-        implementations)
-      // (lib.concatMapAttrs (
-          hName: hDef:
-            (lib.optionalAttrs (hDef ? configuration) {
-              ${hName} = {
-                primitive = "host";
-                instance = hName;
-                facet = "configuration";
-              };
-            })
-            // (lib.mapAttrs (_: _: {
-              primitive = "host";
-              instance = hName;
-              facet = "subModules";
-            }) (hDef.subModules or {}))
-        )
-        hosts)
-      // (lib.concatMapAttrs (
-          fName: fDef:
-            (lib.optionalAttrs (fDef ? module) {
-              ${fName} = {
-                primitive = "feature";
-                instance = fName;
-                facet = "module";
-              };
-            })
-            // (lib.concatMapAttrs (mKey: _: {
-              ${
-                if mKey == "default"
-                then fName
-                else mKey
-              } = {
-                primitive = "feature";
-                instance = fName;
-                facet = "modules";
-              };
-            }) (fDef.modules or {}))
-        )
-        features)
-      // (lib.concatMapAttrs (
-          cName: cDef:
-            if cDef ? module
-            then {
-              ${cName} = {
-                primitive = "contract";
-                instance = cName;
-                facet = "module";
-              };
-            }
-            else {}
-        )
-        contracts);
 
     # 2. Module Nodes & OUTPUTS Edges from defining primitives
     moduleData =
@@ -144,52 +134,20 @@
           id = mName;
         };
         resolveModuleDesc = name:
-          if contracts ? ${name}
-          then "Contract interface defining '${name}' option schemas and custom types."
-          else if implementations ? ${name}
-          then implementations.${name}.description
-          else if features ? ${name}
-          then features.${name}.description
-          else if name == "contracts"
-          then "Central contract registry importing all declared contract interfaces."
-          else if hosts ? ${name}
-          then "Unified NixOS system configuration root module for host '${name}'."
-          else let
-            featureMatch = lib.filter (fName: builtins.hasAttr name (features.${fName}.modules or {})) (builtins.attrNames features);
-            hostMatch = lib.filter (hName: builtins.hasAttr name (hosts.${hName}.subModules or {}) || lib.hasPrefix "${hName}-" name) (builtins.attrNames hosts);
-          in
-            if featureMatch != []
-            then let f = builtins.head featureMatch; in "System service module exported by the '${f}' feature."
-            else if hostMatch != []
-            then let
-              h = builtins.head hostMatch;
-              sub = lib.removePrefix "${h}-" name;
-            in
-              if sub == "hardware"
-              then "Hardware profile, kernel modules, and bootloader configuration for ${h}."
-              else if sub == "disk"
-              then "Storage partition layout, Btrfs subvolumes, and swap configuration for ${h}."
-              else "Host configuration submodule for ${h}."
-            else "Exported NixOS system module ${name}.";
+          describeModule {
+            inherit name producer;
+          };
 
         importingHosts = lib.filter (
           hName: let
-            hostFile = ../../../modules/hosts/${hName}.nix;
-            hostContent =
-              if builtins.pathExists hostFile
-              then builtins.readFile hostFile
-              else "";
+            hostContent = config.internal.graph.extractors.onto.instanceSourceText "host" hName;
           in
             lib.hasInfix "nixosModules.${mName}" hostContent
             || builtins.elem (config.flake.nixosModules.${mName} or null) ((hosts.${hName} or {}).modules or [])
         ) (builtins.attrNames hosts);
 
         hostConfigurations = lib.genAttrs importingHosts (hName: let
-          hostFile = ../../../modules/hosts/${hName}.nix;
-          hostContent =
-            if builtins.pathExists hostFile
-            then builtins.readFile hostFile
-            else "";
+          hostContent = config.internal.graph.extractors.onto.instanceSourceText "host" hName;
           lines = lib.splitString "\n" hostContent;
           countChars = char: s: builtins.length (lib.filter (c: c == char) (lib.stringToCharacters s));
           isMatch = line: lib.hasInfix "${mName}." line || lib.hasInfix "self.nixosModules.${mName}" line;
@@ -239,16 +197,26 @@
                   path = currPath;
                   type = v.type.description or (v.type.name or "anything");
                   description = v.description or "";
+                  default =
+                    if v ? defaultText
+                    then v.defaultText
+                    else if v ? default
+                    then v.default
+                    else null;
+                  example =
+                    if v ? exampleText
+                    then v.exampleText
+                    else if v ? example
+                    then v.example
+                    else null;
                 }
               ]
               else if builtins.isAttrs v
               then findInTree currPath v
               else []) (builtins.attrNames attrs);
-          optsAstrolabe =
-            if (config.flake.nixosConfigurations or {}) ? astrolabe
-            then config.flake.nixosConfigurations.astrolabe.options or {}
-            else {};
-          matchingTree = optsAstrolabe.${name} or null;
+          referenceOptions =
+            config.internal.graph.extractors.onto.referenceConfiguration.options or {};
+          matchingTree = referenceOptions.${name} or null;
         in
           if matchingTree != null && builtins.isAttrs matchingTree
           then findInTree name matchingTree
@@ -544,6 +512,6 @@
 in {
   internal.graph.extractors.ast = {
     extract = extractAST;
-    inherit flattenOptionsTree typeMatches;
+    inherit flattenOptionsTree typeMatches describeModule moduleProducerMap;
   };
 }

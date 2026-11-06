@@ -2,49 +2,22 @@
 
 System internationalization, time zone, and language locale configuration.
 
-[← Back to Modules Documentation](../MODULES.md) | [← Back to Main README](../../README.md)
+[← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
-
-- **Module Attribute**: `flake.nixosModules.locale`
-- **Description**: System internationalization, time zone, and language locale configuration.
+- **Attribute**: `flake.nixosModules.locale`
+- **Provided by**: feature [`locale`](../features/locale.md)
 
 ## Importing Hosts
 
-Hosts that import this module into their system configurations:
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
-<details>
-<summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
-
-```nix
-          self.nixosModules.locale
-          self.nixosModules.ssh
-          self.nixosModules.git
-        ];
-```
-
-</details>
-
-
-<details>
-<summary><code><a href="../hosts/x240.md">x240</a></code></summary>
-
-```nix
-          self.nixosModules.locale
-          self.nixosModules.x240-system-features
-        ];
-```
-
-</details>
-
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
 
 ## Declared Options
 
-NixOS options declared directly by this module:
-
-| Option Path | Type | Description |
-| :--- | :--- | :--- |
-| `options.locale.defaultLocale` | `string` | System default locale and the default user locale. |
-| `options.locale.enable` | `boolean` | Whether to enable locale configuration. |
-| `options.locale.extraLocaleSettings` | `attribute set of string` | Additional system locale settings and user defaults. |
-| `options.locale.timeZone` | `string` | System time zone. |
+| Option Path | Type | Default | Example | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `locale.defaultLocale` | `string` | `"en_US.UTF-8"` | — | System default locale and the default user locale. |
+| `locale.enable` | `boolean` | `true` | `true` | Whether to enable locale configuration. |
+| `locale.extraLocaleSettings` | `attribute set of string` | `{ ... }` | — | Additional system locale settings and user defaults. |
+| `locale.timeZone` | `string` | `"Europe/Paris"` | — | System time zone. |

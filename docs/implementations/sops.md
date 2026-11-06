@@ -2,16 +2,14 @@
 
 Declarative encrypted secrets provisioning using SOPS and age keys.
 
-[← Back to Implementations Documentation](../IMPLEMENTATIONS.md) | [← Back to Main README](../../README.md)
+[← Back to Implementations Documentation](README.md) | [← Back to Main README](../../README.md)
 
-## Metadata
+- **Implementation**: `sops`
+- **Fulfills Contract**: [`secrets`](../contracts/secrets.md)
+- **Definition File**: [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix)
 
-- **Provider Name**: `sops`
-- **Contract Satisfied**: [`secrets`](../contracts/secrets.md)
-- **Contract Description**: Declarative encrypted secrets provisioning, filesystem mounting, and permission management.
-- **Source File**: [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix)
-
-## Architecture Diagram
+<details>
+<summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
@@ -80,9 +78,6 @@ flowchart LR
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__primitive__contract["contract"]:::defaultNode
-    urn__nixconf__onto__primitive__host["host"]:::defaultNode
-    urn__nixconf__onto__primitive__implementation["implementation"]:::defaultNode
 
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
@@ -202,18 +197,6 @@ flowchart LR
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__primitive__contract -->|contains| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__astrolabe
-    urn__nixconf__onto__primitive__host -->|contains| urn__nixconf__onto__host__x240
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__caddy
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__hjem
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__impermanence
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__lw
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__primitive__implementation -->|contains| urn__nixconf__onto__implementation__uwsm
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -236,9 +219,13 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
-    click urn__nixconf__drv__devShell__sops_admin href "../DEVSHELLS.md#sops-admin" "sops-admin"
-    click urn__nixconf__drv__devShell__sops_host href "../DEVSHELLS.md#sops-host" "sops-host"
-    click urn__nixconf__drv__package__bw href "../PACKAGES.md#bw" "bw"
+    click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
+    click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
+    click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
+    click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
+    click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
+    click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
@@ -270,13 +257,13 @@ flowchart LR
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
-    click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
-    click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
-    click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
-    click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
-    click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__implementation__caddy href "caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
+    click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
+    click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
+    click urn__nixconf__onto__implementation__uwsm href "uwsm.md" "uwsm"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -291,41 +278,30 @@ flowchart LR
   classDef defaultNode fill:#1e293b,stroke:#64748b,stroke-width:1px,color:#f8fafc;
 ```
 
+</details>
 
 ## Outputs
 
 ### NixOS Modules
 
-| Module | Description | Details |
+| Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`sops`](../modules/sops.md) | Provider module satisfying `secrets` contract | [More →](../modules/sops.md) |
-
-### Executable Packages
-
-*No packages exported.*
+| [`sops`](../modules/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](../modules/sops.md) |
 
 ### Development Shells
 
-| Devshell | Develop Command | Description | Details |
+| Development Shell | Command | Description | Docs |
 | :--- | :--- | :--- | :--- |
-| [`sops-admin`](../DEVSHELLS.md#sops-admin) | `nix develop .#sops-admin` | Interactive development shell | [More →](../DEVSHELLS.md#sops-admin) |
-| [`sops-host`](../DEVSHELLS.md#sops-host) | `nix develop .#sops-host` | Interactive development shell | [More →](../DEVSHELLS.md#sops-host) |
+| [`sops-admin`](../devshells.md#sops-admin) | `nix develop .#sops-admin` | Administrative secret editing shell with Bitwarden-authenticated master SOPS age key. | [More →](../devshells.md#sops-admin) |
+| [`sops-host`](../devshells.md#sops-host) | `nix develop .#sops-host` | Host-level development shell configured to decrypt local host SOPS secrets. | [More →](../devshells.md#sops-host) |
 
 ### Library Helpers
 
-| Symbol | Description | Details |
-| :--- | :--- | :--- |
-| [`flake.lib.sops.mkHostShell`](../lib/sops.md#mkHostShell) | Library helper symbol | [More →](../lib/sops.md#mkHostShell) |
+| Symbol | Type | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`mkHostShell`](../lib/sops.md#mkHostShell) | `mkHostShell :: { pkgs, keyFile ? Path } -> Derivation` | Constructs a developer shell configured to decrypt host SOPS secrets with the host's age key. | [More →](../lib/sops.md#mkHostShell) |
 
 ## Importing Hosts
 
-Hosts enabling this provider to fulfill the [`secrets`](../contracts/secrets.md) contract:
-
-- [`astrolabe`](../hosts/astrolabe.md) (`x86_64-linux`): Headless VPS Server (adje.app public edge and core services).
-- [`x240`](../hosts/x240.md) (`x86_64-linux`): ThinkPad Laptop Workstation (Desktop graphical workstation).
-
-## Consumed Contracts
-
-Contracts configured by this implementation:
-
-*No external contracts consumed by this implementation.*
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
+- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).

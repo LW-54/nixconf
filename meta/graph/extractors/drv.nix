@@ -85,6 +85,14 @@
             description = pDef.meta.description or (pDef.description or "Application package ${pName}.");
             runCommand = "nix run .#${pName}";
             buildCommand = "nix build .#${pName}";
+            usage = pDef.meta.usage or null;
+            helpCommand =
+              pDef.meta.helpCommand or (
+                if pDef.meta.mainProgram or null != null
+                then "${pDef.meta.mainProgram} --help"
+                else "${pName} --help"
+              );
+            homepage = pDef.meta.homepage or null;
           };
         };
         outputEdge =
@@ -176,6 +184,7 @@
           meta = {
             description = sDef.meta.description or "Development shell ${sName}.";
             developCommand = "nix develop .#${sName}";
+            usage = sDef.meta.usage or null;
           };
         };
         outputEdge =
