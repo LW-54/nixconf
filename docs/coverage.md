@@ -6,47 +6,28 @@ Automated quality and completeness audit tracking documentation health across pr
 
 ## Health Overview
 
-> [!WARNING]
-> **Documentation Health**: **90.6%** (146/161 items documented, **15 warnings**).
-> Missing or incomplete docstrings are cataloged in the registry below.
+> [!TIP]
+> **Documentation Health**: **100.0%** — All 158 audited architectural entities are fully documented with descriptions, docstrings, and type specifications.
 
 
 | Metric | Value | Description |
 | :--- | :--- | :--- |
-| **Overall Health Score** | `90.6%` | Percentage of audited entities satisfying documentation completeness criteria. |
-| **Total Audited Items** | `161` | Combined count of primitives, exported library functions/symbols, and schema options. |
-| **Fully Documented** | `146` | Entities with valid, non-placeholder descriptions and type signatures. |
-| **Audit Warnings** | `15` | Entities requiring docstrings, option descriptions, or type signatures. |
+| **Overall Health Score** | `100.0%` | Percentage of audited entities satisfying documentation completeness criteria. |
+| **Total Audited Items** | `158` | Combined count of primitives, exported library functions/symbols, and schema options. |
+| **Fully Documented** | `158` | Entities with valid, non-placeholder descriptions and type signatures. |
+| **Audit Warnings** | `0` | Entities requiring docstrings, option descriptions, or type signatures. |
 
 ## Category Breakdown
 
 | Subsystem | Documented | Total | Health | Warnings |
 | :--- | :--- | :--- | :--- | :--- |
-| **Primitives (Hosts, Features, Contracts, Libs)** | 58 | 64 | `90.6%` | ⚠️ `6` |
-| **Library Symbols & Functions** | 53 | 62 | `85.4%` | ⚠️ `9` |
-| **Primitive Schema Options** | 35 | 35 | `100.0%` | ✅ None |
+| **Primitives (Hosts, Features, Contracts, Libs)** | 64 | 64 | `100.0%` | ✅ None |
+| **Library Symbols & Functions** | 58 | 58 | `100.0%` | ✅ None |
+| **Primitive Schema Options** | 36 | 36 | `100.0%` | ✅ None |
 
 ## Missing Documentation Registry
 
-The following entities have missing or incomplete documentation:
-
-| Category | Entity Target | Source File | Missing Field | Remediation |
-| :--- | :--- | :--- | :--- | :--- |
-| `primitives` | `primitive.contract` | [`primitives/contract/default.nix`](../primitives/contract/default.nix) | **description** | Add 'description = "...";' to primitive.contract |
-| `primitives` | `primitive.feature` | [`primitives/feature.nix`](../primitives/feature.nix) | **description** | Add 'description = "...";' to primitive.feature |
-| `primitives` | `primitive.host` | [`primitives/host/default.nix`](../primitives/host/default.nix) | **description** | Add 'description = "...";' to primitive.host |
-| `primitives` | `primitive.implementation` | [`primitives/implementation/default.nix`](../primitives/implementation/default.nix) | **description** | Add 'description = "...";' to primitive.implementation |
-| `primitives` | `primitive.lib` | [`primitives/lib.nix`](../primitives/lib.nix) | **description** | Add 'description = "...";' to primitive.lib |
-| `primitives` | `primitive.primitive` | [`primitives/primitive/default.nix`](../primitives/primitive/default.nix) | **description** | Add 'description = "...";' to primitive.primitive |
-| `symbols` | `lib.home.types` | [`modules/contracts/home.nix`](../modules/contracts/home.nix) | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.home.types |
-| `symbols` | `lib.options._type` | *unknown* | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.options._type |
-| `symbols` | `lib.options.default` | *unknown* | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.options.default |
-| `symbols` | `lib.options.description` | *unknown* | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.options.description |
-| `symbols` | `lib.options.type` | *unknown* | **type signature (# Type)** | Add '# Type' section to docstring of lib.options.type |
-| `symbols` | `lib.persistence.types` | [`modules/contracts/persistence.nix`](../modules/contracts/persistence.nix) | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.persistence.types |
-| `symbols` | `lib.reverse-proxy.types` | [`modules/contracts/reverse-proxy.nix`](../modules/contracts/reverse-proxy.nix) | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.reverse-proxy.types |
-| `symbols` | `lib.secrets.types` | [`modules/contracts/secrets.nix`](../modules/contracts/secrets.nix) | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.secrets.types |
-| `symbols` | `lib.wayland.types` | [`modules/contracts/wayland.nix`](../modules/contracts/wayland.nix) | **docstring** | Add docstring with '# Inputs' and '# Type' to lib.wayland.types |
+*No documentation warnings. All repository entities are fully documented.*
 
 ## Remediation Guide
 

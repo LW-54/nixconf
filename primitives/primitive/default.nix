@@ -10,6 +10,8 @@
   ...
 }: {
   primitive.primitive = {
+    description = "Meta-primitive defining how primitives are constructed, typed, and exported across the system.";
+
     schema = option.schema {
       what = "Primitive type specification";
       doc = "Meta-primitive defining how primitives are constructed, typed, and exported across the system.";

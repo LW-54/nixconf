@@ -9,6 +9,8 @@
   ...
 }: {
   primitive.implementation = {
+    description = "Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations.";
+
     schema = option.schema {
       what = "Capability implementation module";
       doc = "Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations.";

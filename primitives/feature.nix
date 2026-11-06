@@ -6,6 +6,8 @@
   ...
 }: {
   primitive.feature = {
+    description = "Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.";
+
     schema = option.schema {
       what = "System feature module set";
       doc = "Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system.";

@@ -7,6 +7,8 @@
   ...
 }: {
   primitive.contract = {
+    description = "Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.";
+
     schema = option.schema {
       what = "Architectural contract";
       doc = "Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation.";

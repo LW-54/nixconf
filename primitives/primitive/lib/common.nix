@@ -55,6 +55,12 @@
 
   primitiveSubmodule = {config, ...}: {
     options = {
+      description = lib.mkOption {
+        type = lib.types.str;
+        default = config.schema.doc or "";
+        description = "Documentation describing this primitive specification.";
+      };
+
       schema = lib.mkOption {
         type = lib.types.submodule schemaSubmodule;
         description = "Flake schema specification (version 1) exported directly to flake.schemas.<primitive>.";

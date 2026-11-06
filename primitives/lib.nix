@@ -7,6 +7,8 @@
   ...
 }: {
   primitive.lib = {
+    description = "Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository.";
+
     schema = option.schema {
       what = "Exported library symbols";
       doc = "Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository.";

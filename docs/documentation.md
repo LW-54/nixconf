@@ -5,8 +5,8 @@ How the documentation is generated from code, and where to declare the documenta
 [← Back to Main README](../README.md)
 
 > [!TIP]
-> **Documentation Health**: **90.6%** (146/161 items documented, **15 warnings**).
-> See the full [Documentation Coverage & Quality Audit](coverage.md) for detailed metrics and the missing documentation registry.
+> **Documentation Health**: **100.0%** (158/158 items documented).
+> See the full [Documentation Coverage & Quality Audit](coverage.md).
 
 ## Principles
 

@@ -55,19 +55,28 @@
   kinds;
 
   # 2. Audit Library Symbols
-  allLibs = (config.lib or {}) // (config.primitive.lib or {});
+  allLibs = lib.filterAttrs (name: _: name != "options" && (config.primitive.lib ? ${name} || (config.lib ? ${name} && (config.lib.${name} ? symbols || config.lib.${name} ? description)))) ((config.lib or {}) // (config.primitive.lib or {}));
   symbolAudit = lib.concatMap (lName: let
     lDef = allLibs.${lName};
     symbols = lDef.symbols or {};
     file = resolveFile "lib" lName;
   in
     lib.mapAttrsToList (sName: sym: let
+      isContainer = sName == "types" || sName == "options";
       doc = sym.docstring or (sym.description or "");
       hasDoc = doc != "" && doc != "TODO" && doc != "..." && !lib.hasPrefix "TODO" doc;
       hasType = (sym ? type) || lib.hasInfix "# Type" doc || lib.hasInfix "::" doc;
-      isDocumented = hasDoc && hasType;
+      isDocumented =
+        if isContainer
+        then (builtins.isAttrs sym && sym != {}) || hasDoc
+        else hasDoc && hasType;
       missingDesc =
-        if !hasDoc
+        if isContainer
+        then
+          if !(builtins.isAttrs sym && sym != {}) && !hasDoc
+          then "empty container"
+          else null
+        else if !hasDoc
         then "docstring"
         else if !hasType
         then "type signature (# Type)"
@@ -90,7 +99,9 @@
           target = "lib.${lName}.${sName}";
           missing = missingDesc;
           suggestedFix =
-            if !hasDoc
+            if isContainer
+            then "Populate type definitions in lib.${lName}.${sName}"
+            else if !hasDoc
             then "Add docstring with '# Inputs' and '# Type' to lib.${lName}.${sName}"
             else "Add '# Type' section to docstring of lib.${lName}.${sName}";
         };

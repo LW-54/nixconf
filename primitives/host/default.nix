@@ -7,6 +7,8 @@
   ...
 }: {
   primitive.host = {
+    description = "Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.";
+
     schema = option.schema {
       what = "NixOS host configuration";
       doc = "Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems.";
