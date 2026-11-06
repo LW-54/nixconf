@@ -104,6 +104,48 @@ bw --help
 
 Official Documentation: [https://bitwarden.com/help/cli/](https://bitwarden.com/help/cli/)
 
+<a id="devenv-test"></a>
+### `devenv-test`
+
+Application package devenv-test.
+
+```bash
+nix run .#devenv-test
+```
+
+```bash
+nix run github:LW-54/nixconf#devenv-test
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+devenv-test --help
+```
+
+<a id="devenv-up"></a>
+### `devenv-up`
+
+Application package devenv-up.
+
+```bash
+nix run .#devenv-up
+```
+
+```bash
+nix run github:LW-54/nixconf#devenv-up
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+devenv-up --help
+```
+
 <a id="dolphin"></a>
 ### `dolphin`
 

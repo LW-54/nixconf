@@ -4,6 +4,19 @@ Interactive environments exported on `flake.devShells`.
 
 [← Back to Main README](../README.md)
 
+<a id="default"></a>
+### `default`
+
+Development shell default.
+
+```bash
+nix develop .#default
+```
+
+```bash
+nix develop github:LW-54/nixconf#default
+```
+
 <a id="github-ssh"></a>
 ### `github-ssh`
 

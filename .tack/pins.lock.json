@@ -1,6 +1,7 @@
 {
   "$declared": {
     "antigravity-nix": "github:jacopone/antigravity-nix",
+    "devenv": "github:cachix/devenv",
     "disko": "github:nix-community/disko",
     "flake-parts": "github:hercules-ci/flake-parts",
     "flake-schemas": "github:DeterminateSystems/flake-schemas",
@@ -23,6 +24,14 @@
     "rev": "0b59506acfb81ea351f713d1ac5ce5787fbbb92a",
     "narHash": "sha256-N6ce9yAqF3/T4c7Fh4TQiLW0vgLQiTEQth7F3BJDJlg=",
     "lastModified": 1793776232
+  },
+  "devenv": {
+    "type": "github",
+    "owner": "cachix",
+    "repo": "devenv",
+    "rev": "9655d320b8f9df74dbecf681f52a7334574606c3",
+    "narHash": "sha256-WlVNaWXVTYaGBNey2Z+20sY1lT7BvzJEECb+VlDDdk0=",
+    "lastModified": 1793731702
   },
   "disko": {
     "type": "github",

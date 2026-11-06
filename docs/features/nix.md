@@ -320,10 +320,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/nix.nix
 ...
-64: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-65: cache.directories = [
-66: ".cache/nix"
-67: ".cache/nix-index"
+68: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+69: cache.directories = [
+70: ".cache/nix"
+71: ".cache/nix-index"
 ...
 ```
 
@@ -343,7 +343,7 @@ Capability contracts configured by this feature:
 30: file = ../../secrets/cachix/cachix.yaml;
 31: key = "token";
 ...
-58: cachixTokenFile = config.secrets.files.cachix-token.path;
+62: cachixTokenFile = config.secrets.files.cachix-token.path;
 ...
 ```
 

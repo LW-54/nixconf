@@ -36,6 +36,7 @@ flowchart LR
     urn__nixconf__ast__type__home_relativeHomePath[["home.relativeHomePath"]]:::typeNode
     urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
+    urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
@@ -89,6 +90,7 @@ flowchart LR
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__drv__devShell__github_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -234,6 +236,7 @@ flowchart LR
     click urn__nixconf__ast__type__home_relativeHomePath href "../contracts/home.md" "home.relativeHomePath"
     click urn__nixconf__ast__type__home_userHome href "../contracts/home.md" "home.userHome"
     click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
+    click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"

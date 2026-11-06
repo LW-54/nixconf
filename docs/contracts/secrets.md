@@ -235,7 +235,7 @@ Modules and instances configuring options under the `secrets` contract capabilit
 30: file = ../../secrets/cachix/cachix.yaml;
 31: key = "token";
 ...
-58: cachixTokenFile = config.secrets.files.cachix-token.path;
+62: cachixTokenFile = config.secrets.files.cachix-token.path;
 ...
 ```
 

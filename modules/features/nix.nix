@@ -36,9 +36,13 @@
             settings = {
               experimental-features = ["nix-command" "flakes"];
               auto-optimise-store = true;
-              extra-substituters = ["https://lw-54.cachix.org"];
+              extra-substituters = [
+                "https://lw-54.cachix.org"
+                "https://devenv.cachix.org"
+              ];
               extra-trusted-public-keys = [
                 "lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o="
+                "devenv.cachix.org-1:w1cLUi8dv3hnoSPGAuibQv+f9TZLr6cv/Hm9XgU50cw="
               ];
               trusted-users = ["root" "@wheel"];
             };

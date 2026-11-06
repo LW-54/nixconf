@@ -92,3 +92,6 @@ url = "github:manic-systems/tack"
 
 [inputs.flake-schemas]
 url = "github:DeterminateSystems/flake-schemas"
+
+[inputs.devenv]
+url = "github:cachix/devenv"

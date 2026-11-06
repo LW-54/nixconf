@@ -545,6 +545,28 @@ nix run .#bw
 nix run github:LW-54/nixconf#bw
 ```
 
+#### [`devenv-test`](docs/packages.md#devenv-test)
+Application package devenv-test.
+
+```bash
+nix run .#devenv-test
+```
+
+```bash
+nix run github:LW-54/nixconf#devenv-test
+```
+
+#### [`devenv-up`](docs/packages.md#devenv-up)
+Application package devenv-up.
+
+```bash
+nix run .#devenv-up
+```
+
+```bash
+nix run github:LW-54/nixconf#devenv-up
+```
+
 #### [`dolphin`](docs/packages.md#dolphin)
 Dolphin file manager wrapper bundled with QtWayland plugins and breeze theme assets.
 
@@ -584,6 +606,17 @@ nix run github:LW-54/nixconf#git
 <summary><h3>DevShells</h3></summary>
 
 Interactive development and administrative shells exported on `flake.devShells`. See [DevShells Documentation](docs/devshells.md).
+
+#### [`default`](docs/devshells.md#default)
+Development shell default.
+
+```bash
+nix develop .#default
+```
+
+```bash
+nix develop github:LW-54/nixconf#default
+```
 
 #### [`github-ssh`](docs/devshells.md#github-ssh)
 Development shell configured with Bitwarden-authenticated GitHub SSH deploy keys.

@@ -593,10 +593,10 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/nix.nix
 ...
-64: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-65: cache.directories = [
-66: ".cache/nix"
-67: ".cache/nix-index"
+68: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+69: cache.directories = [
+70: ".cache/nix"
+71: ".cache/nix-index"
 ...
 ```
 
