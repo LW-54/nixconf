@@ -67,6 +67,9 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
           persistence.directories = [
             "/var/lib/containers"
           ];
+          testing.vm.allowedFailedUnits = [
+            "docker-*.service"
+          ];
         };
       };
 

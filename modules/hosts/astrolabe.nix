@@ -35,6 +35,9 @@
           persistence.directories = [
             "/var/lib/containers"
           ];
+          testing.vm.allowedFailedUnits = [
+            "docker-*.service"
+          ];
         };
       };
 

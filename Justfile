@@ -21,6 +21,34 @@ switch host="x240":
 test host="x240":
     sudo nixos-rebuild test --flake .#{{host}}
 
+# Run fast evaluation checks on hosts
+test-eval host="":
+    nix run .#test -- eval {{host}}
+
+# Validate generated /etc, PAM, and units without KVM
+test-inspect host="":
+    nix run .#test -- inspect {{host}}
+
+# Boot host in QEMU and execute runtime checks (requires KVM)
+test-vm host="":
+    nix run .#test -- vm {{host}}
+
+# Partition real Disko layout, install, and test reboot persistence (requires KVM)
+test-install host="":
+    nix run .#test -- install {{host}}
+
+# Boot host as an interactive test VM with port forward (localhost:2222)
+test-run host="x240":
+    nix run .#test -- run {{host}}
+
+# Open the VM test driver Python REPL
+test-interactive host="x240":
+    nix run .#test -- interactive {{host}}
+
+# List available hosts, tiers, and their test checks
+test-list:
+    nix run .#test -- list
+
 # Install NixOS configuration to bootloader without switching running system
 boot host="x240":
     sudo nixos-rebuild boot --flake .#{{host}}

@@ -34,6 +34,10 @@
       };
 
       config = lib.mkIf (resticCfg.repository != null) {
+        testing.vm.allowedFailedUnits = [
+          "restic-backups-*.service"
+        ];
+
         secrets.files = {
           restic-env = lib.mkIf (resticCfg.environmentFile == null) {
             file = ../../secrets/backup/restic.yaml;

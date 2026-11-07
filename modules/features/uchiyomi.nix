@@ -101,6 +101,10 @@
               }
             ];
 
+            testing.vm.allowedFailedUnits = [
+              "${backend}-*.service"
+            ];
+
             virtualisation.oci-containers.containers = {
               ${flaresolverrHost} = {
                 image = cfg.flaresolverrImage;

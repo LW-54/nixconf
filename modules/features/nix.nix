@@ -62,6 +62,9 @@
             cachixTokenFile = config.secrets.files.cachix-token.path;
           };
           systemd.services.cachix-watch-store-agent.serviceConfig.KillMode = lib.mkIf config.nix.cachixWatchStore (lib.mkForce "control-group");
+          # Pushing to the binary cache needs the real token and internet access, neither of
+          # which exists in the isolated test network.
+          testing.vm.allowedFailedUnits = lib.mkIf config.nix.cachixWatchStore ["cachix-watch-store-agent.service"];
           nixpkgs.config.allowUnfree = true;
           environment.systemPackages = [pkgs.nixd];
 

@@ -5,7 +5,7 @@ How the documentation is generated from code, and where to declare the documenta
 [← Back to Main README](../README.md)
 
 > [!TIP]
-> **Documentation Health**: **100.0%** (159/159 items documented).
+> **Documentation Health**: **100.0%** (167/167 items documented).
 > See the full [Documentation Coverage & Quality Audit](coverage.md).
 
 ## Principles

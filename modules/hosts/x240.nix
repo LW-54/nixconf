@@ -55,6 +55,9 @@ in {
             build-cores = cores - 1;
             cores = cores - 1;
           };
+          testing.vm.allowedFailedUnits = [
+            "NetworkManager-wait-online.service"
+          ];
           system.configurationRevision = self.rev or self.dirtyRev or "unknown";
           system.stateVersion = "25.11";
         };

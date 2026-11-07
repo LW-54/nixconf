@@ -22,6 +22,7 @@ flowchart LR
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
@@ -38,13 +39,16 @@ flowchart LR
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_githubUsername
     urn__nixconf__onto__contract__default_user -->|declares| urn__nixconf__ast__option__default_user_username
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
 
 
@@ -58,6 +62,7 @@ flowchart LR
     click urn__nixconf__onto__contract__home href "home.md" "home"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
+    click urn__nixconf__onto__contract__testing href "testing.md" "testing"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
@@ -119,10 +124,10 @@ Modules and instances configuring options under the `default-user` contract capa
 ```nix
 # modules/implementations/lw.nix
 ...
-50: default-user = {
-51: username = Identity.username.value;
-52: githubUsername = Identity.githubUsername.value;
-53: email = Identity.email.value;
+56: default-user = {
+57: username = Identity.username.value;
+58: githubUsername = Identity.githubUsername.value;
+59: email = Identity.email.value;
 ...
 ```
 

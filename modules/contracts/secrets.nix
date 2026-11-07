@@ -49,6 +49,17 @@
           else "/run/secrets/${name}";
         description = "Decrypted filesystem path where the secret is exposed on the host.";
       };
+
+      testValue = lib.mkOption {
+        type = lib.types.str;
+        default = "nixconf-test-secret:${name}";
+        example = "KEY=value";
+        description = ''
+          Non-sensitive stand-in plaintext provisioned instead of the real secret when the host runs
+          under `testing.enable` (VM and install tests), so tests never need the real decryption keys.
+          Override it when consumers expect a specific format (password hash, SSH key, env file).
+        '';
+      };
     };
   });
 in {

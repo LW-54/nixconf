@@ -25,6 +25,9 @@
           in
             lib.unique (builtins.filter (x: x != null) (map getKey lines))
           else ["master"];
+
+        inherit (config.testing) credentials;
+        port = toString cfg.listenPort;
       in {
         options.services.ssh = {
           enable = lib.mkEnableOption "standard SSH configuration" // {default = true;};
@@ -77,6 +80,7 @@
                     file = ../../secrets/ssh/public.yaml;
                     key = name;
                     mode = "0444";
+                    testValue = credentials.sshPublicKey;
                   };
                 })
                 publicKeys)
@@ -85,8 +89,24 @@
                   file = hostKeySecretPath;
                   key = "ed25519";
                   mode = "0600";
+                  testValue = credentials.sshHostPrivateKey;
                 };
               };
+
+            testing.checks = {
+              ssh-daemon = {
+                description = "sshd listens on port ${port}${lib.optionalString hasHostKeySecret " with the provisioned host key"}";
+                script =
+                  ''
+                    machine.wait_for_open_port(${port})
+                  ''
+                  + lib.optionalString hasHostKeySecret ''
+                    machine.wait_for_unit("provision-ssh-host-key.service")
+                    _hostkey = machine.succeed("${pkgs.openssh}/bin/ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key").split()[1]
+                    assert _hostkey == ${builtins.toJSON (builtins.elemAt (lib.splitString " " credentials.sshHostPublicKey) 1)}, "SSH host key was not provisioned from secrets"
+                  '';
+              };
+            };
 
             # Provision host SSH key from secrets if missing or different
             systemd.services.provision-ssh-host-key = lib.mkIf hasHostKeySecret {
@@ -106,8 +126,12 @@
                   chmod 644 /etc/ssh/ssh_host_ed25519_key.pub
                   if [ -d /persist/system ]; then
                     mkdir -p /persist/system/etc/ssh
-                    cp -p /etc/ssh/ssh_host_ed25519_key /persist/system/etc/ssh/ssh_host_ed25519_key
-                    cp -p /etc/ssh/ssh_host_ed25519_key.pub /persist/system/etc/ssh/ssh_host_ed25519_key.pub
+                    if ! [ /etc/ssh/ssh_host_ed25519_key -ef /persist/system/etc/ssh/ssh_host_ed25519_key ]; then
+                      cp -p /etc/ssh/ssh_host_ed25519_key /persist/system/etc/ssh/ssh_host_ed25519_key
+                    fi
+                    if ! [ /etc/ssh/ssh_host_ed25519_key.pub -ef /persist/system/etc/ssh/ssh_host_ed25519_key.pub ]; then
+                      cp -p /etc/ssh/ssh_host_ed25519_key.pub /persist/system/etc/ssh/ssh_host_ed25519_key.pub
+                    fi
                   fi
                 fi
               '';
@@ -124,7 +148,7 @@
               openssh.authorizedKeys.keys = cfg.authorizedKeys;
             });
 
-            persistence.files = lib.mkIf config.persistence.enable [
+            persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
               "/etc/ssh/ssh_host_ed25519_key"
               "/etc/ssh/ssh_host_ed25519_key.pub"
               "/etc/ssh/ssh_host_rsa_key"

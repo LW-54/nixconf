@@ -220,3 +220,24 @@ git --help
 ```
 
 Official Documentation: [https://git-scm.com/doc](https://git-scm.com/doc)
+
+<a id="test"></a>
+### `test`
+
+Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.
+
+```bash
+nix run .#test
+```
+
+```bash
+nix run github:LW-54/nixconf#test
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+nixconf-test --help
+```

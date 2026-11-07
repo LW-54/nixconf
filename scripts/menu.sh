@@ -98,6 +98,15 @@ generate_catalog() {
   entry "[tack]" "tack tree" "tack tree" "Show input relationship tree and followed dependencies." ""
   entry "[tack]" "tack verify" "tack verify" "Verify cryptographically signed commits on pins requiring signers." ""
 
+  # --- [HOST TESTING] ---
+  entry "[test]" "test: eval (all hosts)" "nix run .#test -- eval" "Evaluate all host configurations and run fast static checks (bootloader, login, ssh)." "Fast (seconds, no KVM)."
+  entry "[test]" "test: inspect (all hosts)" "nix run .#test -- inspect" "Validate /etc/fstab, PAM, sudoers, and sshd in a pure sandbox without KVM." "Fast (10-15s, no KVM)."
+  entry "[test]" "test: vm (astrolabe VPS)" "nix run .#test -- vm astrolabe" "Boot astrolabe VPS in QEMU, verify secrets provisioning, SSH daemon, and systemd units." "Requires KVM."
+  entry "[test]" "test: vm (x240 laptop)" "nix run .#test -- vm x240" "Boot x240 in QEMU, verify console login, sudo escalation, secrets, and systemd units." "Requires KVM."
+  entry "[test]" "test: install (x240 laptop)" "nix run .#test -- install x240" "Partition Disko layout, install NixOS, and verify impermanence reboot survival." "Slow (requires KVM)."
+  entry "[test]" "test: run interactive VM (x240)" "nix run .#test -- run x240" "Boot x240 interactive VM with stand-in secrets (SSH port forwarded to localhost:2222)." "Requires KVM."
+  entry "[test]" "test: list hosts & checks" "nix run .#test -- list" "List all hosts, available test tiers, and registered test checks." ""
+
   # --- [CHECK & FORMATTING] ---
   entry "[check]" "format all files (nix fmt .)" "nix fmt ." "Format all Nix files across repository with Alejandra." "Includes dot argument."
   entry "[check]" "check formatting" "alejandra --check ." "Verify code formatting without modifying files." ""

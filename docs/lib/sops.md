@@ -13,12 +13,15 @@ Declarative encrypted secrets provisioning using SOPS and age keys.
 ```mermaid
 flowchart LR
   urn__nixconf__ast__function__sops_mkHostShell["sops.mkHostShell"]:::defaultNode
+    urn__nixconf__ast__function__sops_mkTestSecrets["sops.mkTestSecrets"]:::defaultNode
     urn__nixconf__onto__lib__sops["sops"]:::defaultNode
 
     urn__nixconf__onto__lib__sops -->|outputs| urn__nixconf__ast__function__sops_mkHostShell
+    urn__nixconf__onto__lib__sops -->|outputs| urn__nixconf__ast__function__sops_mkTestSecrets
 
 
     click urn__nixconf__ast__function__sops_mkHostShell href "sops.md" "sops.mkHostShell"
+    click urn__nixconf__ast__function__sops_mkTestSecrets href "sops.md" "sops.mkTestSecrets"
     click urn__nixconf__onto__lib__sops href "sops.md" "sops"
 
   %% Semantic Visual Classes
@@ -82,4 +85,29 @@ mkHostShell :: { pkgs, keyFile ? Path } -> Derivation
 
 ```nix
 self.lib.sops.mkHostShell { inherit pkgs; }
+```
+
+<a id="mkTestSecrets"></a>
+### `mkTestSecrets`
+
+Builds a deterministic test age key plus SOPS-encrypted files holding test stand-in values, used in test mode.
+
+#### Inputs
+
+- `pkgs`: Nixpkgs package set.
+- `secrets`: Attribute set of `{ key, format, value }` keyed by secret name.
+
+#### Type
+
+```
+mkTestSecrets :: { pkgs, secrets } -> Derivation
+```
+
+#### Examples
+
+```nix
+self.lib.sops.mkTestSecrets {
+  inherit pkgs;
+  secrets.api-token = { key = "token"; format = "yaml"; value = "dummy"; };
+}
 ```

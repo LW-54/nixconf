@@ -1,0 +1,177 @@
+name: Host Verification & VM Tests
+
+on:
+  push:
+    branches:
+      - main
+      - "feat/**"
+  workflow_dispatch:
+    inputs:
+      tier:
+        description: "Test tier to execute"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - static
+          - vm
+          - install
+      host:
+        description: "Host to test"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - astrolabe
+          - x240
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  static-checks:
+    name: Static Verification (eval & inspect)
+    if: github.event_name == 'push' || inputs.tier == 'all' || inputs.tier == 'static'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+
+      - name: Setup Cachix Cache
+        uses: cachix/cachix-action@v17
+        with:
+          name: lw-54
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Run evaluation checks (eval tier)
+        run: |
+          target="${{ inputs.host != 'all' && inputs.host || '' }}"
+          nix run .#test -- eval $target
+
+      - name: Run artifact inspection checks (inspect tier)
+        run: |
+          target="${{ inputs.host != 'all' && inputs.host || '' }}"
+          nix run .#test -- inspect $target
+
+  vm-tests:
+    name: VM Runtime Tests (${{ matrix.host }})
+    needs: static-checks
+    if: always() && (needs.static-checks.result == 'success' || needs.static-checks.result == 'skipped') && (github.event_name == 'push' || inputs.tier == 'all' || inputs.tier == 'vm')
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [astrolabe, x240]
+    steps:
+      - name: Checkout repository
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        uses: actions/checkout@v4
+
+      - name: Enable KVM permissions
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          [ -e /dev/kvm ] && sudo chmod 666 /dev/kvm
+          ls -l /dev/kvm || true
+
+      - name: Install Nix
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            system-features = nixos-test benchmark big-parallel kvm
+
+      - name: Setup Cachix Cache
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        uses: cachix/cachix-action@v17
+        with:
+          name: lw-54
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Run VM tests for ${{ matrix.host }}
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        run: nix run .#test -- vm ${{ matrix.host }}
+
+      - name: Print failure logs for ${{ matrix.host }}
+        if: failure() && (github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "### Test Failure Log for ${{ matrix.host }}" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          nix log .#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.vm 2>&1 | tail -n 250 >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          LOG_TAIL=$(nix log .#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.vm 2>&1 | tail -n 120 || true)
+          if [ -n "$LOG_TAIL" ]; then
+            gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
+              -f body="$(printf '### VM Test Failure Log for `%s`\n```\n%s\n```' "${{ matrix.host }}" "$LOG_TAIL")" || true
+          fi
+
+  install-tests:
+    name: Install & Impermanence Reboot Tests (${{ matrix.host }})
+    needs: vm-tests
+    if: always() && (needs.vm-tests.result == 'success' || needs.vm-tests.result == 'skipped') && github.event_name == 'workflow_dispatch' && (inputs.tier == 'all' || inputs.tier == 'install')
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        host: [x240, astrolabe]
+    steps:
+      - name: Checkout repository
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        uses: actions/checkout@v4
+
+      - name: Enable KVM permissions
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          [ -e /dev/kvm ] && sudo chmod 666 /dev/kvm
+          ls -l /dev/kvm || true
+
+      - name: Install Nix
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            system-features = nixos-test benchmark big-parallel kvm
+
+      - name: Setup Cachix Cache
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        uses: cachix/cachix-action@v17
+        with:
+          name: lw-54
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Run Disko install test for ${{ matrix.host }}
+        if: github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host
+        run: nix run .#test -- install ${{ matrix.host }}
+
+      - name: Print failure logs for ${{ matrix.host }}
+        if: failure() && (github.event_name != 'workflow_dispatch' || inputs.host == 'all' || inputs.host == matrix.host)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "### Install Test Failure Log for ${{ matrix.host }}" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          nix log .#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.install 2>&1 | tail -n 250 >> "$GITHUB_STEP_SUMMARY" || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+          LOG_TAIL=$(nix log .#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.install 2>&1 | tail -n 120 || true)
+          if [ -n "$LOG_TAIL" ]; then
+            gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
+              -f body="$(printf '### Install Test Failure Log for `%s`\n```\n%s\n```' "${{ matrix.host }}" "$LOG_TAIL")" || true
+          fi

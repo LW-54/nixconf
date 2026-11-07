@@ -8,7 +8,7 @@ Pure contract interfaces defining shared option schemas, custom types, and confi
 
 - **Declared as**: `contract.<name>` in any flake-parts module under `modules/contracts/`
 - **Primitive definition**: [`primitives/contract/default.nix`](../../primitives/contract/default.nix)
-- **Instances**: 7
+- **Instances**: 8
 
 ## Option Schema (`contract.<name>`)
 
@@ -74,4 +74,5 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 | [`persistence`](persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](../implementations/impermanence.md) | [`modules/contracts/persistence.nix`](../../modules/contracts/persistence.nix) | [More →](persistence.md) |
 | [`reverse-proxy`](reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](../implementations/caddy.md) | [`modules/contracts/reverse-proxy.nix`](../../modules/contracts/reverse-proxy.nix) | [More →](reverse-proxy.md) |
 | [`secrets`](secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](../implementations/sops.md) | [`modules/contracts/secrets.nix`](../../modules/contracts/secrets.nix) | [More →](secrets.md) |
+| [`testing`](testing.md) | Declarative host verification: evaluation-time essentials, runtime VM checks, and test stand-ins for secrets. | [`nixos-test`](../implementations/nixos-test.md) | [`modules/contracts/testing.nix`](../../modules/contracts/testing.nix) | [More →](testing.md) |
 | [`wayland`](wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [`uwsm`](../implementations/uwsm.md) | [`modules/contracts/wayland.nix`](../../modules/contracts/wayland.nix) | [More →](wayland.md) |
