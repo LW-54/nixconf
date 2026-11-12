@@ -10,6 +10,8 @@
   }: let
     ciLib = self.lib.ci or self.lib;
     hostTests = config.legacyPackages.hostTests or {};
+    cooldownHours = 4;
+    cooldownSeconds = toString (cooldownHours * 3600);
     hostsWithVm = builtins.attrNames (lib.filterAttrs (_: t: t ? vm) hostTests);
     matrixInclude =
       map (h: {
@@ -86,7 +88,8 @@
             - name: Compute cooldown key
               id: cooldown-key
               run: |
-                echo "key=install-cooldown-''${{ matrix.host }}-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+                bucket=$(( $(date -u +%s) / ${cooldownSeconds} ))
+                echo "key=install-cooldown-''${{ matrix.host }}-$bucket" >> "$GITHUB_OUTPUT"
 
             - name: Check install tier cooldown cache
               id: cooldown
