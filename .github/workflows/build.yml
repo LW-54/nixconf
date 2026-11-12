@@ -1,66 +1,79 @@
-name: CI & Binary Cache Push
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
 jobs:
-  check-and-build:
+  build:
+    name: Build & Cache (${{ matrix.target }})
+    needs:
+      - check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Install Nix
         uses: cachix/install-nix-action@v31
-
-      - name: Setup Cachix Cache
+      - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
-          name: lw-54
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-
-      - name: Run flake checks
+          name: lw-54
+      - name: Build derivation
+        run: nix build -L '.#legacyPackages.x86_64-linux.ciBuildables."${{ matrix.target }}"'
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - checks-ci
+          - checks-docs
+          - checks-eval-astrolabe
+          - checks-eval-x240
+          - checks-inspect-astrolabe
+          - checks-inspect-x240
+          - checks-schemas
+          - devShells-default
+          - devShells-github-ssh
+          - devShells-master-ssh
+          - devShells-sops-admin
+          - devShells-sops-host
+          - formatter
+          - host-astrolabe
+          - host-x240
+          - packages-antigravity
+          - packages-antigravity-cli
+          - packages-antigravity-ide
+          - packages-bw
+          - packages-ci
+          - packages-cpg-json
+          - packages-devenv-test
+          - packages-devenv-up
+          - packages-docs
+          - packages-dolphin
+          - packages-foot
+          - packages-git
+          - packages-graph
+          - packages-nixconf-json
+          - packages-test
+  check:
+    name: Flake Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: lw-54
+      - name: Run flake check
         run: nix flake check
-
-      - name: Build all common flake outputs
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          flake_json="$(nix flake show --json)"
-
-          for category in packages apps checks formatter devShells nixosConfigurations; do
-            if ! jq -e --arg c "$category" 'has($c)' <<<"$flake_json" >/dev/null 2>&1; then
-              echo "Skipping missing category: $category"
-              continue
-            fi
-
-            case "$category" in
-              packages|apps|checks|formatter|devShells)
-                while IFS= read -r target; do
-                  [ -n "$target" ] || continue
-                  echo "==> Building .$target"
-                  nix build ".#$target" --no-link || echo "missing output: $target"
-                done < <(
-                  jq -r --arg c "$category" '
-                    .[$c] | to_entries[] |
-                    (.key) as $system |
-                    (.value | if type == "object" then to_entries[] | "\($c).\($system).\(.key)" else "\($c).\($system)" end)
-                  ' <<<"$flake_json"
-                )
-                ;;
-              nixosConfigurations)
-                while IFS= read -r host; do
-                  [ -n "$host" ] || continue
-                  target="nixosConfigurations.$host.config.system.build.toplevel"
-                  echo "==> Building .#$target"
-                  nix build ".#$target" --no-link || echo "missing output: $target"
-                done < <(
-                  jq -r --arg c "$category" '.[$c] | keys[]' <<<"$flake_json"
-                )
-                ;;
-            esac
-          done
+name: CI & Binary Cache Push
+'on':
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}

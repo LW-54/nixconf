@@ -104,6 +104,27 @@ bw --help
 
 Official Documentation: [https://bitwarden.com/help/cli/](https://bitwarden.com/help/cli/)
 
+<a id="ci"></a>
+### `ci`
+
+GitHub Actions CI workflow synchronization and drift verification CLI
+
+```bash
+nix run .#ci
+```
+
+```bash
+nix run github:LW-54/nixconf#ci
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+nixconf-ci --help
+```
+
 <a id="devenv-test"></a>
 ### `devenv-test`
 

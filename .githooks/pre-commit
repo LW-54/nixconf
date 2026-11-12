@@ -26,6 +26,18 @@ fi
 echo "==> [pre-commit] Validating documentation compliance..."
 nix run .#docs -- --check
 
+echo "==> [pre-commit] Synchronizing GitHub Actions CI workflows..."
+nix run .#ci -- --write
+
+# Stage updated .github/workflows/ files if changes are present
+if ! git diff --quiet .github/workflows/; then
+  git add .github/workflows/
+  echo "==> [pre-commit] GitHub Actions CI workflows updated and staged."
+fi
+
+echo "==> [pre-commit] Validating CI workflow compliance..."
+nix run .#ci -- --check
+
 echo "==> [pre-commit] Validating Nix flake checks..."
 nix flake check
 

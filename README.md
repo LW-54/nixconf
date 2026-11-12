@@ -564,6 +564,17 @@ nix run .#bw
 nix run github:LW-54/nixconf#bw
 ```
 
+#### [`ci`](docs/packages.md#ci)
+GitHub Actions CI workflow synchronization and drift verification CLI
+
+```bash
+nix run .#ci
+```
+
+```bash
+nix run github:LW-54/nixconf#ci
+```
+
 #### [`devenv-test`](docs/packages.md#devenv-test)
 Application package devenv-test.
 
