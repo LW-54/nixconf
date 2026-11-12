@@ -169,27 +169,30 @@
     failures = testingLib.failedEvalChecks cfg;
     toplevelDrv = builtins.unsafeDiscardStringContext nixos.config.system.build.toplevel.drvPath;
 
-    eval =
+    assertEval =
       if failures != []
       then
         throw ''
           host '${name}' failed ${toString (builtins.length failures)} evaluation check(s):
           ${lib.concatMapStringsSep "\n" (f: "  - ${f.name}: ${f.message}") failures}
           Fix the configuration, or opt out per host with `testing.<namespace>.evalChecks.<name>.enable = false;`.''
-      else
-        pkgs.runCommand "nixconf-eval-${name}" {
-          meta.description = "Evaluation tier for host ${name}: system evaluates and essential checks hold.";
-        } ''
-          echo ${lib.escapeShellArg toplevelDrv} > $out
-        '';
+      else true;
+
+    eval = assert assertEval;
+      pkgs.runCommand "nixconf-eval-${name}" {
+        meta.description = "Evaluation tier for host ${name}: system evaluates and essential checks hold.";
+      } ''
+        echo ${lib.escapeShellArg toplevelDrv} > $out
+      '';
 
     inspectScript = testingLib.mkInspectScript cfg;
 
-    inspect =
+    inspect = assert assertEval;
       pkgs.runCommand "nixconf-inspect-${name}" {
         meta.description = "Artifact inspection tier for host ${name}: validates /etc and system artifacts without KVM.";
       } ''
         etc="${nixos.config.system.build.etc}/etc"
+        system="${nixos.config.system.build.toplevel}"
         echo "Validating system artifacts for ${name} at $etc..."
 
         ${inspectScript}
@@ -199,37 +202,39 @@
         echo ${lib.escapeShellArg toplevelDrv} >> $out/toplevel
       '';
 
-    vm = inputs.nixpkgs.lib.nixos.runTest {
-      name = "nixconf-${name}";
-      hostPkgs = pkgs;
-      node.specialArgs = systemArgs.specialArgs;
-      nodes.machine.imports = systemArgs.modules ++ [harnessModule];
-      testScript = {nodes, ...}: ''
-        start_all()
+    vm = assert assertEval;
+      inputs.nixpkgs.lib.nixos.runTest {
+        name = "nixconf-${name}";
+        hostPkgs = pkgs;
+        node.specialArgs = systemArgs.specialArgs;
+        nodes.machine.imports = systemArgs.modules ++ [harnessModule];
+        testScript = {nodes, ...}: ''
+          start_all()
 
-        ${testingLib.mkVmScript {
-          inherit (nodes.machine.config) testing;
-          label = name;
-        }}
-      '';
-    };
+          ${testingLib.mkVmScript {
+            inherit (nodes.machine.config) testing;
+            label = name;
+          }}
+        '';
+      };
 
-    run = pkgs.writeShellApplication {
-      name = "run-${name}-test-vm";
-      runtimeInputs = [pkgs.coreutils];
-      meta.description = "Interactive VM of host ${name} booted with stand-in secrets.";
-      text = ''
-        state="''${XDG_RUNTIME_DIR:-/tmp}"
-        export NIX_DISK_IMAGE="''${NIX_DISK_IMAGE:-$state/nixconf-${name}-test.qcow2}"
-        ${cfg.interactiveInit}
-        cat >&2 <<EOF
-        ${name}: interactive test VM with stand-in secrets (no real secret is decrypted)
-        ${lib.concatStringsSep "\n" cfg.interactiveNotes}
-          disk image    : $NIX_DISK_IMAGE (delete it to start fresh)
-        EOF
-        exec ${vcfg.system.build.vm}/bin/run-${vcfg.networking.hostName}-vm "$@"
-      '';
-    };
+    run = assert assertEval;
+      pkgs.writeShellApplication {
+        name = "run-${name}-test-vm";
+        runtimeInputs = [pkgs.coreutils];
+        meta.description = "Interactive VM of host ${name} booted with stand-in secrets.";
+        text = ''
+          state="''${XDG_RUNTIME_DIR:-/tmp}"
+          export NIX_DISK_IMAGE="''${NIX_DISK_IMAGE:-$state/nixconf-${name}-test.qcow2}"
+          ${cfg.interactiveInit}
+          cat >&2 <<EOF
+          ${name}: interactive test VM with stand-in secrets (no real secret is decrypted)
+          ${lib.concatStringsSep "\n" cfg.interactiveNotes}
+            disk image    : $NIX_DISK_IMAGE (delete it to start fresh)
+          EOF
+          exec ${vcfg.system.build.vm}/bin/run-${vcfg.networking.hostName}-vm "$@"
+        '';
+      };
   in
     {
       inherit eval inspect run variant;
@@ -245,7 +250,7 @@
       interactive = vm.driverInteractive;
     }
     // lib.optionalAttrs (cfg.install.enable && vcfg.system.build ? installTest) {
-      install = vcfg.system.build.installTest;
+      install = assert assertEval; vcfg.system.build.installTest;
     };
 in {
   _module.args = {

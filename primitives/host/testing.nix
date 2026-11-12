@@ -5,6 +5,7 @@
       config,
       lib,
       options,
+      self,
       ...
     }: let
       cfg = config.testing;
@@ -90,56 +91,41 @@
                 fstab = {
                   description = "Verify filesystem table (/etc/fstab) exists";
                   priority = 100;
-                  script = ''
-                    if [ ! -e "$etc/fstab" ]; then
-                      echo "Error: /etc/fstab was not generated!" >&2
-                      exit 1
-                    fi
-                  '';
+                  script = self.lib.testing.mkInspectFile {
+                    path = "$etc/fstab";
+                  };
                 };
 
                 shells = {
                   description = "Verify valid login shells (/etc/shells) exist";
                   priority = 110;
-                  script = ''
-                    if [ ! -e "$etc/shells" ]; then
-                      echo "Error: /etc/shells was not generated!" >&2
-                      exit 1
-                    fi
-                  '';
+                  script = self.lib.testing.mkInspectFile {
+                    path = "$etc/shells";
+                  };
                 };
 
                 pam = {
-                  description = "Verify PAM directory and login configuration exist";
+                  description = "Verify PAM login configuration exists";
                   priority = 120;
-                  script = ''
-                    if [ ! -d "$etc/pam.d" ] || [ ! -e "$etc/pam.d/login" ]; then
-                      echo "Error: /etc/pam.d/login was not generated!" >&2
-                      exit 1
-                    fi
-                  '';
+                  script = self.lib.testing.mkInspectFile {
+                    path = "$etc/pam.d/login";
+                  };
                 };
 
                 sudoers = {
                   description = "Verify sudoers configuration exists";
                   priority = 130;
-                  script = ''
-                    if [ ! -e "$etc/sudoers" ]; then
-                      echo "Error: /etc/sudoers was not generated!" >&2
-                      exit 1
-                    fi
-                  '';
+                  script = self.lib.testing.mkInspectFile {
+                    path = "$etc/sudoers";
+                  };
                 };
 
                 systemd = {
                   description = "Verify systemd directory exists";
                   priority = 140;
-                  script = ''
-                    if [ ! -d "$etc/systemd/system" ]; then
-                      echo "Error: /etc/systemd/system was not generated!" >&2
-                      exit 1
-                    fi
-                  '';
+                  script = self.lib.testing.mkInspectFile {
+                    path = "$etc/systemd/system";
+                  };
                 };
               };
 

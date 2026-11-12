@@ -74,15 +74,51 @@
             usage
             ;;
           list)
-            echo "==> Host Tests:"
-            nix eval --raw "$flake#$hostAttr" --apply '
-              tests: builtins.concatStringsSep "\n" (map (h: let t = tests.''${h}; in
-                h + ": tiers [" + builtins.concatStringsSep " " (builtins.filter (n: t ? ''${n}) ["eval" "inspect" "vm" "install" "interactive" "run"]) + "]\n"
-                + builtins.concatStringsSep "\n" (map (k: "  " + k + ": " + builtins.concatStringsSep ", " t.checks.''${k}) (builtins.attrNames t.checks))
-              ) (builtins.attrNames tests)) + "\n"'
-            ${lib.optionalString (scenarioNames != []) ''
-          echo "==> Scenarios: ${toString scenarioNames}"
+            output_json=false
+            targets=()
+            while [ "$#" -gt 0 ]; do
+              case "$1" in
+                --json) output_json=true ;;
+                *) targets+=("$1") ;;
+              esac
+              shift
+            done
+
+            target_list=""
+            if [ "''${#targets[@]}" -gt 0 ]; then
+              for t in "''${targets[@]}"; do
+                target_list="''${target_list} \"''${t}\""
+              done
+            fi
+
+            if [ "$output_json" = true ]; then
+              nix eval --json "$flake#$hostAttr" --apply '
+                tests: let
+                  filterList = ['"$target_list"'];
+                  selected = if filterList == [] then builtins.attrNames tests else builtins.filter (h: builtins.elem h filterList) (builtins.attrNames tests);
+                in builtins.listToAttrs (map (h: let t = tests.''${h}; in {
+                  name = h;
+                  value = {
+                    tiers = builtins.filter (n: t ? ''${n}) ["eval" "inspect" "vm" "install" "interactive" "run"];
+                    inherit (t) checks;
+                  };
+                }) selected)'
+            else
+              echo "==> Host Tests:"
+              nix eval --raw "$flake#$hostAttr" --apply '
+                tests: let
+                  filterList = ['"$target_list"'];
+                  selected = if filterList == [] then builtins.attrNames tests else builtins.filter (h: builtins.elem h filterList) (builtins.attrNames tests);
+                in builtins.concatStringsSep "\n" (map (h: let t = tests.''${h}; in
+                  h + ": tiers [" + builtins.concatStringsSep " " (builtins.filter (n: t ? ''${n}) ["eval" "inspect" "vm" "install" "interactive" "run"]) + "]\n"
+                  + builtins.concatStringsSep "\n" (map (k: "  " + k + ": " + builtins.concatStringsSep ", " t.checks.''${k}) (builtins.attrNames t.checks))
+                ) selected) + "\n"'
+              ${lib.optionalString (scenarioNames != []) ''
+          if [ "''${#targets[@]}" -eq 0 ]; then
+            echo "==> Scenarios: ${toString scenarioNames}"
+          fi
         ''}
+            fi
             ;;
           eval|inspect|vm|install)
             read -r -a hosts <<< "''${available[$tier]}"

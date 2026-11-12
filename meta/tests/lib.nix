@@ -103,6 +103,48 @@
     assert machine.succeed("stat -c %U ${marker}").strip() == "${user}"
     machine.send_chars("exit\n")
   '';
+
+  mkHttpCheckFn = {
+    port,
+    path ? "/",
+    expectedStatus ? 200,
+    host ? "localhost",
+  }: ''
+    machine.wait_for_open_port(${toString port})
+    _res = machine.succeed("curl -fsS -o /dev/null -w '%{http_code}' http://${host}:${toString port}${path}").strip()
+    assert _res == "${toString expectedStatus}", f"HTTP request to http://${host}:${toString port}${path} returned {_res}, expected ${toString expectedStatus}"
+  '';
+
+  mkServiceCheckFn = {
+    unit,
+    timeout ? 30,
+  }: ''
+    machine.wait_for_unit("${unit}", timeout=${toString timeout})
+    assert machine.succeed("systemctl is-active ${unit}").strip() == "active", "${unit} is not active"
+  '';
+
+  mkInspectFileFn = {
+    path,
+    nonEmpty ? false,
+    pattern ? null,
+  }: ''
+    if [ ! -e "${path}" ]; then
+      echo "Error: expected path '${path}' does not exist!" >&2
+      exit 1
+    fi
+    ${lib.optionalString nonEmpty ''
+      if [ ! -s "${path}" ]; then
+        echo "Error: expected path '${path}' exists but is empty!" >&2
+        exit 1
+      fi
+    ''}
+    ${lib.optionalString (pattern != null) ''
+      if ! grep -q ${lib.escapeShellArg pattern} "${path}"; then
+        echo "Error: '${path}' does not contain expected pattern '${pattern}'!" >&2
+        exit 1
+      fi
+    ''}
+  '';
 in {
   flake.lib.testing = {
     inherit
@@ -116,5 +158,8 @@ in {
     mkVmScript = mkVmScriptFn;
     mkInstallScript = mkInstallScriptFn;
     mkTtyLogin = mkTtyLoginFn;
+    mkHttpCheck = mkHttpCheckFn;
+    mkServiceCheck = mkServiceCheckFn;
+    mkInspectFile = mkInspectFileFn;
   };
 }
