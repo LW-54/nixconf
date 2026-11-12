@@ -213,7 +213,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-33: reverse-proxy.domain = "adje.app";
+32: reverse-proxy.domain = "adje.app";
 ...
 ```
 

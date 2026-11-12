@@ -4,6 +4,7 @@
   option,
   output,
   hostLib,
+  hostTestingModule,
   ...
 }: {
   primitive.host = {
@@ -88,17 +89,9 @@
             // host.specialArgs;
           modules = [
             config.flake.nixosModules.${name}
+            (config.flake.nixosModules.contracts or {})
             (config.flake.nixosModules.testing or {})
-            ({config, ...}: {
-              testing.name = lib.mkDefault name;
-              testing.host = {
-                description = "Host identity and platform assertions";
-                evalChecks.hostname = {
-                  assertion = config.networking.hostName == name;
-                  message = "`networking.hostName` (\"${config.networking.hostName}\") differs from the flake host name (\"${name}\"); `nixos-rebuild --flake .` selects configurations by hostname.";
-                };
-              };
-            })
+            (hostTestingModule {inherit name;})
           ];
         })
         instances;

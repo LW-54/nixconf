@@ -172,11 +172,5 @@
     legacyPackages.scenarios = scenarios;
 
     packages.test = cli;
-
-    apps.test = {
-      type = "app";
-      program = lib.getExe cli;
-      meta.description = cli.meta.description;
-    };
   };
 }

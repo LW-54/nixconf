@@ -21,11 +21,8 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_packages["nixosModule/astrolabe-packages"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
-    urn__nixconf__ast__module__backup["nixosModule/backup"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
-    urn__nixconf__ast__module__contracts["nixosModule/contracts"]:::defaultNode
-    urn__nixconf__ast__module__default_user["nixosModule/default-user"]:::defaultNode
     urn__nixconf__ast__module__direnv["nixosModule/direnv"]:::defaultNode
     urn__nixconf__ast__module__disko["nixosModule/disko"]:::defaultNode
     urn__nixconf__ast__module__docker["nixosModule/docker"]:::defaultNode
@@ -33,17 +30,13 @@ flowchart LR
     urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
     urn__nixconf__ast__module__git["nixosModule/git"]:::defaultNode
     urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
-    urn__nixconf__ast__module__home["nixosModule/home"]:::defaultNode
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__labwc["nixosModule/labwc"]:::defaultNode
     urn__nixconf__ast__module__locale["nixosModule/locale"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__noctalia["nixosModule/noctalia"]:::defaultNode
-    urn__nixconf__ast__module__persistence["nixosModule/persistence"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
-    urn__nixconf__ast__module__reverse_proxy["nixosModule/reverse-proxy"]:::defaultNode
-    urn__nixconf__ast__module__secrets["nixosModule/secrets"]:::defaultNode
     urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__ttyd["nixosModule/ttyd"]:::defaultNode
@@ -51,7 +44,6 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
     urn__nixconf__ast__module__vivaldi["nixosModule/vivaldi"]:::defaultNode
     urn__nixconf__ast__module__vscode["nixosModule/vscode"]:::defaultNode
-    urn__nixconf__ast__module__wayland["nixosModule/wayland"]:::defaultNode
     urn__nixconf__ast__module__wifi_eduroam["nixosModule/wifi-eduroam"]:::defaultNode
     urn__nixconf__ast__option__backup_exclude[/"backup.exclude"/]:::optNode
     urn__nixconf__ast__option__backup_paths[/"backup.paths"/]:::optNode
@@ -184,33 +176,22 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__backup
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__contracts
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__default_user
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__disko
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__git
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__home
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__locale
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__persistence
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__reverse_proxy
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__secrets
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__wayland
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__antigravity_ide
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__backup
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__bw
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__contracts
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__default_user
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__direnv
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__disko
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__docker
@@ -218,21 +199,16 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__foot
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__git
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__hjem
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__home
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__labwc
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__locale
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__noctalia
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__persistence
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__reverse_proxy
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__secrets
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vivaldi
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vscode
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wayland
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
@@ -295,11 +271,8 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_packages href "../modules/astrolabe-packages.md" "astrolabe-packages"
     click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
-    click urn__nixconf__ast__module__backup href "../modules/backup.md" "backup"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
-    click urn__nixconf__ast__module__contracts href "../modules/contracts.md" "contracts"
-    click urn__nixconf__ast__module__default_user href "../modules/default-user.md" "default-user"
     click urn__nixconf__ast__module__direnv href "../modules/direnv.md" "direnv"
     click urn__nixconf__ast__module__disko href "../modules/disko.md" "disko"
     click urn__nixconf__ast__module__docker href "../modules/docker.md" "docker"
@@ -307,17 +280,13 @@ flowchart LR
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
     click urn__nixconf__ast__module__git href "../modules/git.md" "git"
     click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"
-    click urn__nixconf__ast__module__home href "../modules/home.md" "home"
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__labwc href "../modules/labwc.md" "labwc"
     click urn__nixconf__ast__module__locale href "../modules/locale.md" "locale"
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__noctalia href "../modules/noctalia.md" "noctalia"
-    click urn__nixconf__ast__module__persistence href "../modules/persistence.md" "persistence"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
-    click urn__nixconf__ast__module__reverse_proxy href "../modules/reverse-proxy.md" "reverse-proxy"
-    click urn__nixconf__ast__module__secrets href "../modules/secrets.md" "secrets"
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
@@ -325,7 +294,6 @@ flowchart LR
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
     click urn__nixconf__ast__module__vivaldi href "../modules/vivaldi.md" "vivaldi"
     click urn__nixconf__ast__module__vscode href "../modules/vscode.md" "vscode"
-    click urn__nixconf__ast__module__wayland href "../modules/wayland.md" "wayland"
     click urn__nixconf__ast__module__wifi_eduroam href "../modules/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__ast__option__backup_exclude href "../contracts/backup.md" "backup.exclude"
     click urn__nixconf__ast__option__backup_paths href "../contracts/backup.md" "backup.paths"
@@ -592,7 +560,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-35: persistence.directories = [
+34: persistence.directories = [
 ...
 ```
 
@@ -607,7 +575,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-33: reverse-proxy.domain = "adje.app";
+32: reverse-proxy.domain = "adje.app";
 ...
 ```
 
