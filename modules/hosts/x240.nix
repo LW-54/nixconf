@@ -132,9 +132,6 @@ in {
           boot.extraModulePackages = [];
           boot.loader.grub = {
             enable = true;
-            efiSupport = true;
-            efiInstallAsRemovable = true;
-            device = "nodev";
             useOSProber = true;
           };
           hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
