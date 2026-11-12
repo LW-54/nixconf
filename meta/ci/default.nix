@@ -8,7 +8,8 @@
     config,
     ...
   }: let
-    compiledWorkflows = lib.mapAttrs (name: wfData: self.lib.toYAML pkgs name wfData) config.workflow;
+    ciLib = self.lib.ci or self.lib;
+    compiledWorkflows = lib.mapAttrs (name: wfData: ciLib.toYAML pkgs name wfData) config.workflow;
   in {
     packages.ci = pkgs.writeShellApplication {
       name = "nixconf-ci";

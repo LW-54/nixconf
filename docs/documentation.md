@@ -5,7 +5,7 @@ How the documentation is generated from code, and where to declare the documenta
 [← Back to Main README](../README.md)
 
 > [!TIP]
-> **Documentation Health**: **100.0%** (167/167 items documented).
+> **Documentation Health**: **100.0%** (171/171 items documented).
 > See the full [Documentation Coverage & Quality Audit](coverage.md).
 
 ## Principles
@@ -49,6 +49,7 @@ Modules currently contributing pages or cross-primitive sections:
 - [`primitives/implementation/docs.nix`](../primitives/implementation/docs.nix)
 - [`primitives/lib/docs.nix`](../primitives/lib/docs.nix)
 - [`primitives/primitive/docs.nix`](../primitives/primitive/docs.nix)
+- [`meta/tests/docs.nix`](../meta/tests/docs.nix)
 - [`meta/graph/docs.nix`](../meta/graph/docs.nix)
 - [`meta/docs/pages/readme.nix`](../meta/docs/pages/readme.nix)
 - [`meta/docs/pages/packages.nix`](../meta/docs/pages/packages.nix)
@@ -57,6 +58,7 @@ Modules currently contributing pages or cross-primitive sections:
 - [`meta/docs/pages/devshells.nix`](../meta/docs/pages/devshells.nix)
 - [`meta/docs/pages/coverage.nix`](../meta/docs/pages/coverage.nix)
 - [`meta/docs/cli.nix`](../meta/docs/cli.nix)
+- [`meta/ci/docs.nix`](../meta/ci/docs.nix)
 - [`modules/features/tack.nix`](../modules/features/tack.nix)
 - [`modules/features/disko.nix`](../modules/features/disko.nix)
 - [`modules/contracts/persistence.nix`](../modules/contracts/persistence.nix)

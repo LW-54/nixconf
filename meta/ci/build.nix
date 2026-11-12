@@ -5,11 +5,12 @@
     ...
   }: let
     runnerSystem = "x86_64-linux";
-    targets = builtins.attrNames (self.lib.collectBuildables runnerSystem);
+    ciLib = self.lib.ci or self.lib;
+    targets = builtins.attrNames (ciLib.collectBuildables runnerSystem);
   in {
-    legacyPackages.ciBuildables = self.lib.collectBuildables system;
+    legacyPackages.ciBuildables = ciLib.collectBuildables system;
 
-    workflow.build = self.lib.fromYAML pkgs ''
+    workflow.build = ciLib.fromYAML pkgs ''
       name: CI & Binary Cache Push
 
       on:

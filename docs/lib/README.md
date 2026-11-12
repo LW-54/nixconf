@@ -8,7 +8,7 @@ Pure reusable helper functions, data types, calculations, and configuration pres
 
 - **Declared as**: `lib.<name>` in any flake-parts module under `modules/` or `primitives/`
 - **Primitive definition**: [`primitives/lib/default.nix`](../../primitives/lib/default.nix)
-- **Instances**: 16
+- **Instances**: 17
 
 ## Option Schema (`lib.<name>`)
 
@@ -64,6 +64,7 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 | :--- | :--- | :--- | :--- | :--- |
 | [`backup`](backup.md) | Library helpers and constructors for the 'backup' contract. | [`defaultPruneOpts`](backup.md#defaultPruneOpts), [`defaultTimerConfig`](backup.md#defaultTimerConfig), [`mkConfig`](backup.md#mkConfig), [`mkOption`](backup.md#mkOption) | [`modules/contracts/backup.nix`](../../modules/contracts/backup.nix) | [More →](backup.md) |
 | [`bitwarden`](bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`mkShell`](bitwarden.md#mkShell), [`mkValue`](bitwarden.md#mkValue) | [`modules/features/bitwarden.nix`](../../modules/features/bitwarden.nix) | [More →](bitwarden.md) |
+| [`ci`](ci.md) | Continuous integration workflow helpers, YAML serialization, and derivation collection utilities. | [`collectBuildables`](ci.md#collectBuildables), [`fromYAML`](ci.md#fromYAML), [`toYAML`](ci.md#toYAML) | [`meta/ci/lib.nix`](../../meta/ci/lib.nix) | [More →](ci.md) |
 | [`default-user`](default-user.md) | Library helpers and constructors for the 'default-user' contract. | — | [`modules/contracts/default-user.nix`](../../modules/contracts/default-user.nix) | [More →](default-user.md) |
 | [`disko`](disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [`mkLayout`](disko.md#mkLayout) | [`modules/features/disko.nix`](../../modules/features/disko.nix) | [More →](disko.md) |
 | [`docs`](docs.md) | Documentation generator turning the `docs` page registry, primitive metadata, and the architecture graph into markdown. | [`audit`](docs.md#audit), [`generateAll`](docs.md#generateAll), [`relPath`](docs.md#relPath) | [`meta/docs/render.nix`](../../meta/docs/render.nix) | [More →](docs.md) |

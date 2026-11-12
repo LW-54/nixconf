@@ -9,10 +9,11 @@
     ...
   }: let
     runnerSystem = "x86_64-linux";
+    ciLib = self.lib.ci or self.lib;
     hostTests = config.legacyPackages.hostTests or {};
     hostsWithVm = builtins.attrNames (lib.filterAttrs (_: t: t ? vm) hostTests);
   in {
-    workflow.host-tests = self.lib.fromYAML pkgs ''
+    workflow.host-tests = ciLib.fromYAML pkgs ''
       name: Host Verification & VM Tests
 
       on:

@@ -112,6 +112,7 @@ end
   subgraph cluster_lib ["lib"]
   urn__nixconf__onto__lib__backup["backup"]:::defaultNode
     urn__nixconf__onto__lib__bitwarden["bitwarden"]:::defaultNode
+    urn__nixconf__onto__lib__ci["ci"]:::defaultNode
     urn__nixconf__onto__lib__default_user["default-user"]:::defaultNode
     urn__nixconf__onto__lib__disko["disko"]:::defaultNode
     urn__nixconf__onto__lib__docs["docs"]:::defaultNode
@@ -268,6 +269,7 @@ end
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
     click urn__nixconf__onto__lib__backup href "docs/lib/backup.md" "backup"
     click urn__nixconf__onto__lib__bitwarden href "docs/lib/bitwarden.md" "bitwarden"
+    click urn__nixconf__onto__lib__ci href "docs/lib/ci.md" "ci"
     click urn__nixconf__onto__lib__default_user href "docs/lib/default-user.md" "default-user"
     click urn__nixconf__onto__lib__disko href "docs/lib/disko.md" "disko"
     click urn__nixconf__onto__lib__docs href "docs/lib/docs.md" "docs"
@@ -336,7 +338,7 @@ Foundational structural primitives governing repository architecture, typing, an
 | [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 27 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
 | [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 8 | [More →](docs/implementations/README.md) |
-| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 16 | [More →](docs/lib/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 17 | [More →](docs/lib/README.md) |
 
 </details>
 
@@ -498,6 +500,7 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 | :--- | :--- | :--- |
 | [`backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' contract. | [More →](docs/lib/backup.md) |
 | [`bitwarden`](docs/lib/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/lib/bitwarden.md) |
+| [`ci`](docs/lib/ci.md) | Continuous integration workflow helpers, YAML serialization, and derivation collection utilities. | [More →](docs/lib/ci.md) |
 | [`default-user`](docs/lib/default-user.md) | Library helpers and constructors for the 'default-user' contract. | [More →](docs/lib/default-user.md) |
 | [`disko`](docs/lib/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [More →](docs/lib/disko.md) |
 | [`docs`](docs/lib/docs.md) | Documentation generator turning the `docs` page registry, primitive metadata, and the architecture graph into markdown. | [More →](docs/lib/docs.md) |
@@ -716,6 +719,19 @@ nix develop github:LW-54/nixconf#sops-host
 
 </details>
 
+<details>
+<summary><h3>Engine & Tooling (<code>meta/</code>)</h3></summary>
+
+The operational engine that inspects, documents, tests, and builds the repository infrastructure:
+
+- [**Semantic Code Property Graph (`meta/graph`)**](docs/graph.md): Pure-Nix CPG merging syntax, dataflow, and derivations.
+- [**Documentation Generator & Audit (`meta/docs`)**](docs/documentation.md): Type-checked markdown compiler maintaining 100% doc coverage ([Audit Dashboard](docs/coverage.md)).
+- [**Testing Harness (`meta/tests`)**](docs/testing.md): Progressive 6-tier test driver (<code>eval</code>, <code>inspect</code>, <code>vm</code>, <code>install</code>, <code>interactive</code>, <code>run</code>).
+- [**CI Compiler (`meta/ci`)**](docs/ci.md): Declarative GitHub Actions workflow compilation and drift checking.
+- [**Developer Environment (`meta/devenv` &amp; `meta/menu`)**]: Interactive devenv shell and fuzzy command palette (<code>menu</code>).
+
+</details>
+
 ## Documentation
 
 Comprehensive documentation is generated directly from Nix evaluation using the pure-Nix Labeled Property Graph (LPG) pipeline:
@@ -730,6 +746,8 @@ Comprehensive documentation is generated directly from Nix evaluation using the 
 - **[Library Documentation](docs/lib/README.md)**: Flake library functions, type signatures, and RFC 145 docstrings.
 - **[Semantic Code Property Graph Architecture](docs/graph.md)**: Unified pure-Nix CPG merging AST, CFG, and PDG.
 - **[Documentation Pipeline Reference](docs/documentation.md)**: Pure-Nix LPG graph IR and documentation generator guide.
+- **[Testing Architecture & Verification Tiers](docs/testing.md)**: Multi-tier automated test harness from evaluation checks to QEMU VMs.
+- **[Continuous Integration & Automation](docs/ci.md)**: Declarative GitHub Actions workflows, Cachix caching, and drift verification.
 
 To re-generate or verify documentation integrity, use the `docs` CLI package:
 

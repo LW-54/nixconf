@@ -284,6 +284,16 @@ in {
 
             ${devshellsBlocks}
           ''}
+
+          ${md.details "<h3>Engine & Tooling (<code>meta/</code>)</h3>" ''
+            The operational engine that inspects, documents, tests, and builds the repository infrastructure:
+
+            - [**Semantic Code Property Graph (`meta/graph`)**](${ctx.link ctx.pages.graph.path}): Pure-Nix CPG merging syntax, dataflow, and derivations.
+            - [**Documentation Generator & Audit (`meta/docs`)**](${ctx.link ctx.pages.documentation.path}): Type-checked markdown compiler maintaining 100% doc coverage ([Audit Dashboard](${ctx.link ctx.pages.coverage.path})).
+            - [**Testing Harness (`meta/tests`)**](${ctx.link ctx.pages.testing.path}): Progressive 6-tier test driver (<code>eval</code>, <code>inspect</code>, <code>vm</code>, <code>install</code>, <code>interactive</code>, <code>run</code>).
+            - [**CI Compiler (`meta/ci`)**](${ctx.link ctx.pages.ci.path}): Declarative GitHub Actions workflow compilation and drift checking.
+            - [**Developer Environment (`meta/devenv` &amp; `meta/menu`)**]: Interactive devenv shell and fuzzy command palette (<code>menu</code>).
+          ''}
         '';
       };
 
@@ -304,6 +314,8 @@ in {
           - **${ctx.pageLink "lib" "Library Documentation"}**: Flake library functions, type signatures, and RFC 145 docstrings.
           - **${ctx.pageLink "graph" "Semantic Code Property Graph Architecture"}**: Unified pure-Nix CPG merging AST, CFG, and PDG.
           - **${ctx.pageLink "documentation" "Documentation Pipeline Reference"}**: Pure-Nix LPG graph IR and documentation generator guide.
+          - **${ctx.pageLink "testing" "Testing Architecture & Verification Tiers"}**: Multi-tier automated test harness from evaluation checks to QEMU VMs.
+          - **${ctx.pageLink "ci" "Continuous Integration & Automation"}**: Declarative GitHub Actions workflows, Cachix caching, and drift verification.
 
           To re-generate or verify documentation integrity, use the `docs` CLI package:
 

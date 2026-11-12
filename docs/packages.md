@@ -109,6 +109,8 @@ Official Documentation: [https://bitwarden.com/help/cli/](https://bitwarden.com/
 
 GitHub Actions CI workflow synchronization and drift verification CLI
 
+Provided by lib [`ci`](lib/ci.md).
+
 ```bash
 nix run .#ci
 ```
