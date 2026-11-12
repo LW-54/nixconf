@@ -630,6 +630,17 @@ nix run .#git
 nix run github:LW-54/nixconf#git
 ```
 
+#### [`menu`](docs/packages.md#menu)
+Interactive fuzzy command palette and task runner for nixconf
+
+```bash
+nix run .#menu
+```
+
+```bash
+nix run github:LW-54/nixconf#menu
+```
+
 #### [`test`](docs/packages.md#test)
 Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.
 

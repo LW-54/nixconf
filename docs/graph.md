@@ -8,7 +8,7 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Dimension | Value | Description |
 | :--- | :--- | :--- |
-| **Nodes** | 256 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
+| **Nodes** | 257 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
 | **Edges** | 490 | Typed semantic directed edges connecting graph entities. |
 | **Relations** | 10 | Unique relation kinds expressing dependencies, flows, definitions, and bindings. |
 | **Node kinds** | 14 | Structural node classifications (e.g. host, contract, feature, module, option, package). |
@@ -19,7 +19,7 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 | Stratum | Name | Nodes | Description |
 | :--- | :--- | :--- | :--- |
 | `ast` | Syntactic Structure | 171 | Modules, options, types, and library symbols as declared in Nix expressions. |
-| `drv` | Derivation Substrate | 16 | Packages, development shells, and their store-level dependencies. |
+| `drv` | Derivation Substrate | 17 | Packages, development shells, and their store-level dependencies. |
 | `eval` | Operational Fixpoint | 2 | Evaluated NixOS configurations, option definitions, and data dependences. |
 | `onto` | Ontological Intent | 67 | Primitives and their declared instances: what the repository intends to exist. |
 
@@ -124,7 +124,7 @@ end
 | `lib` | `onto` | 16 | `urn:nixconf:onto:lib:backup` | Library namespaces grouping functions and symbols. |
 | `module` | `ast` | 60 | `urn:nixconf:ast:module:antigravity` | NixOS modules exported on `flake.nixosModules`. |
 | `option` | `ast` | 41 | `urn:nixconf:ast:option:backup.enable` | Public contract options with types and descriptions. |
-| `package` | `drv` | 11 | `urn:nixconf:drv:package:antigravity` | Packages exported on `flake.packages`. |
+| `package` | `drv` | 12 | `urn:nixconf:drv:package:antigravity` | Packages exported on `flake.packages`. |
 | `primitive` | `onto` | 6 | `urn:nixconf:onto:primitive:contract` | Meta-primitives defining how instances are declared and exported. |
 | `symbol` | `ast` | 14 | `urn:nixconf:ast:symbol:backup.defaultPruneOpts` | Non-function library values and constants. |
 | `type` | `ast` | 11 | `urn:nixconf:ast:type:home.file` | Custom option types declared by contracts and features. |

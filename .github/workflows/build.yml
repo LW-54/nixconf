@@ -51,6 +51,7 @@ jobs:
           - packages-foot
           - packages-git
           - packages-graph
+          - packages-menu
           - packages-nixconf-json
           - packages-test
   check:

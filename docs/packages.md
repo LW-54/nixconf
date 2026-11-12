@@ -242,6 +242,27 @@ git --help
 
 Official Documentation: [https://git-scm.com/doc](https://git-scm.com/doc)
 
+<a id="menu"></a>
+### `menu`
+
+Interactive fuzzy command palette and task runner for nixconf
+
+```bash
+nix run .#menu
+```
+
+```bash
+nix run github:LW-54/nixconf#menu
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+menu --help
+```
+
 <a id="test"></a>
 ### `test`
 
