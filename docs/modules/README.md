@@ -40,7 +40,6 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`locale`](locale.md) | feature [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](locale.md) |
 | [`lw`](lw.md) | implementation [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](lw.md) |
 | [`nix`](nix.md) | feature [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](nix.md) |
-| [`nixos-test`](nixos-test.md) | implementation [`nixos-test`](../implementations/nixos-test.md) | Host verification through the NixOS test driver: built-in essentials, QEMU VM sizing, and Disko install tests. | [More →](nixos-test.md) |
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
 | [`persistence`](persistence.md) | contract [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](persistence.md) |
 | [`restic`](restic.md) | implementation [`restic`](../implementations/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [More →](restic.md) |
@@ -49,7 +48,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`sops`](sops.md) | implementation [`sops`](../implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](sops.md) |
 | [`ssh`](ssh.md) | feature [`ssh`](../features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](ssh.md) |
 | [`tack`](tack.md) | feature [`tack`](../features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](tack.md) |
-| [`testing`](testing.md) | contract [`testing`](../contracts/testing.md) | Declarative host verification: evaluation-time essentials, runtime VM checks, and test stand-ins for secrets. | [More →](testing.md) |
+| [`testing`](testing.md) | — | Exported NixOS module 'testing'. | [More →](testing.md) |
 | [`ttyd`](ttyd.md) | feature [`ttyd`](../features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](ttyd.md) |
 | [`uchiyomi`](uchiyomi.md) | feature [`uchiyomi`](../features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](uchiyomi.md) |
 | [`uwsm`](uwsm.md) | implementation [`uwsm`](../implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [More →](uwsm.md) |

@@ -268,7 +268,7 @@ menu --help
 <a id="test"></a>
 ### `test`
 
-Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.
+Runs test tiers (eval, inspect, vm, install), multi-node scenarios, and interactive test VMs.
 
 ```bash
 nix run .#test

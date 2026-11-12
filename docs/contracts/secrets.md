@@ -30,7 +30,6 @@ flowchart LR
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
-    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
@@ -59,22 +58,18 @@ flowchart LR
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
@@ -85,16 +80,13 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
-    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
@@ -116,7 +108,6 @@ flowchart LR
     click urn__nixconf__onto__contract__home href "home.md" "home"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
-    click urn__nixconf__onto__contract__testing href "testing.md" "testing"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
@@ -192,14 +183,14 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/implementations/lw.nix
 ...
-62: secrets.files.default-user-password-hash = {
-63: file = ../../secrets/users/default.yaml;
-64: key = "passwordHash";
-65: neededForUsers = true;
+63: secrets.files.default-user-password-hash = {
+64: file = ../../secrets/users/default.yaml;
+65: key = "passwordHash";
+66: neededForUsers = true;
 ...
-91: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+94: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
 ...
-95: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
+98: hashedPasswordFile = config.secrets.files.default-user-password-hash.path;
 ...
 ```
 
@@ -259,16 +250,16 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/features/ssh.nix
 ...
-76: secrets.files =
-77: lib.listToAttrs (map (name: {
-78: name = "ssh/public/${name}";
-79: value = {
+80: secrets.files =
+81: lib.listToAttrs (map (name: {
+82: name = "ssh/public/${name}";
+83: value = {
 ...
-122: if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
+149: if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
 ...
-124: install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
+151: install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
 ...
-144: AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
+171: AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
 ...
 ```
 

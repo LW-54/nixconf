@@ -50,7 +50,8 @@ in {
       ...
     }: let
       cfg = config.default-user;
-      inherit (config.testing) credentials;
+      testPassword = "test";
+      testHashedPassword = "$y$j9T$wLgKY231.8j.ciV2MfEXe1$P0k5j3bCwHgnwW0Ive3w4knrgpiA4TzhCYLAnHvDZ51";
       user = config.users.users.${cfg.username};
     in {
       default-user = {
@@ -63,23 +64,25 @@ in {
         file = ../../secrets/users/default.yaml;
         key = "passwordHash";
         neededForUsers = true;
-        testValue = credentials.hashedPassword;
+        testValue = testHashedPassword;
       };
 
-      testing.checks = {
-        default-user-login = {
+      testing.default-user = {
+        description = "User ${cfg.username} console login and sudo privilege escalation";
+
+        vmChecks.login = {
           description = "${cfg.username} can log in on a virtual console with a password";
           script = self.lib.testing.mkTtyLogin {
             user = cfg.username;
-            inherit (credentials) password;
+            password = testPassword;
           };
         };
 
-        default-user-sudo = lib.mkIf (config.security.sudo.enable && builtins.elem "wheel" user.extraGroups) {
+        vmChecks.sudo = lib.mkIf (config.security.sudo.enable && builtins.elem "wheel" user.extraGroups) {
           description = "${cfg.username} can escalate privileges with sudo";
           script = ''
             machine.wait_for_unit("multi-user.target")
-            machine.succeed(${builtins.toJSON "su - ${cfg.username} -c ${lib.escapeShellArg "echo ${lib.escapeShellArg credentials.password} | sudo -S -k true"}"})
+            machine.succeed(${builtins.toJSON "su - ${cfg.username} -c ${lib.escapeShellArg "echo ${lib.escapeShellArg testPassword} | sudo -S -k true"}"})
           '';
         };
       };

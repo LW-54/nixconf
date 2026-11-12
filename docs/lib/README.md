@@ -8,7 +8,7 @@ Pure reusable helper functions, data types, calculations, and configuration pres
 
 - **Declared as**: `lib.<name>` in any flake-parts module under `modules/` or `primitives/`
 - **Primitive definition**: [`primitives/lib/default.nix`](../../primitives/lib/default.nix)
-- **Instances**: 17
+- **Instances**: 16
 
 ## Option Schema (`lib.<name>`)
 
@@ -76,6 +76,5 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 | [`reverse-proxy`](reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [`mkConfig`](reverse-proxy.md#mkConfig), [`mkOption`](reverse-proxy.md#mkOption), [`types`](reverse-proxy.md#types) | [`modules/contracts/reverse-proxy.nix`](../../modules/contracts/reverse-proxy.nix) | [More →](reverse-proxy.md) |
 | [`secrets`](secrets.md) | Library helpers and constructors for the 'secrets' contract. | [`mkConfig`](secrets.md#mkConfig), [`mkOption`](secrets.md#mkOption), [`types`](secrets.md#types) | [`modules/contracts/secrets.nix`](../../modules/contracts/secrets.nix) | [More →](secrets.md) |
 | [`sops`](sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`mkHostShell`](sops.md#mkHostShell), [`mkTestSecrets`](sops.md#mkTestSecrets) | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](sops.md) |
-| [`testing`](testing.md) | Library helpers and constructors for the 'testing' contract. | [`failedEvalChecks`](testing.md#failedEvalChecks), [`mkTestScript`](testing.md#mkTestScript), [`mkTtyLogin`](testing.md#mkTtyLogin), [`selectChecks`](testing.md#selectChecks) | [`modules/contracts/testing.nix`](../../modules/contracts/testing.nix) | [More →](testing.md) |
 | [`user`](user.md) | Normal user account helper functions and querying utilities. | [`forNormalUsers`](user.md#forNormalUsers), [`normalUserNames`](user.md#normalUserNames), [`normalUsers`](user.md#normalUsers) | [`modules/features/user.nix`](../../modules/features/user.nix) | [More →](user.md) |
 | [`wayland`](wayland.md) | Library helpers and constructors for the 'wayland' contract. | [`mkConfig`](wayland.md#mkConfig), [`mkOption`](wayland.md#mkOption), [`types`](wayland.md#types) | [`modules/contracts/wayland.nix`](../../modules/contracts/wayland.nix) | [More →](wayland.md) |

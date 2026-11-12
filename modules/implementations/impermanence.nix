@@ -90,9 +90,8 @@
         fileSystems."/persist".neededForBoot = true;
 
         # Only meaningful on the real disk layout, i.e. in the install tier.
-        testing.checks.persistence = {
+        testing.impermanence.installChecks.persistence = {
           description = "state under ${systemRoot} survives a reboot${lib.optionalString ephemeralRoot " while the root is wiped"}";
-          tiers = ["install"];
           # Reboots the machine, so run after the other checks but before `failed-units`.
           priority = 9000;
           script =

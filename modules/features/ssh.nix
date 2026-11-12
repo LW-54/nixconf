@@ -6,6 +6,7 @@
         config,
         lib,
         pkgs,
+        inputs,
         ...
       }: let
         cfg = config.services.ssh;
@@ -26,7 +27,10 @@
             lib.unique (builtins.filter (x: x != null) (map getKey lines))
           else ["master"];
 
-        inherit (config.testing) credentials;
+        snakeoil = import "${inputs.nixpkgs}/nixos/tests/ssh-keys.nix" {
+          inherit lib;
+          writeText = _: text: text;
+        };
         port = toString cfg.listenPort;
       in {
         options.services.ssh = {
@@ -80,7 +84,7 @@
                     file = ../../secrets/ssh/public.yaml;
                     key = name;
                     mode = "0444";
-                    testValue = credentials.sshPublicKey;
+                    testValue = snakeoil.snakeOilPublicKey;
                   };
                 })
                 publicKeys)
@@ -89,12 +93,35 @@
                   file = hostKeySecretPath;
                   key = "ed25519";
                   mode = "0600";
-                  testValue = credentials.sshHostPrivateKey;
+                  testValue = snakeoil.snakeOilEd25519PrivateKey;
                 };
               };
 
-            testing.checks = {
-              ssh-daemon = {
+            testing.ssh = {
+              description = "OpenSSH server daemon, firewall ports, and provisioned host keys";
+
+              evalChecks.firewall-open = {
+                assertion =
+                  !(cfg.enable && config.networking.firewall.enable)
+                  || lib.all (p: builtins.elem p config.networking.firewall.allowedTCPPorts) [cfg.listenPort];
+                message = "SSH is enabled on port ${port} but not allowed in firewall; set `services.ssh.openFirewall = true` or add it to `networking.firewall.allowedTCPPorts`.";
+              };
+
+              inspectChecks.sshd-config = {
+                description = "sshd_config generated in /etc/ssh";
+                script = ''
+                  if [ ! -d "$etc/ssh" ] || [ ! -e "$etc/ssh/sshd_config" ]; then
+                    echo "Error: sshd_config was not generated!" >&2
+                    exit 1
+                  fi
+                  if [ ! -e "$etc/pam.d/sshd" ]; then
+                    echo "Error: /etc/pam.d/sshd was not generated!" >&2
+                    exit 1
+                  fi
+                '';
+              };
+
+              vmChecks.ssh-daemon = {
                 description = "sshd listens on port ${port}${lib.optionalString hasHostKeySecret " with the provisioned host key"}";
                 script =
                   ''
@@ -103,7 +130,7 @@
                   + lib.optionalString hasHostKeySecret ''
                     machine.wait_for_unit("provision-ssh-host-key.service")
                     _hostkey = machine.succeed("${pkgs.openssh}/bin/ssh-keygen -y -f /etc/ssh/ssh_host_ed25519_key").split()[1]
-                    assert _hostkey == ${builtins.toJSON (builtins.elemAt (lib.splitString " " credentials.sshHostPublicKey) 1)}, "SSH host key was not provisioned from secrets"
+                    assert _hostkey == ${builtins.toJSON (builtins.elemAt (lib.splitString " " snakeoil.snakeOilEd25519PublicKey) 1)}, "SSH host key was not provisioned from secrets"
                   '';
               };
             };

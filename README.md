@@ -59,7 +59,6 @@ flowchart TD
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
-    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
 end
 
@@ -103,7 +102,6 @@ end
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
-    urn__nixconf__onto__implementation__nixos_test["nixos-test"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -124,7 +122,6 @@ end
     urn__nixconf__onto__lib__reverse_proxy["reverse-proxy"]:::defaultNode
     urn__nixconf__onto__lib__secrets["secrets"]:::defaultNode
     urn__nixconf__onto__lib__sops["sops"]:::defaultNode
-    urn__nixconf__onto__lib__testing["testing"]:::defaultNode
     urn__nixconf__onto__lib__user["user"]:::defaultNode
     urn__nixconf__onto__lib__wayland["wayland"]:::defaultNode
 end
@@ -143,16 +140,13 @@ end
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -161,7 +155,6 @@ end
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
@@ -175,7 +168,6 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__audio
@@ -206,19 +198,14 @@ end
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
-    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
-    urn__nixconf__onto__implementation__nixos_test ==>|implements| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -228,7 +215,6 @@ end
     click urn__nixconf__onto__contract__persistence href "docs/contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "docs/contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "docs/contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__testing href "docs/contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "docs/contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "docs/features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "docs/features/audio.md" "audio"
@@ -263,7 +249,6 @@ end
     click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "docs/implementations/lw.md" "lw"
-    click urn__nixconf__onto__implementation__nixos_test href "docs/implementations/nixos-test.md" "nixos-test"
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
@@ -281,7 +266,6 @@ end
     click urn__nixconf__onto__lib__reverse_proxy href "docs/lib/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__lib__secrets href "docs/lib/secrets.md" "secrets"
     click urn__nixconf__onto__lib__sops href "docs/lib/sops.md" "sops"
-    click urn__nixconf__onto__lib__testing href "docs/lib/testing.md" "testing"
     click urn__nixconf__onto__lib__user href "docs/lib/user.md" "user"
     click urn__nixconf__onto__lib__wayland href "docs/lib/wayland.md" "wayland"
 
@@ -334,11 +318,11 @@ Foundational structural primitives governing repository architecture, typing, an
 
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
-| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 8 | [More →](docs/contracts/README.md) |
+| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 7 | [More →](docs/contracts/README.md) |
 | [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 27 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
-| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 8 | [More →](docs/implementations/README.md) |
-| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 17 | [More →](docs/lib/README.md) |
+| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 7 | [More →](docs/implementations/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 16 | [More →](docs/lib/README.md) |
 
 </details>
 
@@ -431,7 +415,6 @@ Pure contract interfaces defining shared option schemas decoupled from backends.
 | [`persistence`](docs/contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](docs/implementations/impermanence.md) | [More →](docs/contracts/persistence.md) |
 | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](docs/implementations/caddy.md) | [More →](docs/contracts/reverse-proxy.md) |
 | [`secrets`](docs/contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](docs/implementations/sops.md) | [More →](docs/contracts/secrets.md) |
-| [`testing`](docs/contracts/testing.md) | Declarative host verification: evaluation-time essentials, runtime VM checks, and test stand-ins for secrets. | [`nixos-test`](docs/implementations/nixos-test.md) | [More →](docs/contracts/testing.md) |
 | [`wayland`](docs/contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [`uwsm`](docs/implementations/uwsm.md) | [More →](docs/contracts/wayland.md) |
 
 </details>
@@ -447,7 +430,6 @@ Concrete capability providers satisfying contract interfaces with services and p
 | [`hjem`](docs/implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [`home`](docs/contracts/home.md) | [More →](docs/implementations/hjem.md) |
 | [`impermanence`](docs/implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`persistence`](docs/contracts/persistence.md) | [More →](docs/implementations/impermanence.md) |
 | [`lw`](docs/implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [`default-user`](docs/contracts/default-user.md) | [More →](docs/implementations/lw.md) |
-| [`nixos-test`](docs/implementations/nixos-test.md) | Host verification through the NixOS test driver: built-in essentials, QEMU VM sizing, and Disko install tests. | [`testing`](docs/contracts/testing.md) | [More →](docs/implementations/nixos-test.md) |
 | [`restic`](docs/implementations/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [`backup`](docs/contracts/backup.md) | [More →](docs/implementations/restic.md) |
 | [`sops`](docs/implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`secrets`](docs/contracts/secrets.md) | [More →](docs/implementations/sops.md) |
 | [`uwsm`](docs/implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [`wayland`](docs/contracts/wayland.md) | [More →](docs/implementations/uwsm.md) |
@@ -512,7 +494,6 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 | [`reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |
 | [`secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' contract. | [More →](docs/lib/secrets.md) |
 | [`sops`](docs/lib/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](docs/lib/sops.md) |
-| [`testing`](docs/lib/testing.md) | Library helpers and constructors for the 'testing' contract. | [More →](docs/lib/testing.md) |
 | [`user`](docs/lib/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/lib/user.md) |
 | [`wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' contract. | [More →](docs/lib/wayland.md) |
 
@@ -645,7 +626,7 @@ nix run github:LW-54/nixconf#menu
 ```
 
 #### [`test`](docs/packages.md#test)
-Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.
+Runs test tiers (eval, inspect, vm, install), multi-node scenarios, and interactive test VMs.
 
 ```bash
 nix run .#test

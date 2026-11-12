@@ -5,19 +5,17 @@
   ...
 }: let
   testingLib = config.flake.lib.testing;
-  testingModule = config.flake.nixosModules.nixos-test;
+  testingModule = config.flake.nixosModules.testing;
   hostNames = builtins.attrNames (config.host or {});
 
   hostSystem = name: config.flake.nixosConfigurations.${name}.config.nixpkgs.hostPlatform.system;
 
   /*
   Test tiers derived for every host, cheapest first:
-    eval        seconds, no build: full system evaluation + `testing.evalChecks`
-    inspect     seconds, builds artifacts: verifies /etc, users, PAM, units in a pure sandbox (no KVM needed)
-    vm          minutes, KVM: boots the host's real system closure in QEMU with stand-in
-                secrets and runs `testing.checks` (storage is virtualised)
-    install     slow, KVM: partitions the real Disko layout, installs, boots through the
-                real boot loader, then runs the install-tier checks
+    eval        seconds, no build: full system evaluation + all namespaced `evalChecks`
+    inspect     seconds, builds artifacts: verifies /etc and system artifacts in a pure sandbox (no KVM needed)
+    vm          minutes, KVM: boots host in QEMU with stand-in secrets and runs all `vmChecks`
+    install     slow, KVM: Disko layout, nixos-install, bootloader, runs all `vmChecks` + `installChecks`
     interactive the `vm` test driver as a Python REPL (`start_all()`, `machine.shell_interact()`)
     run         plain interactive VM of the host with stand-in secrets
   */
@@ -33,15 +31,11 @@
       testing.enable = true;
     };
 
-    # The real host plus the testing implementation (stand-ins, no virtualisation):
-    # basis for evaluation checks, the install tier, and the interactive VM.
-    variant = nixos.extendModules {modules = [testingModule harnessModule];};
+    variant = nixos.extendModules {modules = [harnessModule];};
     vcfg = variant.config;
     cfg = vcfg.testing;
 
-    failures = testingLib.failedEvalChecks cfg.evalChecks;
-    # Forces evaluation of the complete real system (including all NixOS assertions)
-    # without making the check depend on building it.
+    failures = testingLib.failedEvalChecks cfg;
     toplevelDrv = builtins.unsafeDiscardStringContext nixos.config.system.build.toplevel.drvPath;
 
     eval =
@@ -50,7 +44,7 @@
         throw ''
           host '${name}' failed ${toString (builtins.length failures)} evaluation check(s):
           ${lib.concatMapStringsSep "\n" (f: "  - ${f.name}: ${f.message}") failures}
-          Fix the configuration, or opt out per host with `testing.evalChecks.<name>.enable = false;`.''
+          Fix the configuration, or opt out per host with `testing.<namespace>.evalChecks.<name>.enable = false;`.''
       else
         pkgs.runCommand "nixconf-eval-${name}" {
           meta.description = "Evaluation tier for host ${name}: system evaluates and essential checks hold.";
@@ -60,6 +54,7 @@
 
     loginUsers = ["root"] ++ builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser) vcfg.users.users);
     sshd = vcfg.services.openssh;
+    inspectScript = testingLib.mkInspectScript cfg;
 
     inspect =
       pkgs.runCommand "nixconf-inspect-${name}" {
@@ -68,49 +63,7 @@
         etc="${nixos.config.system.build.etc}/etc"
         echo "Validating system artifacts for ${name} at $etc..."
 
-        # 1. Verify filesystem table and shells exist
-        if [ ! -e "$etc/fstab" ]; then
-          echo "Error: /etc/fstab was not generated!" >&2
-          exit 1
-        fi
-        if [ ! -e "$etc/shells" ]; then
-          echo "Error: /etc/shells was not generated!" >&2
-          exit 1
-        fi
-
-        # 2. Verify PAM directory and login configuration exist
-        if [ ! -d "$etc/pam.d" ]; then
-          echo "Error: /etc/pam.d was not generated!" >&2
-          exit 1
-        fi
-        if [ ! -e "$etc/pam.d/login" ]; then
-          echo "Error: /etc/pam.d/login was not generated!" >&2
-          exit 1
-        fi
-
-        # 3. Verify sudoers configuration exists
-        if [ ! -e "$etc/sudoers" ]; then
-          echo "Error: /etc/sudoers was not generated!" >&2
-          exit 1
-        fi
-
-        # 4. Verify SSH configuration if enabled
-        ${lib.optionalString sshd.enable ''
-          if [ ! -d "$etc/ssh" ] || [ ! -e "$etc/ssh/sshd_config" ]; then
-            echo "Error: sshd_config was not generated!" >&2
-            exit 1
-          fi
-          if [ ! -e "$etc/pam.d/sshd" ]; then
-            echo "Error: /etc/pam.d/sshd was not generated!" >&2
-            exit 1
-          fi
-        ''}
-
-        # 5. Verify systemd directory exists
-        if [ ! -d "$etc/systemd/system" ]; then
-          echo "Error: /etc/systemd/system was not generated!" >&2
-          exit 1
-        fi
+        ${inspectScript}
 
         mkdir -p $out
         echo "Passed artifact inspection for host ${name}" > $out/success
@@ -120,19 +73,21 @@
     vm = inputs.nixpkgs.lib.nixos.runTest {
       name = "nixconf-${name}";
       hostPkgs = pkgs;
-      # Same modules and specialArgs as `nixosConfigurations.${name}`; nodes keep
-      # instantiating nixpkgs from the host's own `nixpkgs.*` options.
       node.specialArgs = systemArgs.specialArgs;
-      nodes.machine.imports = systemArgs.modules ++ [testingModule harnessModule];
+      nodes.machine.imports = systemArgs.modules ++ [harnessModule];
       testScript = {nodes, ...}: ''
         start_all()
 
-        ${testingLib.mkTestScript {
-          inherit (nodes.machine.testing) checks;
-          tier = "vm";
+        ${testingLib.mkVmScript {
+          inherit (nodes.machine.config) testing;
           label = name;
         }}
       '';
+    };
+
+    snakeoil = import "${inputs.nixpkgs}/nixos/tests/ssh-keys.nix" {
+      inherit lib;
+      writeText = _: text: text;
     };
 
     run = pkgs.writeShellApplication {
@@ -143,10 +98,10 @@
         state="''${XDG_RUNTIME_DIR:-/tmp}"
         export NIX_DISK_IMAGE="''${NIX_DISK_IMAGE:-$state/nixconf-${name}-test.qcow2}"
         key="$state/nixconf-test-ssh-key"
-        install -m 0600 ${pkgs.writeText "nixconf-test-ssh-key" cfg.credentials.sshPrivateKey} "$key"
+        install -m 0600 ${pkgs.writeText "nixconf-test-ssh-key" snakeoil.snakeOilPrivateKey} "$key"
         cat >&2 <<EOF
         ${name}: interactive test VM with stand-in secrets (no real secret is decrypted)
-          console login : ${lib.concatStringsSep ", " loginUsers} / password '${cfg.credentials.password}'
+          console login : ${lib.concatStringsSep ", " loginUsers} / password 'test'
         ${lib.optionalString (sshd.enable && vcfg.virtualisation.vmVariant.virtualisation.forwardPorts != []) "  ssh           : ssh -p ${toString cfg.vm.sshForwardPort} -i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost\n"}  disk image    : $NIX_DISK_IMAGE (delete it to start fresh)
         EOF
         exec ${vcfg.system.build.vm}/bin/run-${vcfg.networking.hostName}-vm "$@"
@@ -156,16 +111,10 @@
     {
       inherit eval inspect run variant;
       checks = {
-        eval = builtins.attrNames cfg.evalChecks;
-        inspect = ["passwd" "shadow" "pam" "users" "systemd"];
-        vm = map (c: c.name) (testingLib.selectChecks {
-          inherit (cfg) checks;
-          tier = "vm";
-        });
-        install = map (c: c.name) (testingLib.selectChecks {
-          inherit (cfg) checks;
-          tier = "install";
-        });
+        eval = map (c: c.name) (testingLib.collectChecks "evalChecks" cfg);
+        inspect = map (c: c.qualifiedName) (testingLib.collectChecks "inspectChecks" cfg);
+        vm = map (c: c.qualifiedName) (testingLib.collectChecks "vmChecks" cfg);
+        install = map (c: c.qualifiedName) ((testingLib.collectChecks "vmChecks" cfg) ++ (testingLib.collectChecks "installChecks" cfg));
       };
     }
     // lib.optionalAttrs cfg.vm.enable {
@@ -185,37 +134,49 @@ in {
     tests = lib.genAttrs names (name: mkHostTests {inherit pkgs name;});
     hostsWith = tier: lib.filter (name: tests.${name} ? ${tier}) names;
 
+    scenarios = lib.mapAttrs (sName: s:
+      inputs.nixpkgs.lib.nixos.runTest {
+        name = "nixconf-scenario-${sName}";
+        hostPkgs = pkgs;
+        nodes = s.nodes;
+        testScript = s.testScript;
+      }) (lib.filterAttrs (_: s: s.enable) (config.test.scenarios or {}));
+    scenarioNames = builtins.attrNames scenarios;
+
     cli = pkgs.writeShellApplication {
       name = "nixconf-test";
       runtimeInputs = [pkgs.coreutils];
       excludeShellChecks = ["SC2016"];
-      meta.description = "Runs host test tiers (eval, inspect, vm, install) and interactive test VMs.";
+      meta.description = "Runs test tiers (eval, inspect, vm, install), multi-node scenarios, and interactive test VMs.";
       text = ''
         flake="''${NIXCONF_FLAKE:-.}"
-        attr="legacyPackages.${system}.hostTests"
+        hostAttr="legacyPackages.${system}.hostTests"
+        scenAttr="legacyPackages.${system}.scenarios"
         declare -A available=(
           [eval]=${lib.escapeShellArg (toString names)}
           [inspect]=${lib.escapeShellArg (toString (hostsWith "inspect"))}
           [vm]=${lib.escapeShellArg (toString (hostsWith "vm"))}
           [install]=${lib.escapeShellArg (toString (hostsWith "install"))}
-          [interactive]=${lib.escapeShellArg (toString (hostsWith "interactive"))}
+          [interactive]=${lib.escapeShellArg (toString ((hostsWith "interactive") ++ scenarioNames))}
           [run]=${lib.escapeShellArg (toString names)}
+          [scenario]=${lib.escapeShellArg (toString scenarioNames)}
         )
 
         usage() {
           cat <<'EOF'
-        Usage: nix run .#test -- [TIER] [HOST...]
+        Usage: nix run .#test -- [TIER|scenario] [TARGET...]
 
         Tiers (default: eval):
           eval         Evaluate every host and its essential checks; seconds, builds no system.
           inspect      Validate built system artifacts (/etc, users, PAM, units) without KVM.
-          vm           Boot hosts in QEMU with stand-in secrets and run their checks (needs KVM).
-          install      Partition the Disko layout, install, reboot via the real boot loader (needs KVM, slow).
-          interactive  Open the VM test driver REPL for one host.
+          vm           Boot hosts in QEMU with stand-in secrets and run their vmChecks (needs KVM).
+          install      Partition Disko, install, reboot, run vmChecks + installChecks (needs KVM, slow).
+          scenario     Run arbitrary multi-node virtual network scenarios.
+          interactive  Open test driver REPL for one host or scenario.
           run          Boot one host as an interactive VM with stand-in secrets.
-          list         Show hosts, available tiers and their checks.
+          list         Show hosts, scenarios, available tiers and their checks.
 
-        Without HOST arguments every host providing the tier is tested.
+        Without TARGET arguments every host or scenario providing the tier is tested.
         Set NIXCONF_FLAKE to test another checkout (default: current directory).
         EOF
         }
@@ -234,11 +195,15 @@ in {
             usage
             ;;
           list)
-            nix eval --raw "$flake#$attr" --apply '
+            echo "==> Host Tests:"
+            nix eval --raw "$flake#$hostAttr" --apply '
               tests: builtins.concatStringsSep "\n" (map (h: let t = tests.''${h}; in
                 h + ": tiers [" + builtins.concatStringsSep " " (builtins.filter (n: t ? ''${n}) ["eval" "inspect" "vm" "install" "interactive" "run"]) + "]\n"
                 + builtins.concatStringsSep "\n" (map (k: "  " + k + ": " + builtins.concatStringsSep ", " t.checks.''${k}) (builtins.attrNames t.checks))
               ) (builtins.attrNames tests)) + "\n"'
+            ${lib.optionalString (scenarioNames != []) ''
+          echo "==> Scenarios: ${toString scenarioNames}"
+        ''}
             ;;
           eval|inspect|vm|install)
             read -r -a hosts <<< "''${available[$tier]}"
@@ -254,7 +219,7 @@ in {
             targets=()
             for host in "''${hosts[@]}"; do
               case " ''${available[$tier]} " in
-                *" $host "*) targets+=("$flake#$attr.$host.$tier") ;;
+                *" $host "*) targets+=("$flake#$hostAttr.$host.$tier") ;;
                 *) echo "Host '$host' does not provide the '$tier' tier (available: ''${available[$tier]:-none})." >&2; exit 1 ;;
               esac
             done
@@ -262,19 +227,59 @@ in {
             nix build --no-link --print-build-logs "''${targets[@]}"
             echo "==> $tier passed: ''${hosts[*]}" >&2
             ;;
-          interactive|run)
+          scenario)
+            read -r -a scens <<< "''${available[scenario]}"
+            [ "$#" -gt 0 ] && scens=("$@")
+            if [ "''${#scens[@]}" -eq 0 ]; then
+              echo "No multi-node scenario tests are declared." >&2
+              exit 1
+            fi
+            warn_kvm
+            targets=()
+            for sc in "''${scens[@]}"; do
+              case " ''${available[scenario]} " in
+                *" $sc "*) targets+=("$flake#$scenAttr.$sc") ;;
+                *) echo "Scenario '$sc' is not defined (available: ''${available[scenario]:-none})." >&2; exit 1 ;;
+              esac
+            done
+            echo "==> scenario: ''${scens[*]}" >&2
+            nix build --no-link --print-build-logs "''${targets[@]}"
+            echo "==> scenario passed: ''${scens[*]}" >&2
+            ;;
+          interactive)
             if [ "$#" -lt 1 ]; then
-              echo "Usage: nix run .#test -- $tier HOST [ARGS...]" >&2
+              echo "Usage: nix run .#test -- interactive TARGET [ARGS...]" >&2
+              exit 1
+            fi
+            target="$1"
+            shift
+            warn_kvm
+            case " ''${available[interactive]} " in
+              *" $target "*)
+                case " ''${available[vm]} " in
+                  *" $target "*) exec nix run "$flake#$hostAttr.$target.interactive" -- "$@" ;;
+                  *) exec nix run "$flake#$scenAttr.$target.driverInteractive" -- "$@" ;;
+                esac
+                ;;
+              *)
+                echo "Target '$target' is neither an interactive host nor a scenario." >&2
+                exit 1
+                ;;
+            esac
+            ;;
+          run)
+            if [ "$#" -lt 1 ]; then
+              echo "Usage: nix run .#test -- run HOST [ARGS...]" >&2
               exit 1
             fi
             host="$1"
             shift
-            case " ''${available[$tier]} " in
+            case " ''${available[run]} " in
               *" $host "*) ;;
-              *) echo "Host '$host' does not provide the '$tier' tier." >&2; exit 1 ;;
+              *) echo "Host '$host' does not provide the 'run' tier." >&2; exit 1 ;;
             esac
             warn_kvm
-            exec nix run "$flake#$attr.$host.$tier" -- "$@"
+            exec nix run "$flake#$hostAttr.$host.run" -- "$@"
             ;;
           *)
             echo "Unknown tier: $tier" >&2
@@ -286,6 +291,7 @@ in {
     };
   in {
     legacyPackages.hostTests = tests;
+    legacyPackages.scenarios = scenarios;
 
     checks =
       lib.concatMapAttrs (name: t: {

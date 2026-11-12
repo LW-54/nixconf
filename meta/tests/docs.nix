@@ -34,7 +34,7 @@
               class Eval,Inspect,VM,Install tier;
           ```
 
-          All tests operate with **stand-in credentials and dummy keys** provided by the ${ctx.instanceLink "implementation" "nixos-test"} fulfilling the ${ctx.instanceLink "contract" "testing"} contract. Real private keys are never required or decrypted during testing.
+          All tests operate with **stand-in credentials and dummy keys** provisioned by `modules/implementations/sops.nix` in test mode (`config.testing.enable`). Real private keys are never required or decrypted during testing.
         '';
       };
 
@@ -93,15 +93,15 @@
         '';
       };
 
-      contractAndImpl = {
+      components = {
         order = 40;
-        content = ctx: ''
-          ## Contract & Implementation
+        content = _: ''
+          ## System Architecture
 
-          The testing architecture is backed by:
-          - Contract: ${ctx.instanceLink "contract" "testing"} (`modules/contracts/testing.nix`)
-          - Implementation: ${ctx.instanceLink "implementation" "nixos-test"} (`modules/implementations/nixos-test.nix`)
-          - Test Engine: [`meta/tests/default.nix`](../meta/tests/default.nix)
+          The testing architecture is organized under `meta/tests`:
+          - NixOS Testing Module: `flake.nixosModules.testing` ([`meta/tests/options.nix`](../meta/tests/options.nix), [`meta/tests/core.nix`](../meta/tests/core.nix))
+          - Library Helpers: `self.lib.testing` ([`meta/tests/lib.nix`](../meta/tests/lib.nix))
+          - Test Engine & CLI: [`meta/tests/default.nix`](../meta/tests/default.nix)
         '';
       };
     };

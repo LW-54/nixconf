@@ -212,9 +212,21 @@ in {
             })
             config.secrets.files;
 
-          testing.evalChecks.sops-secrets-via-contract = {
+          testing.sops.evalChecks.secrets-via-contract = {
             assertion = lib.all (name: config.secrets.files ? ${name}) (builtins.attrNames cfg.secrets);
             message = "sops.secrets {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.files ? ${n})) (builtins.attrNames cfg.secrets))}} bypass the `secrets` contract, so tests cannot substitute stand-ins for them; declare them via `secrets.files` instead.";
+          };
+
+          testing.sops.vmChecks.secrets-provisioned = {
+            description = "secrets are decrypted with the declared ownership";
+            priority = 100;
+            script = ''
+              machine.wait_for_unit("multi-user.target")
+              for _path, _owner in ${builtins.toJSON (lib.mapAttrsToList (_: s: [s.path s.owner]) config.secrets.files)}:
+                  machine.succeed(f"test -s {_path}")
+                  _actual = machine.succeed(f"stat -L -c %U {_path}").strip()
+                  assert _actual == _owner, f"{_path} is owned by {_actual}, expected {_owner}"
+            '';
           };
 
           system.extraDependencies = lib.concatLists [
@@ -242,18 +254,6 @@ in {
             };
             setupSecrets = lib.mkIf (regularSecrets != {} && !cfg.useSystemdActivation) afterTestKey;
             setupSecretsForUsers = lib.mkIf (secretsForUsers != {} && !usersViaSystemd) afterTestKey;
-          };
-
-          testing.checks.secrets-provisioned = {
-            description = "secrets are decrypted with the declared ownership";
-            priority = 100;
-            script = ''
-              machine.wait_for_unit("multi-user.target")
-              for _path, _owner in ${builtins.toJSON (lib.mapAttrsToList (_: s: [s.path s.owner]) config.secrets.files)}:
-                  machine.succeed(f"test -s {_path}")
-                  _actual = machine.succeed(f"stat -L -c %U {_path}").strip()
-                  assert _actual == _owner, f"{_path} is owned by {_actual}, expected {_owner}"
-            '';
           };
         })
       ];

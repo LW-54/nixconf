@@ -28,7 +28,6 @@ flowchart LR
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
-    urn__nixconf__onto__contract__testing{{"testing"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
@@ -78,9 +77,7 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
@@ -92,7 +89,6 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__eval__configuration__x240
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__audio
@@ -120,13 +116,9 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
-    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__testing
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -147,7 +139,6 @@ flowchart LR
     click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
-    click urn__nixconf__onto__contract__testing href "../contracts/testing.md" "testing"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "audio.md" "audio"
