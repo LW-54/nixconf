@@ -26,6 +26,8 @@
           branches:
             - main
             - "feat/**"
+        schedule:
+          - cron: "0 3 * * *"
         workflow_dispatch:
           inputs:
             tier:
@@ -63,6 +65,39 @@
           steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                fetch-depth: 2
+
+            - name: Detect disk configuration changes
+              id: disk-diff
+              if: |
+                matrix.hasInstall &&
+                github.event_name == 'push'
+              run: |
+                if git rev-parse HEAD~1 >/dev/null 2>&1; then
+                  if git diff --name-only HEAD~1 HEAD | grep -E '(disko|impermanence|disk)' >/dev/null; then
+                    echo "changed=true" >> "$GITHUB_OUTPUT"
+                    echo "Disk configuration changed in this push; install tier will be triggered."
+                    exit 0
+                  fi
+                fi
+                echo "changed=false" >> "$GITHUB_OUTPUT"
+
+            - name: Compute cooldown key
+              id: cooldown-key
+              run: |
+                echo "key=install-cooldown-''${{ matrix.host }}-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+            - name: Check install tier cooldown cache
+              id: cooldown
+              if: |
+                matrix.hasInstall &&
+                github.event_name == 'push' &&
+                github.ref == 'refs/heads/main'
+              uses: actions/cache@v4
+              with:
+                path: /tmp/install-cooldown-marker
+                key: ''${{ steps.cooldown-key.outputs.key }}
 
             - name: Enable KVM permissions
               if: |
@@ -93,7 +128,10 @@
             - name: Static Verification (eval & inspect)
               if: |
                 (github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&
-                (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'static'))
+                (
+                  github.event_name == 'schedule' ||
+                  (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'static'))
+                )
               run: |
                 nix run .#test -- eval "''${{ matrix.host }}"
                 nix run .#test -- inspect "''${{ matrix.host }}"
@@ -101,7 +139,11 @@
             - name: VM Runtime Tests (vm)
               if: |
                 (github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&
-                (github.event_name != 'workflow_dispatch' || github.event.inputs.tier == 'all' || github.event.inputs.tier == 'vm')
+                (
+                  github.event_name == 'schedule' ||
+                  github.event_name == 'push' ||
+                  (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'vm'))
+                )
               run: |
                 nix run .#test -- vm "''${{ matrix.host }}"
 
@@ -109,9 +151,15 @@
               if: |
                 matrix.hasInstall &&
                 (github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&
-                (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'install'))
+                (
+                  github.event_name == 'schedule' ||
+                  (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'install')) ||
+                  (github.event_name == 'push' && (steps.disk-diff.outputs.changed == 'true' || (github.ref == 'refs/heads/main' && steps.cooldown.outputs.cache-hit != 'true')))
+                )
               run: |
                 nix run .#test -- install "''${{ matrix.host }}"
+                mkdir -p /tmp/install-cooldown-marker
+                date -u > /tmp/install-cooldown-marker/timestamp
     '';
   };
 }
