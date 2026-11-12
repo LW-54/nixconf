@@ -69,7 +69,7 @@
           ### Workflow Details
 
           - **`build`** ([`meta/ci/build.nix`](../meta/ci/build.nix)): Runs on pull requests and pushes to `main`. Executes `nix flake check`, collects all buildable derivations via `lib.ci.collectBuildables`, and builds targets in parallel while pushing artifacts to the `lw-54` Cachix binary cache.
-          - **`host-tests`** ([`meta/ci/host-tests.nix`](../meta/ci/host-tests.nix)): Automated matrix verification testing host closures and running VM tests on supported targets.
+          - **`host-tests`** ([`meta/ci/host-tests.nix`](../meta/ci/host-tests.nix)): Automated matrix verification testing host closures across progressive tiers (`static`, `vm`, `install`), supporting manual dispatch filtering by host and test tier.
         '';
       };
 

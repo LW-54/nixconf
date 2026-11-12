@@ -2,31 +2,43 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
 jobs:
-  vm-tests:
-    name: VM Runtime Tests (${{ matrix.host }})
+  host-tests:
+    name: Host Tests (${{ matrix.host }})
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Enable KVM permissions
+      - if: "(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(github.event_name != 'workflow_dispatch' || github.event.inputs.tier != 'static')\n"
+        name: Enable KVM permissions
         run: "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0666\", OPTIONS+=\"static_node=kvm\"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules\nsudo udevadm control --reload-rules\nsudo udevadm trigger --name-match=kvm\n[ -e /dev/kvm ] && sudo chmod 666 /dev/kvm || true\n"
-      - name: Install Nix
+      - if: "github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host\n"
+        name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
           extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\n"
-      - name: Setup Cachix
+      - if: "github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host\n"
+        name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: lw-54
-      - name: Run VM test
-        run: nix build -L '.#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.vm'
+      - if: "(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'static'))\n"
+        name: Static Verification (eval & inspect)
+        run: "nix run .#test -- eval \"${{ matrix.host }}\"\nnix run .#test -- inspect \"${{ matrix.host }}\"\n"
+      - if: "(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(github.event_name != 'workflow_dispatch' || github.event.inputs.tier == 'all' || github.event.inputs.tier == 'vm')\n"
+        name: VM Runtime Tests (vm)
+        run: "nix run .#test -- vm \"${{ matrix.host }}\"\n"
+      - if: "matrix.hasInstall &&\n(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'install'))\n"
+        name: Install & Storage Lifecycle Tests (install)
+        run: "nix run .#test -- install \"${{ matrix.host }}\"\n"
     strategy:
       fail-fast: false
       matrix:
-        host:
-          - astrolabe
-          - x240
+        include:
+          - hasInstall: true
+            host: astrolabe
+          - hasInstall: true
+            host: x240
 name: Host Verification & VM Tests
 'on':
   push:
@@ -45,7 +57,7 @@ name: Host Verification & VM Tests
         required: true
         type: choice
       tier:
-        default: all
+        default: vm
         description: Test tier to execute
         options:
           - all
