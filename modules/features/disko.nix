@@ -1,5 +1,6 @@
 {
   inputs,
+  self,
   lib ? inputs.nixpkgs.lib,
   ...
 }: let
@@ -344,7 +345,49 @@ in {
   feature.disko = {
     description = "Declarative disk partitioning and filesystem layouts via Disko.";
     modules = {
-      disko = inputs.disko.nixosModules.disko;
+      disko = {
+        config,
+        lib,
+        options,
+        ...
+      }: let
+        virtioInitrdModules = [
+          "virtio_net"
+          "virtio_pci"
+          "virtio_mmio"
+          "virtio_blk"
+          "virtio_scsi"
+          "9p"
+          "9pnet_virtio"
+          "virtiofs"
+        ];
+        virtioKernelModules = [
+          "virtio_balloon"
+          "virtio_console"
+          "virtio_rng"
+        ];
+      in {
+        imports = [inputs.disko.nixosModules.disko];
+
+        config = lib.mkIf (options ? disko && options.disko ? tests) {
+          testing.install.enable = lib.mkDefault (config.disko.devices.disk != {});
+          disko.memSize = lib.mkDefault (config.testing.vm.memorySize or 2048);
+          disko.tests = {
+            # Install tier runs vmChecks + installChecks
+            extraChecks = self.lib.testing.mkInstallScript {
+              inherit (config) testing;
+              label = config.testing.name;
+            };
+            extraConfig = {
+              boot.loader.grub.device = lib.mkForce "";
+              console.keyMap = lib.mkForce "us";
+              boot.resumeDevice = lib.mkForce "";
+              boot.initrd.availableKernelModules = virtioInitrdModules;
+              boot.kernelModules = virtioKernelModules;
+            };
+          };
+        };
+      };
     };
     lib = {
       mkLayout = {

@@ -88,6 +88,17 @@
             // host.specialArgs;
           modules = [
             config.flake.nixosModules.${name}
+            (config.flake.nixosModules.testing or {})
+            ({config, ...}: {
+              testing.name = lib.mkDefault name;
+              testing.host = {
+                description = "Host identity and platform assertions";
+                evalChecks.hostname = {
+                  assertion = config.networking.hostName == name;
+                  message = "`networking.hostName` (\"${config.networking.hostName}\") differs from the flake host name (\"${name}\"); `nixos-rebuild --flake .` selects configurations by hostname.";
+                };
+              };
+            })
           ];
         })
         instances;
@@ -99,7 +110,25 @@
 
           flake.lib.host = {
             inherit (hostLib) collectHostImportedModules;
+            mkHostTests = args: hostLib.mkHostTests ({inherit config inputs;} // args);
             inherit systemArgs;
+          };
+
+          perSystem = {
+            pkgs,
+            system,
+            ...
+          }: let
+            names = lib.filter (name: (config.flake.nixosConfigurations.${name}.config.nixpkgs.hostPlatform.system or "x86_64-linux") == system) (builtins.attrNames instances);
+            tests = lib.genAttrs names (name: hostLib.mkHostTests {inherit pkgs name config inputs;});
+          in {
+            legacyPackages.hostTests = tests;
+            checks =
+              lib.concatMapAttrs (name: t: {
+                "eval-${name}" = t.eval;
+                "inspect-${name}" = t.inspect;
+              })
+              tests;
           };
         }
       ];

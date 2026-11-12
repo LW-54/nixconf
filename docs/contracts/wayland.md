@@ -246,7 +246,7 @@ Modules and instances configuring options under the `wayland` contract capabilit
 ```nix
 # modules/hosts/x240.nix
 ...
-90: wayland.enable = true;
+89: wayland.enable = true;
 ...
 ```
 

@@ -334,7 +334,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/ssh.nix
 ...
-178: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+199: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
 ...
 ```
 
@@ -354,11 +354,11 @@ Capability contracts configured by this feature:
 82: name = "ssh/public/${name}";
 83: value = {
 ...
-149: if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
+170: if [ ! -s /etc/ssh/ssh_host_ed25519_key ] || ! ${pkgs.diffutils}/bin/cmp -s /etc/ssh/ssh_host_ed25519_key ${config.secrets.files."ssh/host-key".path}; then
 ...
-151: install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
+172: install -m 600 ${config.secrets.files."ssh/host-key".path} /etc/ssh/ssh_host_ed25519_key
 ...
-171: AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
+192: AuthorizedKeysFile /etc/ssh/authorized_keys.d/%u ${config.secrets.files."ssh/public/master".path}
 ...
 ```
 

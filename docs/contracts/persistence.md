@@ -409,7 +409,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-36: persistence.directories = [
+35: persistence.directories = [
 ...
 ```
 
@@ -629,7 +629,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/ssh.nix
 ...
-178: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
+199: persistence.files = lib.mkIf (config.persistence ? enable && config.persistence.enable) [
 ...
 ```
 

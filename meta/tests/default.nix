@@ -1,138 +1,17 @@
 {
-  config,
   lib,
   inputs,
   ...
-}: let
-  testingLib = config.flake.lib.testing;
-  testingModule = config.flake.nixosModules.testing;
-  hostNames = builtins.attrNames (config.host or {});
-
-  hostSystem = name: config.flake.nixosConfigurations.${name}.config.nixpkgs.hostPlatform.system;
-
-  /*
-  Test tiers derived for every host, cheapest first:
-    eval        seconds, no build: full system evaluation + all namespaced `evalChecks`
-    inspect     seconds, builds artifacts: verifies /etc and system artifacts in a pure sandbox (no KVM needed)
-    vm          minutes, KVM: boots host in QEMU with stand-in secrets and runs all `vmChecks`
-    install     slow, KVM: Disko layout, nixos-install, bootloader, runs all `vmChecks` + `installChecks`
-    interactive the `vm` test driver as a Python REPL (`start_all()`, `machine.shell_interact()`)
-    run         plain interactive VM of the host with stand-in secrets
-  */
-  mkHostTests = {
-    pkgs,
-    name,
-  }: let
-    nixos = config.flake.nixosConfigurations.${name};
-    systemArgs = config.flake.lib.host.systemArgs.${name};
-
-    harnessModule = {
-      testing.name = name;
-      testing.enable = true;
-    };
-
-    variant = nixos.extendModules {modules = [harnessModule];};
-    vcfg = variant.config;
-    cfg = vcfg.testing;
-
-    failures = testingLib.failedEvalChecks cfg;
-    toplevelDrv = builtins.unsafeDiscardStringContext nixos.config.system.build.toplevel.drvPath;
-
-    eval =
-      if failures != []
-      then
-        throw ''
-          host '${name}' failed ${toString (builtins.length failures)} evaluation check(s):
-          ${lib.concatMapStringsSep "\n" (f: "  - ${f.name}: ${f.message}") failures}
-          Fix the configuration, or opt out per host with `testing.<namespace>.evalChecks.<name>.enable = false;`.''
-      else
-        pkgs.runCommand "nixconf-eval-${name}" {
-          meta.description = "Evaluation tier for host ${name}: system evaluates and essential checks hold.";
-        } ''
-          echo ${lib.escapeShellArg toplevelDrv} > $out
-        '';
-
-    loginUsers = ["root"] ++ builtins.attrNames (lib.filterAttrs (_: u: u.isNormalUser) vcfg.users.users);
-    sshd = vcfg.services.openssh;
-    inspectScript = testingLib.mkInspectScript cfg;
-
-    inspect =
-      pkgs.runCommand "nixconf-inspect-${name}" {
-        meta.description = "Artifact inspection tier for host ${name}: validates /etc and system artifacts without KVM.";
-      } ''
-        etc="${nixos.config.system.build.etc}/etc"
-        echo "Validating system artifacts for ${name} at $etc..."
-
-        ${inspectScript}
-
-        mkdir -p $out
-        echo "Passed artifact inspection for host ${name}" > $out/success
-        echo ${lib.escapeShellArg toplevelDrv} >> $out/toplevel
-      '';
-
-    vm = inputs.nixpkgs.lib.nixos.runTest {
-      name = "nixconf-${name}";
-      hostPkgs = pkgs;
-      node.specialArgs = systemArgs.specialArgs;
-      nodes.machine.imports = systemArgs.modules ++ [harnessModule];
-      testScript = {nodes, ...}: ''
-        start_all()
-
-        ${testingLib.mkVmScript {
-          inherit (nodes.machine.config) testing;
-          label = name;
-        }}
-      '';
-    };
-
-    snakeoil = import "${inputs.nixpkgs}/nixos/tests/ssh-keys.nix" {
-      inherit lib;
-      writeText = _: text: text;
-    };
-
-    run = pkgs.writeShellApplication {
-      name = "run-${name}-test-vm";
-      runtimeInputs = [pkgs.coreutils];
-      meta.description = "Interactive VM of host ${name} booted with stand-in secrets.";
-      text = ''
-        state="''${XDG_RUNTIME_DIR:-/tmp}"
-        export NIX_DISK_IMAGE="''${NIX_DISK_IMAGE:-$state/nixconf-${name}-test.qcow2}"
-        key="$state/nixconf-test-ssh-key"
-        install -m 0600 ${pkgs.writeText "nixconf-test-ssh-key" snakeoil.snakeOilPrivateKey} "$key"
-        cat >&2 <<EOF
-        ${name}: interactive test VM with stand-in secrets (no real secret is decrypted)
-          console login : ${lib.concatStringsSep ", " loginUsers} / password 'test'
-        ${lib.optionalString (sshd.enable && vcfg.virtualisation.vmVariant.virtualisation.forwardPorts != []) "  ssh           : ssh -p ${toString cfg.vm.sshForwardPort} -i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@localhost\n"}  disk image    : $NIX_DISK_IMAGE (delete it to start fresh)
-        EOF
-        exec ${vcfg.system.build.vm}/bin/run-${vcfg.networking.hostName}-vm "$@"
-      '';
-    };
-  in
-    {
-      inherit eval inspect run variant;
-      checks = {
-        eval = map (c: c.name) (testingLib.collectChecks "evalChecks" cfg);
-        inspect = map (c: c.qualifiedName) (testingLib.collectChecks "inspectChecks" cfg);
-        vm = map (c: c.qualifiedName) (testingLib.collectChecks "vmChecks" cfg);
-        install = map (c: c.qualifiedName) ((testingLib.collectChecks "vmChecks" cfg) ++ (testingLib.collectChecks "installChecks" cfg));
-      };
-    }
-    // lib.optionalAttrs cfg.vm.enable {
-      inherit vm;
-      interactive = vm.driverInteractive;
-    }
-    // lib.optionalAttrs (cfg.install.enable && vcfg.system.build ? installTest) {
-      install = vcfg.system.build.installTest;
-    };
-in {
+}: {
   perSystem = {
     pkgs,
+    config,
     system,
     ...
   }: let
-    names = lib.filter (name: hostSystem name == system) hostNames;
-    tests = lib.genAttrs names (name: mkHostTests {inherit pkgs name;});
-    hostsWith = tier: lib.filter (name: tests.${name} ? ${tier}) names;
+    hostTests = config.legacyPackages.hostTests or {};
+    names = builtins.attrNames hostTests;
+    hostsWith = tier: lib.filter (name: hostTests.${name} ? ${tier}) names;
 
     scenarios = lib.mapAttrs (sName: s:
       inputs.nixpkgs.lib.nixos.runTest {
@@ -290,15 +169,7 @@ in {
       '';
     };
   in {
-    legacyPackages.hostTests = tests;
     legacyPackages.scenarios = scenarios;
-
-    checks =
-      lib.concatMapAttrs (name: t: {
-        "eval-${name}" = t.eval;
-        "inspect-${name}" = t.inspect;
-      })
-      tests;
 
     packages.test = cli;
 

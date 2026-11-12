@@ -38,7 +38,6 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
         self.nixosModules.astrolabe-hardware
         self.nixosModules.astrolabe-disk
         self.nixosModules.contracts
-        self.nixosModules.testing
         self.nixosModules.astrolabe-system
         self.nixosModules.astrolabe-services
         self.nixosModules.astrolabe-packages

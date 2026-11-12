@@ -6,12 +6,6 @@ Exported NixOS module 'testing'.
 
 - **Attribute**: `flake.nixosModules.testing`
 
-## Importing Hosts
-
-- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
-
-- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
-
 ## Declared Options
 
 | Option Path | Type | Default | Example | Description |

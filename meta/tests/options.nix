@@ -165,6 +165,18 @@ in {
               description = "Flake host name under test.";
             };
 
+            interactiveInit = lib.mkOption {
+              type = lib.types.lines;
+              default = "";
+              description = "Shell script commands executed prior to starting interactive test VM (e.g. setting up test keys).";
+            };
+
+            interactiveNotes = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [];
+              description = "Banner notices displayed when launching an interactive test VM.";
+            };
+
             vm = {
               enable = lib.mkOption {
                 type = lib.types.bool;

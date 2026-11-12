@@ -98,9 +98,10 @@
         content = _: ''
           ## System Architecture
 
-          The testing architecture is organized under `meta/tests`:
+          The testing architecture is organized across `meta/tests` and `primitives/host`:
           - NixOS Testing Module: `flake.nixosModules.testing` ([`meta/tests/options.nix`](../meta/tests/options.nix), [`meta/tests/core.nix`](../meta/tests/core.nix))
           - Library Helpers: `self.lib.testing` ([`meta/tests/lib.nix`](../meta/tests/lib.nix))
+          - Host Test Suite: `self.lib.host.mkHostTests` ([`primitives/host/lib.nix`](../primitives/host/lib.nix))
           - Test Engine & CLI: [`meta/tests/default.nix`](../meta/tests/default.nix)
         '';
       };
