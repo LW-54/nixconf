@@ -16,7 +16,21 @@
       secretId
       resolved
       ;
-    inherit (tmpl) mountWhat rcloneConfigSetupScript;
+    inherit (tmpl) mountWhat rcloneConfigSetupScript rcloneTemplateContent;
+
+    usedStores = lib.unique (
+      lib.filter (s: s != null) (map (s: s.store or null) (builtins.attrValues state.secretFileAttrs))
+    );
+    secretStoreHashes =
+      map (
+        store: let
+          p = self + "/secrets/${store}.yaml";
+        in
+          if builtins.pathExists p
+          then builtins.hashString "sha256" (builtins.readFile p)
+          else store
+      )
+      usedStores;
 
     systemdMountEntries =
       map (
@@ -99,6 +113,7 @@
           wantedBy = ["multi-user.target"];
           before = ["remote-fs-pre.target"];
           after = ["sops-install-secrets.service"];
+          restartTriggers = [rcloneTemplateContent] ++ secretStoreHashes;
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;

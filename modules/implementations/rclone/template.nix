@@ -156,7 +156,9 @@
 
         umask 077
         dst_dir="$(dirname "$dst")"
-        install -d -m 0700 "$dst_dir"
+        if [[ ! -d "$dst_dir" ]]; then
+          install -d -m 0700 "$dst_dir"
+        fi
         tmp_file="$(mktemp "$dst_dir/.rclone.conf.XXXXXX")"
         trap 'rm -f "$tmp_file"' EXIT
 

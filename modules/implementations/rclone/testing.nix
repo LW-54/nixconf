@@ -113,20 +113,22 @@
         machine.wait_for_unit("rclone-config.service")
         machine.succeed("test -s /run/rclone/rclone.conf && test -L /etc/rclone/rclone.conf")
 
-        machine.succeed("mkdir -p /tmp/loopback-store/hot /tmp/loopback-store/cold-raw /mnt/loopback-tiered /var/cache/rclone/loopback-test")
+        machine.succeed("mkdir -p /tmp/loopback-store/hot/hot-tier /tmp/loopback-store/cold-raw /mnt/loopback-tiered /var/cache/rclone/loopback-test")
         machine.succeed("${rcloneObscureScript}/bin/nixconf-rclone-obscure-config ${loopbackPlainConf} /tmp/loopback.conf")
+        machine.succeed("test $(stat -c '%a' /tmp) = '1777'")
         machine.succeed("test $(stat -c '%a' /tmp/loopback.conf) = '600'")
         machine.fail("grep -q 'test-loopback-password-1' /tmp/loopback.conf")
 
         machine.succeed(
-            "systemd-mount --no-block -t rclone "
-            "-o rw,allow_other,args2env,config=/tmp/loopback.conf,cache-dir=/var/cache/rclone/loopback-test,vfs-cache-mode=writes "
+            "mount -t rclone "
+            "-o rw,allow_other,args2env,config=/tmp/loopback.conf,cache-dir=/var/cache/rclone/loopback-test,dir-cache-time=1s,vfs-cache-mode=writes "
             "loop-tiered: /mnt/loopback-tiered"
         )
         machine.wait_until_succeeds("mountpoint -q /mnt/loopback-tiered", timeout=30)
 
-        machine.succeed("echo hot-tier-data > /mnt/loopback-tiered/hot-file.txt")
-        machine.wait_until_succeeds("grep -qx 'hot-tier-data' /tmp/loopback-store/hot/hot-file.txt", timeout=15)
+        # Ensure epff routes new writes in /hot-tier deterministically to loop-hot rather than racing on '/'.
+        machine.succeed("echo hot-tier-data > /mnt/loopback-tiered/hot-tier/hot-file.txt")
+        machine.wait_until_succeeds("grep -qx 'hot-tier-data' /tmp/loopback-store/hot/hot-tier/hot-file.txt", timeout=15)
 
         machine.succeed("printf 'cold-secret-payload\n' > /tmp/cold-input.txt")
         machine.succeed("rclone --config /tmp/loopback.conf copyto /tmp/cold-input.txt loop-cold:cold-file.txt")
@@ -137,9 +139,9 @@
         machine.fail("grep -rq 'cold-secret-payload' /tmp/loopback-store/cold-raw")
 
         # Verify transparent plaintext read through the union + crypt mount.
-        machine.succeed("grep -qx 'cold-secret-payload' /mnt/loopback-tiered/cold-file.txt")
+        machine.wait_until_succeeds("grep -qx 'cold-secret-payload' /mnt/loopback-tiered/cold-file.txt", timeout=10)
 
-        machine.succeed("systemd-mount --umount /mnt/loopback-tiered")
+        machine.succeed("umount /mnt/loopback-tiered")
         machine.succeed("rm -rf /tmp/loopback.conf /tmp/loopback-store /mnt/loopback-tiered /var/cache/rclone/loopback-test")
       '';
     };
