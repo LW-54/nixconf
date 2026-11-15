@@ -93,7 +93,8 @@
 
           for repo in "''${repos[@]}"; do
             set +e
-            snap_json=$(restic -r "$repo" -o "rclone.program=${pkgs.rclone}/bin/rclone" --no-lock snapshots --json --tag "unit:${uName}" 2>/dev/null)
+            # Bound boot-time snapshot probes so unreachable backends (e.g. offline/DNS timeouts) do not stall multi-user.target.
+            snap_json=$(timeout --kill-after=5s 20s restic -r "$repo" -o "rclone.program=${pkgs.rclone}/bin/rclone" -o "rclone.args=serve restic --stdio --contimeout=5s --timeout=15s --retries=1 --low-level-retries=1" --no-lock snapshots --json --tag "unit:${uName}" 2>/dev/null)
             rc=$?
             set -e
 
