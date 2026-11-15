@@ -26,8 +26,6 @@ flowchart LR
     urn__nixconf__ast__option__backup_enable[/"backup.enable"/]:::optNode
     urn__nixconf__ast__option__backup_exclude[/"backup.exclude"/]:::optNode
     urn__nixconf__ast__option__backup_paths[/"backup.paths"/]:::optNode
-    urn__nixconf__ast__option__backup_pruneOpts[/"backup.pruneOpts"/]:::optNode
-    urn__nixconf__ast__option__backup_timerConfig[/"backup.timerConfig"/]:::optNode
     urn__nixconf__ast__option__backup_units[/"backup.units"/]:::optNode
     urn__nixconf__ast__option__persistence_directories[/"persistence.directories"/]:::optNode
     urn__nixconf__ast__option__persistence_enable[/"persistence.enable"/]:::optNode
@@ -69,6 +67,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
+    urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
@@ -92,6 +91,7 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -131,8 +131,6 @@ flowchart LR
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_enable
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_paths
-    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_pruneOpts
-    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_timerConfig
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_units
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_destination
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_destinationOverride
@@ -194,6 +192,27 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__docker
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__noctalia
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
@@ -203,6 +222,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
 
@@ -221,8 +241,6 @@ flowchart LR
     click urn__nixconf__ast__option__backup_enable href "../contracts/backup.md" "backup.enable"
     click urn__nixconf__ast__option__backup_exclude href "../contracts/backup.md" "backup.exclude"
     click urn__nixconf__ast__option__backup_paths href "../contracts/backup.md" "backup.paths"
-    click urn__nixconf__ast__option__backup_pruneOpts href "../contracts/backup.md" "backup.pruneOpts"
-    click urn__nixconf__ast__option__backup_timerConfig href "../contracts/backup.md" "backup.timerConfig"
     click urn__nixconf__ast__option__backup_units href "../contracts/backup.md" "backup.units"
     click urn__nixconf__ast__option__persistence_directories href "../contracts/persistence.md" "persistence.directories"
     click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
@@ -264,6 +282,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "vscode.md" "vscode"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
+    click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"

@@ -27,7 +27,7 @@
           pkgs.restic
         ];
         text = ''
-          export RCLONE_CONFIG=/etc/rclone/rclone.conf
+          export RCLONE_CONFIG=/run/rclone/rclone.conf
           export RESTIC_PASSWORD_FILE=${lib.escapeShellArg passwordFile}
 
           force_latest=false

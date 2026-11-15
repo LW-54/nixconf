@@ -16,24 +16,18 @@ flowchart LR
     urn__nixconf__ast__function__backup_mkOption["backup.mkOption"]:::defaultNode
     urn__nixconf__ast__function__backup_retentionToPruneOpts["backup.retentionToPruneOpts"]:::defaultNode
     urn__nixconf__ast__function__backup_scheduleToTimerConfig["backup.scheduleToTimerConfig"]:::defaultNode
-    urn__nixconf__ast__symbol__backup_defaultPruneOpts["backup.defaultPruneOpts"]:::defaultNode
-    urn__nixconf__ast__symbol__backup_defaultTimerConfig["backup.defaultTimerConfig"]:::defaultNode
     urn__nixconf__onto__lib__backup["backup"]:::defaultNode
 
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_mkConfig
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_mkOption
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_retentionToPruneOpts
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_scheduleToTimerConfig
-    urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__symbol__backup_defaultPruneOpts
-    urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__symbol__backup_defaultTimerConfig
 
 
     click urn__nixconf__ast__function__backup_mkConfig href "backup.md" "backup.mkConfig"
     click urn__nixconf__ast__function__backup_mkOption href "backup.md" "backup.mkOption"
     click urn__nixconf__ast__function__backup_retentionToPruneOpts href "backup.md" "backup.retentionToPruneOpts"
     click urn__nixconf__ast__function__backup_scheduleToTimerConfig href "backup.md" "backup.scheduleToTimerConfig"
-    click urn__nixconf__ast__symbol__backup_defaultPruneOpts href "backup.md" "backup.defaultPruneOpts"
-    click urn__nixconf__ast__symbol__backup_defaultTimerConfig href "backup.md" "backup.defaultTimerConfig"
     click urn__nixconf__onto__lib__backup href "backup.md" "backup"
 
   %% Semantic Visual Classes
@@ -59,7 +53,7 @@ This library namespace can be consumed both internally within repository modules
 
 ```nix
 { self, lib, pkgs, ... }: {
-  example = self.lib.backup.defaultPruneOpts;
+  example = self.lib.backup.mkConfig;
 }
 ```
 
@@ -70,34 +64,12 @@ This library namespace can be consumed both internally within repository modules
   inputs.nixconf.url = "github:LW-54/nixconf";
 
   outputs = { self, nixconf, ... }: {
-    example = nixconf.lib.backup.defaultPruneOpts;
+    example = nixconf.lib.backup.mkConfig;
   };
 }
 ```
 
 ## Exported Symbols
-
-<a id="defaultPruneOpts"></a>
-### `defaultPruneOpts`
-
-Default restic snapshot retention arguments (`--keep-daily 7 --keep-weekly 4 --keep-monthly 6`).
-
-#### Type
-
-```
-defaultPruneOpts :: [String]
-```
-
-<a id="defaultTimerConfig"></a>
-### `defaultTimerConfig`
-
-Default systemd timer configuration (`hourly`) for backup jobs.
-
-#### Type
-
-```
-defaultTimerConfig :: Attrs
-```
 
 <a id="mkConfig"></a>
 ### `mkConfig`

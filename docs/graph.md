@@ -8,8 +8,8 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Dimension | Value | Description |
 | :--- | :--- | :--- |
-| **Nodes** | 276 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
-| **Edges** | 558 | Typed semantic directed edges connecting graph entities. |
+| **Nodes** | 272 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
+| **Edges** | 572 | Typed semantic directed edges connecting graph entities. |
 | **Relations** | 10 | Unique relation kinds expressing dependencies, flows, definitions, and bindings. |
 | **Node kinds** | 14 | Structural node classifications (e.g. host, contract, feature, module, option, package). |
 | **Strata** | 4 | Orthogonal graph evaluation layers (Ontology, AST, Evaluation, Derivation). |
@@ -18,7 +18,7 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Stratum | Name | Nodes | Description |
 | :--- | :--- | :--- | :--- |
-| `ast` | Syntactic Structure | 186 | Modules, options, types, and library symbols as declared in Nix expressions. |
+| `ast` | Syntactic Structure | 182 | Modules, options, types, and library symbols as declared in Nix expressions. |
 | `drv` | Derivation Substrate | 19 | Packages, development shells, and their store-level dependencies. |
 | `eval` | Operational Fixpoint | 2 | Evaluated NixOS configurations, option definitions, and data dependences. |
 | `onto` | Ontological Intent | 69 | Primitives and their declared instances: what the repository intends to exist. |
@@ -101,16 +101,16 @@ end
 | Relation | Strata | Edges | Meaning | Grounding |
 | :--- | :--- | :--- | :--- | :--- |
 | `contains` | `onto` | 63 | Lexical parent-child containment. | Primitives containing their declared instances. |
-| `declares` | `ast` | 58 | Interface specification declaration. | Contracts declaring public options and custom types. |
+| `declares` | `ast` | 56 | Interface specification declaration. | Contracts declaring public options and custom types. |
 | `dependsOn` | `drv` | 26 | Software package dependency. | Modules and devShells depending on executable packages. |
 | `documents` | — | 0 | Documentation attachment. | Docstrings attached to library symbols. |
-| `flowsTo` | `eval` | 66 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
+| `flowsTo` | `eval` | 72 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
 | `implements` | `onto` | 8 | Contract fulfillment. | Primitive relationships such as `implementation.<name>.contract`. |
-| `imports` | `eval` | 54 | Compilation unit composition. | Evaluated NixOS configurations importing concrete NixOS modules. |
-| `outputs` | `ast` | 133 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
-| `reads` | `eval` | 31 | Option value inspection (use / load). | Implementations reading contract options. |
+| `imports` | `eval` | 55 | Compilation unit composition. | Evaluated NixOS configurations importing concrete NixOS modules. |
+| `outputs` | `ast` | 131 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
+| `reads` | `eval` | 35 | Option value inspection (use / load). | Implementations reading contract options. |
 | `typedBy` | `ast` | 40 | Option type-system binding. | Contract options bound to custom submodule types. |
-| `writes` | `eval` | 79 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
+| `writes` | `eval` | 86 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
 
 ## Node Kinds
 
@@ -125,10 +125,10 @@ end
 | `implementation` | `onto` | 8 | `urn:nixconf:onto:implementation:caddy` | Concrete providers fulfilling contracts. |
 | `lib` | `onto` | 17 | `urn:nixconf:onto:lib:backup` | Library namespaces grouping functions and symbols. |
 | `module` | `ast` | 62 | `urn:nixconf:ast:module:antigravity` | NixOS modules exported on `flake.nixosModules`. |
-| `option` | `ast` | 37 | `urn:nixconf:ast:option:backup.destinations` | Public contract options with types and descriptions. |
+| `option` | `ast` | 35 | `urn:nixconf:ast:option:backup.destinations` | Public contract options with types and descriptions. |
 | `package` | `drv` | 13 | `urn:nixconf:drv:package:antigravity` | Packages exported on `flake.packages`. |
 | `primitive` | `onto` | 6 | `urn:nixconf:onto:primitive:contract` | Meta-primitives defining how instances are declared and exported. |
-| `symbol` | `ast` | 14 | `urn:nixconf:ast:symbol:backup.defaultPruneOpts` | Non-function library values and constants. |
+| `symbol` | `ast` | 12 | `urn:nixconf:ast:symbol:docs.audit` | Non-function library values and constants. |
 | `type` | `ast` | 21 | `urn:nixconf:ast:type:backup.destination` | Custom option types declared by contracts and features. |
 
 ## Querying & Inspecting the Graph

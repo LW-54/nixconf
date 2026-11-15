@@ -5,6 +5,9 @@
       secretStore = "storage/providers/hbox";
       settings = {
         boxId = "u711975";
+        hostKeys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIICf9svRenC/PLKIL9nk6K/pxQgoiFC41wTNvoIncOxs"
+        ];
       };
     };
     gdrive = {

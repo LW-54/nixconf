@@ -40,6 +40,7 @@ in {
         imports = [
           self.nixosModules.sops
           self.nixosModules.rclone
+          self.nixosModules.restic
           self.nixosModules.lw
           self.nixosModules.hjem
           self.nixosModules.nix
@@ -54,6 +55,19 @@ in {
           nix.settings = {
             build-cores = cores - 1;
             cores = cores - 1;
+          };
+          backup = {
+            enable = true;
+            units.lw = {
+              paths = [
+                "/home/lw/Documents"
+                "/home/lw/Projects"
+                "/home/lw/nixconf"
+                "/home/lw/.ssh"
+              ];
+              autoRestore = false;
+              beforeUnits = [];
+            };
           };
           testing.vm.allowedFailedUnits = [
             "NetworkManager-wait-online.service"

@@ -42,31 +42,6 @@ in {
           description = "Global exclusion patterns applied across backup units.";
         };
 
-        timerConfig = lib.mkOption {
-          type = lib.types.attrsOf lib.types.anything;
-          default = helpers.scheduleToTimerConfig {
-            onCalendar = "hourly";
-            randomizedDelaySec = "10m";
-            persistent = true;
-          };
-          example = {
-            OnCalendar = "03:00";
-            Persistent = true;
-          };
-          description = "Fallback systemd timer configuration used by legacy monolithic backup targets.";
-        };
-
-        pruneOpts = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = helpers.retentionToPruneOpts {
-            daily = 7;
-            weekly = 4;
-            monthly = 6;
-          };
-          example = ["--keep-daily" "7" "--keep-weekly" "4"];
-          description = "Fallback restic prune arguments used by legacy monolithic backup targets.";
-        };
-
         destinations = lib.mkOption {
           type = lib.types.attrsOf types.destination;
           default = {};
@@ -174,38 +149,6 @@ in {
         };
 
       lib = {
-        defaultTimerConfig = {
-          docstring = ''
-            Default systemd timer configuration (`hourly`) for backup jobs.
-
-            # Type
-            ```
-            defaultTimerConfig :: Attrs
-            ```
-          '';
-          value = helpers.scheduleToTimerConfig {
-            onCalendar = "hourly";
-            randomizedDelaySec = "10m";
-            persistent = true;
-          };
-        };
-
-        defaultPruneOpts = {
-          docstring = ''
-            Default restic snapshot retention arguments (`--keep-daily 7 --keep-weekly 4 --keep-monthly 6`).
-
-            # Type
-            ```
-            defaultPruneOpts :: [String]
-            ```
-          '';
-          value = helpers.retentionToPruneOpts {
-            daily = 7;
-            weekly = 4;
-            monthly = 6;
-          };
-        };
-
         retentionToPruneOpts = {
           docstring = ''
             Convert a structured retention policy attrset into `restic forget --prune` CLI flags.

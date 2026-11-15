@@ -65,12 +65,16 @@
       pass = placeholderFor rSlice.secretStore "password";
       options =
         if mCfg.protocol == "sftp"
-        then {
-          host = boxHost;
-          port = toString pSettings.port;
-          inherit user pass;
-          shell_type = "unix";
-        }
+        then
+          {
+            host = boxHost;
+            port = toString pSettings.port;
+            inherit user pass;
+            shell_type = "unix";
+          }
+          // lib.optionalAttrs ((pSettings.hostKeys or []) != []) {
+            host_keys = lib.concatStringsSep "," pSettings.hostKeys;
+          }
         else if mCfg.protocol == "webdav"
         then {
           url = "https://${boxHost}";
@@ -171,7 +175,7 @@
           fi
         done < "$src"
 
-        chmod 0400 "$tmp_file"
+        chmod 0600 "$tmp_file"
         mv -f "$tmp_file" "$dst"
       '';
     };

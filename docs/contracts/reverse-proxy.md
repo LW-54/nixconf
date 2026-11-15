@@ -121,6 +121,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
@@ -265,7 +266,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ...
 24: domain = config.reverse-proxy.domain or null;
 ...
-272: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+270: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 

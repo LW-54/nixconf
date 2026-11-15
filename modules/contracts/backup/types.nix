@@ -224,6 +224,8 @@ in {
     internal.backup.helpers = {
       inherit
         mergeBuiltinDefaults
+        mkRetentionSubmodule
+        mkScheduleSubmodule
         normalizeDestination
         retentionToPruneOpts
         scheduleToTimerConfig

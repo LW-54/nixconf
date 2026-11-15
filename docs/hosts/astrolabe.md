@@ -47,6 +47,7 @@ flowchart LR
     urn__nixconf__ast__module__vivaldi["nixosModule/vivaldi"]:::defaultNode
     urn__nixconf__ast__module__vscode["nixosModule/vscode"]:::defaultNode
     urn__nixconf__ast__module__wifi_eduroam["nixosModule/wifi-eduroam"]:::defaultNode
+    urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
     urn__nixconf__ast__option__backup_enable[/"backup.enable"/]:::optNode
     urn__nixconf__ast__option__backup_exclude[/"backup.exclude"/]:::optNode
     urn__nixconf__ast__option__backup_paths[/"backup.paths"/]:::optNode
@@ -164,6 +165,7 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__storage_activeSlices
@@ -211,6 +213,9 @@ flowchart LR
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_enable
+    urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -250,11 +255,13 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__noctalia
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vivaldi
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vscode
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
@@ -348,6 +355,7 @@ flowchart LR
     click urn__nixconf__ast__module__vivaldi href "../modules/vivaldi.md" "vivaldi"
     click urn__nixconf__ast__module__vscode href "../modules/vscode.md" "vscode"
     click urn__nixconf__ast__module__wifi_eduroam href "../modules/wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__option__backup_enable href "../contracts/backup.md" "backup.enable"
     click urn__nixconf__ast__option__backup_exclude href "../contracts/backup.md" "backup.exclude"
     click urn__nixconf__ast__option__backup_paths href "../contracts/backup.md" "backup.paths"
@@ -588,6 +596,11 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /etc/nixos/
 ├── [dir]  /tmp/
 ├── [dir]  /var/cache/rclone/
+├── [dir]  /var/cache/restic-backups-uchiyomi-gdrive-host/
+├── [dir]  /var/cache/restic-backups-uchiyomi-hbox-host/
+├── [dir]  /var/cache/restic-backups-vaultwarden-b2-shared/
+├── [dir]  /var/cache/restic-backups-vaultwarden-gdrive-shared/
+├── [dir]  /var/cache/restic-backups-vaultwarden-hbox-shared/
 ├── [dir]  /var/cache/uchiyomi/
 ├── [dir]  /var/lib/caddy/
 ├── [dir]  /var/lib/containers/

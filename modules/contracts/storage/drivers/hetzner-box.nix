@@ -34,6 +34,14 @@
           default = true;
           description = "Whether subaccounts on this box are reachable from outside Hetzner networks.";
         };
+        hostKeys = lib.mkOption {
+          type = lib.types.listOf lib.types.str;
+          default = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIICf9svRenC/PLKIL9nk6K/pxQgoiFC41wTNvoIncOxs"
+          ];
+          example = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIICf9svRenC/PLKIL9nk6K/pxQgoiFC41wTNvoIncOxs"];
+          description = "Pinned SSH host public keys (`<algo> <base64>`) verified by rclone SFTP (`host_keys`).";
+        };
         snapshotPlan = {
           enable = lib.mkOption {
             type = lib.types.bool;
@@ -103,13 +111,19 @@
         else "smb";
       transportOptions =
         if transportType == "sftp"
-        then {
-          host = boxHost;
-          port = toString settings.port;
-          user = placeholders secretStore "username";
-          pass = placeholders secretStore "password";
-          shell_type = "unix";
-        }
+        then
+          {
+            host = boxHost;
+            port = toString settings.port;
+            user = placeholders secretStore "username";
+            pass = placeholders secretStore "password";
+            shell_type = "unix";
+          }
+          // (
+            if settings.hostKeys != []
+            then {host_keys = builtins.concatStringsSep "," settings.hostKeys;}
+            else {}
+          )
         else if transportType == "webdav"
         then {
           url = "https://${boxHost}";

@@ -276,16 +276,16 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/snapshot.nix
 ...
-123: export RESTIC_PASSWORD_FILE="''${RESTIC_PASSWORD_FILE:-${lib.escapeShellArg config.secrets.files.restic-password.path}}"
+162: export RESTIC_PASSWORD_FILE="''${RESTIC_PASSWORD_FILE:-${lib.escapeShellArg config.secrets.files.restic-password.path}}"
 ...
-285: secrets.files.restic-password = lib.mkDefault {
-286: store = "backup/restic";
-287: key = "password";
-288: testValue = "test-restic-password";
+324: secrets.files.restic-password = lib.mkDefault {
+325: store = "backup/restic";
+326: key = "password";
+327: testValue = "test-restic-password";
 ...
-301: "sops-install-secrets.service"
+340: "sops-install-secrets.service"
 ...
-308: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
+347: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
 ...
 ```
 
@@ -300,24 +300,24 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/snapshot.nix
 ...
-53: description = "Storage slice name (`storage.slices.<name>`) backing this snapshot target.";
+101: description = "Storage slice name (`storage.slices.<name>`) backing this snapshot target.";
 ...
-89: if (config.storage.slices or {}) ? ${tCfg.slice}
+128: if (config.storage.slices or {}) ? ${tCfg.slice}
 ...
-91: (self.lib.storage.resolveSlice {
-92: storageCfg = config.storage;
-93: sliceName = tCfg.slice;
-94: inherit hostName;
+130: (self.lib.storage.resolveSlice {
+131: storageCfg = config.storage;
+132: sliceName = tCfg.slice;
+133: inherit hostName;
 ...
-280: description = "Named remote snapshot targets backed by `storage.slices`, systemd timers, and `restic forget --prune` retention policies.";
+319: description = "Named remote snapshot targets backed by `storage.slices`, systemd timers, and `restic forget --prune` retention policies.";
 ...
-291: storage.activeSlices = lib.unique (lib.mapAttrsToList (_: t: t.slice) enabledTargets);
+330: storage.activeSlices = lib.unique (lib.mapAttrsToList (_: t: t.slice) enabledTargets);
 ...
-342: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
+374: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
 ...
-346: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
+378: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
 ...
-347: message = "Enabled host snapshot target slices must be registered in storage.activeSlices.";
+379: message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
 ...
 ```
 

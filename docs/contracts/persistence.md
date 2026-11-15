@@ -255,6 +255,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
@@ -274,6 +275,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -292,6 +294,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
@@ -496,7 +499,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/implementations/rclone/default.nix
 ...
-57: persistence.directories = ["/var/cache/rclone"];
+59: persistence.directories = ["/var/cache/rclone"];
 ...
 ```
 
@@ -511,7 +514,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/implementations/restic/default.nix
 ...
-90: persistence.directories = ["/var/lib/nixconf-backup"];
+53: persistence.directories = ["/var/lib/nixconf-backup"] ++ cacheDirs;
 ...
 ```
 
@@ -710,7 +713,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/uchiyomi.nix
 ...
-273: (self.lib.persistence.mkConfig {inherit config cfg;})
+271: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 

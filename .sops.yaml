@@ -45,9 +45,6 @@ creation_rules:
   - path_regex: ^secrets/hosts/astrolabe/.*$
     key_groups:
       - *host_astrolabe
-  - path_regex: ^secrets/services/.*$
-    key_groups:
-      - *servers
   - path_regex: ^secrets/wifi/.*$
     key_groups:
       - *personal

@@ -22,21 +22,11 @@ in {
       ...
     }: let
       cfg = config.backup;
-      resticCfg = config.services.resticBackup;
-      backupActive = cfg.enable || resticCfg.repository != null;
-
-      passwordFile =
-        if resticCfg.passwordFile != null
-        then resticCfg.passwordFile
-        else config.secrets.files.restic-password.path;
-
-      legacyEnvironmentFile =
-        if resticCfg.environmentFile != null
-        then resticCfg.environmentFile
-        else config.secrets.files.restic-env.path;
+      backupActive = cfg.enable;
+      passwordFile = config.secrets.files.restic-password.path;
 
       jobs = internalRestic.mkJobs {
-        inherit config lib pkgs passwordFile legacyEnvironmentFile;
+        inherit config lib pkgs passwordFile;
         backupLib = self.lib.backup;
         storageLib = self.lib.storage;
       };
@@ -49,46 +39,20 @@ in {
       testingSuite = internalRestic.mkTesting {
         inherit config lib jobs restore;
       };
+      cacheDirs = map (j: "/var/cache/restic-backups-${j.jobName}") jobs.allJobsList;
     in {
-      options.services.resticBackup = {
-        repository = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "Optional legacy monolithic restic repository URL (`restic-backups-main`).";
-        };
-        environmentFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Environment file passed to legacy monolithic `restic-backups-main` (defaults to SOPS `backup/restic` `env` secret).";
-        };
-        passwordFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Password file used to encrypt restic repositories (defaults to SOPS `backup/restic` `password` secret).";
-        };
-      };
-
       config = lib.mkMerge [
         (lib.mkIf backupActive {
-          secrets.files =
-            lib.optionalAttrs (resticCfg.passwordFile == null) {
-              restic-password = {
-                store = "backup/restic";
-                key = "password";
-                testValue = "test-restic-password";
-              };
-            }
-            // lib.optionalAttrs (resticCfg.repository != null && resticCfg.environmentFile == null) {
-              restic-env = {
-                store = "backup/restic";
-                key = "env";
-                testValue = "RESTIC_TEST=1";
-              };
-            };
+          secrets.files.restic-password = {
+            store = "backup/restic";
+            key = "password";
+            testValue = "test-restic-password";
+          };
 
           storage.activeSlices = jobs.activeSlices;
-          persistence.directories = ["/var/lib/nixconf-backup"];
-          environment.systemPackages = restore.restorePackages;
+          persistence.directories = ["/var/lib/nixconf-backup"] ++ cacheDirs;
+          backup.exclude = cacheDirs;
+          environment.systemPackages = [pkgs.restic] ++ restore.restorePackages;
           services.restic.backups = jobs.jobs;
           systemd.services = jobs.jobServiceOrdering // restore.restoreServices;
 

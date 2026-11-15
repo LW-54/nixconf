@@ -15,6 +15,4 @@ Declarative multi-provider backup contract separating per-provider schedules/ret
 | `backup.enable` | `boolean` | `false` | `true` | Whether to enable declarative backup configuration. |
 | `backup.exclude` | `list of string` | `[ ]` | `[ ... ]` | Global exclusion patterns applied across backup units. |
 | `backup.paths` | `list of string` | `[ ]` | `[ ... ]` | Host-level filesystem paths included in synthetic `system` backups when not claimed by any declared `backup.units` entry. |
-| `backup.pruneOpts` | `list of string` | `[ ... ]` | `[ ... ]` | Fallback restic prune arguments used by legacy monolithic backup targets. |
-| `backup.timerConfig` | `attribute set of anything` | `{ ... }` | `{ ... }` | Fallback systemd timer configuration used by legacy monolithic backup targets. |
 | `backup.units` | `attribute set of (submodule)` | `{ }` | `{ vaultwarden = { scope = "shared"; paths = ["/var/lib/vaultwarden"]; destinationOverrides.b2-shared.enable = true; }; }` | Logical backup units with independent paths, scopes, destination overrides, and boot-time most-recent auto-restore configuration. |

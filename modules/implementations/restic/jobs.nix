@@ -6,10 +6,8 @@
     backupLib,
     storageLib,
     passwordFile,
-    legacyEnvironmentFile,
   }: let
     cfg = config.backup;
-    resticCfg = config.services.resticBackup;
 
     enabledDeclaredUnits = lib.filterAttrs (_: u: u.enable && u.paths != []) cfg.units;
     allDeclaredUnitPaths = lib.unique (lib.concatMap (u: u.paths) (builtins.attrValues cfg.units));
@@ -128,38 +126,22 @@
       })
       allJobsList);
 
-    legacyJob = lib.optionalAttrs (resticCfg.repository != null) {
-      main = {
-        inherit (resticCfg) repository;
-        inherit passwordFile;
-        environmentFile = legacyEnvironmentFile;
-        initialize = true;
-        inherit (cfg) paths exclude timerConfig pruneOpts;
-      };
-    };
-
-    jobServiceOrdering =
-      builtins.listToAttrs (map (j: {
-          name = "restic-backups-${j.jobName}";
-          value = {
-            after =
-              [
-                "rclone-config.service"
-                "sops-install-secrets.service"
-              ]
-              ++ lib.optional j.uCfg.autoRestore "restic-restore-${j.uName}.service";
-            requires = ["rclone-config.service"];
-            environment = {
-              RCLONE_CONFIG = "/etc/rclone/rclone.conf";
-            };
+    jobServiceOrdering = builtins.listToAttrs (map (j: {
+        name = "restic-backups-${j.jobName}";
+        value = {
+          after =
+            [
+              "rclone-config.service"
+              "sops-install-secrets.service"
+            ]
+            ++ lib.optional j.uCfg.autoRestore "restic-restore-${j.uName}.service";
+          requires = ["rclone-config.service"];
+          environment = {
+            RCLONE_CONFIG = "/run/rclone/rclone.conf";
           };
-        })
-        allJobsList)
-      // lib.optionalAttrs (resticCfg.repository != null) {
-        "restic-backups-main" = {
-          after = ["sops-install-secrets.service"];
         };
-      };
+      })
+      allJobsList);
 
     activeSlices = lib.unique (map (j: j.slice) allJobsList);
   in {
@@ -169,6 +151,6 @@
       activeSlices
       jobServiceOrdering
       ;
-    jobs = jobAttrs // legacyJob;
+    jobs = jobAttrs;
   };
 }

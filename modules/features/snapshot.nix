@@ -1,31 +1,79 @@
-{self, ...}: let
+{
+  self,
+  config,
+  ...
+}: let
+  backupHelpers = config.internal.backup.helpers;
+
   builtinTargets = {
     hbox = {
       enable = true;
       slice = "hbox-backup-host";
       repoSubpath = "snapshots/persist";
-      onCalendar = "daily";
-      randomizedDelaySec = "30m";
-      persistent = true;
-      keep = ["--keep-last" "7" "--keep-daily" "7" "--keep-weekly" "4" "--keep-monthly" "3"];
+      schedule = {
+        onCalendar = "daily";
+        randomizedDelaySec = "30m";
+        persistent = true;
+      };
+      retention = {
+        last = 7;
+        hourly = null;
+        daily = 7;
+        weekly = 4;
+        monthly = 3;
+        yearly = null;
+        within = null;
+      };
     };
     gdrive = {
       enable = true;
       slice = "gdrive-backup-host";
       repoSubpath = "snapshots/persist";
-      onCalendar = "daily";
-      randomizedDelaySec = "1h";
-      persistent = true;
-      keep = ["--keep-last" "14" "--keep-daily" "30" "--keep-weekly" "12" "--keep-monthly" "12" "--keep-yearly" "3"];
+      schedule = {
+        onCalendar = "daily";
+        randomizedDelaySec = "1h";
+        persistent = true;
+      };
+      retention = {
+        last = 14;
+        hourly = null;
+        daily = 30;
+        weekly = 12;
+        monthly = 12;
+        yearly = 3;
+        within = null;
+      };
     };
   };
 
-  mergeBuiltinTargets = user:
-    (builtins.mapAttrs (n: d: d // (user.${n} or {})) (
-      builtins.intersectAttrs user builtinTargets
-    ))
-    // (builtins.removeAttrs builtinTargets (builtins.attrNames user))
-    // (builtins.removeAttrs user (builtins.attrNames builtinTargets));
+  normalizeTarget = t:
+    {
+      enable = true;
+      repoSubpath = "snapshots/persist";
+    }
+    // (builtins.removeAttrs t ["schedule" "retention"])
+    // {
+      schedule =
+        {
+          onCalendar = "daily";
+          randomizedDelaySec = "30m";
+          persistent = true;
+        }
+        // (t.schedule or {});
+      retention =
+        {
+          last = null;
+          hourly = null;
+          daily = 7;
+          weekly = 4;
+          monthly = 6;
+          yearly = null;
+          within = null;
+        }
+        // (t.retention or {});
+    };
+
+  normalizedBuiltinTargets = builtins.mapAttrs (_: normalizeTarget) builtinTargets;
 in {
   feature.snapshot = {
     description = "Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers.";
@@ -59,30 +107,21 @@ in {
             default = td.repoSubpath or "snapshots/persist";
             description = "Repository subpath beneath the slice root endpoint.";
           };
-          onCalendar = lib.mkOption {
-            type = lib.types.str;
-            default = td.onCalendar or "daily";
-            description = "Systemd OnCalendar schedule expression for automated remote snapshots.";
+          schedule = lib.mkOption {
+            type = backupHelpers.mkScheduleSubmodule {defaults = td.schedule or {};};
+            default = {};
+            description = "Timer schedule configuration for automated remote snapshots.";
           };
-          randomizedDelaySec = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = td.randomizedDelaySec or "30m";
-            description = "Random jitter added before automated snapshot runs (null to disable).";
-          };
-          persistent = lib.mkOption {
-            type = lib.types.bool;
-            default = td.persistent or true;
-            description = "Whether missed snapshot timers execute immediately on next boot.";
-          };
-          keep = lib.mkOption {
-            type = lib.types.listOf lib.types.str;
-            default = td.keep or ["--keep-last" "7" "--keep-daily" "7" "--keep-weekly" "4" "--keep-monthly" "3"];
-            description = "Retention arguments passed to `restic forget --prune`.";
+          retention = lib.mkOption {
+            type = backupHelpers.mkRetentionSubmodule {defaults = td.retention or {};};
+            default = {};
+            description = "Snapshot retention policy (`restic forget --prune`) enforced on this target.";
           };
         };
       });
 
       enabledTargets = lib.filterAttrs (_: t: t.enable) cfg.targets;
+      targetKeep = builtins.mapAttrs (_: tCfg: self.lib.backup.retentionToPruneOpts tCfg.retention) enabledTargets;
 
       targetRepository = tCfg: let
         baseRclone =
@@ -119,7 +158,7 @@ in {
           mainProgram = "nixconf-host-snapshot";
         };
         text = ''
-          export RCLONE_CONFIG="''${RCLONE_CONFIG:-/etc/rclone/rclone.conf}"
+          export RCLONE_CONFIG="''${RCLONE_CONFIG:-/run/rclone/rclone.conf}"
           export RESTIC_PASSWORD_FILE="''${RESTIC_PASSWORD_FILE:-${lib.escapeShellArg config.secrets.files.restic-password.path}}"
 
           cmd="''${1:-all}"
@@ -220,17 +259,17 @@ in {
               create_local_snapshot
               ${lib.optionalString (enabledTargets != {}) ''
             prepare_staging
-            ${lib.concatStrings (lib.mapAttrsToList (tName: tCfg: ''
-                run_target ${lib.escapeShellArg tName} ${lib.escapeShellArg targetRepos.${tName}} ${lib.escapeShellArgs tCfg.keep}
+            ${lib.concatStrings (lib.mapAttrsToList (tName: _: ''
+                run_target ${lib.escapeShellArg tName} ${lib.escapeShellArg targetRepos.${tName}} ${lib.escapeShellArgs targetKeep.${tName}}
               '')
               enabledTargets)}
           ''}
               ;;
-            ${lib.concatStrings (lib.mapAttrsToList (tName: tCfg: ''
+            ${lib.concatStrings (lib.mapAttrsToList (tName: _: ''
               ${lib.escapeShellArg tName})
                 create_local_snapshot
                 prepare_staging
-                run_target ${lib.escapeShellArg tName} ${lib.escapeShellArg targetRepos.${tName}} ${lib.escapeShellArgs tCfg.keep}
+                run_target ${lib.escapeShellArg tName} ${lib.escapeShellArg targetRepos.${tName}} ${lib.escapeShellArgs targetKeep.${tName}}
                 ;;
             '')
             enabledTargets)}
@@ -275,7 +314,7 @@ in {
         targets = lib.mkOption {
           type = lib.types.attrsOf targetSubmodule;
           default = {};
-          apply = mergeBuiltinTargets;
+          apply = backupHelpers.mergeBuiltinDefaults normalizedBuiltinTargets;
           defaultText = lib.literalExpression "{ hbox = ...; gdrive = ...; }";
           description = "Named remote snapshot targets backed by `storage.slices`, systemd timers, and `restic forget --prune` retention policies.";
         };
@@ -304,7 +343,7 @@ in {
               requires = ["rclone-config.service"];
               wants = ["network-online.target"];
               environment = {
-                RCLONE_CONFIG = "/etc/rclone/rclone.conf";
+                RCLONE_CONFIG = "/run/rclone/rclone.conf";
                 RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
               };
               serviceConfig = {
@@ -320,14 +359,7 @@ in {
             value = {
               description = "Periodic host Btrfs + restic snapshot timer for '${tName}'";
               wantedBy = ["timers.target"];
-              timerConfig =
-                {
-                  OnCalendar = tCfg.onCalendar;
-                  Persistent = tCfg.persistent;
-                }
-                // lib.optionalAttrs (tCfg.randomizedDelaySec != null) {
-                  RandomizedDelaySec = tCfg.randomizedDelaySec;
-                };
+              timerConfig = self.lib.backup.scheduleToTimerConfig tCfg.schedule;
             };
           })
           enabledTargets);
@@ -344,10 +376,10 @@ in {
               };
               slices-registered = {
                 assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
-                message = "Enabled host snapshot target slices must be registered in storage.activeSlices.";
+                message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
               };
               non-empty-keep = {
-                assertion = lib.all (t: t.keep != []) (builtins.attrValues enabledTargets);
+                assertion = lib.all (k: k != []) (builtins.attrValues targetKeep);
                 message = "Enabled host snapshot targets must specify at least one restic keep retention flag.";
               };
             };

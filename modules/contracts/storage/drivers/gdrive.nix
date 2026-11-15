@@ -1,4 +1,8 @@
 {
+  self,
+  lib,
+  ...
+}: {
   internal.storage.drivers.gdrive = {
     description = "Google Drive rclone driver with per-instance OAuth token isolation and subdirectory slicing.";
     settingsModule = {lib, ...}: {
@@ -29,6 +33,11 @@
           default = "client-secret";
           description = "Key name in the provider SOPS store holding an optional custom OAuth client secret.";
         };
+        useCustomClient = lib.mkOption {
+          type = lib.types.nullOr lib.types.bool;
+          default = null;
+          description = "Whether to inject custom OAuth `client_id` and `client_secret` from SOPS into `rclone.conf` (null auto-detects whether encrypted values exist in the provider SOPS file).";
+        };
       };
     };
     resolveSlice = {
@@ -44,6 +53,20 @@
       secretStore,
       rcloneRemoteName,
     }: let
+      sopsFile = self + "/secrets/${providerCfg.secretStore}.yaml";
+      sopsLines =
+        if builtins.pathExists sopsFile
+        then lib.splitString "\n" (builtins.readFile sopsFile)
+        else [];
+      hasEncryptedKey = key:
+        lib.any (
+          line: builtins.match "^${lib.escapeRegex key}:[[:space:]]*ENC\\[.*" line != null
+        )
+        sopsLines;
+      customClientActive =
+        if settings.useCustomClient != null
+        then settings.useCustomClient
+        else (hasEncryptedKey settings.clientIdKey) && (hasEncryptedKey settings.clientSecretKey);
       secrets = [
         {
           store = providerCfg.secretStore;
@@ -57,7 +80,7 @@
           store = providerCfg.secretStore;
           key = settings.clientIdKey;
           scope = "provider";
-          optional = true;
+          optional = !customClientActive;
           generate = null;
           description = "Optional custom Google OAuth client ID for provider '${providerName}'.";
         }
@@ -65,7 +88,7 @@
           store = providerCfg.secretStore;
           key = settings.clientSecretKey;
           scope = "provider";
-          optional = true;
+          optional = !customClientActive;
           generate = null;
           description = "Optional custom Google OAuth client secret for provider '${providerName}'.";
         }
@@ -86,11 +109,13 @@
             inherit (settings) scope;
             token = placeholders providerCfg.secretStore settings.tokenKey;
           }
-          // (
-            if settings.rootFolderId != null
-            then {root_folder_id = settings.rootFolderId;}
-            else {}
-          );
+          // lib.optionalAttrs (settings.rootFolderId != null) {
+            root_folder_id = settings.rootFolderId;
+          }
+          // lib.optionalAttrs customClientActive {
+            client_id = placeholders providerCfg.secretStore settings.clientIdKey;
+            client_secret = placeholders providerCfg.secretStore settings.clientSecretKey;
+          };
       };
       endpoints = {
         rclone = "${rcloneRemoteName}:${resolvedPath}";

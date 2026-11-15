@@ -101,11 +101,13 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
@@ -119,6 +121,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
@@ -256,10 +259,10 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/implementations/rclone/default.nix
 ...
-46: secrets = {
-47: files = state.secretFileAttrs;
-48: 
-49: templates."rclone.conf" = {
+50: secrets = {
+51: files = state.secretFileAttrs;
+52: 
+53: templates."rclone.conf" = {
 ...
 ```
 
@@ -274,14 +277,12 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/implementations/restic/default.nix
 ...
-31: else config.secrets.files.restic-password.path;
+26: passwordFile = config.secrets.files.restic-password.path;
 ...
-36: else config.secrets.files.restic-env.path;
-...
-73: secrets.files =
-74: lib.optionalAttrs (resticCfg.passwordFile == null) {
-75: restic-password = {
-76: store = "backup/restic";
+46: secrets.files.restic-password = {
+47: store = "backup/restic";
+48: key = "password";
+49: testValue = "test-restic-password";
 ...
 ```
 
@@ -382,16 +383,16 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/features/snapshot.nix
 ...
-123: export RESTIC_PASSWORD_FILE="''${RESTIC_PASSWORD_FILE:-${lib.escapeShellArg config.secrets.files.restic-password.path}}"
+162: export RESTIC_PASSWORD_FILE="''${RESTIC_PASSWORD_FILE:-${lib.escapeShellArg config.secrets.files.restic-password.path}}"
 ...
-285: secrets.files.restic-password = lib.mkDefault {
-286: store = "backup/restic";
-287: key = "password";
-288: testValue = "test-restic-password";
+324: secrets.files.restic-password = lib.mkDefault {
+325: store = "backup/restic";
+326: key = "password";
+327: testValue = "test-restic-password";
 ...
-301: "sops-install-secrets.service"
+340: "sops-install-secrets.service"
 ...
-308: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
+347: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
 ...
 ```
 

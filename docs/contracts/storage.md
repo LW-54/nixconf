@@ -101,13 +101,16 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
@@ -234,9 +237,9 @@ Modules and instances configuring options under the `storage` contract capabilit
 ```nix
 # modules/implementations/restic/default.nix
 ...
-41: storageLib = self.lib.storage;
+31: storageLib = self.lib.storage;
 ...
-89: storage.activeSlices = jobs.activeSlices;
+52: storage.activeSlices = jobs.activeSlices;
 ...
 ```
 
@@ -254,24 +257,24 @@ Modules and instances configuring options under the `storage` contract capabilit
 ```nix
 # modules/features/snapshot.nix
 ...
-53: description = "Storage slice name (`storage.slices.<name>`) backing this snapshot target.";
+101: description = "Storage slice name (`storage.slices.<name>`) backing this snapshot target.";
 ...
-89: if (config.storage.slices or {}) ? ${tCfg.slice}
+128: if (config.storage.slices or {}) ? ${tCfg.slice}
 ...
-91: (self.lib.storage.resolveSlice {
-92: storageCfg = config.storage;
-93: sliceName = tCfg.slice;
-94: inherit hostName;
+130: (self.lib.storage.resolveSlice {
+131: storageCfg = config.storage;
+132: sliceName = tCfg.slice;
+133: inherit hostName;
 ...
-280: description = "Named remote snapshot targets backed by `storage.slices`, systemd timers, and `restic forget --prune` retention policies.";
+319: description = "Named remote snapshot targets backed by `storage.slices`, systemd timers, and `restic forget --prune` retention policies.";
 ...
-291: storage.activeSlices = lib.unique (lib.mapAttrsToList (_: t: t.slice) enabledTargets);
+330: storage.activeSlices = lib.unique (lib.mapAttrsToList (_: t: t.slice) enabledTargets);
 ...
-342: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
+374: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
 ...
-346: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
+378: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
 ...
-347: message = "Enabled host snapshot target slices must be registered in storage.activeSlices.";
+379: message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
 ...
 ```
 
@@ -296,19 +299,19 @@ Modules and instances configuring options under the `storage` contract capabilit
 ...
 128: ++ lib.optional cfg.storage.enable "uchiyomi-storage-prep.service";
 ...
-213: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
+211: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
 ...
-214: ++ lib.optionals (!cfg.storage.enable) [
+212: ++ lib.optionals (!cfg.storage.enable) [
 ...
-248: slice=${lib.escapeShellArg cfg.storage.slice}
+246: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-263: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+261: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-266: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+264: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-269: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
+267: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
 ...
-275: (self.lib.storage.mkConfig {inherit config cfg;})
+273: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 

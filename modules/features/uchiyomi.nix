@@ -48,7 +48,7 @@
             dataDir = lib.mkOption {
               type = lib.types.str;
               default = "/var/lib/uchiyomi";
-              description = "Base host state directory for Uchiyomi database, config, backups, and Suwayomi data.";
+              description = "Base host state directory for Uchiyomi database, config, and Suwayomi data.";
             };
 
             libraryPath = lib.mkOption {
@@ -193,7 +193,6 @@
                   "${cfg.downloadsPath}:/library-dl"
                   "${cfg.libraryPath}:/library"
                   "${cfg.cacheDir}:/cache"
-                  "${cfg.dataDir}/backups:/backups"
                 ];
                 extraOptions = [
                   "--stop-timeout=40"
@@ -207,7 +206,6 @@
                 "d ${cfg.dataDir}/data 0775 10002 10002 -"
                 "d ${cfg.dataDir}/config 0775 10002 10002 -"
                 "d ${cfg.dataDir}/suwayomi 0775 1000 1000 -"
-                "d ${cfg.dataDir}/backups 0775 10002 10002 -"
                 "d ${cfg.cacheDir} 0775 10002 10002 -"
               ]
               ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
@@ -249,8 +247,8 @@
                     lib_path=${lib.escapeShellArg cfg.libraryPath}
                     dl_path=${lib.escapeShellArg cfg.downloadsPath}
 
-                    rclone --config /etc/rclone/rclone.conf mkdir "$slice:library"
-                    rclone --config /etc/rclone/rclone.conf mkdir "$slice:downloads"
+                    rclone --config /run/rclone/rclone.conf mkdir "$slice:library"
+                    rclone --config /run/rclone/rclone.conf mkdir "$slice:downloads"
 
                     install -d -m 0775 "$lib_path" "$dl_path"
                   '';

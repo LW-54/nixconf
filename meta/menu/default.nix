@@ -75,14 +75,14 @@
           entry "[secrets]" "edit user secrets" "sops secrets/users/default.yaml" "Edit user passwords and hashed credentials with SOPS." "Requires host age key or master key."
           entry "[secrets]" "edit wifi eduroam" "sops secrets/wifi/wifi_eduroam.yaml" "Edit 802.1x enterprise WiFi credentials." ""
           entry "[secrets]" "edit cachix credentials" "sops secrets/cachix/cachix.yaml" "Edit Cachix auth tokens and signing keys." ""
-          entry "[secrets]" "edit restic backup secrets" "sops secrets/backup/restic.yaml" "Edit Restic S3 and encryption repository secrets." ""
-          entry "[secrets]" "edit couchdb secrets" "sops secrets/services/couchdb.yaml" "Edit CouchDB administrative passwords." ""
-          entry "[secrets]" "edit copyparty secrets" "sops secrets/services/copyparty.yaml" "Edit Copyparty service credentials." ""
-          entry "[secrets]" "edit zurg secrets" "sops secrets/services/zurg.yaml" "Edit Zurg debrid proxy tokens." ""
-          entry "[secrets]" "edit reading-stack secrets" "sops secrets/services/reading-stack.yaml" "Edit reading stack (Uchiyomi / Kavita) secrets." ""
+          entry "[secrets]" "edit restic backup secrets" "sops secrets/backup/restic.yaml" "Edit Restic repository encryption password." ""
+          entry "[secrets]" "edit hbox provider secrets" "sops secrets/storage/providers/hbox.yaml" "Edit Hetzner Storage Box API token and provider secrets." ""
+          entry "[secrets]" "edit gdrive provider secrets" "sops secrets/storage/providers/gdrive.yaml" "Edit Google Drive OAuth token and custom client credentials." ""
+          entry "[secrets]" "edit b2 provider secrets" "sops secrets/storage/providers/b2.yaml" "Edit Backblaze B2 application key credentials." ""
 
           # --- [DEVSHELLS] ---
           entry "[devshell]" "enter: sops-admin" "nix develop .#sops-admin" "Administrative shell loading Bitwarden master age key into SOPS_AGE_KEY." "Requires bitwarden unlock."
+          entry "[devshell]" "enter: storage-admin" "nix develop .#storage-admin" "Administrative storage shell with Bitwarden SOPS key and nixconf-storage." "Requires bitwarden unlock."
           entry "[devshell]" "enter: sops-host" "nix develop .#sops-host" "Operational shell loading host age key from /persist/sops-nix/key.txt." "Requires sudo to read host key."
           entry "[devshell]" "enter: github-ssh" "nix develop .#github-ssh" "Development shell configured with Bitwarden GitHub SSH deploy key." "Requires bitwarden unlock."
           entry "[devshell]" "enter: master-ssh" "nix develop .#master-ssh" "Cluster orchestration shell with Bitwarden master SSH key." "Requires bitwarden unlock."
@@ -90,6 +90,8 @@
 
           # --- [PACKAGES] ---
           entry "[package]" "run: menu" "nix run .#menu" "Interactive fuzzy command palette and task runner." ""
+          entry "[package]" "run: storage (--list)" "nix run .#storage -- --list" "List evaluated storage providers, slices, mounts, and SOPS stores." ""
+          entry "[package]" "run: storage (--check)" "nix run .#storage -- --check" "Verify declarative storage SOPS secrets and Hetzner Storage Box state." ""
           entry "[package]" "run: docs CLI" "nix run .#docs" "Documentation engine CLI." ""
           entry "[package]" "run: graph CLI" "nix run .#graph" "Architecture LPG/CPG graph inspection CLI." ""
           entry "[package]" "run: foot terminal" "nix run .#foot" "Run wrapped Foot terminal with nixconf configuration." "Wayland only."

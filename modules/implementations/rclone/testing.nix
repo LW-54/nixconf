@@ -115,7 +115,7 @@
 
         machine.succeed("mkdir -p /tmp/loopback-store/hot /tmp/loopback-store/cold-raw /mnt/loopback-tiered /var/cache/rclone/loopback-test")
         machine.succeed("${rcloneObscureScript}/bin/nixconf-rclone-obscure-config ${loopbackPlainConf} /tmp/loopback.conf")
-        machine.succeed("test $(stat -c '%a' /tmp/loopback.conf) = '400'")
+        machine.succeed("test $(stat -c '%a' /tmp/loopback.conf) = '600'")
         machine.fail("grep -q 'test-loopback-password-1' /tmp/loopback.conf")
 
         machine.succeed(

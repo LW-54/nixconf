@@ -39,7 +39,11 @@ in {
           inherit self config lib pkgs state tmpl;
         };
       in {
-        environment.systemPackages = [pkgs.rclone];
+        environment = {
+          systemPackages = [pkgs.rclone];
+          etc."rclone/rclone.conf".source = "/run/rclone/rclone.conf";
+          variables.RCLONE_CONFIG = "/run/rclone/rclone.conf";
+        };
         system.fsPackages = [pkgs.rclone];
         programs.fuse.userAllowOther = lib.mkDefault true;
 
@@ -51,8 +55,6 @@ in {
             content = tmpl.rcloneTemplateContent;
           };
         };
-
-        environment.etc."rclone/rclone.conf".source = "/run/rclone/rclone.conf";
 
         persistence.directories = ["/var/cache/rclone"];
         backup.exclude = ["/var/cache/rclone"];
