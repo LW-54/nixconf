@@ -16,7 +16,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`astrolabe-services`](astrolabe-services.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-services.md) |
 | [`astrolabe-system`](astrolabe-system.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-system.md) |
 | [`audio`](audio.md) | feature [`audio`](../features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](audio.md) |
-| [`backup`](backup.md) | contract [`backup`](../contracts/backup.md) | Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules. | [More →](backup.md) |
+| [`backup`](backup.md) | contract [`backup`](../contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [More →](backup.md) |
 | [`bitwarden-desktop`](bitwarden-desktop.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bitwarden-desktop.md) |
 | [`bw`](bw.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bw.md) |
 | [`caddy`](caddy.md) | implementation [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](caddy.md) |
@@ -42,11 +42,14 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`nix`](nix.md) | feature [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](nix.md) |
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
 | [`persistence`](persistence.md) | contract [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](persistence.md) |
-| [`restic`](restic.md) | implementation [`restic`](../implementations/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [More →](restic.md) |
+| [`rclone`](rclone.md) | implementation [`rclone`](../implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [More →](rclone.md) |
+| [`restic`](restic.md) | implementation [`restic`](../implementations/restic.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [More →](restic.md) |
 | [`reverse-proxy`](reverse-proxy.md) | contract [`reverse-proxy`](../contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [More →](reverse-proxy.md) |
 | [`secrets`](secrets.md) | contract [`secrets`](../contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [More →](secrets.md) |
+| [`snapshot`](snapshot.md) | feature [`snapshot`](../features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [More →](snapshot.md) |
 | [`sops`](sops.md) | implementation [`sops`](../implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](sops.md) |
 | [`ssh`](ssh.md) | feature [`ssh`](../features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](ssh.md) |
+| [`storage`](storage.md) | contract [`storage`](../contracts/storage.md) | Declarative multi-provider storage contract separating open driver definitions, logical providers, host/shared slices, and mount requests. | [More →](storage.md) |
 | [`tack`](tack.md) | feature [`tack`](../features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](tack.md) |
 | [`testing`](testing.md) | — | Exported NixOS module 'testing'. | [More →](testing.md) |
 | [`ttyd`](ttyd.md) | feature [`ttyd`](../features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](ttyd.md) |

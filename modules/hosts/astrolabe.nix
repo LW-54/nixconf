@@ -23,6 +23,7 @@
         imports = [
           self.nixosModules.caddy
           self.nixosModules.restic
+          self.nixosModules.snapshot
           self.nixosModules.vaultwarden
           self.nixosModules.ttyd
           self.nixosModules.uchiyomi
@@ -30,7 +31,6 @@
 
         config = {
           reverse-proxy.domain = "adje.app";
-          services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
           persistence.directories = [
             "/var/lib/containers"
           ];
@@ -43,6 +43,7 @@
       astrolabe-system = {
         imports = [
           self.nixosModules.sops
+          self.nixosModules.rclone
           self.nixosModules.lw
           self.nixosModules.nix
           self.nixosModules.locale

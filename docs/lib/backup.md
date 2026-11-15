@@ -5,7 +5,7 @@ Library helpers and constructors for the 'backup' contract.
 [← Back to Library Documentation](README.md) | [← Back to Main README](../../README.md)
 
 - **Library**: `flake.lib.backup`
-- **Definition File**: [`modules/contracts/backup.nix`](../../modules/contracts/backup.nix)
+- **Definition File**: [`modules/contracts/backup/default.nix`](../../modules/contracts/backup/default.nix)
 
 <details>
 <summary>Architecture Diagram (click to expand)</summary>
@@ -14,18 +14,24 @@ Library helpers and constructors for the 'backup' contract.
 flowchart LR
   urn__nixconf__ast__function__backup_mkConfig["backup.mkConfig"]:::defaultNode
     urn__nixconf__ast__function__backup_mkOption["backup.mkOption"]:::defaultNode
+    urn__nixconf__ast__function__backup_retentionToPruneOpts["backup.retentionToPruneOpts"]:::defaultNode
+    urn__nixconf__ast__function__backup_scheduleToTimerConfig["backup.scheduleToTimerConfig"]:::defaultNode
     urn__nixconf__ast__symbol__backup_defaultPruneOpts["backup.defaultPruneOpts"]:::defaultNode
     urn__nixconf__ast__symbol__backup_defaultTimerConfig["backup.defaultTimerConfig"]:::defaultNode
     urn__nixconf__onto__lib__backup["backup"]:::defaultNode
 
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_mkConfig
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_mkOption
+    urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_retentionToPruneOpts
+    urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__function__backup_scheduleToTimerConfig
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__symbol__backup_defaultPruneOpts
     urn__nixconf__onto__lib__backup -->|outputs| urn__nixconf__ast__symbol__backup_defaultTimerConfig
 
 
     click urn__nixconf__ast__function__backup_mkConfig href "backup.md" "backup.mkConfig"
     click urn__nixconf__ast__function__backup_mkOption href "backup.md" "backup.mkOption"
+    click urn__nixconf__ast__function__backup_retentionToPruneOpts href "backup.md" "backup.retentionToPruneOpts"
+    click urn__nixconf__ast__function__backup_scheduleToTimerConfig href "backup.md" "backup.scheduleToTimerConfig"
     click urn__nixconf__ast__symbol__backup_defaultPruneOpts href "backup.md" "backup.defaultPruneOpts"
     click urn__nixconf__ast__symbol__backup_defaultTimerConfig href "backup.md" "backup.defaultTimerConfig"
     click urn__nixconf__onto__lib__backup href "backup.md" "backup"
@@ -74,8 +80,7 @@ This library namespace can be consumed both internally within repository modules
 <a id="defaultPruneOpts"></a>
 ### `defaultPruneOpts`
 
-Default snapshot retention rules passed to the backup backend pruning command.
-Preserves 7 daily, 4 weekly, and 12 monthly snapshots.
+Default restic snapshot retention arguments (`--keep-daily 7 --keep-weekly 4 --keep-monthly 6`).
 
 #### Type
 
@@ -86,13 +91,12 @@ defaultPruneOpts :: [String]
 <a id="defaultTimerConfig"></a>
 ### `defaultTimerConfig`
 
-Default systemd timer configuration for automated backup operations.
-Executes daily at 04:00 with persistent timer catch-up.
+Default systemd timer configuration (`hourly`) for backup jobs.
 
 #### Type
 
 ```
-defaultTimerConfig :: AttrSet
+defaultTimerConfig :: Attrs
 ```
 
 <a id="mkConfig"></a>
@@ -103,7 +107,7 @@ Auto-derived configuration binding helper for the 'backup' contract.
 #### Inputs
 
 - `cfg`: Configuration binding parameter for the 'backup' contract.
-- `config`: Configuration binding parameter for the 'backup' contract.
+- `name`: Configuration binding parameter for the 'backup' contract.
 
 #### Type
 
@@ -124,7 +128,14 @@ Auto-derived option constructor for the 'backup' contract.
 
 #### Inputs
 
-- `args`: Service-specific options to include.
+- `autoRestore`: Submodule option parameter for the 'backup' contract.
+- `beforeUnits`: Submodule option parameter for the 'backup' contract.
+- `destinationOverrides`: Submodule option parameter for the 'backup' contract.
+- `destinations`: Submodule option parameter for the 'backup' contract.
+- `enable`: Submodule option parameter for the 'backup' contract.
+- `exclude`: Submodule option parameter for the 'backup' contract.
+- `paths`: Submodule option parameter for the 'backup' contract.
+- `scope`: Submodule option parameter for the 'backup' contract.
 
 #### Type
 
@@ -137,3 +148,36 @@ backup.mkOption :: AttrSet -> AttrSet
 ```nix
 backup.mkOption { ... }
 ```
+
+<a id="retentionToPruneOpts"></a>
+### `retentionToPruneOpts`
+
+Convert a structured retention policy attrset into `restic forget --prune` CLI flags.
+
+#### Type
+
+```
+retentionToPruneOpts :: Retention -> [String]
+```
+
+<a id="scheduleToTimerConfig"></a>
+### `scheduleToTimerConfig`
+
+Convert a structured backup schedule attrset into systemd `timerConfig` attributes.
+
+#### Type
+
+```
+scheduleToTimerConfig :: Schedule -> Attrs
+```
+
+<a id="types"></a>
+### `types`
+
+Custom option types declared under this library namespace:
+
+- `destination`: submodule
+- `destinationOverride`: submodule
+- `retention`: submodule
+- `schedule`: submodule
+- `unit`: submodule

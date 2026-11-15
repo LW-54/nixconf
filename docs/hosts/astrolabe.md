@@ -36,7 +36,9 @@ flowchart LR
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__noctalia["nixosModule/noctalia"]:::defaultNode
+    urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
+    urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__ttyd["nixosModule/ttyd"]:::defaultNode
@@ -45,8 +47,10 @@ flowchart LR
     urn__nixconf__ast__module__vivaldi["nixosModule/vivaldi"]:::defaultNode
     urn__nixconf__ast__module__vscode["nixosModule/vscode"]:::defaultNode
     urn__nixconf__ast__module__wifi_eduroam["nixosModule/wifi-eduroam"]:::defaultNode
+    urn__nixconf__ast__option__backup_enable[/"backup.enable"/]:::optNode
     urn__nixconf__ast__option__backup_exclude[/"backup.exclude"/]:::optNode
     urn__nixconf__ast__option__backup_paths[/"backup.paths"/]:::optNode
+    urn__nixconf__ast__option__backup_units[/"backup.units"/]:::optNode
     urn__nixconf__ast__option__default_user_email[/"default-user.email"/]:::optNode
     urn__nixconf__ast__option__default_user_githubUsername[/"default-user.githubUsername"/]:::optNode
     urn__nixconf__ast__option__default_user_username[/"default-user.username"/]:::optNode
@@ -58,6 +62,11 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_domain[/"reverse-proxy.domain"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__secrets_placeholder[/"secrets.placeholder"/]:::optNode
+    urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
+    urn__nixconf__ast__option__storage_activeSlices[/"storage.activeSlices"/]:::optNode
+    urn__nixconf__ast__option__storage_enable[/"storage.enable"/]:::optNode
+    urn__nixconf__ast__option__storage_mounts[/"storage.mounts"/]:::optNode
     urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
@@ -68,6 +77,7 @@ flowchart LR
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
@@ -76,6 +86,7 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
@@ -136,11 +147,34 @@ flowchart LR
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__noctalia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__noctalia -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_activeSlices
+    urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_enable
+    urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_mounts
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__storage_activeSlices
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__secrets_placeholder
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__persistence_files
@@ -149,17 +183,24 @@ flowchart LR
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_enable
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
@@ -169,6 +210,7 @@ flowchart LR
     urn__nixconf__ast__module__vscode -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -183,7 +225,9 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__locale
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__snapshot
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
@@ -205,6 +249,7 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__noctalia
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vivaldi
@@ -221,6 +266,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
@@ -244,6 +290,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -251,6 +298,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
@@ -260,7 +308,10 @@ flowchart LR
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
 
 
@@ -286,7 +337,9 @@ flowchart LR
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__noctalia href "../modules/noctalia.md" "noctalia"
+    click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
+    click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
@@ -295,8 +348,10 @@ flowchart LR
     click urn__nixconf__ast__module__vivaldi href "../modules/vivaldi.md" "vivaldi"
     click urn__nixconf__ast__module__vscode href "../modules/vscode.md" "vscode"
     click urn__nixconf__ast__module__wifi_eduroam href "../modules/wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__ast__option__backup_enable href "../contracts/backup.md" "backup.enable"
     click urn__nixconf__ast__option__backup_exclude href "../contracts/backup.md" "backup.exclude"
     click urn__nixconf__ast__option__backup_paths href "../contracts/backup.md" "backup.paths"
+    click urn__nixconf__ast__option__backup_units href "../contracts/backup.md" "backup.units"
     click urn__nixconf__ast__option__default_user_email href "../contracts/default-user.md" "default-user.email"
     click urn__nixconf__ast__option__default_user_githubUsername href "../contracts/default-user.md" "default-user.githubUsername"
     click urn__nixconf__ast__option__default_user_username href "../contracts/default-user.md" "default-user.username"
@@ -308,6 +363,11 @@ flowchart LR
     click urn__nixconf__ast__option__reverse_proxy_domain href "../contracts/reverse-proxy.md" "reverse-proxy.domain"
     click urn__nixconf__ast__option__reverse_proxy_hosts href "../contracts/reverse-proxy.md" "reverse-proxy.hosts"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__option__secrets_placeholder href "../contracts/secrets.md" "secrets.placeholder"
+    click urn__nixconf__ast__option__secrets_templates href "../contracts/secrets.md" "secrets.templates"
+    click urn__nixconf__ast__option__storage_activeSlices href "../contracts/storage.md" "storage.activeSlices"
+    click urn__nixconf__ast__option__storage_enable href "../contracts/storage.md" "storage.enable"
+    click urn__nixconf__ast__option__storage_mounts href "../contracts/storage.md" "storage.mounts"
     click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__eval__configuration__astrolabe href "astrolabe.md" "astrolabe"
@@ -318,6 +378,7 @@ flowchart LR
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
@@ -326,6 +387,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
 
@@ -353,7 +415,8 @@ The following contracts are materialized on `astrolabe` through its active imple
 | [`reverse-proxy`](../contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](../contracts/reverse-proxy.md) |
 | [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](../implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [More →](../contracts/persistence.md) |
 | [`default-user`](../contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](../contracts/default-user.md) |
-| [`backup`](../contracts/backup.md) | Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules. | [`restic`](../implementations/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [More →](../contracts/backup.md) |
+| [`storage`](../contracts/storage.md) | Declarative multi-provider storage contract separating open driver definitions, logical providers, host/shared slices, and mount requests. | [`rclone`](../implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [More →](../contracts/storage.md) |
+| [`backup`](../contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [`restic`](../implementations/restic.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [More →](../contracts/backup.md) |
 | [`secrets`](../contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](../implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](../contracts/secrets.md) |
 
 ## Enabled Features
@@ -366,6 +429,7 @@ The following system and desktop features are imported by `astrolabe`:
 | [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell. | [`git`](../modules/git.md) (module), [`git`](../packages.md#git) (package) | [More →](../features/git.md) |
 | [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [`locale`](../modules/locale.md) (module) | [More →](../features/locale.md) |
 | [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [`nix`](../modules/nix.md) (module) | [More →](../features/nix.md) |
+| [`snapshot`](../features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [`snapshot`](../modules/snapshot.md) (module) | [More →](../features/snapshot.md) |
 | [`ssh`](../features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [`ssh`](../modules/ssh.md) (module) | [More →](../features/ssh.md) |
 | [`ttyd`](../features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [`ttyd`](../modules/ttyd.md) (module) | [More →](../features/ttyd.md) |
 | [`uchiyomi`](../features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [`uchiyomi`](../modules/uchiyomi.md) (module) | [More →](../features/uchiyomi.md) |
@@ -450,6 +514,7 @@ astrolabe-services = {...}: {
   imports = [
     self.nixosModules.caddy
     self.nixosModules.restic
+    self.nixosModules.snapshot
     self.nixosModules.vaultwarden
     self.nixosModules.ttyd
     self.nixosModules.uchiyomi
@@ -457,7 +522,6 @@ astrolabe-services = {...}: {
 
   config = {
     reverse-proxy.domain = "adje.app";
-    services.resticBackup.repository = "s3:https://s3.eu-central-003.backblazeb2.com/cyclostyle-docker";
     persistence.directories = [
       "/var/lib/containers"
     ];
@@ -477,6 +541,7 @@ astrolabe-services = {...}: {
 astrolabe-system = {
   imports = [
     self.nixosModules.sops
+    self.nixosModules.rclone
     self.nixosModules.lw
     self.nixosModules.nix
     self.nixosModules.locale
@@ -522,9 +587,11 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /etc/NetworkManager/system-connections/
 ├── [dir]  /etc/nixos/
 ├── [dir]  /tmp/
+├── [dir]  /var/cache/rclone/
 ├── [dir]  /var/cache/uchiyomi/
 ├── [dir]  /var/lib/caddy/
 ├── [dir]  /var/lib/containers/
+├── [dir]  /var/lib/nixconf-backup/
 ├── [dir]  /var/lib/nixos/
 ├── [dir]  /var/lib/systemd/coredump/
 ├── [dir]  /var/lib/uchiyomi/
@@ -575,7 +642,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-32: reverse-proxy.domain = "adje.app";
+33: reverse-proxy.domain = "adje.app";
 ...
 ```
 

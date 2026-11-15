@@ -1,6 +1,6 @@
 # Module: `backup`
 
-Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules.
+Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
@@ -11,8 +11,10 @@ Automated snapshot backup configuration, inclusion paths, exclusions, and retent
 
 | Option Path | Type | Default | Example | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `backup.enable` | `boolean` | `false` | `true` | Whether to enable system backup automation contract. |
-| `backup.exclude` | `list of string` | `[ ]` | `[ ... ]` | List of glob patterns, file paths, or directories to explicitly exclude from backup snapshots (e.g. cache directories, transient sockets). |
-| `backup.paths` | `list of absolute path` | `[ ]` | `[ ... ]` | List of absolute filesystem directory or file paths to include in the backup snapshot. Aggregated across all active service modules via `mkConfig`. |
-| `backup.pruneOpts` | `list of string` | `[ ... ]` | — | Command-line argument rules passed to the backup backend pruning command to enforce snapshot retention and prevent unbounded remote storage usage. |
-| `backup.timerConfig` | `attribute set of anything` | `{ ... }` | — | Systemd timer specification governing when automated backup snapshots run. Defaults to executing daily at 04:00 with persistence enabled. |
+| `backup.destinations` | `attribute set of (submodule)` | `{ hbox-host = ...; gdrive-host = ...; b2-host = { enable = false; ... }; hbox-shared = ...; gdrive-shared = ...; b2-shared = { enable = false; ... }; }` | `{ b2-shared.enable = true; gdrive-host.retention.daily = 60; }` | Named backup destinations parameterized by backing storage slice, `host`/`shared` scope, priority, schedule, and per-tier retention. |
+| `backup.enable` | `boolean` | `false` | `true` | Whether to enable declarative backup configuration. |
+| `backup.exclude` | `list of string` | `[ ]` | `[ ... ]` | Global exclusion patterns applied across backup units. |
+| `backup.paths` | `list of string` | `[ ]` | `[ ... ]` | Host-level filesystem paths included in synthetic `system` backups when not claimed by any declared `backup.units` entry. |
+| `backup.pruneOpts` | `list of string` | `[ ... ]` | `[ ... ]` | Fallback restic prune arguments used by legacy monolithic backup targets. |
+| `backup.timerConfig` | `attribute set of anything` | `{ ... }` | `{ ... }` | Fallback systemd timer configuration used by legacy monolithic backup targets. |
+| `backup.units` | `attribute set of (submodule)` | `{ }` | `{ vaultwarden = { scope = "shared"; paths = ["/var/lib/vaultwarden"]; destinationOverrides.b2-shared.enable = true; }; }` | Logical backup units with independent paths, scopes, destination overrides, and boot-time most-recent auto-restore configuration. |

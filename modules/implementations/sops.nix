@@ -157,6 +157,66 @@ in {
             '';
           };
       };
+
+      mkWriteSecretScript = {
+        docstring = ''
+          Generates a bash helper function `sops_write_secret <store> <key> <value>` that idempotently creates or updates encrypted keys inside `secrets/<store>.yaml` using `.sops.yaml` creation rules.
+
+          # Inputs
+
+          `pkgs`
+          : Nixpkgs package set supplying `sops`, `jq`, and coreutils.
+
+          # Type
+
+          ```
+          mkWriteSecretScript :: { pkgs } -> String
+          ```
+
+          # Examples
+
+          ```nix
+          self.lib.sops.mkWriteSecretScript { inherit pkgs; }
+          ```
+        '';
+        value = {pkgs}: ''
+          sops_write_secret() {
+            local store="$1"
+            local key="$2"
+            local val="$3"
+            local repo_root="''${DEVENV_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+            local rel_target="secrets/''${store}.yaml"
+            local target="$repo_root/$rel_target"
+            local key_json tmp_plain tmp_enc
+
+            mkdir -p "$(dirname "$target")"
+
+            if [[ -f "$target" ]]; then
+              key_json="$(${pkgs.jq}/bin/jq -Rn --arg k "$key" '$k')"
+              printf '%s' "$val" | ${pkgs.jq}/bin/jq -Rs '.' | (
+                cd "$repo_root"
+                ${pkgs.sops}/bin/sops --config "$repo_root/.sops.yaml" set --idempotent --value-stdin "$rel_target" "[''${key_json}]"
+              )
+            else
+              tmp_plain="$(mktemp "''${TMPDIR:-/tmp}/sops-plain.XXXXXX")"
+              tmp_enc="$(mktemp "''${TMPDIR:-/tmp}/sops-enc.XXXXXX")"
+              ${pkgs.jq}/bin/jq -n --arg k "$key" --arg v "$val" '{($k): $v}' > "$tmp_plain"
+              if (
+                cd "$repo_root"
+                ${pkgs.sops}/bin/sops --config "$repo_root/.sops.yaml" --encrypt \
+                  --filename-override "$rel_target" \
+                  --input-type json --output-type yaml "$tmp_plain" > "$tmp_enc"
+              ); then
+                mv "$tmp_enc" "$target"
+                rm -f "$tmp_plain"
+              else
+                rm -f "$tmp_plain" "$tmp_enc"
+                return 1
+              fi
+            fi
+          }
+        '';
+      };
     };
     module = {
       config,
@@ -207,14 +267,32 @@ in {
                 then "${testSecrets}/files/${testFileName name}"
                 else if s.file != null
                 then s.file
+                else if s.store != null
+                then self + "/secrets/${s.store}.yaml"
                 else config.sops.defaultSopsFile;
               inherit (s) key owner group mode neededForUsers;
             })
             config.secrets.files;
 
+          secrets.placeholder = lib.mkIf (config.secrets.templates != {}) (
+            lib.mapAttrs (name: _: config.sops.placeholder.${name})
+            config.secrets.files
+          );
+
+          sops.templates =
+            lib.mapAttrs (_: t: {
+              inherit (t) content owner group mode path;
+            })
+            config.secrets.templates;
+
           testing.sops.evalChecks.secrets-via-contract = {
             assertion = lib.all (name: config.secrets.files ? ${name}) (builtins.attrNames cfg.secrets);
             message = "sops.secrets {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.files ? ${n})) (builtins.attrNames cfg.secrets))}} bypass the `secrets` contract, so tests cannot substitute stand-ins for them; declare them via `secrets.files` instead.";
+          };
+
+          testing.sops.evalChecks.templates-via-contract = {
+            assertion = lib.all (name: config.secrets.templates ? ${name}) (builtins.attrNames cfg.templates);
+            message = "sops.templates {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.templates ? ${n})) (builtins.attrNames cfg.templates))}} bypass the `secrets` contract; declare them via `secrets.templates` instead.";
           };
 
           testing.sops.vmChecks.secrets-provisioned = {

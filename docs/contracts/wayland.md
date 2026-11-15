@@ -54,6 +54,7 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
@@ -128,12 +129,14 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__uwsm -->|outputs| urn__nixconf__ast__module__uwsm
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -180,6 +183,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
 
@@ -246,7 +250,7 @@ Modules and instances configuring options under the `wayland` contract capabilit
 ```nix
 # modules/hosts/x240.nix
 ...
-88: wayland.enable = true;
+89: wayland.enable = true;
 ...
 ```
 

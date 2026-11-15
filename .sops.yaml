@@ -51,6 +51,15 @@ creation_rules:
   - path_regex: ^secrets/wifi/.*$
     key_groups:
       - *personal
+  - path_regex: ^secrets/storage/hosts/x240/.*$
+    key_groups:
+      - *host_x240
+  - path_regex: ^secrets/storage/hosts/astrolabe/.*$
+    key_groups:
+      - *host_astrolabe
+  - path_regex: ^secrets/storage/.*$
+    key_groups:
+      - *all
   - path_regex: ^secrets/.*$
     key_groups:
       - *all

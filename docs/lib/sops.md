@@ -14,14 +14,17 @@ Declarative encrypted secrets provisioning using SOPS and age keys.
 flowchart LR
   urn__nixconf__ast__function__sops_mkHostShell["sops.mkHostShell"]:::defaultNode
     urn__nixconf__ast__function__sops_mkTestSecrets["sops.mkTestSecrets"]:::defaultNode
+    urn__nixconf__ast__function__sops_mkWriteSecretScript["sops.mkWriteSecretScript"]:::defaultNode
     urn__nixconf__onto__lib__sops["sops"]:::defaultNode
 
     urn__nixconf__onto__lib__sops -->|outputs| urn__nixconf__ast__function__sops_mkHostShell
     urn__nixconf__onto__lib__sops -->|outputs| urn__nixconf__ast__function__sops_mkTestSecrets
+    urn__nixconf__onto__lib__sops -->|outputs| urn__nixconf__ast__function__sops_mkWriteSecretScript
 
 
     click urn__nixconf__ast__function__sops_mkHostShell href "sops.md" "sops.mkHostShell"
     click urn__nixconf__ast__function__sops_mkTestSecrets href "sops.md" "sops.mkTestSecrets"
+    click urn__nixconf__ast__function__sops_mkWriteSecretScript href "sops.md" "sops.mkWriteSecretScript"
     click urn__nixconf__onto__lib__sops href "sops.md" "sops"
 
   %% Semantic Visual Classes
@@ -110,4 +113,25 @@ self.lib.sops.mkTestSecrets {
   inherit pkgs;
   secrets.api-token = { key = "token"; format = "yaml"; value = "dummy"; };
 }
+```
+
+<a id="mkWriteSecretScript"></a>
+### `mkWriteSecretScript`
+
+Generates a bash helper function `sops_write_secret <store> <key> <value>` that idempotently creates or updates encrypted keys inside `secrets/<store>.yaml` using `.sops.yaml` creation rules.
+
+#### Inputs
+
+- `pkgs`: Nixpkgs package set supplying `sops`, `jq`, and coreutils.
+
+#### Type
+
+```
+mkWriteSecretScript :: { pkgs } -> String
+```
+
+#### Examples
+
+```nix
+self.lib.sops.mkWriteSecretScript { inherit pkgs; }
 ```

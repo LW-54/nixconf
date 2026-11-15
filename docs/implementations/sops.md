@@ -21,7 +21,9 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
+    urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
+    urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__wifi_eduroam["nixosModule/wifi-eduroam"]:::defaultNode
@@ -36,7 +38,10 @@ flowchart LR
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__secrets_placeholder[/"secrets.placeholder"/]:::optNode
+    urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
+    urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
     urn__nixconf__drv__devShell__sops_host["devShell/sops-host"]:::devShellNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
@@ -62,6 +67,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
@@ -76,6 +82,7 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -84,14 +91,29 @@ flowchart LR
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__secrets_placeholder
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__drv__devShell__sops_admin -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
@@ -100,12 +122,15 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__snapshot
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
@@ -119,7 +144,10 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -133,6 +161,8 @@ flowchart LR
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -158,6 +188,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -165,6 +196,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
@@ -201,6 +233,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -209,11 +242,16 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -226,7 +264,9 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
+    click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
+    click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__wifi_eduroam href "../modules/wifi-eduroam.md" "wifi-eduroam"
@@ -241,7 +281,10 @@ flowchart LR
     click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
     click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__option__secrets_placeholder href "../contracts/secrets.md" "secrets.placeholder"
+    click urn__nixconf__ast__option__secrets_templates href "../contracts/secrets.md" "secrets.templates"
     click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
+    click urn__nixconf__ast__type__secrets_template href "../contracts/secrets.md" "secrets.template"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
     click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
@@ -267,6 +310,7 @@ flowchart LR
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
@@ -281,6 +325,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "uwsm.md" "uwsm"
@@ -321,8 +366,75 @@ flowchart LR
 | :--- | :--- | :--- | :--- |
 | [`mkHostShell`](../lib/sops.md#mkHostShell) | `mkHostShell :: { pkgs, keyFile ? Path } -> Derivation` | Constructs a developer shell configured to decrypt host SOPS secrets with the host's age key. | [More →](../lib/sops.md#mkHostShell) |
 | [`mkTestSecrets`](../lib/sops.md#mkTestSecrets) | `mkTestSecrets :: { pkgs, secrets } -> Derivation` | Builds a deterministic test age key plus SOPS-encrypted files holding test stand-in values, used in test mode. | [More →](../lib/sops.md#mkTestSecrets) |
+| [`mkWriteSecretScript`](../lib/sops.md#mkWriteSecretScript) | `mkWriteSecretScript :: { pkgs } -> String` | Generates a bash helper function `sops_write_secret <store> <key> <value>` that idempotently creates or updates encrypted keys inside `secrets/<store>.yaml` using `.sops.yaml` creation rules. | [More →](../lib/sops.md#mkWriteSecretScript) |
 
 ## Importing Hosts
 
 - [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 - [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
+
+## Consumed Contracts
+
+Capability contracts configured by this implementation:
+
+<details>
+<summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
+
+**Configures options**: `secrets.placeholder`
+
+```nix
+# modules/implementations/sops.nix
+...
+49: meta.description = "Throwaway age key and SOPS files holding non-sensitive stand-ins for host secrets.";
+...
+96: secrets.api-token = { key = "token"; format = "yaml"; value = "dummy"; };
+...
+134: description = "Host-level development shell configured to decrypt local host SOPS secrets.";
+...
+142: sops -d modules/secrets/secrets.yaml
+...
+145: sops -d --extract '["default-user-password-hash"]' modules/secrets/secrets.yaml
+...
+233: secrets =
+234: lib.mapAttrs (name: s: {
+235: inherit (s) key;
+236: inherit (cfg.secrets.${name}) format;
+...
+236: inherit (cfg.secrets.${name}) format;
+...
+239: config.secrets.files;
+...
+261: sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
+...
+263: sops.secrets =
+264: lib.mapAttrs (name: s: {
+265: sopsFile =
+266: if testMode
+...
+275: config.secrets.files;
+...
+277: secrets.placeholder = lib.mkIf (config.secrets.templates != {}) (
+...
+279: config.secrets.files
+...
+286: config.secrets.templates;
+...
+289: assertion = lib.all (name: config.secrets.files ? ${name}) (builtins.attrNames cfg.secrets);
+...
+290: message = "sops.secrets {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.files ? ${n})) (builtins.attrNames cfg.secrets))}} bypass the `secrets` contract, so tests cannot substitute stand-ins for them; declare them via `secrets.files` instead.";
+...
+294: assertion = lib.all (name: config.secrets.templates ? ${name}) (builtins.attrNames cfg.templates);
+...
+295: message = "sops.templates {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.templates ? ${n})) (builtins.attrNames cfg.templates))}} bypass the `secrets` contract; declare them via `secrets.templates` instead.";
+...
+303: for _path, _owner in ${builtins.toJSON (lib.mapAttrsToList (_: s: [s.path s.owner]) config.secrets.files)}:
+...
+354: Used to inspect, edit, and re-key encrypted repository secrets in `modules/secrets/secrets.yaml`:
+...
+358: sops modules/secrets/secrets.yaml
+...
+361: sops updatekeys modules/secrets/secrets.yaml
+...
+```
+
+</details>

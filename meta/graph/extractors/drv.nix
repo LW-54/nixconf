@@ -13,6 +13,7 @@
   extractDRV = {system ? "x86_64-linux"}: let
     features = config.feature or {};
     implementations = config.implementation or {};
+    contracts = config.contract or {};
     nixosConfigs = config.flake.nixosConfigurations or {};
     metaPackageNames = ["graph" "docs" "cpg-json" "nixconf-json"];
     rawPackages = config.flake.packages.${system} or {};
@@ -37,25 +38,29 @@
       inherit system;
     };
 
-    # 1. Generative Provenance Mapping for Packages
-    featurePackageMap =
+    collectOutputs = facet: primitive: instances:
       lib.concatMapAttrs (
-        fName: fDef:
-          if fDef ? packages
+        instName: instDef:
+          if instDef ? ${facet}
           then let
-            pkgsSet =
-              if builtins.isFunction fDef.packages
-              then fDef.packages pkgArgs
-              else fDef.packages;
+            outSet =
+              if builtins.isFunction instDef.${facet}
+              then instDef.${facet} pkgArgs
+              else instDef.${facet};
           in
-            lib.genAttrs (builtins.attrNames pkgsSet) (_: {
-              primitive = "feature";
-              instance = fName;
-              facet = "packages";
+            lib.genAttrs (builtins.attrNames outSet) (_: {
+              inherit primitive facet;
+              instance = instName;
             })
           else {}
       )
-      features;
+      instances;
+
+    # 1. Generative Provenance Mapping for Packages
+    featurePackageMap =
+      (collectOutputs "packages" "feature" features)
+      // (collectOutputs "packages" "implementation" implementations)
+      // (collectOutputs "packages" "contract" contracts);
 
     findPackageProducer = pName:
       featurePackageMap.${
@@ -99,12 +104,12 @@
           };
         };
         outputEdge =
-          if producer.primitive == "feature"
+          if producer.primitive != "workspace"
           then [
             (types.mkEdge {
               source = types.mkURN {
                 stratum = types.strata.onto;
-                kind = "feature";
+                kind = producer.primitive;
                 id = producer.instance;
               };
               target = urn;
@@ -124,40 +129,9 @@
 
     # 3. Generative Provenance Mapping for DevShells
     devShellProducerMap =
-      (lib.concatMapAttrs (
-          fName: fDef:
-            if fDef ? devShells
-            then let
-              shellsSet =
-                if builtins.isFunction fDef.devShells
-                then fDef.devShells pkgArgs
-                else fDef.devShells;
-            in
-              lib.genAttrs (builtins.attrNames shellsSet) (_: {
-                primitive = "feature";
-                instance = fName;
-                facet = "devShells";
-              })
-            else {}
-        )
-        features)
-      // (lib.concatMapAttrs (
-          iName: iDef:
-            if iDef ? devShells
-            then let
-              shellsSet =
-                if builtins.isFunction iDef.devShells
-                then iDef.devShells pkgArgs
-                else iDef.devShells;
-            in
-              lib.genAttrs (builtins.attrNames shellsSet) (_: {
-                primitive = "implementation";
-                instance = iName;
-                facet = "devShells";
-              })
-            else {}
-        )
-        implementations);
+      (collectOutputs "devShells" "feature" features)
+      // (collectOutputs "devShells" "implementation" implementations)
+      // (collectOutputs "devShells" "contract" contracts);
 
     findDevShellProducer = sName:
       devShellProducerMap.${

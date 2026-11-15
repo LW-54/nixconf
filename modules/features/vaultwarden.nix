@@ -22,6 +22,9 @@
           }
           // self.lib.backup.mkOption {
             paths = ["/var/lib/vaultwarden"];
+            scope = "shared";
+            destinationOverrides.b2-shared.enable = true;
+            beforeUnits = ["vaultwarden.service"];
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [

@@ -36,9 +36,12 @@ flowchart LR
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__secrets_placeholder[/"secrets.placeholder"/]:::optNode
+    urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
+    urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
@@ -63,6 +66,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
@@ -77,6 +81,7 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -87,6 +92,9 @@ flowchart LR
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__secrets_placeholder
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__persistence_files
@@ -95,6 +103,9 @@ flowchart LR
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
@@ -124,7 +135,10 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -137,6 +151,7 @@ flowchart LR
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -162,6 +177,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -169,6 +185,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
@@ -205,6 +222,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -213,8 +231,12 @@ flowchart LR
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -243,9 +265,12 @@ flowchart LR
     click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
     click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__option__secrets_placeholder href "../contracts/secrets.md" "secrets.placeholder"
+    click urn__nixconf__ast__option__secrets_templates href "../contracts/secrets.md" "secrets.templates"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
     click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
+    click urn__nixconf__ast__type__secrets_template href "../contracts/secrets.md" "secrets.template"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
@@ -270,6 +295,7 @@ flowchart LR
     click urn__nixconf__onto__feature__locale href "locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "tack.md" "tack"
     click urn__nixconf__onto__feature__ttyd href "ttyd.md" "ttyd"
@@ -284,6 +310,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"

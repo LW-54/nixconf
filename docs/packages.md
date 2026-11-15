@@ -265,6 +265,36 @@ Display command-line flags and subcommands:
 menu --help
 ```
 
+<a id="storage"></a>
+### `storage`
+
+Declarative multi-provider storage reconciler and drift checker across all fleet hosts.
+
+Provided by contract [`storage`](contracts/storage.md).
+
+```bash
+nix run .#storage
+```
+
+```bash
+nix run github:LW-54/nixconf#storage
+```
+
+#### Usage
+
+Inspect declared storage topology, audit SOPS secrets, and reconcile Hetzner Storage Box API state.
+
+```bash
+# List evaluated providers, instances, shared/per-host slices, and endpoints
+nix run .#storage -- --list
+
+# Verify SOPS secrets and Hetzner Storage Box API state (read-only)
+nix develop .#storage-admin --command nixconf-storage --check
+
+# Reconcile Hetzner subaccounts, snapshot plans, and encrypted SOPS secrets
+nix develop .#storage-admin --command nixconf-storage --write
+```
+
 <a id="test"></a>
 ### `test`
 

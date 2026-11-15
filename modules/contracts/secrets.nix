@@ -8,7 +8,14 @@
       file = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         default = null;
-        description = "Encrypted file containing this secret (defaults to `secrets.defaultFile`).";
+        description = "Encrypted file containing this secret (defaults to resolved `store` or `secrets.defaultFile`).";
+      };
+
+      store = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "storage/hbox";
+        description = "Logical secret store path relative to `secrets/` (resolved by the active secrets implementation, e.g. `secrets/<store>.yaml`).";
       };
 
       key = lib.mkOption {
@@ -62,6 +69,40 @@
       };
     };
   });
+
+  templateSubmodule = lib.types.submodule ({name, ...}: {
+    options = {
+      content = lib.mkOption {
+        type = lib.types.lines;
+        default = "";
+        description = "Template content interpolating `secrets.placeholder.<name>` tokens.";
+      };
+
+      owner = lib.mkOption {
+        type = lib.types.str;
+        default = "root";
+        description = "User owner of the rendered template file.";
+      };
+
+      group = lib.mkOption {
+        type = lib.types.str;
+        default = "root";
+        description = "Group owner of the rendered template file.";
+      };
+
+      mode = lib.mkOption {
+        type = lib.types.str;
+        default = "0400";
+        description = "Permission bits mode for the rendered template file.";
+      };
+
+      path = lib.mkOption {
+        type = lib.types.str;
+        default = "/run/secrets/rendered/${name}";
+        description = "Filesystem path where the rendered template is exposed on the host.";
+      };
+    };
+  });
 in {
   contract.secrets = {
     description = "Declarative encrypted secrets provisioning, filesystem mounting, and permission management.";
@@ -90,6 +131,32 @@ in {
         description = ''
           Attribute set of declarative secret items required by system services.
           Mapped to the active secrets provider implementation (e.g. SOPS).
+        '';
+      };
+
+      templates = lib.mkOption {
+        type = lib.types.attrsOf templateSubmodule;
+        default = {};
+        example = {
+          "service.env" = {
+            content = "TOKEN=placeholder";
+          };
+        };
+        description = ''
+          Attribute set of rendered secret-interpolated configuration files managed
+          by the active secrets provider implementation.
+        '';
+      };
+
+      placeholder = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = {};
+        example = {
+          "service/token" = "<SOPS:service/token:placeholder>";
+        };
+        description = ''
+          Map of secret names to placeholder tokens for safe interpolation
+          inside `secrets.templates.<name>.content`.
         '';
       };
     };
@@ -121,6 +188,7 @@ in {
 
     types = {
       secret = secretSubmodule;
+      template = templateSubmodule;
     };
   };
 }

@@ -50,6 +50,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
@@ -60,6 +61,7 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
@@ -145,6 +147,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -152,6 +155,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
@@ -160,6 +164,8 @@ flowchart LR
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
 
 
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
@@ -199,6 +205,7 @@ flowchart LR
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
@@ -209,6 +216,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__caddy href "caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
 

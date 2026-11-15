@@ -33,6 +33,8 @@ flowchart LR
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__noctalia["nixosModule/noctalia"]:::defaultNode
+    urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
+    urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
@@ -58,6 +60,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
@@ -71,6 +74,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
@@ -82,6 +86,7 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
@@ -126,14 +131,23 @@ flowchart LR
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__noctalia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__noctalia -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__vivaldi -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -153,6 +167,8 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
@@ -195,6 +211,8 @@ flowchart LR
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -->|outputs| urn__nixconf__ast__module__noctalia
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -204,6 +222,7 @@ flowchart LR
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -225,6 +244,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -232,6 +252,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
@@ -252,6 +273,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -264,8 +286,17 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
@@ -290,6 +321,8 @@ flowchart LR
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__noctalia href "../modules/noctalia.md" "noctalia"
+    click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
+    click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
@@ -315,6 +348,7 @@ flowchart LR
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
+    click urn__nixconf__onto__contract__storage href "storage.md" "storage"
     click urn__nixconf__onto__contract__wayland href "wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
@@ -328,6 +362,7 @@ flowchart LR
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
@@ -339,6 +374,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
 
@@ -446,6 +482,36 @@ Modules and instances configuring options under the `persistence` contract capab
 104: data.directories = [
 105: "nixconf"
 106: "Documents"
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/rclone.md">rclone</a></code></summary>
+
+**Configures options**: `persistence.directories`
+
+```nix
+# modules/implementations/rclone/default.nix
+...
+57: persistence.directories = ["/var/cache/rclone"];
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/restic.md">restic</a></code></summary>
+
+**Configures options**: `persistence.directories`
+
+```nix
+# modules/implementations/restic/default.nix
+...
+90: persistence.directories = ["/var/lib/nixconf-backup"];
 ...
 ```
 
@@ -644,7 +710,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/uchiyomi.nix
 ...
-215: (self.lib.persistence.mkConfig {inherit config cfg;})
+295: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -659,7 +725,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/vaultwarden.nix
 ...
-43: (self.lib.persistence.mkConfig {inherit config cfg;})
+46: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 

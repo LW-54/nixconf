@@ -97,13 +97,16 @@
             outputs = {
               order = 22;
               content = ctx: let
+                producedBy = n: (n.properties.producerPrimitive or (n.origin.primitive or null)) == "contract" && (n.properties.producerInstance or (n.origin.instance or null)) == name;
                 modNode = ctx.graph.nodes."urn:nixconf:ast:module:${name}" or null;
                 hasMod = config.flake.nixosModules ? ${name};
+                pkgs = lib.filter producedBy (ctx.nodes "package");
+                devShells = lib.filter producedBy (ctx.nodes "devShell");
                 typesList = builtins.attrNames (contract.types or {});
                 allLibSymbols = config.lib.${name}.symbols or (contract.lib or {});
                 libHelpers = lib.filter (s: s != "types") (builtins.attrNames allLibSymbols);
               in
-                if !hasMod && typesList == [] && libHelpers == []
+                if !hasMod && pkgs == [] && devShells == [] && typesList == [] && libHelpers == []
                 then ''
                   ## Outputs
 
@@ -128,6 +131,42 @@
                         }}
                       ''
                       else null
+                    )
+                    (
+                      if pkgs == []
+                      then null
+                      else ''
+                        ### Packages
+
+                        ${ctx.md.table {
+                          headers = ["Package" "Command" "Description" "Docs"];
+                          columns = [
+                            (p: "[`${p.name}`](${ctx.link ctx.pages.packages.path}#${p.name})")
+                            (p: "`nix run .#${p.name}`")
+                            (p: ctx.md.oneLine (p.properties.description or ""))
+                            (p: "[More →](${ctx.link ctx.pages.packages.path}#${p.name})")
+                          ];
+                          rows = pkgs;
+                        }}
+                      ''
+                    )
+                    (
+                      if devShells == []
+                      then null
+                      else ''
+                        ### Development Shells
+
+                        ${ctx.md.table {
+                          headers = ["Development Shell" "Command" "Description" "Docs"];
+                          columns = [
+                            (s: "[`${s.name}`](${ctx.link ctx.pages.devshells.path}#${s.name})")
+                            (s: "`nix develop .#${s.name}`")
+                            (s: ctx.md.oneLine (s.properties.description or ""))
+                            (s: "[More →](${ctx.link ctx.pages.devshells.path}#${s.name})")
+                          ];
+                          rows = devShells;
+                        }}
+                      ''
                     )
                     (
                       if libHelpers == []

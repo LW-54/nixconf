@@ -36,6 +36,29 @@
     then true
     else false;
 
+  sanitizeMetaValue = v: let
+    tried = builtins.tryEval v;
+  in
+    if !tried.success
+    then "<error>"
+    else let
+      val = tried.value;
+    in
+      if builtins.isFunction val
+      then "<function>"
+      else if lib.isDerivation val
+      then "<derivation:${val.name or "drv"}>"
+      else if builtins.isPath val
+      then toString val
+      else if builtins.isList val
+      then map sanitizeMetaValue val
+      else if builtins.isAttrs val
+      then
+        if (val._type or null) == "literalExpression"
+        then val.text
+        else lib.mapAttrs (_: sanitizeMetaValue) val
+      else val;
+
   extractContractData = {}: let
     contracts = config.contract or {};
     contractNames = builtins.attrNames contracts;
@@ -76,17 +99,11 @@
             type = option.type.description or (option.type.name or "anything");
             default =
               if option ? default
-              then
-                if builtins.isFunction option.default
-                then "<function>"
-                else option.default
+              then sanitizeMetaValue option.default
               else null;
             example =
               if option ? example
-              then
-                if builtins.isFunction option.example
-                then "<function>"
-                else option.example
+              then sanitizeMetaValue option.example
               else null;
           };
         };

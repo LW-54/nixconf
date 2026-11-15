@@ -1,6 +1,6 @@
 # Module: `restic`
 
-Automated encrypted remote backups using Restic and systemd timers.
+Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 

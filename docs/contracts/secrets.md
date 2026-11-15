@@ -14,14 +14,19 @@ Declarative encrypted secrets provisioning, filesystem mounting, and permission 
 flowchart LR
   urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
+    urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
+    urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__wifi_eduroam["nixosModule/wifi-eduroam"]:::defaultNode
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__secrets_placeholder[/"secrets.placeholder"/]:::optNode
+    urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
+    urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
     urn__nixconf__drv__devShell__sops_host["devShell/sops-host"]:::devShellNode
@@ -30,12 +35,15 @@ flowchart LR
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
@@ -43,21 +51,42 @@ flowchart LR
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__secrets_placeholder
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -66,14 +95,17 @@ flowchart LR
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
@@ -81,25 +113,38 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_host
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
+    click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
+    click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__wifi_eduroam href "../modules/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__ast__option__secrets_defaultFile href "secrets.md" "secrets.defaultFile"
     click urn__nixconf__ast__option__secrets_enable href "secrets.md" "secrets.enable"
     click urn__nixconf__ast__option__secrets_files href "secrets.md" "secrets.files"
+    click urn__nixconf__ast__option__secrets_placeholder href "secrets.md" "secrets.placeholder"
+    click urn__nixconf__ast__option__secrets_templates href "secrets.md" "secrets.templates"
     click urn__nixconf__ast__type__secrets_secret href "secrets.md" "secrets.secret"
+    click urn__nixconf__ast__type__secrets_template href "secrets.md" "secrets.template"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
     click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
@@ -108,12 +153,15 @@ flowchart LR
     click urn__nixconf__onto__contract__home href "home.md" "home"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
+    click urn__nixconf__onto__contract__storage href "storage.md" "storage"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
 
@@ -150,6 +198,7 @@ flowchart LR
 ### Custom Types
 
 - `secret`: submodule
+- `template`: submodule
 
 ## Option Schema Definitions
 
@@ -158,6 +207,8 @@ flowchart LR
 | `secrets.defaultFile` | `null or absolute path` | *null* | Default YAML/JSON file containing encrypted secrets for this host. Can be overridden on a per-secret basis by consumer features. |
 | `secrets.enable` | `boolean` | `true` | Whether to enable system secrets management contract. |
 | `secrets.files` | `attribute set of (submodule)` | `{ }` | Attribute set of declarative secret items required by system services. Mapped to the active secrets provider implementation (e.g. SOPS). |
+| `secrets.placeholder` | `attribute set of string` | `{ }` | Map of secret names to placeholder tokens for safe interpolation inside `secrets.templates.<name>.content`. |
+| `secrets.templates` | `attribute set of (submodule)` | `{ }` | Attribute set of rendered secret-interpolated configuration files managed by the active secrets provider implementation. |
 
 ## Fulfilling Implementations
 
@@ -198,21 +249,102 @@ Modules and instances configuring options under the `secrets` contract capabilit
 
 
 <details>
+<summary><code><a href="../implementations/rclone.md">rclone</a></code></summary>
+
+**Configures options**: `secrets.files`, `secrets.templates`
+
+```nix
+# modules/implementations/rclone/default.nix
+...
+46: secrets = {
+47: files = state.secretFileAttrs;
+48: 
+49: templates."rclone.conf" = {
+...
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../implementations/restic.md">restic</a></code></summary>
 
 **Configures options**: `secrets.files`
 
 ```nix
-# modules/implementations/restic.nix
+# modules/implementations/restic/default.nix
 ...
-41: secrets.files = {
-42: restic-env = lib.mkIf (resticCfg.environmentFile == null) {
-43: file = ../../secrets/backup/restic.yaml;
-44: key = "env";
+31: else config.secrets.files.restic-password.path;
 ...
-58: else config.secrets.files.restic-env.path;
+36: else config.secrets.files.restic-env.path;
 ...
-62: else config.secrets.files.restic-password.path;
+73: secrets.files =
+74: lib.optionalAttrs (resticCfg.passwordFile == null) {
+75: restic-password = {
+76: store = "backup/restic";
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/sops.md">sops</a></code></summary>
+
+**Configures options**: `secrets.placeholder`
+
+```nix
+# modules/implementations/sops.nix
+...
+49: meta.description = "Throwaway age key and SOPS files holding non-sensitive stand-ins for host secrets.";
+...
+96: secrets.api-token = { key = "token"; format = "yaml"; value = "dummy"; };
+...
+134: description = "Host-level development shell configured to decrypt local host SOPS secrets.";
+...
+142: sops -d modules/secrets/secrets.yaml
+...
+145: sops -d --extract '["default-user-password-hash"]' modules/secrets/secrets.yaml
+...
+233: secrets =
+234: lib.mapAttrs (name: s: {
+235: inherit (s) key;
+236: inherit (cfg.secrets.${name}) format;
+...
+236: inherit (cfg.secrets.${name}) format;
+...
+239: config.secrets.files;
+...
+261: sops.defaultSopsFile = lib.mkIf (config.secrets.defaultFile != null) config.secrets.defaultFile;
+...
+263: sops.secrets =
+264: lib.mapAttrs (name: s: {
+265: sopsFile =
+266: if testMode
+...
+275: config.secrets.files;
+...
+277: secrets.placeholder = lib.mkIf (config.secrets.templates != {}) (
+...
+279: config.secrets.files
+...
+286: config.secrets.templates;
+...
+289: assertion = lib.all (name: config.secrets.files ? ${name}) (builtins.attrNames cfg.secrets);
+...
+290: message = "sops.secrets {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.files ? ${n})) (builtins.attrNames cfg.secrets))}} bypass the `secrets` contract, so tests cannot substitute stand-ins for them; declare them via `secrets.files` instead.";
+...
+294: assertion = lib.all (name: config.secrets.templates ? ${name}) (builtins.attrNames cfg.templates);
+...
+295: message = "sops.templates {${lib.concatStringsSep ", " (lib.filter (n: !(config.secrets.templates ? ${n})) (builtins.attrNames cfg.templates))}} bypass the `secrets` contract; declare them via `secrets.templates` instead.";
+...
+303: for _path, _owner in ${builtins.toJSON (lib.mapAttrsToList (_: s: [s.path s.owner]) config.secrets.files)}:
+...
+354: Used to inspect, edit, and re-key encrypted repository secrets in `modules/secrets/secrets.yaml`:
+...
+358: sops modules/secrets/secrets.yaml
+...
+361: sops updatekeys modules/secrets/secrets.yaml
 ...
 ```
 
@@ -236,6 +368,30 @@ Modules and instances configuring options under the `secrets` contract capabilit
 31: key = "token";
 ...
 62: cachixTokenFile = config.secrets.files.cachix-token.path;
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/snapshot.md">snapshot</a></code></summary>
+
+**Configures options**: `secrets.files`
+
+```nix
+# modules/features/snapshot.nix
+...
+123: export RESTIC_PASSWORD_FILE="''${RESTIC_PASSWORD_FILE:-${lib.escapeShellArg config.secrets.files.restic-password.path}}"
+...
+285: secrets.files.restic-password = lib.mkDefault {
+286: store = "backup/restic";
+287: key = "password";
+288: testValue = "test-restic-password";
+...
+301: "sops-install-secrets.service"
+...
+308: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
 ...
 ```
 
@@ -269,15 +425,26 @@ Modules and instances configuring options under the `secrets` contract capabilit
 <details>
 <summary><code><a href="../features/wifi-eduroam.md">wifi-eduroam</a></code></summary>
 
-**Configures options**: `secrets.files`
+**Configures options**: `secrets.files`, `secrets.templates`
 
 ```nix
 # modules/features/wifi.nix
+...
+14: environmentTemplate = config.secrets.templates."wifi-eduroam-networkmanager".path;
 ...
 81: secrets.files = {
 82: ${usernameSecret} = {
 83: file = cfg.secretFile;
 84: key = cfg.usernameKey;
+...
+92: secrets.templates."wifi-eduroam-networkmanager" = {
+93: mode = "0400";
+94: content = ''
+95: EDUROAM_USERNAME=${config.secrets.placeholder.${usernameSecret}}
+...
+95: EDUROAM_USERNAME=${config.secrets.placeholder.${usernameSecret}}
+...
+96: EDUROAM_PASSWORD=${config.secrets.placeholder.${passwordSecret}}
 ...
 ```
 

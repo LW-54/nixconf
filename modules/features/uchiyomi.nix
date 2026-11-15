@@ -5,6 +5,7 @@
       uchiyomi = {
         config,
         lib,
+        pkgs,
         ...
       }: let
         cfg = config.services.uchiyomi-server;
@@ -52,13 +53,19 @@
 
             libraryPath = lib.mkOption {
               type = lib.types.str;
-              default = "${cfg.dataDir}/library";
+              default =
+                if cfg.storage.enable && cfg.storage.mountPoint != null
+                then "${cfg.storage.mountPoint}/library"
+                else "${cfg.dataDir}/library";
               description = "Host directory containing existing comics and manga collections.";
             };
 
             downloadsPath = lib.mkOption {
               type = lib.types.str;
-              default = "${cfg.dataDir}/downloads";
+              default =
+                if cfg.storage.enable && cfg.storage.mountPoint != null
+                then "${cfg.storage.mountPoint}/downloads"
+                else "${cfg.dataDir}/downloads";
               description = "Host directory where Uchiyomi saves downloaded chapters (must not be inside libraryPath).";
             };
 
@@ -90,6 +97,19 @@
               "/var/lib/uchiyomi/config"
               "/var/lib/uchiyomi/suwayomi"
             ];
+            beforeUnits = [
+              "${backend}-uchiyomi.service"
+              "${backend}-${suwayomiHost}.service"
+            ];
+          }
+          // self.lib.storage.mkOption {
+            enable = true;
+            slice = "uchiyomi";
+            mountPoint = "/mnt/storage/uchiyomi";
+            vfsCacheMode = "writes";
+            uid = 10002;
+            gid = 10002;
+            umask = "002";
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -101,9 +121,11 @@
               }
             ];
 
-            testing.vm.allowedFailedUnits = [
-              "${backend}-*.service"
-            ];
+            testing.vm.allowedFailedUnits =
+              [
+                "${backend}-*.service"
+              ]
+              ++ lib.optional cfg.storage.enable "uchiyomi-storage-prep.service";
 
             virtualisation.oci-containers.containers = {
               ${flaresolverrHost} = {
@@ -140,7 +162,7 @@
               };
 
               uchiyomi = {
-                image = cfg.image;
+                inherit (cfg) image;
                 ports = [
                   "${cfg.address}:${toString cfg.port}:3000"
                 ];
@@ -179,16 +201,20 @@
               };
             };
 
-            systemd.tmpfiles.rules = [
-              "d ${cfg.dataDir} 0755 root root -"
-              "d ${cfg.dataDir}/data 0775 10002 10002 -"
-              "d ${cfg.dataDir}/config 0775 10002 10002 -"
-              "d ${cfg.dataDir}/suwayomi 0775 1000 1000 -"
-              "d ${cfg.dataDir}/backups 0775 10002 10002 -"
-              "d ${cfg.libraryPath} 0775 10002 10002 -"
-              "d ${cfg.downloadsPath} 0775 10002 10002 -"
-              "d ${cfg.cacheDir} 0775 10002 10002 -"
-            ];
+            systemd.tmpfiles.rules =
+              [
+                "d ${cfg.dataDir} 0755 root root -"
+                "d ${cfg.dataDir}/data 0775 10002 10002 -"
+                "d ${cfg.dataDir}/config 0775 10002 10002 -"
+                "d ${cfg.dataDir}/suwayomi 0775 1000 1000 -"
+                "d ${cfg.dataDir}/backups 0775 10002 10002 -"
+                "d ${cfg.cacheDir} 0775 10002 10002 -"
+              ]
+              ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
+              ++ lib.optionals (!cfg.storage.enable) [
+                "d ${cfg.libraryPath} 0775 10002 10002 -"
+                "d ${cfg.downloadsPath} 0775 10002 10002 -"
+              ];
 
             systemd.services =
               {
@@ -206,14 +232,69 @@
                   '';
                 };
               }
-              // lib.genAttrs (map (c: "${backend}-${c}") containers) (_: {
-                after = ["oci-network-${networkName}.service"];
-                requires = ["oci-network-${networkName}.service"];
-              });
+              // lib.optionalAttrs cfg.storage.enable {
+                uchiyomi-storage-prep = {
+                  description = "Prepare Uchiyomi remote storage directories and migrate legacy local data";
+                  after = ["rclone-config.service" "network-online.target"];
+                  wants = ["network-online.target"];
+                  requires = ["rclone-config.service"];
+                  wantedBy = ["multi-user.target"];
+                  path = [pkgs.coreutils pkgs.rclone];
+                  serviceConfig = {
+                    Type = "oneshot";
+                    RemainAfterExit = true;
+                  };
+                  script = ''
+                    slice=${lib.escapeShellArg cfg.storage.slice}
+                    data_dir=${lib.escapeShellArg cfg.dataDir}
+                    lib_path=${lib.escapeShellArg cfg.libraryPath}
+                    dl_path=${lib.escapeShellArg cfg.downloadsPath}
+                    marker="$data_dir/.migrated-to-$slice"
+
+                    rclone --config /etc/rclone/rclone.conf mkdir "$slice:library"
+                    rclone --config /etc/rclone/rclone.conf mkdir "$slice:downloads"
+
+                    if [[ ! -f "$marker" ]]; then
+                      if [[ "$lib_path" != "$data_dir/library" ]] && [[ -d "$data_dir/library" ]]; then
+                        if [[ -n "$(ls -A "$data_dir/library" 2>/dev/null || true)" ]]; then
+                          echo "Migrating legacy $data_dir/library -> $slice:library via rclone move..."
+                          rclone --config /etc/rclone/rclone.conf move --delete-empty-src-dirs "$data_dir/library" "$slice:library"
+                        fi
+                        rmdir "$data_dir/library" 2>/dev/null || true
+                      fi
+
+                      if [[ "$dl_path" != "$data_dir/downloads" ]] && [[ -d "$data_dir/downloads" ]]; then
+                        if [[ -n "$(ls -A "$data_dir/downloads" 2>/dev/null || true)" ]]; then
+                          echo "Migrating legacy $data_dir/downloads -> $slice:downloads via rclone move..."
+                          rclone --config /etc/rclone/rclone.conf move --delete-empty-src-dirs "$data_dir/downloads" "$slice:downloads"
+                        fi
+                        rmdir "$data_dir/downloads" 2>/dev/null || true
+                      fi
+
+                      touch "$marker"
+                    fi
+
+                    install -d -m 0775 "$lib_path" "$dl_path"
+                  '';
+                };
+              }
+              // lib.genAttrs (map (c: "${backend}-${c}") containers) (c:
+                {
+                  after =
+                    ["oci-network-${networkName}.service"]
+                    ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+                  requires =
+                    ["oci-network-${networkName}.service"]
+                    ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+                }
+                // lib.optionalAttrs (c == "${backend}-uchiyomi" && cfg.storage.enable) {
+                  unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
+                });
           }
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
           (self.lib.persistence.mkConfig {inherit config cfg;})
           (self.lib.backup.mkConfig {inherit config cfg;})
+          (self.lib.storage.mkConfig {inherit config cfg;})
         ]);
       };
     };

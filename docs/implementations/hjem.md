@@ -63,6 +63,7 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
@@ -149,6 +150,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
@@ -208,6 +210,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "rclone.md" "rclone"
     click urn__nixconf__onto__implementation__sops href "sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "uwsm.md" "uwsm"
 

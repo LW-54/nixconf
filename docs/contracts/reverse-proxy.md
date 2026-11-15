@@ -31,10 +31,12 @@ flowchart LR
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
+    urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
@@ -43,6 +45,7 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
@@ -73,6 +76,7 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -80,6 +84,7 @@ flowchart LR
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -97,6 +102,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -104,6 +110,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
@@ -111,6 +118,11 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
 
 
@@ -133,10 +145,12 @@ flowchart LR
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
+    click urn__nixconf__onto__contract__storage href "storage.md" "storage"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
@@ -145,6 +159,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
 
@@ -213,7 +228,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-32: reverse-proxy.domain = "adje.app";
+33: reverse-proxy.domain = "adje.app";
 ...
 ```
 
@@ -248,9 +263,9 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/features/uchiyomi.nix
 ...
-23: domain = config.reverse-proxy.domain or null;
+24: domain = config.reverse-proxy.domain or null;
 ...
-214: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+294: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -265,9 +280,9 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/features/vaultwarden.nix
 ...
-33: domain = config.reverse-proxy.domain or null;
+36: domain = config.reverse-proxy.domain or null;
 ...
-42: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+45: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 

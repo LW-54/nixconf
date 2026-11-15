@@ -39,6 +39,7 @@ in {
       x240-system = {...}: {
         imports = [
           self.nixosModules.sops
+          self.nixosModules.rclone
           self.nixosModules.lw
           self.nixosModules.hjem
           self.nixosModules.nix

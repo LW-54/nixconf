@@ -8,7 +8,7 @@ Pure reusable helper functions, data types, calculations, and configuration pres
 
 - **Declared as**: `lib.<name>` in any flake-parts module under `modules/` or `primitives/`
 - **Primitive definition**: [`primitives/lib/default.nix`](../../primitives/lib/default.nix)
-- **Instances**: 16
+- **Instances**: 17
 
 ## Option Schema (`lib.<name>`)
 
@@ -62,7 +62,7 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 
 | Library Namespace | Description | Exported Functions | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
-| [`backup`](backup.md) | Library helpers and constructors for the 'backup' contract. | [`defaultPruneOpts`](backup.md#defaultPruneOpts), [`defaultTimerConfig`](backup.md#defaultTimerConfig), [`mkConfig`](backup.md#mkConfig), [`mkOption`](backup.md#mkOption) | [`modules/contracts/backup.nix`](../../modules/contracts/backup.nix) | [More →](backup.md) |
+| [`backup`](backup.md) | Library helpers and constructors for the 'backup' contract. | [`defaultPruneOpts`](backup.md#defaultPruneOpts), [`defaultTimerConfig`](backup.md#defaultTimerConfig), [`mkConfig`](backup.md#mkConfig), [`mkOption`](backup.md#mkOption), [`retentionToPruneOpts`](backup.md#retentionToPruneOpts), [`scheduleToTimerConfig`](backup.md#scheduleToTimerConfig), [`types`](backup.md#types) | [`modules/contracts/backup/default.nix`](../../modules/contracts/backup/default.nix) | [More →](backup.md) |
 | [`bitwarden`](bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`mkShell`](bitwarden.md#mkShell), [`mkValue`](bitwarden.md#mkValue) | [`modules/features/bitwarden.nix`](../../modules/features/bitwarden.nix) | [More →](bitwarden.md) |
 | [`ci`](ci.md) | Continuous integration workflow helpers, YAML serialization, and derivation collection utilities. | [`collectBuildables`](ci.md#collectBuildables), [`fromYAML`](ci.md#fromYAML), [`toYAML`](ci.md#toYAML) | [`meta/ci/lib.nix`](../../meta/ci/lib.nix) | [More →](ci.md) |
 | [`default-user`](default-user.md) | Library helpers and constructors for the 'default-user' contract. | — | [`modules/contracts/default-user.nix`](../../modules/contracts/default-user.nix) | [More →](default-user.md) |
@@ -75,6 +75,7 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 | [`primitive`](primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [`check`](primitive.md#check), [`option`](primitive.md#option), [`output`](primitive.md#output), [`parser`](primitive.md#parser), [`schemas`](primitive.md#schemas), [`unwrapLib`](primitive.md#unwrapLib) | [`primitives/primitive/default.nix`](../../primitives/primitive/default.nix) | [More →](primitive.md) |
 | [`reverse-proxy`](reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [`mkConfig`](reverse-proxy.md#mkConfig), [`mkOption`](reverse-proxy.md#mkOption), [`types`](reverse-proxy.md#types) | [`modules/contracts/reverse-proxy.nix`](../../modules/contracts/reverse-proxy.nix) | [More →](reverse-proxy.md) |
 | [`secrets`](secrets.md) | Library helpers and constructors for the 'secrets' contract. | [`mkConfig`](secrets.md#mkConfig), [`mkOption`](secrets.md#mkOption), [`types`](secrets.md#types) | [`modules/contracts/secrets.nix`](../../modules/contracts/secrets.nix) | [More →](secrets.md) |
-| [`sops`](sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`mkHostShell`](sops.md#mkHostShell), [`mkTestSecrets`](sops.md#mkTestSecrets) | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](sops.md) |
+| [`sops`](sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`mkHostShell`](sops.md#mkHostShell), [`mkTestSecrets`](sops.md#mkTestSecrets), [`mkWriteSecretScript`](sops.md#mkWriteSecretScript) | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](sops.md) |
+| [`storage`](storage.md) | Library helpers and constructors for the 'storage' contract. | [`evalDriverSettings`](storage.md#evalDriverSettings), [`mkConfig`](storage.md#mkConfig), [`mkOption`](storage.md#mkOption), [`resolveHostStorage`](storage.md#resolveHostStorage), [`resolveSlice`](storage.md#resolveSlice), [`types`](storage.md#types) | [`modules/contracts/storage/default.nix`](../../modules/contracts/storage/default.nix) | [More →](storage.md) |
 | [`user`](user.md) | Normal user account helper functions and querying utilities. | [`forNormalUsers`](user.md#forNormalUsers), [`normalUserNames`](user.md#normalUserNames), [`normalUsers`](user.md#normalUsers) | [`modules/features/user.nix`](../../modules/features/user.nix) | [More →](user.md) |
 | [`wayland`](wayland.md) | Library helpers and constructors for the 'wayland' contract. | [`mkConfig`](wayland.md#mkConfig), [`mkOption`](wayland.md#mkOption), [`types`](wayland.md#types) | [`modules/contracts/wayland.nix`](../../modules/contracts/wayland.nix) | [More →](wayland.md) |

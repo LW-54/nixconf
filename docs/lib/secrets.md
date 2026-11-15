@@ -115,3 +115,4 @@ secrets.mkOption { ... }
 Custom option types declared under this library namespace:
 
 - `secret`: submodule
+- `template`: submodule

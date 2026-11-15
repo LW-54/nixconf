@@ -35,6 +35,7 @@ jobs:
           - devShells-master-ssh
           - devShells-sops-admin
           - devShells-sops-host
+          - devShells-storage-admin
           - formatter
           - host-astrolabe
           - host-x240
@@ -53,6 +54,7 @@ jobs:
           - packages-graph
           - packages-menu
           - packages-nixconf-json
+          - packages-storage
           - packages-test
   check:
     name: Flake Checks

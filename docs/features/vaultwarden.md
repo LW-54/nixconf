@@ -22,11 +22,13 @@ flowchart LR
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
+    urn__nixconf__ast__option__backup_destinations[/"backup.destinations"/]:::optNode
     urn__nixconf__ast__option__backup_enable[/"backup.enable"/]:::optNode
     urn__nixconf__ast__option__backup_exclude[/"backup.exclude"/]:::optNode
     urn__nixconf__ast__option__backup_paths[/"backup.paths"/]:::optNode
     urn__nixconf__ast__option__backup_pruneOpts[/"backup.pruneOpts"/]:::optNode
     urn__nixconf__ast__option__backup_timerConfig[/"backup.timerConfig"/]:::optNode
+    urn__nixconf__ast__option__backup_units[/"backup.units"/]:::optNode
     urn__nixconf__ast__option__persistence_directories[/"persistence.directories"/]:::optNode
     urn__nixconf__ast__option__persistence_enable[/"persistence.enable"/]:::optNode
     urn__nixconf__ast__option__persistence_files[/"persistence.files"/]:::optNode
@@ -34,6 +36,11 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_domain[/"reverse-proxy.domain"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_enable[/"reverse-proxy.enable"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
+    urn__nixconf__ast__type__backup_destination[["backup.destination"]]:::typeNode
+    urn__nixconf__ast__type__backup_destinationOverride[["backup.destinationOverride"]]:::typeNode
+    urn__nixconf__ast__type__backup_retention[["backup.retention"]]:::typeNode
+    urn__nixconf__ast__type__backup_schedule[["backup.schedule"]]:::typeNode
+    urn__nixconf__ast__type__backup_unit[["backup.unit"]]:::typeNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_fqdn[["reverse-proxy.fqdn"]]:::typeNode
@@ -54,6 +61,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
@@ -64,6 +72,7 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
@@ -78,16 +87,32 @@ flowchart LR
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_destination
+    urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_destinationOverride
+    urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_retention
+    urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_schedule
+    urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_unit
+    urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_destination
+    urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_destinationOverride
+    urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_retention
+    urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_schedule
+    urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_unit
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
@@ -102,11 +127,18 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_destinations
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_enable
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_paths
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_pruneOpts
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_timerConfig
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_units
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_destination
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_destinationOverride
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_retention
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_schedule
+    urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__type__backup_unit
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
@@ -151,6 +183,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -158,6 +191,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
@@ -166,7 +200,10 @@ flowchart LR
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
 
 
@@ -180,11 +217,13 @@ flowchart LR
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
+    click urn__nixconf__ast__option__backup_destinations href "../contracts/backup.md" "backup.destinations"
     click urn__nixconf__ast__option__backup_enable href "../contracts/backup.md" "backup.enable"
     click urn__nixconf__ast__option__backup_exclude href "../contracts/backup.md" "backup.exclude"
     click urn__nixconf__ast__option__backup_paths href "../contracts/backup.md" "backup.paths"
     click urn__nixconf__ast__option__backup_pruneOpts href "../contracts/backup.md" "backup.pruneOpts"
     click urn__nixconf__ast__option__backup_timerConfig href "../contracts/backup.md" "backup.timerConfig"
+    click urn__nixconf__ast__option__backup_units href "../contracts/backup.md" "backup.units"
     click urn__nixconf__ast__option__persistence_directories href "../contracts/persistence.md" "persistence.directories"
     click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
     click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
@@ -192,6 +231,11 @@ flowchart LR
     click urn__nixconf__ast__option__reverse_proxy_domain href "../contracts/reverse-proxy.md" "reverse-proxy.domain"
     click urn__nixconf__ast__option__reverse_proxy_enable href "../contracts/reverse-proxy.md" "reverse-proxy.enable"
     click urn__nixconf__ast__option__reverse_proxy_hosts href "../contracts/reverse-proxy.md" "reverse-proxy.hosts"
+    click urn__nixconf__ast__type__backup_destination href "../contracts/backup.md" "backup.destination"
+    click urn__nixconf__ast__type__backup_destinationOverride href "../contracts/backup.md" "backup.destinationOverride"
+    click urn__nixconf__ast__type__backup_retention href "../contracts/backup.md" "backup.retention"
+    click urn__nixconf__ast__type__backup_schedule href "../contracts/backup.md" "backup.schedule"
+    click urn__nixconf__ast__type__backup_unit href "../contracts/backup.md" "backup.unit"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
     click urn__nixconf__ast__type__reverse_proxy_fqdn href "../contracts/reverse-proxy.md" "reverse-proxy.fqdn"
@@ -212,6 +256,7 @@ flowchart LR
     click urn__nixconf__onto__feature__locale href "locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "ssh.md" "ssh"
     click urn__nixconf__onto__feature__ttyd href "ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "uchiyomi.md" "uchiyomi"
@@ -222,6 +267,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
 
@@ -259,12 +305,12 @@ Capability contracts configured by this feature:
 <details>
 <summary><code><a href="../contracts/backup.md">backup</a></code></summary>
 
-**Configures options**: `backup.exclude`, `backup.paths`
+**Configures options**: `backup.enable`, `backup.exclude`, `backup.paths`, `backup.units`
 
 ```nix
 # modules/features/vaultwarden.nix
 ...
-44: (self.lib.backup.mkConfig {inherit config cfg;})
+47: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -279,7 +325,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/vaultwarden.nix
 ...
-43: (self.lib.persistence.mkConfig {inherit config cfg;})
+46: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -294,9 +340,9 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/vaultwarden.nix
 ...
-33: domain = config.reverse-proxy.domain or null;
+36: domain = config.reverse-proxy.domain or null;
 ...
-42: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+45: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 

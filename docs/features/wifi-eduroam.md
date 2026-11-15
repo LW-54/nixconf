@@ -25,7 +25,10 @@ flowchart LR
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__secrets_placeholder[/"secrets.placeholder"/]:::optNode
+    urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
+    urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
@@ -45,6 +48,7 @@ flowchart LR
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
@@ -54,14 +58,22 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__secrets_placeholder
     urn__nixconf__ast__module__wifi_eduroam -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__wifi_eduroam -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
@@ -74,9 +86,13 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -114,11 +130,14 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -136,7 +155,10 @@ flowchart LR
     click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
     click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__option__secrets_placeholder href "../contracts/secrets.md" "secrets.placeholder"
+    click urn__nixconf__ast__option__secrets_templates href "../contracts/secrets.md" "secrets.templates"
     click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
+    click urn__nixconf__ast__type__secrets_template href "../contracts/secrets.md" "secrets.template"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
@@ -156,6 +178,7 @@ flowchart LR
     click urn__nixconf__onto__feature__locale href "locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "tack.md" "tack"
     click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
@@ -165,6 +188,7 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
@@ -203,15 +227,26 @@ Capability contracts configured by this feature:
 <details>
 <summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
 
-**Configures options**: `secrets.files`
+**Configures options**: `secrets.files`, `secrets.templates`
 
 ```nix
 # modules/features/wifi.nix
+...
+14: environmentTemplate = config.secrets.templates."wifi-eduroam-networkmanager".path;
 ...
 81: secrets.files = {
 82: ${usernameSecret} = {
 83: file = cfg.secretFile;
 84: key = cfg.usernameKey;
+...
+92: secrets.templates."wifi-eduroam-networkmanager" = {
+93: mode = "0400";
+94: content = ''
+95: EDUROAM_USERNAME=${config.secrets.placeholder.${usernameSecret}}
+...
+95: EDUROAM_USERNAME=${config.secrets.placeholder.${usernameSecret}}
+...
+96: EDUROAM_PASSWORD=${config.secrets.placeholder.${passwordSecret}}
 ...
 ```
 

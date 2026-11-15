@@ -32,6 +32,7 @@ flowchart LR
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
+    urn__nixconf__drv__devShell__storage_admin["devShell/storage-admin"]:::devShellNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
@@ -65,6 +66,8 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
+    urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
@@ -81,6 +84,7 @@ flowchart LR
     urn__nixconf__drv__devShell__github_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__sops_admin -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__storage_admin -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__bw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__impermanence
@@ -128,6 +132,8 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
@@ -163,12 +169,15 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -193,6 +202,7 @@ flowchart LR
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
+    click urn__nixconf__drv__devShell__storage_admin href "../devshells.md#storage-admin" "storage-admin"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
@@ -226,6 +236,8 @@ flowchart LR
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
+    click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "../implementations/uwsm.md" "uwsm"
 

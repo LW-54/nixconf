@@ -59,6 +59,7 @@ flowchart TD
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
+    urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
 end
 
@@ -81,6 +82,7 @@ end
     urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
@@ -102,6 +104,7 @@ end
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
+    urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
@@ -122,6 +125,7 @@ end
     urn__nixconf__onto__lib__reverse_proxy["reverse-proxy"]:::defaultNode
     urn__nixconf__onto__lib__secrets["secrets"]:::defaultNode
     urn__nixconf__onto__lib__sops["sops"]:::defaultNode
+    urn__nixconf__onto__lib__storage["storage"]:::defaultNode
     urn__nixconf__onto__lib__user["user"]:::defaultNode
     urn__nixconf__onto__lib__wayland["wayland"]:::defaultNode
 end
@@ -141,12 +145,15 @@ end
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -159,6 +166,7 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
@@ -166,6 +174,7 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
@@ -193,6 +202,7 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -204,8 +214,15 @@ end
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
@@ -215,6 +232,7 @@ end
     click urn__nixconf__onto__contract__persistence href "docs/contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "docs/contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "docs/contracts/secrets.md" "secrets"
+    click urn__nixconf__onto__contract__storage href "docs/contracts/storage.md" "storage"
     click urn__nixconf__onto__contract__wayland href "docs/contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "docs/features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "docs/features/audio.md" "audio"
@@ -234,6 +252,7 @@ end
     click urn__nixconf__onto__feature__locale href "docs/features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "docs/features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "docs/features/noctalia.md" "noctalia"
+    click urn__nixconf__onto__feature__snapshot href "docs/features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "docs/features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "docs/features/tack.md" "tack"
     click urn__nixconf__onto__feature__ttyd href "docs/features/ttyd.md" "ttyd"
@@ -249,6 +268,7 @@ end
     click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "docs/implementations/lw.md" "lw"
+    click urn__nixconf__onto__implementation__rclone href "docs/implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
@@ -266,6 +286,7 @@ end
     click urn__nixconf__onto__lib__reverse_proxy href "docs/lib/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__lib__secrets href "docs/lib/secrets.md" "secrets"
     click urn__nixconf__onto__lib__sops href "docs/lib/sops.md" "sops"
+    click urn__nixconf__onto__lib__storage href "docs/lib/storage.md" "storage"
     click urn__nixconf__onto__lib__user href "docs/lib/user.md" "user"
     click urn__nixconf__onto__lib__wayland href "docs/lib/wayland.md" "wayland"
 
@@ -318,11 +339,11 @@ Foundational structural primitives governing repository architecture, typing, an
 
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
-| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 7 | [More →](docs/contracts/README.md) |
-| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 27 | [More →](docs/features/README.md) |
+| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 8 | [More →](docs/contracts/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 28 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
-| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 7 | [More →](docs/implementations/README.md) |
-| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 16 | [More →](docs/lib/README.md) |
+| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 8 | [More →](docs/implementations/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 17 | [More →](docs/lib/README.md) |
 
 </details>
 
@@ -409,12 +430,13 @@ Pure contract interfaces defining shared option schemas decoupled from backends.
 
 | Contract | Description | Implementations | Docs |
 | :--- | :--- | :--- | :--- |
-| [`backup`](docs/contracts/backup.md) | Automated snapshot backup configuration, inclusion paths, exclusions, and retention rules. | [`restic`](docs/implementations/restic.md) | [More →](docs/contracts/backup.md) |
+| [`backup`](docs/contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [`restic`](docs/implementations/restic.md) | [More →](docs/contracts/backup.md) |
 | [`default-user`](docs/contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](docs/implementations/lw.md) | [More →](docs/contracts/default-user.md) |
 | [`home`](docs/contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [`hjem`](docs/implementations/hjem.md) | [More →](docs/contracts/home.md) |
 | [`persistence`](docs/contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](docs/implementations/impermanence.md) | [More →](docs/contracts/persistence.md) |
 | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](docs/implementations/caddy.md) | [More →](docs/contracts/reverse-proxy.md) |
 | [`secrets`](docs/contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](docs/implementations/sops.md) | [More →](docs/contracts/secrets.md) |
+| [`storage`](docs/contracts/storage.md) | Declarative multi-provider storage contract separating open driver definitions, logical providers, host/shared slices, and mount requests. | [`rclone`](docs/implementations/rclone.md) | [More →](docs/contracts/storage.md) |
 | [`wayland`](docs/contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [`uwsm`](docs/implementations/uwsm.md) | [More →](docs/contracts/wayland.md) |
 
 </details>
@@ -430,7 +452,8 @@ Concrete capability providers satisfying contract interfaces with services and p
 | [`hjem`](docs/implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [`home`](docs/contracts/home.md) | [More →](docs/implementations/hjem.md) |
 | [`impermanence`](docs/implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`persistence`](docs/contracts/persistence.md) | [More →](docs/implementations/impermanence.md) |
 | [`lw`](docs/implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [`default-user`](docs/contracts/default-user.md) | [More →](docs/implementations/lw.md) |
-| [`restic`](docs/implementations/restic.md) | Automated encrypted remote backups using Restic and systemd timers. | [`backup`](docs/contracts/backup.md) | [More →](docs/implementations/restic.md) |
+| [`rclone`](docs/implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [`storage`](docs/contracts/storage.md) | [More →](docs/implementations/rclone.md) |
+| [`restic`](docs/implementations/restic.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [`backup`](docs/contracts/backup.md) | [More →](docs/implementations/restic.md) |
 | [`sops`](docs/implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`secrets`](docs/contracts/secrets.md) | [More →](docs/implementations/sops.md) |
 | [`uwsm`](docs/implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [`wayland`](docs/contracts/wayland.md) | [More →](docs/implementations/uwsm.md) |
 
@@ -461,6 +484,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | [`locale`](docs/features/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](docs/features/locale.md) |
 | [`nix`](docs/features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](docs/features/nix.md) |
 | [`noctalia`](docs/features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](docs/features/noctalia.md) |
+| [`snapshot`](docs/features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [More →](docs/features/snapshot.md) |
 | [`ssh`](docs/features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](docs/features/ssh.md) |
 | [`tack`](docs/features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](docs/features/tack.md) |
 | [`ttyd`](docs/features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](docs/features/ttyd.md) |
@@ -494,6 +518,7 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 | [`reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |
 | [`secrets`](docs/lib/secrets.md) | Library helpers and constructors for the 'secrets' contract. | [More →](docs/lib/secrets.md) |
 | [`sops`](docs/lib/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [More →](docs/lib/sops.md) |
+| [`storage`](docs/lib/storage.md) | Library helpers and constructors for the 'storage' contract. | [More →](docs/lib/storage.md) |
 | [`user`](docs/lib/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/lib/user.md) |
 | [`wayland`](docs/lib/wayland.md) | Library helpers and constructors for the 'wayland' contract. | [More →](docs/lib/wayland.md) |
 
@@ -625,6 +650,17 @@ nix run .#menu
 nix run github:LW-54/nixconf#menu
 ```
 
+#### [`storage`](docs/packages.md#storage)
+Declarative multi-provider storage reconciler and drift checker across all fleet hosts.
+
+```bash
+nix run .#storage
+```
+
+```bash
+nix run github:LW-54/nixconf#storage
+```
+
 #### [`test`](docs/packages.md#test)
 Runs test tiers (eval, inspect, vm, install), multi-node scenarios, and interactive test VMs.
 
@@ -696,6 +732,17 @@ nix develop .#sops-host
 
 ```bash
 nix develop github:LW-54/nixconf#sops-host
+```
+
+#### [`storage-admin`](docs/devshells.md#storage-admin)
+Administrative storage reconciliation shell unlocking SOPS_AGE_KEY via Bitwarden and exposing nixconf-storage.
+
+```bash
+nix develop .#storage-admin
+```
+
+```bash
+nix develop github:LW-54/nixconf#storage-admin
 ```
 
 </details>

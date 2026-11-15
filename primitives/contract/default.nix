@@ -40,7 +40,8 @@
           shortDescription = typeDef.description or "Type definition ${typeName}.";
           evalChecks.hasDescription = (typeDef.description or "") != "";
         }
-      ) (c.types or {}));
+      ) (c.types or {}))
+      // (output.childOutputs name c);
 
     options = {
       options = lib.mkOption {

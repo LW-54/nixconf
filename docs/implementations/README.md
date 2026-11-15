@@ -8,7 +8,7 @@ Concrete capability providers satisfying contract interfaces by translating abst
 
 - **Declared as**: `implementation.<name>` in any flake-parts module under `modules/implementations/`
 - **Primitive definition**: [`primitives/implementation/default.nix`](../../primitives/implementation/default.nix)
-- **Instances**: 7
+- **Instances**: 8
 
 ## Option Schema (`implementation.<name>`)
 
@@ -59,6 +59,7 @@ Smallest declaration in the repository, [`modules/implementations/uwsm.nix`](../
 | [`hjem`](hjem.md) | [`home`](../contracts/home.md) | Lightweight declarative home directory files and XDG environment manager. | [`modules/implementations/hjem.nix`](../../modules/implementations/hjem.nix) | [More →](hjem.md) |
 | [`impermanence`](impermanence.md) | [`persistence`](../contracts/persistence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`modules/implementations/impermanence.nix`](../../modules/implementations/impermanence.nix) | [More →](impermanence.md) |
 | [`lw`](lw.md) | [`default-user`](../contracts/default-user.md) | Primary human user account orchestration and identity provisioning. | [`modules/implementations/lw.nix`](../../modules/implementations/lw.nix) | [More →](lw.md) |
-| [`restic`](restic.md) | [`backup`](../contracts/backup.md) | Automated encrypted remote backups using Restic and systemd timers. | [`modules/implementations/restic.nix`](../../modules/implementations/restic.nix) | [More →](restic.md) |
+| [`rclone`](rclone.md) | [`storage`](../contracts/storage.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [`modules/implementations/rclone/default.nix`](../../modules/implementations/rclone/default.nix) | [More →](rclone.md) |
+| [`restic`](restic.md) | [`backup`](../contracts/backup.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [`modules/implementations/restic/default.nix`](../../modules/implementations/restic/default.nix) | [More →](restic.md) |
 | [`sops`](sops.md) | [`secrets`](../contracts/secrets.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](sops.md) |
 | [`uwsm`](uwsm.md) | [`wayland`](../contracts/wayland.md) | Universal Wayland Session Manager integration for desktop environments. | [`modules/implementations/uwsm.nix`](../../modules/implementations/uwsm.nix) | [More →](uwsm.md) |

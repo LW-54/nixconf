@@ -116,3 +116,36 @@ sops -d modules/secrets/secrets.yaml
 # Extract a specific secret value
 sops -d --extract '["default-user-password-hash"]' modules/secrets/secrets.yaml
 ```
+
+<a id="storage-admin"></a>
+### `storage-admin`
+
+Administrative storage reconciliation shell unlocking SOPS_AGE_KEY via Bitwarden and exposing nixconf-storage.
+
+Provided by contract [`storage`](contracts/storage.md).
+
+```bash
+nix develop .#storage-admin
+```
+
+```bash
+nix develop github:LW-54/nixconf#storage-admin
+```
+
+#### Usage
+
+Administrative shell for inspecting, reconciling, and bootstrapping declarative storage infrastructure.
+
+```bash
+# Enter shell (unlocks SOPS_AGE_KEY via Bitwarden)
+nix develop .#storage-admin
+
+# Inspect fleet providers and resolved slices
+nixconf-storage --list
+
+# Verify SOPS secrets and Hetzner Storage Box API drift
+nixconf-storage --check
+
+# Reconcile Hetzner subaccounts, snapshot plans, and missing SOPS secrets
+nixconf-storage --write
+```

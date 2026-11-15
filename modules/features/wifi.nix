@@ -11,7 +11,7 @@
         cfg = config.services.wifi-eduroam;
         usernameSecret = "wifi-eduroam-username";
         passwordSecret = "wifi-eduroam-password";
-        environmentTemplate = config.sops.templates."wifi-eduroam-networkmanager".path;
+        environmentTemplate = config.secrets.templates."wifi-eduroam-networkmanager".path;
         caCertificate = pkgs.writeText "eduroam-ca.pem" ''
           -----BEGIN CERTIFICATE-----
           MIIFpDCCA4ygAwIBAgIQOcqTHO9D88aOk8f0ZIk4fjANBgkqhkiG9w0BAQsFADBs
@@ -89,11 +89,11 @@
             };
           };
 
-          sops.templates."wifi-eduroam-networkmanager" = {
+          secrets.templates."wifi-eduroam-networkmanager" = {
             mode = "0400";
             content = ''
-              EDUROAM_USERNAME=${config.sops.placeholder.${usernameSecret}}
-              EDUROAM_PASSWORD=${config.sops.placeholder.${passwordSecret}}
+              EDUROAM_USERNAME=${config.secrets.placeholder.${usernameSecret}}
+              EDUROAM_PASSWORD=${config.secrets.placeholder.${passwordSecret}}
             '';
           };
 
