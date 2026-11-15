@@ -85,6 +85,8 @@
     t = toString tty;
     marker = "/tmp/nixconf-test-login-${user}";
   in ''
+    import datetime
+
     machine.wait_for_unit("multi-user.target")
     machine.succeed("rm -f ${marker}")
     machine.succeed("chvt ${t}")
@@ -97,9 +99,19 @@
     machine.wait_until_succeeds("pgrep login")
     machine.wait_until_tty_matches("${t}", "Password: ")
     machine.send_chars(${builtins.toJSON "${password}\n"})
-    machine.wait_until_succeeds("pgrep -u ${user} -f 'bash|sh|zsh|fish'")
-    machine.send_chars("touch ${marker}\n")
-    machine.wait_for_file("${marker}")
+    machine.wait_until_succeeds("pgrep -u ${user} -t tty${t}")
+    for _attempt in range(5):
+        machine.succeed("chvt ${t}")
+        machine.wait_until_succeeds("[ $(fgconsole) = ${t} ]")
+        machine.send_chars("touch ${marker}\n")
+        try:
+            machine.wait_for_file("${marker}", timeout=datetime.timedelta(seconds=5))
+            break
+        except Exception:
+            pass
+    else:
+        _tty_text = machine.get_tty_text("${t}")
+        raise AssertionError(f"Timed out waiting for ${marker} on tty${t}; tty${t} text:\n{_tty_text}")
     assert machine.succeed("stat -c %U ${marker}").strip() == "${user}"
     machine.send_chars("exit\n")
   '';
