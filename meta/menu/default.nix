@@ -85,6 +85,7 @@
           entry "[devshell]" "enter: storage-admin" "nix develop .#storage-admin" "Administrative storage shell with Bitwarden SOPS key and nixconf-storage." "Requires bitwarden unlock."
           entry "[devshell]" "enter: sops-host" "nix develop .#sops-host" "Operational shell loading host age key from /persist/sops-nix/key.txt." "Requires sudo to read host key."
           entry "[devshell]" "enter: github-ssh" "nix develop .#github-ssh" "Development shell configured with Bitwarden GitHub SSH deploy key." "Requires bitwarden unlock."
+          entry "[devshell]" "enter: github-cli" "nix develop .#github-cli" "Development shell with GitHub CLI (gh) and Bitwarden GH_TOKEN." "Requires bitwarden unlock."
           entry "[devshell]" "enter: master-ssh" "nix develop .#master-ssh" "Cluster orchestration shell with Bitwarden master SSH key." "Requires bitwarden unlock."
           entry "[devshell]" "enter: default (devenv)" "nix develop .#default" "Main development shell with devenv, just, fzf, and linters." ""
 

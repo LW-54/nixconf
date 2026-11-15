@@ -30,7 +30,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`dolphin`](dolphin.md) | feature [`dolphin`](../features/dolphin.md) | KDE Dolphin file manager with Wayland integration and isolated runtime plugins. | [More →](dolphin.md) |
 | [`fonts`](fonts.md) | feature [`fonts`](../features/fonts.md) | System typography and developer monospace font packages. | [More →](fonts.md) |
 | [`foot`](foot.md) | feature [`foot`](../features/foot.md) | Fast, lightweight Wayland terminal emulator with server-client architecture. | [More →](foot.md) |
-| [`git`](git.md) | feature [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell. | [More →](git.md) |
+| [`git`](git.md) | feature [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [More →](git.md) |
 | [`greetd`](greetd.md) | feature [`greetd`](../features/greetd.md) | Lightweight console greeter and graphical session launcher via tuigreet. | [More →](greetd.md) |
 | [`helium`](helium.md) | feature [`helium`](../features/helium.md) | Helium web browser with custom runtime flags and enterprise policy management. | [More →](helium.md) |
 | [`hjem`](hjem.md) | implementation [`hjem`](../implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [More →](hjem.md) |

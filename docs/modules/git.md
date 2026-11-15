@@ -1,6 +1,6 @@
 # Module: `git`
 
-Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell.
+Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 

@@ -29,6 +29,7 @@ flowchart LR
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
+    urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
@@ -82,6 +83,7 @@ flowchart LR
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__github_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__sops_admin -->|dependsOn| urn__nixconf__drv__package__bw
@@ -111,6 +113,7 @@ flowchart LR
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_cli
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_ssh
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
@@ -207,6 +210,7 @@ flowchart LR
     click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
+    click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"

@@ -17,6 +17,27 @@ nix develop .#default
 nix develop github:LW-54/nixconf#default
 ```
 
+<a id="github-cli"></a>
+### `github-cli`
+
+Development shell configured with GitHub CLI (gh) and SOPS-encrypted GH_TOKEN.
+
+Provided by feature [`git`](features/git.md).
+
+```bash
+nix develop .#github-cli
+```
+
+```bash
+nix develop github:LW-54/nixconf#github-cli
+```
+
+#### Usage
+
+Development shell configured with the GitHub CLI (`gh`) and a SOPS-backed `GH_TOKEN`.
+
+Unlocks the master SOPS age key via Bitwarden (item `c2352759-f5e3-40af-a797-89bd86e230d2`) if `SOPS_AGE_KEY` is not already set, decrypts `token` from `secrets/admin/github.yaml`, and exports `GH_TOKEN`.
+
 <a id="github-ssh"></a>
 ### `github-ssh`
 

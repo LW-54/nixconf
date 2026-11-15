@@ -69,6 +69,7 @@ flowchart LR
     urn__nixconf__ast__option__storage_enable[/"storage.enable"/]:::optNode
     urn__nixconf__ast__option__storage_mounts[/"storage.mounts"/]:::optNode
     urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
+    urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
@@ -217,6 +218,7 @@ flowchart LR
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
@@ -269,6 +271,7 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__onto__feature__disko -->|outputs| urn__nixconf__ast__module__disko
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_cli
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__package__git
     urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
@@ -377,6 +380,7 @@ flowchart LR
     click urn__nixconf__ast__option__storage_enable href "../contracts/storage.md" "storage.enable"
     click urn__nixconf__ast__option__storage_mounts href "../contracts/storage.md" "storage.mounts"
     click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
+    click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__eval__configuration__astrolabe href "astrolabe.md" "astrolabe"
     click urn__nixconf__eval__configuration__x240 href "x240.md" "x240"
@@ -434,7 +438,7 @@ The following system and desktop features are imported by `astrolabe`:
 | Feature | Description | Outputs Used | Docs |
 | :--- | :--- | :--- | :--- |
 | [`disko`](../features/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [`disko`](../modules/disko.md) (module) | [More →](../features/disko.md) |
-| [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell. | [`git`](../modules/git.md) (module), [`git`](../packages.md#git) (package) | [More →](../features/git.md) |
+| [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [`git`](../modules/git.md) (module), [`git`](../packages.md#git) (package) | [More →](../features/git.md) |
 | [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [`locale`](../modules/locale.md) (module) | [More →](../features/locale.md) |
 | [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [`nix`](../modules/nix.md) (module) | [More →](../features/nix.md) |
 | [`snapshot`](../features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [`snapshot`](../modules/snapshot.md) (module) | [More →](../features/snapshot.md) |

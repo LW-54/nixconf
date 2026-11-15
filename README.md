@@ -480,7 +480,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | [`dolphin`](docs/features/dolphin.md) | KDE Dolphin file manager with Wayland integration and isolated runtime plugins. | [More →](docs/features/dolphin.md) |
 | [`fonts`](docs/features/fonts.md) | System typography and developer monospace font packages. | [More →](docs/features/fonts.md) |
 | [`foot`](docs/features/foot.md) | Fast, lightweight Wayland terminal emulator with server-client architecture. | [More →](docs/features/foot.md) |
-| [`git`](docs/features/git.md) | Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell. | [More →](docs/features/git.md) |
+| [`git`](docs/features/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [More →](docs/features/git.md) |
 | [`greetd`](docs/features/greetd.md) | Lightweight console greeter and graphical session launcher via tuigreet. | [More →](docs/features/greetd.md) |
 | [`helium`](docs/features/helium.md) | Helium web browser with custom runtime flags and enterprise policy management. | [More →](docs/features/helium.md) |
 | [`labwc`](docs/features/labwc.md) | Labwc stacking Wayland compositor with window manager keybindings and XDG autostart. | [More →](docs/features/labwc.md) |
@@ -691,6 +691,17 @@ nix develop .#default
 
 ```bash
 nix develop github:LW-54/nixconf#default
+```
+
+#### [`github-cli`](docs/devshells.md#github-cli)
+Development shell configured with GitHub CLI (gh) and SOPS-encrypted GH_TOKEN.
+
+```bash
+nix develop .#github-cli
+```
+
+```bash
+nix develop github:LW-54/nixconf#github-cli
 ```
 
 #### [`github-ssh`](docs/devshells.md#github-ssh)

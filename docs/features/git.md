@@ -1,6 +1,6 @@
 # Feature: `git`
 
-Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell.
+Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells.
 
 [← Back to Features Documentation](README.md) | [← Back to Main README](../../README.md)
 
@@ -37,6 +37,7 @@ flowchart LR
     urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
     urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
+    urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
@@ -94,6 +95,8 @@ flowchart LR
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__drv__devShell__github_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -130,6 +133,7 @@ flowchart LR
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_cli
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_ssh
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__package__git
     urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
@@ -252,6 +256,7 @@ flowchart LR
     click urn__nixconf__ast__type__home_userHome href "../contracts/home.md" "home.userHome"
     click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
     click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
+    click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
@@ -319,7 +324,7 @@ flowchart LR
 
 | Module | Description | Docs |
 | :--- | :--- | :--- |
-| [`git`](../modules/git.md) | Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell. | [More →](../modules/git.md) |
+| [`git`](../modules/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [More →](../modules/git.md) |
 
 ### Packages
 
@@ -331,6 +336,7 @@ flowchart LR
 
 | Development Shell | Command | Description | Docs |
 | :--- | :--- | :--- | :--- |
+| [`github-cli`](../devshells.md#github-cli) | `nix develop .#github-cli` | Development shell configured with GitHub CLI (gh) and SOPS-encrypted GH_TOKEN. | [More →](../devshells.md#github-cli) |
 | [`github-ssh`](../devshells.md#github-ssh) | `nix develop .#github-ssh` | Development shell configured with Bitwarden-authenticated GitHub SSH deploy keys. | [More →](../devshells.md#github-ssh) |
 
 ## Importing Hosts

@@ -107,6 +107,10 @@ sops-host:
 github-ssh:
     nix develop .#github-ssh
 
+# Enter GitHub CLI devshell with GH_TOKEN from Bitwarden
+github-cli:
+    nix develop .#github-cli
+
 # Enter master cluster SSH devshell
 master-ssh:
     nix develop .#master-ssh

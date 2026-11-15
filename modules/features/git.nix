@@ -11,7 +11,7 @@
   };
 in {
   feature.git = {
-    description = "Git version control system, global/per-user configuration, and Bitwarden SSH key agent shell.";
+    description = "Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells.";
 
     modules = {
       git = {
@@ -129,6 +129,42 @@ in {
           }} > "''${github_ssh_key}"
 
           export GIT_SSH_COMMAND="ssh -o IdentitiesOnly=yes -i ''${github_ssh_key}"
+        '';
+      };
+
+      github-cli = self.lib.bitwarden.mkShell {
+        inherit pkgs;
+        bw = self'.packages.bw;
+        packages = [pkgs.age pkgs.git pkgs.gh pkgs.sops];
+        meta = {
+          description = "Development shell configured with GitHub CLI (gh) and SOPS-encrypted GH_TOKEN.";
+          usage = ''
+            Development shell configured with the GitHub CLI (`gh`) and a SOPS-backed `GH_TOKEN`.
+
+            Unlocks the master SOPS age key via Bitwarden (item `c2352759-f5e3-40af-a797-89bd86e230d2`) if `SOPS_AGE_KEY` is not already set, decrypts `token` from `secrets/admin/github.yaml`, and exports `GH_TOKEN`.
+          '';
+        };
+        shellHook = ''
+          if [[ -z "''${GH_TOKEN:-}" ]]; then
+            repo_root="''${DEVENV_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
+            sops_file="$repo_root/secrets/admin/github.yaml"
+            if [[ ! -f "$sops_file" && -f "${self}/secrets/admin/github.yaml" ]]; then
+              sops_file="${self}/secrets/admin/github.yaml"
+            fi
+            if [[ ! -f "$sops_file" ]]; then
+              printf 'Missing GitHub token SOPS file: %s\n' "$sops_file" >&2
+              exit 1
+            fi
+            if [[ -z "''${SOPS_AGE_KEY:-}" ]]; then
+              ${self.lib.bitwarden.mkValue {
+            itemId = "c2352759-f5e3-40af-a797-89bd86e230d2";
+            variable = "SOPS_AGE_KEY";
+            jqFilter = ".notes | select(type == \"string\" and length > 0)";
+          }}
+            fi
+            GH_TOKEN="$(SOPS_AGE_KEY="$SOPS_AGE_KEY" sops -d --extract '["token"]' "$sops_file")" || exit 1
+            export GH_TOKEN
+          fi
         '';
       };
     };

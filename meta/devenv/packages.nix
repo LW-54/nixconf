@@ -23,6 +23,7 @@
 
       # Pinning & VCS
       inputs.tack.packages.${pkgs.stdenv.hostPlatform.system}.default
+      gh
       git
       jq
     ];
