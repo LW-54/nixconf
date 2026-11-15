@@ -710,7 +710,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/uchiyomi.nix
 ...
-295: (self.lib.persistence.mkConfig {inherit config cfg;})
+273: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 

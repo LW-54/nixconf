@@ -234,7 +234,7 @@
               }
               // lib.optionalAttrs cfg.storage.enable {
                 uchiyomi-storage-prep = {
-                  description = "Prepare Uchiyomi remote storage directories and migrate legacy local data";
+                  description = "Ensure Uchiyomi remote storage directories exist";
                   after = ["rclone-config.service" "network-online.target"];
                   wants = ["network-online.target"];
                   requires = ["rclone-config.service"];
@@ -246,33 +246,11 @@
                   };
                   script = ''
                     slice=${lib.escapeShellArg cfg.storage.slice}
-                    data_dir=${lib.escapeShellArg cfg.dataDir}
                     lib_path=${lib.escapeShellArg cfg.libraryPath}
                     dl_path=${lib.escapeShellArg cfg.downloadsPath}
-                    marker="$data_dir/.migrated-to-$slice"
 
                     rclone --config /etc/rclone/rclone.conf mkdir "$slice:library"
                     rclone --config /etc/rclone/rclone.conf mkdir "$slice:downloads"
-
-                    if [[ ! -f "$marker" ]]; then
-                      if [[ "$lib_path" != "$data_dir/library" ]] && [[ -d "$data_dir/library" ]]; then
-                        if [[ -n "$(ls -A "$data_dir/library" 2>/dev/null || true)" ]]; then
-                          echo "Migrating legacy $data_dir/library -> $slice:library via rclone move..."
-                          rclone --config /etc/rclone/rclone.conf move --delete-empty-src-dirs "$data_dir/library" "$slice:library"
-                        fi
-                        rmdir "$data_dir/library" 2>/dev/null || true
-                      fi
-
-                      if [[ "$dl_path" != "$data_dir/downloads" ]] && [[ -d "$data_dir/downloads" ]]; then
-                        if [[ -n "$(ls -A "$data_dir/downloads" 2>/dev/null || true)" ]]; then
-                          echo "Migrating legacy $data_dir/downloads -> $slice:downloads via rclone move..."
-                          rclone --config /etc/rclone/rclone.conf move --delete-empty-src-dirs "$data_dir/downloads" "$slice:downloads"
-                        fi
-                        rmdir "$data_dir/downloads" 2>/dev/null || true
-                      fi
-
-                      touch "$marker"
-                    fi
 
                     install -d -m 0775 "$lib_path" "$dl_path"
                   '';

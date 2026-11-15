@@ -391,7 +391,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/uchiyomi.nix
 ...
-296: (self.lib.backup.mkConfig {inherit config cfg;})
+274: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -406,7 +406,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/uchiyomi.nix
 ...
-295: (self.lib.persistence.mkConfig {inherit config cfg;})
+273: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -423,7 +423,7 @@ Capability contracts configured by this feature:
 ...
 24: domain = config.reverse-proxy.domain or null;
 ...
-294: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+272: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -454,13 +454,13 @@ Capability contracts configured by this feature:
 ...
 248: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-285: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+263: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-288: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+266: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-291: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
+269: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
 ...
-297: (self.lib.storage.mkConfig {inherit config cfg;})
+275: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 

@@ -60,7 +60,6 @@
       in {
         where = mCfg.mountPoint;
         wantedBy = ["multi-user.target"];
-        automountConfig.TimeoutIdleSec = "600";
       }
     ) (lib.filter (mName: enabledMounts.${mName}.automount) mountNames);
 

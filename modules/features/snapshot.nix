@@ -4,19 +4,19 @@
       enable = true;
       slice = "hbox-backup-host";
       repoSubpath = "snapshots/persist";
-      onCalendar = "weekly";
+      onCalendar = "daily";
       randomizedDelaySec = "30m";
       persistent = true;
-      keep = ["--keep-last" "1"];
+      keep = ["--keep-last" "7" "--keep-daily" "7" "--keep-weekly" "4" "--keep-monthly" "3"];
     };
     gdrive = {
       enable = true;
       slice = "gdrive-backup-host";
       repoSubpath = "snapshots/persist";
-      onCalendar = "weekly";
+      onCalendar = "daily";
       randomizedDelaySec = "1h";
       persistent = true;
-      keep = ["--keep-last" "5" "--keep-weekly" "4" "--keep-monthly" "3"];
+      keep = ["--keep-last" "14" "--keep-daily" "30" "--keep-weekly" "12" "--keep-monthly" "12" "--keep-yearly" "3"];
     };
   };
 
@@ -61,7 +61,7 @@ in {
           };
           onCalendar = lib.mkOption {
             type = lib.types.str;
-            default = td.onCalendar or "weekly";
+            default = td.onCalendar or "daily";
             description = "Systemd OnCalendar schedule expression for automated remote snapshots.";
           };
           randomizedDelaySec = lib.mkOption {
@@ -76,7 +76,7 @@ in {
           };
           keep = lib.mkOption {
             type = lib.types.listOf lib.types.str;
-            default = td.keep or ["--keep-last" "1"];
+            default = td.keep or ["--keep-last" "7" "--keep-daily" "7" "--keep-weekly" "4" "--keep-monthly" "3"];
             description = "Retention arguments passed to `restic forget --prune`.";
           };
         };
@@ -259,7 +259,7 @@ in {
 
         localKeep = lib.mkOption {
           type = lib.types.ints.unsigned;
-          default = 2;
+          default = 7;
           description = "Maximum number of local `local-*` read-only Btrfs snapshots retained under `snapshotDir`.";
         };
 

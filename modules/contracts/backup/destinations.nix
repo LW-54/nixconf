@@ -11,12 +11,12 @@
         persistent = true;
       };
       retention = {
-        last = 6;
-        hourly = 24;
-        daily = 14;
-        weekly = 8;
-        monthly = 6;
-        yearly = 1;
+        last = 24;
+        hourly = 48;
+        daily = 30;
+        weekly = 12;
+        monthly = 12;
+        yearly = 2;
       };
     };
 
@@ -31,12 +31,12 @@
         persistent = true;
       };
       retention = {
-        last = 12;
-        hourly = 48;
-        daily = 30;
-        weekly = 16;
-        monthly = 24;
-        yearly = 5;
+        last = 48;
+        hourly = 96;
+        daily = 60;
+        weekly = 26;
+        monthly = 36;
+        yearly = 10;
       };
     };
 
@@ -51,11 +51,11 @@
         persistent = true;
       };
       retention = {
-        last = 4;
-        hourly = 6;
+        last = 8;
+        hourly = 12;
         daily = 7;
-        weekly = 2;
-        monthly = 1;
+        weekly = 4;
+        monthly = 2;
         yearly = null;
       };
     };
@@ -71,12 +71,12 @@
         persistent = true;
       };
       retention = {
-        last = 6;
-        hourly = 24;
-        daily = 14;
-        weekly = 8;
+        last = 24;
+        hourly = 48;
+        daily = 30;
+        weekly = 12;
         monthly = 12;
-        yearly = 1;
+        yearly = 2;
       };
     };
 
@@ -91,12 +91,12 @@
         persistent = true;
       };
       retention = {
-        last = 12;
-        hourly = 48;
-        daily = 30;
-        weekly = 16;
-        monthly = 24;
-        yearly = 5;
+        last = 48;
+        hourly = 96;
+        daily = 60;
+        weekly = 26;
+        monthly = 36;
+        yearly = 10;
       };
     };
 
@@ -111,11 +111,11 @@
         persistent = true;
       };
       retention = {
-        last = 4;
-        hourly = 6;
+        last = 8;
+        hourly = 12;
         daily = 7;
-        weekly = 2;
-        monthly = 1;
+        weekly = 4;
+        monthly = 2;
         yearly = null;
       };
     };

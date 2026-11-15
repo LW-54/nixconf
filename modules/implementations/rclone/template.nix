@@ -161,7 +161,7 @@
             key="''${BASH_REMATCH[1]}"
             val="''${BASH_REMATCH[2]}"
             if [[ -n "$val" ]]; then
-              obscured="$(printf '%s' "$val" | rclone obscure -)"
+              obscured="$(printf '%s' "$val" | rclone --config /dev/null obscure -)"
               printf '%s = %s\n' "$key" "$obscured" >> "$tmp_file"
             else
               printf '%s = \n' "$key" >> "$tmp_file"

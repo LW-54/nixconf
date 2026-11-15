@@ -232,7 +232,7 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/features/uchiyomi.nix
 ...
-296: (self.lib.backup.mkConfig {inherit config cfg;})
+274: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
