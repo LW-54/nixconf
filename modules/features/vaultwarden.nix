@@ -15,7 +15,6 @@
           }
           // self.lib.reverse-proxy.mkOption {
             subdomain = "vaultwarden";
-            port = 8222;
           }
           // self.lib.persistence.mkOption {
             directories = ["/var/lib/vaultwarden"];

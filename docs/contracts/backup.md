@@ -429,7 +429,7 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/features/copyparty.nix
 ...
-320: (self.lib.backup.mkConfig {inherit config cfg;})
+319: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -444,7 +444,7 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/features/uchiyomi.nix
 ...
-272: (self.lib.backup.mkConfig {inherit config cfg;})
+271: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -459,7 +459,7 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/features/vaultwarden.nix
 ...
-47: (self.lib.backup.mkConfig {inherit config cfg;})
+46: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 

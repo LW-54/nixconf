@@ -36,6 +36,7 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_domain[/"reverse-proxy.domain"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_enable[/"reverse-proxy.enable"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
+    urn__nixconf__ast__option__reverse_proxy_ports[/"reverse-proxy.ports"/]:::optNode
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
@@ -58,6 +59,7 @@ flowchart LR
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_fqdn[["reverse-proxy.fqdn"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_host[["reverse-proxy.host"]]:::typeNode
+    urn__nixconf__ast__type__reverse_proxy_portAllocation[["reverse-proxy.portAllocation"]]:::typeNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
     urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__ast__type__storage_driver[["storage.driver"]]:::typeNode
@@ -109,6 +111,7 @@ flowchart LR
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -122,6 +125,7 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_enable
@@ -169,6 +173,9 @@ flowchart LR
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
     urn__nixconf__ast__option__reverse_proxy_domain -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__ast__option__reverse_proxy_hosts -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__ast__option__reverse_proxy_hosts -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_portAllocation
+    urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_portAllocation
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
@@ -220,8 +227,10 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_enable
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_portAllocation
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
@@ -368,6 +377,7 @@ flowchart LR
     click urn__nixconf__ast__option__reverse_proxy_domain href "../contracts/reverse-proxy.md" "reverse-proxy.domain"
     click urn__nixconf__ast__option__reverse_proxy_enable href "../contracts/reverse-proxy.md" "reverse-proxy.enable"
     click urn__nixconf__ast__option__reverse_proxy_hosts href "../contracts/reverse-proxy.md" "reverse-proxy.hosts"
+    click urn__nixconf__ast__option__reverse_proxy_ports href "../contracts/reverse-proxy.md" "reverse-proxy.ports"
     click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
     click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
@@ -390,6 +400,7 @@ flowchart LR
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
     click urn__nixconf__ast__type__reverse_proxy_fqdn href "../contracts/reverse-proxy.md" "reverse-proxy.fqdn"
     click urn__nixconf__ast__type__reverse_proxy_host href "../contracts/reverse-proxy.md" "reverse-proxy.host"
+    click urn__nixconf__ast__type__reverse_proxy_portAllocation href "../contracts/reverse-proxy.md" "reverse-proxy.portAllocation"
     click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
     click urn__nixconf__ast__type__secrets_template href "../contracts/secrets.md" "secrets.template"
     click urn__nixconf__ast__type__storage_driver href "../contracts/storage.md" "storage.driver"
@@ -473,7 +484,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/copyparty.nix
 ...
-320: (self.lib.backup.mkConfig {inherit config cfg;})
+319: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -488,7 +499,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/copyparty.nix
 ...
-319: (self.lib.persistence.mkConfig {inherit config cfg;})
+318: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -498,14 +509,14 @@ Capability contracts configured by this feature:
 <details>
 <summary><code><a href="../contracts/reverse-proxy.md">reverse-proxy</a></code></summary>
 
-**Configures options**: `reverse-proxy.hosts`
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
 # modules/features/copyparty.nix
 ...
 13: domain = config.reverse-proxy.domain or null;
 ...
-318: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+317: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -522,18 +533,18 @@ Capability contracts configured by this feature:
 ...
 33: ${config.secrets.placeholder.copyparty-users}
 ...
-193: secrets = {
-194: files.copyparty-users = {
-195: store = "services/copyparty";
-196: key = "users";
+192: secrets = {
+193: files.copyparty-users = {
+194: store = "services/copyparty";
+195: key = "users";
 ...
-238: ["network.target" "sops-install-secrets.service"]
+237: ["network.target" "sops-install-secrets.service"]
 ...
-241: ["sops-install-secrets.service"]
+240: ["sops-install-secrets.service"]
 ...
-244: config.secrets.templates."copyparty.conf".content
+243: config.secrets.templates."copyparty.conf".content
 ...
-257: ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.secrets.templates."copyparty.conf".path}";
+256: ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.secrets.templates."copyparty.conf".path}";
 ...
 ```
 
@@ -556,22 +567,22 @@ Capability contracts configured by this feature:
 ...
 105: then "${cfg.storage.mountPoint}/drop"
 ...
-208: storage = lib.mkIf cfg.enableGdrive {
-209: enable = lib.mkDefault true;
-210: mounts.gdrive = {
-211: enable = true;
+207: storage = lib.mkIf cfg.enableGdrive {
+208: enable = lib.mkDefault true;
+209: mounts.gdrive = {
+210: enable = true;
 ...
-229: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
+228: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
 ...
-239: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+238: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
 ...
-242: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+241: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
 ...
-276: slice=${lib.escapeShellArg cfg.storage.slice}
+275: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-295: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
+294: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
 ...
-321: (self.lib.storage.mkConfig {inherit config cfg;})
+320: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 

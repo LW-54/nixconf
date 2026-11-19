@@ -160,7 +160,6 @@
           }
           // self.lib.reverse-proxy.mkOption {
             subdomain = "copyparty";
-            port = 3923;
           }
           // self.lib.persistence.mkOption {
             directories = [

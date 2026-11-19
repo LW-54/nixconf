@@ -8,10 +8,20 @@
     module = {
       config,
       lib,
+      self,
       ...
     }: let
       cfg = config.reverse-proxy;
+      conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
+      formatConflict = c: "${c.protocol}/${toString c.port} claimed by ${lib.concatStringsSep ", " c.owners}";
     in {
+      assertions = [
+        {
+          assertion = conflicts == [];
+          message = "Reverse proxy port conflict(s) detected: ${lib.concatMapStringsSep "; " formatConflict conflicts}.";
+        }
+      ];
+
       services.caddy = {
         enable = true;
         virtualHosts =

@@ -33,6 +33,7 @@
         || autoLogin;
 
       bootLoader = config.system.build.installBootLoader;
+      portConflicts = self.lib.reverse-proxy.findPortConflicts (config.reverse-proxy.ports or []);
 
       virtioInitrdModules = [
         "virtio_net"
@@ -84,6 +85,11 @@
                 state-version = {
                   assertion = options.system.stateVersion.highestPrio < (lib.mkOptionDefault null).priority;
                   message = "`system.stateVersion` is not set explicitly, so stateful services may silently migrate data on upgrade.";
+                };
+
+                port-conflicts = {
+                  assertion = portConflicts == [];
+                  message = "Conflicting local port allocations detected: ${lib.concatMapStringsSep "; " (c: "${c.protocol}/${toString c.port} claimed by ${lib.concatStringsSep ", " c.owners}") portConflicts}.";
                 };
               };
 

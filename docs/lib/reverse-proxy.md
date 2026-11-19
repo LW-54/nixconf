@@ -5,23 +5,29 @@ Library helpers and constructors for the 'reverse-proxy' contract.
 [← Back to Library Documentation](README.md) | [← Back to Main README](../../README.md)
 
 - **Library**: `flake.lib.reverse-proxy`
-- **Definition File**: [`modules/contracts/reverse-proxy.nix`](../../modules/contracts/reverse-proxy.nix)
+- **Definition File**: [`modules/contracts/reverse-proxy/default.nix`](../../modules/contracts/reverse-proxy/default.nix)
 
 <details>
 <summary>Architecture Diagram (click to expand)</summary>
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__function__reverse_proxy_mkConfig["reverse-proxy.mkConfig"]:::defaultNode
+  urn__nixconf__ast__function__reverse_proxy_findPortConflicts["reverse-proxy.findPortConflicts"]:::defaultNode
+    urn__nixconf__ast__function__reverse_proxy_mkConfig["reverse-proxy.mkConfig"]:::defaultNode
     urn__nixconf__ast__function__reverse_proxy_mkOption["reverse-proxy.mkOption"]:::defaultNode
+    urn__nixconf__ast__function__reverse_proxy_mkPort["reverse-proxy.mkPort"]:::defaultNode
     urn__nixconf__onto__lib__reverse_proxy["reverse-proxy"]:::defaultNode
 
+    urn__nixconf__onto__lib__reverse_proxy -->|outputs| urn__nixconf__ast__function__reverse_proxy_findPortConflicts
     urn__nixconf__onto__lib__reverse_proxy -->|outputs| urn__nixconf__ast__function__reverse_proxy_mkConfig
     urn__nixconf__onto__lib__reverse_proxy -->|outputs| urn__nixconf__ast__function__reverse_proxy_mkOption
+    urn__nixconf__onto__lib__reverse_proxy -->|outputs| urn__nixconf__ast__function__reverse_proxy_mkPort
 
 
+    click urn__nixconf__ast__function__reverse_proxy_findPortConflicts href "reverse-proxy.md" "reverse-proxy.findPortConflicts"
     click urn__nixconf__ast__function__reverse_proxy_mkConfig href "reverse-proxy.md" "reverse-proxy.mkConfig"
     click urn__nixconf__ast__function__reverse_proxy_mkOption href "reverse-proxy.md" "reverse-proxy.mkOption"
+    click urn__nixconf__ast__function__reverse_proxy_mkPort href "reverse-proxy.md" "reverse-proxy.mkPort"
     click urn__nixconf__onto__lib__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
 
   %% Semantic Visual Classes
@@ -47,7 +53,7 @@ This library namespace can be consumed both internally within repository modules
 
 ```nix
 { self, lib, pkgs, ... }: {
-  example = self.lib.reverse-proxy.mkConfig;
+  example = self.lib.reverse-proxy.findPortConflicts;
 }
 ```
 
@@ -58,12 +64,33 @@ This library namespace can be consumed both internally within repository modules
   inputs.nixconf.url = "github:LW-54/nixconf";
 
   outputs = { self, nixconf, ... }: {
-    example = nixconf.lib.reverse-proxy.mkConfig;
+    example = nixconf.lib.reverse-proxy.findPortConflicts;
   };
 }
 ```
 
 ## Exported Symbols
+
+<a id="findPortConflicts"></a>
+### `findPortConflicts`
+
+Inspect a list of port allocations and return descriptors for any colliding `(protocol, port)` bindings with overlapping addresses.
+
+#### Inputs
+
+- `allocations`: List of port allocation attribute sets (`{ owner, address ? "127.0.0.1", port, protocol ? "tcp" }`).
+
+#### Type
+
+```
+findPortConflicts :: [PortAllocation] -> [PortConflict]
+```
+
+#### Examples
+
+```nix
+reverse-proxy.findPortConflicts config.reverse-proxy.ports
+```
 
 <a id="mkConfig"></a>
 ### `mkConfig`
@@ -111,6 +138,27 @@ reverse-proxy.mkOption :: AttrSet -> AttrSet
 reverse-proxy.mkOption { ... }
 ```
 
+<a id="mkPort"></a>
+### `mkPort`
+
+Deterministically map a service or subdomain identifier to a non-privileged local port in the range `10000..59999`.
+
+#### Inputs
+
+- `name`: Service or subdomain identifier used as the deterministic hash seed.
+
+#### Type
+
+```
+mkPort :: String -> Int
+```
+
+#### Examples
+
+```nix
+reverse-proxy.mkPort "vaultwarden"
+```
+
 <a id="types"></a>
 ### `types`
 
@@ -118,3 +166,4 @@ Custom option types declared under this library namespace:
 
 - `fqdn`: Fully qualified domain name
 - `host`: submodule
+- `portAllocation`: submodule

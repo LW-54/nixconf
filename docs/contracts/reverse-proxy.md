@@ -5,7 +5,7 @@ Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.
 [← Back to Contracts Documentation](README.md) | [← Back to Main README](../../README.md)
 
 - **Contract**: `reverse-proxy`
-- **Definition File**: [`modules/contracts/reverse-proxy.nix`](../../modules/contracts/reverse-proxy.nix)
+- **Definition File**: [`modules/contracts/reverse-proxy/default.nix`](../../modules/contracts/reverse-proxy/default.nix)
 
 <details>
 <summary>Architecture Diagram (click to expand)</summary>
@@ -26,8 +26,10 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_domain[/"reverse-proxy.domain"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_enable[/"reverse-proxy.enable"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
+    urn__nixconf__ast__option__reverse_proxy_ports[/"reverse-proxy.ports"/]:::optNode
     urn__nixconf__ast__type__reverse_proxy_fqdn[["reverse-proxy.fqdn"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_host[["reverse-proxy.host"]]:::typeNode
+    urn__nixconf__ast__type__reverse_proxy_portAllocation[["reverse-proxy.portAllocation"]]:::typeNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
@@ -56,16 +58,24 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__option__reverse_proxy_domain -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__ast__option__reverse_proxy_hosts -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__ast__option__reverse_proxy_hosts -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_portAllocation
+    urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_portAllocation
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
@@ -79,8 +89,10 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_enable
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_portAllocation
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -162,8 +174,10 @@ flowchart LR
     click urn__nixconf__ast__option__reverse_proxy_domain href "reverse-proxy.md" "reverse-proxy.domain"
     click urn__nixconf__ast__option__reverse_proxy_enable href "reverse-proxy.md" "reverse-proxy.enable"
     click urn__nixconf__ast__option__reverse_proxy_hosts href "reverse-proxy.md" "reverse-proxy.hosts"
+    click urn__nixconf__ast__option__reverse_proxy_ports href "reverse-proxy.md" "reverse-proxy.ports"
     click urn__nixconf__ast__type__reverse_proxy_fqdn href "reverse-proxy.md" "reverse-proxy.fqdn"
     click urn__nixconf__ast__type__reverse_proxy_host href "reverse-proxy.md" "reverse-proxy.host"
+    click urn__nixconf__ast__type__reverse_proxy_portAllocation href "reverse-proxy.md" "reverse-proxy.portAllocation"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
@@ -215,13 +229,16 @@ flowchart LR
 
 | Symbol | Type | Description | Docs |
 | :--- | :--- | :--- | :--- |
+| [`findPortConflicts`](../lib/reverse-proxy.md#findPortConflicts) | `findPortConflicts :: [PortAllocation] -> [PortConflict]` | Inspect a list of port allocations and return descriptors for any colliding `(protocol, port)` bindings with overlapping addresses. | [More →](../lib/reverse-proxy.md#findPortConflicts) |
 | [`mkConfig`](../lib/reverse-proxy.md#mkConfig) | `reverse-proxy.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'reverse-proxy' contract. | [More →](../lib/reverse-proxy.md#mkConfig) |
 | [`mkOption`](../lib/reverse-proxy.md#mkOption) | `reverse-proxy.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'reverse-proxy' contract. | [More →](../lib/reverse-proxy.md#mkOption) |
+| [`mkPort`](../lib/reverse-proxy.md#mkPort) | `mkPort :: String -> Int` | Deterministically map a service or subdomain identifier to a non-privileged local port in the range `10000..59999`. | [More →](../lib/reverse-proxy.md#mkPort) |
 
 ### Custom Types
 
 - `fqdn`: Fully qualified domain name
 - `host`: submodule
+- `portAllocation`: submodule
 
 ## Option Schema Definitions
 
@@ -230,6 +247,7 @@ flowchart LR
 | `reverse-proxy.domain` | `null or (Fully qualified domain name)` | *null* | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
 | `reverse-proxy.enable` | `boolean` | `false` | Whether to enable system reverse proxy contract. |
 | `reverse-proxy.hosts` | `attribute set of (submodule)` | `{ }` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |
+| `reverse-proxy.ports` | `list of (submodule)` | `[ ]` | Declarative registry of provisioned service port allocations used to verify non-conflicting local endpoint bindings across the host at evaluation time. |
 
 ## Fulfilling Implementations
 
@@ -268,14 +286,14 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 <details>
 <summary><code><a href="../features/copyparty.md">copyparty</a></code></summary>
 
-**Configures options**: `reverse-proxy.hosts`
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
 # modules/features/copyparty.nix
 ...
 13: domain = config.reverse-proxy.domain or null;
 ...
-318: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+317: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -285,12 +303,12 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 <details>
 <summary><code><a href="../features/ttyd.md">ttyd</a></code></summary>
 
-**Configures options**: `reverse-proxy.hosts`
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
 # modules/features/ttyd.nix
 ...
-55: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+54: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -300,14 +318,14 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 <details>
 <summary><code><a href="../features/uchiyomi.md">uchiyomi</a></code></summary>
 
-**Configures options**: `reverse-proxy.hosts`
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
 # modules/features/uchiyomi.nix
 ...
 24: domain = config.reverse-proxy.domain or null;
 ...
-270: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+269: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -317,14 +335,14 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 <details>
 <summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
 
-**Configures options**: `reverse-proxy.hosts`
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
 # modules/features/vaultwarden.nix
 ...
-36: domain = config.reverse-proxy.domain or null;
+35: domain = config.reverse-proxy.domain or null;
 ...
-45: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+44: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 

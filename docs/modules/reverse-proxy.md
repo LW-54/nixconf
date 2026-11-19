@@ -14,3 +14,4 @@ Declarative HTTP/TLS reverse proxy virtual host ingress and routing management.
 | `reverse-proxy.domain` | `null or (Fully qualified domain name)` | — | `"adje.app"` | Base root domain name used for virtual host construction. Services providing a subdomain prefix will be exposed as `<subdomain>.<domain>`. |
 | `reverse-proxy.enable` | `boolean` | `false` | `true` | Whether to enable system reverse proxy contract. |
 | `reverse-proxy.hosts` | `attribute set of (submodule)` | `{ }` | `{ ... }` | Attribute set of virtual host fully-qualified domain names (FQDN) mapped to upstream backend endpoints and proxy policies. |
+| `reverse-proxy.ports` | `list of (submodule)` | `[ ]` | `[ ... ]` | Declarative registry of provisioned service port allocations used to verify non-conflicting local endpoint bindings across the host at evaluation time. |

@@ -83,7 +83,6 @@
           }
           // self.lib.reverse-proxy.mkOption {
             subdomain = "uchiyomi";
-            port = 8080;
           }
           // self.lib.persistence.mkOption {
             directories = [

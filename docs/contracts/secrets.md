@@ -384,18 +384,18 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ...
 33: ${config.secrets.placeholder.copyparty-users}
 ...
-193: secrets = {
-194: files.copyparty-users = {
-195: store = "services/copyparty";
-196: key = "users";
+192: secrets = {
+193: files.copyparty-users = {
+194: store = "services/copyparty";
+195: key = "users";
 ...
-238: ["network.target" "sops-install-secrets.service"]
+237: ["network.target" "sops-install-secrets.service"]
 ...
-241: ["sops-install-secrets.service"]
+240: ["sops-install-secrets.service"]
 ...
-244: config.secrets.templates."copyparty.conf".content
+243: config.secrets.templates."copyparty.conf".content
 ...
-257: ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.secrets.templates."copyparty.conf".path}";
+256: ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.secrets.templates."copyparty.conf".path}";
 ...
 ```
 

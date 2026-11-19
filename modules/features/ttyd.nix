@@ -16,7 +16,6 @@
           }
           // self.lib.reverse-proxy.mkOption {
             subdomain = "ttyd";
-            port = 7681;
             basicAuth = {admin = "$2a$14$vYmK17NeNy4sdgvOm6SAheSigD5Lnus70w8aJfQgLBceSG0hlVrPK";};
           }
           // {

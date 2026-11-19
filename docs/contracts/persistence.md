@@ -485,7 +485,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/implementations/caddy.nix
 ...
-36: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+46: persistence.directories = lib.mkIf (config.persistence.enable or false) [
 ...
 ```
 
@@ -597,7 +597,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/copyparty.nix
 ...
-319: (self.lib.persistence.mkConfig {inherit config cfg;})
+318: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -752,7 +752,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/uchiyomi.nix
 ...
-271: (self.lib.persistence.mkConfig {inherit config cfg;})
+270: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -767,7 +767,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/vaultwarden.nix
 ...
-46: (self.lib.persistence.mkConfig {inherit config cfg;})
+45: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
