@@ -16,6 +16,8 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`astrolabe-services`](astrolabe-services.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-services.md) |
 | [`astrolabe-system`](astrolabe-system.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-system.md) |
 | [`audio`](audio.md) | feature [`audio`](../features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](audio.md) |
+| [`auth`](auth.md) | contract [`auth`](../contracts/auth.md) | Declarative single sign-on (SSO), forward authentication, access control policy, and LDAP directory contract. | [More →](auth.md) |
+| [`authelia`](authelia.md) | implementation [`authelia`](../implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [More →](authelia.md) |
 | [`backup`](backup.md) | contract [`backup`](../contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [More →](backup.md) |
 | [`bitwarden-desktop`](bitwarden-desktop.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bitwarden-desktop.md) |
 | [`bw`](bw.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bw.md) |

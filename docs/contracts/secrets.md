@@ -12,7 +12,7 @@ Declarative encrypted secrets provisioning, filesystem mounting, and permission 
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
+  urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
@@ -31,6 +31,7 @@ flowchart LR
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
     urn__nixconf__drv__devShell__sops_host["devShell/sops-host"]:::devShellNode
+    urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
@@ -38,23 +39,21 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
-    urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
-    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
-    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__sops
-    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -89,12 +88,6 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
-    urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -109,10 +102,10 @@ flowchart LR
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
@@ -125,6 +118,12 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
@@ -149,7 +148,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
-    click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
+    click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
@@ -168,6 +167,7 @@ flowchart LR
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
     click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
+    click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
     click urn__nixconf__onto__contract__home href "home.md" "home"
@@ -175,13 +175,13 @@ flowchart LR
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
-    click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
     click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
@@ -247,6 +247,51 @@ Modules and instances configuring options under the `secrets` contract capabilit
 
 
 ### Implementations
+
+<details>
+<summary><code><a href="../implementations/authelia.md">authelia</a></code></summary>
+
+**Configures options**: `secrets.files`
+
+```nix
+# modules/implementations/authelia.nix
+...
+135: secrets.files =
+136: {
+137: authelia-jwt-secret = {
+138: store = "services/auth";
+...
+180: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
+...
+194: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
+...
+196: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
+...
+202: secrets = {
+203: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+204: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+205: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+...
+203: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+...
+204: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+...
+205: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+...
+274: after = ["sops-install-secrets.service"];
+...
+275: wants = ["sops-install-secrets.service"];
+...
+284: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
+...
+285: wants = ["sops-install-secrets.service"];
+...
+288: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
+...
+```
+
+</details>
+
 
 <details>
 <summary><code><a href="../implementations/lw.md">lw</a></code></summary>
@@ -373,34 +418,6 @@ Modules and instances configuring options under the `secrets` contract capabilit
 
 
 ### Features
-
-<details>
-<summary><code><a href="../features/copyparty.md">copyparty</a></code></summary>
-
-**Configures options**: `secrets.files`, `secrets.templates`
-
-```nix
-# modules/features/copyparty.nix
-...
-33: ${config.secrets.placeholder.copyparty-users}
-...
-192: secrets = {
-193: files.copyparty-users = {
-194: store = "services/copyparty";
-195: key = "users";
-...
-237: ["network.target" "sops-install-secrets.service"]
-...
-240: ["sops-install-secrets.service"]
-...
-243: config.secrets.templates."copyparty.conf".content
-...
-256: ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.secrets.templates."copyparty.conf".path}";
-...
-```
-
-</details>
-
 
 <details>
 <summary><code><a href="../features/nix.md">nix</a></code></summary>

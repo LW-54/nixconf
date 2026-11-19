@@ -12,7 +12,8 @@ Declarative multi-provider backup contract separating per-provider schedules/ret
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
+  urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
+    urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
@@ -36,6 +37,7 @@ flowchart LR
     urn__nixconf__ast__type__backup_schedule[["backup.schedule"]]:::typeNode
     urn__nixconf__ast__type__backup_unit[["backup.unit"]]:::typeNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
+    urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
@@ -68,6 +70,7 @@ flowchart LR
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
@@ -76,6 +79,9 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_enable
@@ -139,7 +145,6 @@ flowchart LR
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -174,6 +179,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
@@ -218,6 +224,12 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -237,6 +249,7 @@ flowchart LR
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
 
+    click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
@@ -261,6 +274,7 @@ flowchart LR
     click urn__nixconf__ast__type__backup_schedule href "backup.md" "backup.schedule"
     click urn__nixconf__ast__type__backup_unit href "backup.md" "backup.unit"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
@@ -293,6 +307,7 @@ flowchart LR
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
@@ -387,6 +402,24 @@ Modules and instances configuring options under the `backup` contract capability
 ### Implementations
 
 <details>
+<summary><code><a href="../implementations/authelia.md">authelia</a></code></summary>
+
+**Configures options**: `backup.paths`, `backup.units`
+
+```nix
+# modules/implementations/authelia.nix
+...
+348: backup = lib.mkIf (config.backup.enable or false) {
+349: paths =
+350: ["/var/lib/authelia-main"]
+351: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+...
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../implementations/rclone.md">rclone</a></code></summary>
 
 **Configures options**: `backup.exclude`
@@ -429,7 +462,7 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/features/copyparty.nix
 ...
-319: (self.lib.backup.mkConfig {inherit config cfg;})
+311: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -459,7 +492,7 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/features/vaultwarden.nix
 ...
-46: (self.lib.backup.mkConfig {inherit config cfg;})
+47: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 

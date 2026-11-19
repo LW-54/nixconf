@@ -123,6 +123,8 @@ Auto-derived option constructor for the 'reverse-proxy' contract.
 
 - `address`: Submodule option parameter for the 'reverse-proxy' contract.
 - `basicAuth`: Submodule option parameter for the 'reverse-proxy' contract.
+- `bypassPaths`: Submodule option parameter for the 'reverse-proxy' contract.
+- `forwardAuth`: Submodule option parameter for the 'reverse-proxy' contract.
 - `port`: Submodule option parameter for the 'reverse-proxy' contract.
 - `subdomain`: Submodule option parameter for the 'reverse-proxy' contract.
 
@@ -164,6 +166,7 @@ reverse-proxy.mkPort "vaultwarden"
 
 Custom option types declared under this library namespace:
 
+- `forwardAuth`: submodule
 - `fqdn`: Fully qualified domain name
 - `host`: submodule
 - `portAllocation`: submodule

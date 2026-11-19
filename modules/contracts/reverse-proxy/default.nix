@@ -52,6 +52,19 @@ in {
           non-conflicting local endpoint bindings across the host at evaluation time.
         '';
       };
+
+      forwardAuth = lib.mkOption {
+        type = types.forwardAuth;
+        default = {};
+        example = {
+          enable = true;
+          upstream = "127.0.0.1:9091";
+        };
+        description = ''
+          Global forward authentication provider configuration enforced by the reverse proxy
+          for virtual hosts with `forwardAuth = true`.
+        '';
+      };
     };
 
     mkOption = {
@@ -59,6 +72,8 @@ in {
       port ? null,
       address ? "127.0.0.1",
       basicAuth ? null,
+      forwardAuth ? true,
+      bypassPaths ? [],
     }: {
       subdomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -87,6 +102,18 @@ in {
         type = lib.types.nullOr (lib.types.attrsOf lib.types.str);
         default = basicAuth;
         description = "Basic auth credentials for the reverse-proxied service.";
+      };
+
+      forwardAuth = lib.mkOption {
+        type = lib.types.bool;
+        default = forwardAuth;
+        description = "Whether to enforce proxy-level forward authentication (SSO) for this service.";
+      };
+
+      bypassPaths = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = bypassPaths;
+        description = "URL path patterns on this service virtual host that bypass proxy forward authentication.";
       };
     };
 
@@ -118,7 +145,7 @@ in {
           ];
           hosts.${fqdn} = {
             upstream = "${cfg.address}:${toString cfg.port}";
-            inherit (cfg) basicAuth;
+            inherit (cfg) basicAuth forwardAuth bypassPaths;
           };
         };
       };

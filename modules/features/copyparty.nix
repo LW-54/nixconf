@@ -16,12 +16,14 @@
           then "https://${cfg.subdomain}.${domain}/"
           else null;
 
-        confTemplateContent = ''
+        confFile = pkgs.writeText "copyparty.conf" ''
           [global]
           i: ${cfg.address}
           p: ${toString cfg.port}
           rproxy: -1
           xff-src: 127.0.0.0/8, ::1/128
+          idp-h-usr: Remote-User
+          idp-h-grp: Remote-Groups
           hist: ${cfg.dataDir}/hist
           shr: /share
           shr-db: ${cfg.dataDir}/shares.db
@@ -29,13 +31,10 @@
           e2dsa
           e2ts
 
-          [accounts]
-          ${config.secrets.placeholder.copyparty-users}
-
           [/]
           ${cfg.filesPath}
           accs:
-            A: ${cfg.adminAccount}
+            A: @${cfg.adminGroup}, ${cfg.adminAccount}
           flags:
             d2ds
             d2t
@@ -46,7 +45,7 @@
             ${cfg.dropPath}
             accs:
               w: *
-              A: ${cfg.adminAccount}
+              A: @${cfg.adminGroup}, ${cfg.adminAccount}
             flags:
               d2ds
               d2t
@@ -56,7 +55,7 @@
             [/gdrive]
             ${cfg.gdriveMountPoint}
             accs:
-              A: ${cfg.adminAccount}
+              A: @${cfg.adminGroup}, ${cfg.adminAccount}
             flags:
               d2ds
               d2t
@@ -66,7 +65,7 @@
             [/${hostName}]
             /
             accs:
-              A: ${cfg.adminAccount}
+              A: @${cfg.adminGroup}, ${cfg.adminAccount}
             flags:
               d2d
               dthumb
@@ -134,6 +133,12 @@
               description = "Copyparty account name granted full admin (`A`) permissions on all volumes.";
             };
 
+            adminGroup = lib.mkOption {
+              type = lib.types.str;
+              default = config.auth.adminGroup or "lldap_admin";
+              description = "Identity provider group granted full admin (`A`) permissions on all Copyparty volumes.";
+            };
+
             exposeDrop = lib.mkOption {
               type = lib.types.bool;
               default = true;
@@ -160,6 +165,10 @@
           }
           // self.lib.reverse-proxy.mkOption {
             subdomain = "copyparty";
+            bypassPaths = [
+              "/drop*"
+              "/share*"
+            ];
           }
           // self.lib.persistence.mkOption {
             directories = [
@@ -188,21 +197,6 @@
         config = lib.mkIf cfg.enable (lib.mkMerge [
           {
             environment.systemPackages = [pkgs.copyparty];
-
-            secrets = {
-              files.copyparty-users = {
-                store = "services/copyparty";
-                key = "users";
-                testValue = "${cfg.adminAccount}: testpassword";
-              };
-
-              templates."copyparty.conf" = {
-                owner = cfg.user;
-                group = cfg.group;
-                mode = "0400";
-                content = confTemplateContent;
-              };
-            };
 
             storage = lib.mkIf cfg.enableGdrive {
               enable = lib.mkDefault true;
@@ -234,13 +228,11 @@
                   description = "Copyparty File Server";
                   wantedBy = ["multi-user.target"];
                   after =
-                    ["network.target" "sops-install-secrets.service"]
+                    ["network.target"]
                     ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
-                  wants =
-                    ["sops-install-secrets.service"]
-                    ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+                  wants = lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
                   restartTriggers = [
-                    config.secrets.templates."copyparty.conf".content
+                    confFile
                   ];
                   serviceConfig = {
                     User = cfg.user;
@@ -253,7 +245,7 @@
                     ];
                     AmbientCapabilities = ["CAP_DAC_OVERRIDE"];
                     CapabilityBoundingSet = ["CAP_DAC_OVERRIDE"];
-                    ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${config.secrets.templates."copyparty.conf".path}";
+                    ExecStart = "${pkgs.copyparty}/bin/copyparty -c ${confFile}";
                     Restart = "on-failure";
                     RestartSec = "5s";
                   };

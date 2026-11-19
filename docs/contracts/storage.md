@@ -97,7 +97,6 @@ flowchart LR
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -272,30 +271,30 @@ Modules and instances configuring options under the `storage` contract capabilit
 ```nix
 # modules/features/copyparty.nix
 ...
-95: if cfg.storage.enable && cfg.storage.mountPoint != null
+94: if cfg.storage.enable && cfg.storage.mountPoint != null
 ...
-96: then "${cfg.storage.mountPoint}/files"
+95: then "${cfg.storage.mountPoint}/files"
 ...
-104: if cfg.storage.enable && cfg.storage.mountPoint != null
+103: if cfg.storage.enable && cfg.storage.mountPoint != null
 ...
-105: then "${cfg.storage.mountPoint}/drop"
+104: then "${cfg.storage.mountPoint}/drop"
 ...
-207: storage = lib.mkIf cfg.enableGdrive {
-208: enable = lib.mkDefault true;
-209: mounts.gdrive = {
-210: enable = true;
+201: storage = lib.mkIf cfg.enableGdrive {
+202: enable = lib.mkDefault true;
+203: mounts.gdrive = {
+204: enable = true;
 ...
-228: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
+222: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
 ...
-238: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+232: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
 ...
-241: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+233: wants = lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
 ...
-275: slice=${lib.escapeShellArg cfg.storage.slice}
+267: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-294: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
+286: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
 ...
-320: (self.lib.storage.mkConfig {inherit config cfg;})
+312: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 

@@ -30,6 +30,25 @@
         '';
       };
 
+      forwardAuth = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Whether to enforce proxy-level forward authentication (Single Sign-On)
+          before forwarding requests to the upstream service.
+        '';
+      };
+
+      bypassPaths = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        example = ["/drop*" "/share*"];
+        description = ''
+          URL path patterns on this virtual host that bypass proxy forward authentication
+          and allow unauthenticated public requests.
+        '';
+      };
+
       extraConfig = lib.mkOption {
         type = lib.types.lines;
         default = "";
@@ -70,10 +89,51 @@
       };
     };
   };
+
+  forwardAuthSubmodule = lib.types.submodule {
+    options = {
+      enable = lib.mkEnableOption "global forward authentication middleware at the reverse proxy boundary";
+
+      upstream = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "127.0.0.1:9091";
+        description = ''
+          Target host and port of the forward authentication service endpoint
+          queried before proxying protected virtual hosts.
+        '';
+      };
+
+      uri = lib.mkOption {
+        type = lib.types.str;
+        default = "/api/authz/forward-auth";
+        example = "/api/authz/forward-auth";
+        description = ''
+          Verification sub-request URI path queried on the forward authentication upstream.
+        '';
+      };
+
+      copyHeaders = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [
+          "Remote-User"
+          "Remote-Groups"
+          "Remote-Name"
+          "Remote-Email"
+        ];
+        example = ["Remote-User" "Remote-Groups"];
+        description = ''
+          HTTP response headers copied from a successful forward authentication sub-request
+          to the proxied upstream request.
+        '';
+      };
+    };
+  };
 in {
   contract.reverse-proxy.types = {
     host = hostSubmodule;
     portAllocation = portAllocationSubmodule;
+    forwardAuth = forwardAuthSubmodule;
     inherit fqdn;
   };
 }

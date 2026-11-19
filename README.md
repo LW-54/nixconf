@@ -53,7 +53,8 @@ flowchart TD
 ```mermaid
 flowchart TD
   subgraph cluster_contract ["contract"]
-  urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
+  urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
+    urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
@@ -101,7 +102,8 @@ end
 end
 
   subgraph cluster_implementation ["implementation"]
-  urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+  urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
+    urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
@@ -112,7 +114,8 @@ end
 end
 
   subgraph cluster_lib ["lib"]
-  urn__nixconf__onto__lib__backup["backup"]:::defaultNode
+  urn__nixconf__onto__lib__auth["auth"]:::defaultNode
+    urn__nixconf__onto__lib__backup["backup"]:::defaultNode
     urn__nixconf__onto__lib__bitwarden["bitwarden"]:::defaultNode
     urn__nixconf__onto__lib__ci["ci"]:::defaultNode
     urn__nixconf__onto__lib__default_user["default-user"]:::defaultNode
@@ -137,7 +140,6 @@ end
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -179,6 +181,7 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
@@ -215,6 +218,11 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
@@ -237,6 +245,7 @@ end
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
+    click urn__nixconf__onto__contract__auth href "docs/contracts/auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "docs/contracts/backup.md" "backup"
     click urn__nixconf__onto__contract__default_user href "docs/contracts/default-user.md" "default-user"
     click urn__nixconf__onto__contract__home href "docs/contracts/home.md" "home"
@@ -276,6 +285,7 @@ end
     click urn__nixconf__onto__feature__wifi_eduroam href "docs/features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__astrolabe href "docs/hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "docs/hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__authelia href "docs/implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "docs/implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
@@ -284,6 +294,7 @@ end
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__lib__auth href "docs/lib/auth.md" "auth"
     click urn__nixconf__onto__lib__backup href "docs/lib/backup.md" "backup"
     click urn__nixconf__onto__lib__bitwarden href "docs/lib/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__lib__ci href "docs/lib/ci.md" "ci"
@@ -351,11 +362,11 @@ Foundational structural primitives governing repository architecture, typing, an
 
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
-| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 8 | [More →](docs/contracts/README.md) |
+| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 9 | [More →](docs/contracts/README.md) |
 | [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 29 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
-| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 8 | [More →](docs/implementations/README.md) |
-| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 17 | [More →](docs/lib/README.md) |
+| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 9 | [More →](docs/implementations/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 18 | [More →](docs/lib/README.md) |
 
 </details>
 
@@ -442,6 +453,7 @@ Pure contract interfaces defining shared option schemas decoupled from backends.
 
 | Contract | Description | Implementations | Docs |
 | :--- | :--- | :--- | :--- |
+| [`auth`](docs/contracts/auth.md) | Declarative single sign-on (SSO), forward authentication, access control policy, and LDAP directory contract. | [`authelia`](docs/implementations/authelia.md) | [More →](docs/contracts/auth.md) |
 | [`backup`](docs/contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [`restic`](docs/implementations/restic.md) | [More →](docs/contracts/backup.md) |
 | [`default-user`](docs/contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](docs/implementations/lw.md) | [More →](docs/contracts/default-user.md) |
 | [`home`](docs/contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [`hjem`](docs/implementations/hjem.md) | [More →](docs/contracts/home.md) |
@@ -460,6 +472,7 @@ Concrete capability providers satisfying contract interfaces with services and p
 
 | Implementation | Description | Contract | Docs |
 | :--- | :--- | :--- | :--- |
+| [`authelia`](docs/implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [`auth`](docs/contracts/auth.md) | [More →](docs/implementations/authelia.md) |
 | [`caddy`](docs/implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | [More →](docs/implementations/caddy.md) |
 | [`hjem`](docs/implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [`home`](docs/contracts/home.md) | [More →](docs/implementations/hjem.md) |
 | [`impermanence`](docs/implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`persistence`](docs/contracts/persistence.md) | [More →](docs/implementations/impermanence.md) |
@@ -517,6 +530,7 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 
 | Library Namespace | Description | Docs |
 | :--- | :--- | :--- |
+| [`auth`](docs/lib/auth.md) | Library helpers and constructors for the 'auth' contract. | [More →](docs/lib/auth.md) |
 | [`backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' contract. | [More →](docs/lib/backup.md) |
 | [`bitwarden`](docs/lib/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/lib/bitwarden.md) |
 | [`ci`](docs/lib/ci.md) | Continuous integration workflow helpers, YAML serialization, and derivation collection utilities. | [More →](docs/lib/ci.md) |

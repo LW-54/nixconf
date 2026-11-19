@@ -8,7 +8,7 @@ Concrete capability providers satisfying contract interfaces by translating abst
 
 - **Declared as**: `implementation.<name>` in any flake-parts module under `modules/implementations/`
 - **Primitive definition**: [`primitives/implementation/default.nix`](../../primitives/implementation/default.nix)
-- **Instances**: 8
+- **Instances**: 9
 
 ## Option Schema (`implementation.<name>`)
 
@@ -55,6 +55,7 @@ Smallest declaration in the repository, [`modules/implementations/uwsm.nix`](../
 
 | Implementation | Contract | Description | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
+| [`authelia`](authelia.md) | [`auth`](../contracts/auth.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [`modules/implementations/authelia.nix`](../../modules/implementations/authelia.nix) | [More →](authelia.md) |
 | [`caddy`](caddy.md) | [`reverse-proxy`](../contracts/reverse-proxy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`modules/implementations/caddy.nix`](../../modules/implementations/caddy.nix) | [More →](caddy.md) |
 | [`hjem`](hjem.md) | [`home`](../contracts/home.md) | Lightweight declarative home directory files and XDG environment manager. | [`modules/implementations/hjem.nix`](../../modules/implementations/hjem.nix) | [More →](hjem.md) |
 | [`impermanence`](impermanence.md) | [`persistence`](../contracts/persistence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`modules/implementations/impermanence.nix`](../../modules/implementations/impermanence.nix) | [More →](impermanence.md) |

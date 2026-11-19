@@ -21,6 +21,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_packages["nixosModule/astrolabe-packages"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
+    urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
@@ -62,6 +63,7 @@ flowchart LR
     urn__nixconf__ast__option__persistence_files[/"persistence.files"/]:::optNode
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_domain[/"reverse-proxy.domain"/]:::optNode
+    urn__nixconf__ast__option__reverse_proxy_forwardAuth[/"reverse-proxy.forwardAuth"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_ports[/"reverse-proxy.ports"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
@@ -88,6 +90,7 @@ flowchart LR
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
+    urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
@@ -103,10 +106,22 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_forwardAuth
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__bw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__bw -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_forwardAuth
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
@@ -114,7 +129,6 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_paths
@@ -123,8 +137,6 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
-    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_files
-    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_enable
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__direnv -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -251,6 +263,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__authelia
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__copyparty
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__disko
@@ -295,6 +308,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_forwardAuth
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
@@ -337,12 +351,16 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
@@ -364,6 +382,7 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_packages href "../modules/astrolabe-packages.md" "astrolabe-packages"
     click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
+    click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
     click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
@@ -405,6 +424,7 @@ flowchart LR
     click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
     click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
     click urn__nixconf__ast__option__reverse_proxy_domain href "../contracts/reverse-proxy.md" "reverse-proxy.domain"
+    click urn__nixconf__ast__option__reverse_proxy_forwardAuth href "../contracts/reverse-proxy.md" "reverse-proxy.forwardAuth"
     click urn__nixconf__ast__option__reverse_proxy_hosts href "../contracts/reverse-proxy.md" "reverse-proxy.hosts"
     click urn__nixconf__ast__option__reverse_proxy_ports href "../contracts/reverse-proxy.md" "reverse-proxy.ports"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
@@ -431,6 +451,7 @@ flowchart LR
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__host__astrolabe href "astrolabe.md" "astrolabe"
+    click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
@@ -459,6 +480,7 @@ The following contracts are materialized on `astrolabe` through its active imple
 
 | Contract | Contract Description | Implementation | Implementation Description | Docs |
 | :--- | :--- | :--- | :--- | :--- |
+| [`auth`](../contracts/auth.md) | Declarative single sign-on (SSO), forward authentication, access control policy, and LDAP directory contract. | [`authelia`](../implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [More →](../contracts/auth.md) |
 | [`reverse-proxy`](../contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](../contracts/reverse-proxy.md) |
 | [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](../implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [More →](../contracts/persistence.md) |
 | [`default-user`](../contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](../contracts/default-user.md) |
@@ -561,6 +583,7 @@ astrolabe-packages = {pkgs, ...}: {
 astrolabe-services = {...}: {
   imports = [
     self.nixosModules.caddy
+    self.nixosModules.authelia
     self.nixosModules.restic
     self.nixosModules.snapshot
     self.nixosModules.vaultwarden
@@ -638,17 +661,23 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /tmp/
 ├── [dir]  /var/cache/copyparty/
 ├── [dir]  /var/cache/rclone/
+├── [dir]  /var/cache/restic-backups-authelia-gdrive-host/
+├── [dir]  /var/cache/restic-backups-authelia-hbox-host/
 ├── [dir]  /var/cache/restic-backups-copyparty-gdrive-host/
 ├── [dir]  /var/cache/restic-backups-copyparty-hbox-host/
+├── [dir]  /var/cache/restic-backups-lldap-gdrive-host/
+├── [dir]  /var/cache/restic-backups-lldap-hbox-host/
 ├── [dir]  /var/cache/restic-backups-uchiyomi-gdrive-host/
 ├── [dir]  /var/cache/restic-backups-uchiyomi-hbox-host/
 ├── [dir]  /var/cache/restic-backups-vaultwarden-b2-shared/
 ├── [dir]  /var/cache/restic-backups-vaultwarden-gdrive-shared/
 ├── [dir]  /var/cache/restic-backups-vaultwarden-hbox-shared/
 ├── [dir]  /var/cache/uchiyomi/
+├── [dir]  /var/lib/authelia-main/
 ├── [dir]  /var/lib/caddy/
 ├── [dir]  /var/lib/containers/
 ├── [dir]  /var/lib/copyparty/
+├── [dir]  /var/lib/lldap/
 ├── [dir]  /var/lib/nixconf-backup/
 ├── [dir]  /var/lib/nixos/
 ├── [dir]  /var/lib/systemd/coredump/
@@ -685,7 +714,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-35: persistence.directories = [
+36: persistence.directories = [
 ...
 ```
 
@@ -700,7 +729,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-34: reverse-proxy.domain = "adje.app";
+35: reverse-proxy.domain = "adje.app";
 ...
 ```
 

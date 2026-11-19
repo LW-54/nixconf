@@ -54,6 +54,7 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
       astrolabe-services = {...}: {
         imports = [
           self.nixosModules.caddy
+          self.nixosModules.authelia
           self.nixosModules.restic
           self.nixosModules.snapshot
           self.nixosModules.vaultwarden
