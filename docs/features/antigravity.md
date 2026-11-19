@@ -15,6 +15,7 @@ flowchart LR
   urn__nixconf__ast__module__antigravity["nixosModule/antigravity"]:::defaultNode
     urn__nixconf__ast__module__antigravity_cli["nixosModule/antigravity-cli"]:::defaultNode
     urn__nixconf__ast__module__antigravity_ide["nixosModule/antigravity-ide"]:::defaultNode
+    urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
     urn__nixconf__ast__module__x240_desktop["nixosModule/x240-desktop"]:::defaultNode
@@ -24,10 +25,18 @@ flowchart LR
     urn__nixconf__ast__module__x240_packages["nixosModule/x240-packages"]:::defaultNode
     urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
     urn__nixconf__ast__module__x240_system_features["nixosModule/x240-system-features"]:::defaultNode
+    urn__nixconf__ast__option__home_enable[/"home.enable"/]:::optNode
+    urn__nixconf__ast__option__home_shared[/"home.shared"/]:::optNode
+    urn__nixconf__ast__option__home_users[/"home.users"/]:::optNode
     urn__nixconf__ast__option__persistence_directories[/"persistence.directories"/]:::optNode
     urn__nixconf__ast__option__persistence_enable[/"persistence.enable"/]:::optNode
     urn__nixconf__ast__option__persistence_files[/"persistence.files"/]:::optNode
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
+    urn__nixconf__ast__type__home_file[["home.file"]]:::typeNode
+    urn__nixconf__ast__type__home_files[["home.files"]]:::typeNode
+    urn__nixconf__ast__type__home_relativeHomePath[["home.relativeHomePath"]]:::typeNode
+    urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
+    urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
@@ -35,6 +44,7 @@ flowchart LR
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
+    urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
@@ -80,16 +90,25 @@ flowchart LR
     urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity
     urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__hjem
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop_features
@@ -98,6 +117,14 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_packages
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system_features
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_enable
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_shared
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_users
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_file
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_files
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_relativeHomePath
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_userHome
+    urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_xdg
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
@@ -110,14 +137,19 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -181,8 +213,11 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
+    urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -195,6 +230,7 @@ flowchart LR
     click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
     click urn__nixconf__ast__module__antigravity_cli href "../modules/antigravity-cli.md" "antigravity-cli"
     click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
+    click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
     click urn__nixconf__ast__module__x240_desktop href "../modules/x240-desktop.md" "x240-desktop"
@@ -204,10 +240,18 @@ flowchart LR
     click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
     click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
+    click urn__nixconf__ast__option__home_enable href "../contracts/home.md" "home.enable"
+    click urn__nixconf__ast__option__home_shared href "../contracts/home.md" "home.shared"
+    click urn__nixconf__ast__option__home_users href "../contracts/home.md" "home.users"
     click urn__nixconf__ast__option__persistence_directories href "../contracts/persistence.md" "persistence.directories"
     click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
     click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
     click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
+    click urn__nixconf__ast__type__home_file href "../contracts/home.md" "home.file"
+    click urn__nixconf__ast__type__home_files href "../contracts/home.md" "home.files"
+    click urn__nixconf__ast__type__home_relativeHomePath href "../contracts/home.md" "home.relativeHomePath"
+    click urn__nixconf__ast__type__home_userHome href "../contracts/home.md" "home.userHome"
+    click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
@@ -215,6 +259,7 @@ flowchart LR
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
+    click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "antigravity.md" "antigravity"
@@ -293,6 +338,24 @@ flowchart LR
 Capability contracts configured by this feature:
 
 <details>
+<summary><code><a href="../contracts/home.md">home</a></code></summary>
+
+**Configures options**: `home.shared`
+
+```nix
+# modules/features/antigravity.nix
+...
+30: home.shared.files = {
+31: ".gemini/GEMINI.md".text = globalRules;
+32: ".gemini/config/GEMINI.md".text = globalRules;
+33: };
+...
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../contracts/persistence.md">persistence</a></code></summary>
 
 **Configures options**: `persistence.users`
@@ -300,10 +363,15 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/antigravity.nix
 ...
-38: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-39: data.directories = [
-40: ".antigravity-ide"
-41: ".gemini"
+34: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+35: data.directories = [
+36: ".gemini"
+37: ];
+...
+56: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+57: data.directories = [
+58: ".antigravity-ide"
+59: ];
 ...
 ```
 

@@ -79,6 +79,7 @@ flowchart LR
     urn__nixconf__onto__contract__wayland -->|declares| urn__nixconf__ast__option__wayland_compositors
     urn__nixconf__onto__contract__wayland -->|declares| urn__nixconf__ast__option__wayland_enable
     urn__nixconf__onto__contract__wayland -->|declares| urn__nixconf__ast__type__wayland_compositor
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence

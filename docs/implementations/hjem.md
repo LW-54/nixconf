@@ -13,7 +13,8 @@ Lightweight declarative home directory files and XDG environment manager.
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
+  urn__nixconf__ast__module__antigravity_ide["nixosModule/antigravity-ide"]:::defaultNode
+    urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
     urn__nixconf__ast__module__git["nixosModule/git"]:::defaultNode
     urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
     urn__nixconf__ast__module__labwc["nixosModule/labwc"]:::defaultNode
@@ -69,6 +70,8 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__foot -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__home_users
@@ -88,6 +91,7 @@ flowchart LR
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__antigravity_ide
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__foot
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__git
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__hjem
@@ -109,6 +113,8 @@ flowchart LR
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_relativeHomePath
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_userHome
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__ast__module__foot
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
@@ -167,6 +173,7 @@ flowchart LR
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
 
+    click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
     click urn__nixconf__ast__module__git href "../modules/git.md" "git"
     click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"

@@ -3,6 +3,15 @@
   self,
   ...
 }: let
+  globalRules = ''
+    # Global Agent Rules
+
+    ## Git Commit Messages
+    - Always format commit messages as `<type>: <description>` (e.g., `feat: ...`, `fix: ...`, `refactor: ...`, `docs: ...`, `chore: ...`, `revert: ...`).
+    - NEVER use parenthetical scopes like `type(scope): ...` in commit messages.
+    - Keep the commit subject line concise, lowercase after `<type>: `, and without a trailing period.
+  '';
+
   mkModule = {
     name,
     prettyName,
@@ -18,6 +27,15 @@
     config = lib.mkIf config.${name}.enable (lib.mkMerge [
       {
         environment.systemPackages = [self.packages.${pkgs.stdenv.hostPlatform.system}.${name}];
+        home.shared.files = {
+          ".gemini/GEMINI.md".text = globalRules;
+          ".gemini/config/GEMINI.md".text = globalRules;
+        };
+        persistence.users = self.lib.user.forNormalUsers config (_: _: {
+          data.directories = [
+            ".gemini"
+          ];
+        });
       }
       (extraConfig {inherit config lib pkgs;})
     ]);
@@ -38,7 +56,6 @@ in {
           persistence.users = self.lib.user.forNormalUsers config (_: _: {
             data.directories = [
               ".antigravity-ide"
-              ".gemini"
             ];
           });
         };

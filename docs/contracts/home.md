@@ -12,7 +12,10 @@ Declarative user home dotfile tree, XDG directory specifications, and session en
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
+  urn__nixconf__ast__module__antigravity["nixosModule/antigravity"]:::defaultNode
+    urn__nixconf__ast__module__antigravity_cli["nixosModule/antigravity-cli"]:::defaultNode
+    urn__nixconf__ast__module__antigravity_ide["nixosModule/antigravity-ide"]:::defaultNode
+    urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
     urn__nixconf__ast__module__git["nixosModule/git"]:::defaultNode
     urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
     urn__nixconf__ast__module__labwc["nixosModule/labwc"]:::defaultNode
@@ -28,6 +31,9 @@ flowchart LR
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
     urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
+    urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
+    urn__nixconf__drv__package__antigravity_cli[("package/antigravity-cli")]:::pkgNode
+    urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
     urn__nixconf__drv__package__foot[("package/foot")]:::pkgNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
@@ -35,6 +41,7 @@ flowchart LR
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
+    urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__foot("foot"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__labwc("labwc"):::featureNode
@@ -44,6 +51,17 @@ flowchart LR
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
 
+    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__foot -->|dependsOn| urn__nixconf__drv__package__foot
     urn__nixconf__ast__module__foot -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__home_shared
@@ -74,6 +92,14 @@ flowchart LR
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_relativeHomePath
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_userHome
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__ast__module__foot
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__drv__package__foot
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
@@ -94,6 +120,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
@@ -110,6 +137,9 @@ flowchart LR
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
 
 
+    click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
+    click urn__nixconf__ast__module__antigravity_cli href "../modules/antigravity-cli.md" "antigravity-cli"
+    click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
     click urn__nixconf__ast__module__git href "../modules/git.md" "git"
     click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"
@@ -126,6 +156,9 @@ flowchart LR
     click urn__nixconf__ast__type__home_xdg href "home.md" "home.xdg"
     click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
+    click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
+    click urn__nixconf__drv__package__antigravity_cli href "../packages.md#antigravity-cli" "antigravity-cli"
+    click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
     click urn__nixconf__drv__package__foot href "../packages.md#foot" "foot"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
@@ -133,6 +166,7 @@ flowchart LR
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__wayland href "wayland.md" "wayland"
+    click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__foot href "../features/foot.md" "foot"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__labwc href "../features/labwc.md" "labwc"
@@ -221,6 +255,24 @@ Modules and instances configuring options under the `home` contract capability:
 
 
 ### Features
+
+<details>
+<summary><code><a href="../features/antigravity.md">antigravity</a></code></summary>
+
+**Configures options**: `home.shared`
+
+```nix
+# modules/features/antigravity.nix
+...
+30: home.shared.files = {
+31: ".gemini/GEMINI.md".text = globalRules;
+32: ".gemini/config/GEMINI.md".text = globalRules;
+33: };
+...
+```
+
+</details>
+
 
 <details>
 <summary><code><a href="../features/foot.md">foot</a></code></summary>

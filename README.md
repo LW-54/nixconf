@@ -130,7 +130,8 @@ end
     urn__nixconf__onto__lib__wayland["wayland"]:::defaultNode
 end
 
-  urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
+  urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence

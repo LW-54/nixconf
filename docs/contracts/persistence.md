@@ -184,6 +184,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bitwarden_desktop
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bw
@@ -532,10 +533,15 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/features/antigravity.nix
 ...
-38: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-39: data.directories = [
-40: ".antigravity-ide"
-41: ".gemini"
+34: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+35: data.directories = [
+36: ".gemini"
+37: ];
+...
+56: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+57: data.directories = [
+58: ".antigravity-ide"
+59: ];
 ...
 ```
 

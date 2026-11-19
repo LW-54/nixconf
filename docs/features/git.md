@@ -124,6 +124,7 @@ flowchart LR
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_relativeHomePath
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_userHome
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
