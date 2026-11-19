@@ -66,6 +66,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_agent[/"monitoring.agent"/]:::optNode
     urn__nixconf__ast__option__monitoring_dashboards[/"monitoring.dashboards"/]:::optNode
     urn__nixconf__ast__option__monitoring_exporters[/"monitoring.exporters"/]:::optNode
+    urn__nixconf__ast__option__monitoring_extraGrafanaSettings[/"monitoring.extraGrafanaSettings"/]:::optNode
     urn__nixconf__ast__option__monitoring_logs[/"monitoring.logs"/]:::optNode
     urn__nixconf__ast__option__monitoring_probes[/"monitoring.probes"/]:::optNode
     urn__nixconf__ast__option__monitoring_rules[/"monitoring.rules"/]:::optNode
@@ -120,11 +121,13 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_server
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
@@ -139,6 +142,7 @@ flowchart LR
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__auth_directory
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
@@ -190,6 +194,7 @@ flowchart LR
     urn__nixconf__ast__module__disko -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
@@ -225,6 +230,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
@@ -368,6 +374,7 @@ flowchart LR
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -431,6 +438,7 @@ flowchart LR
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_rules
@@ -580,6 +588,7 @@ flowchart LR
     click urn__nixconf__ast__option__monitoring_agent href "../contracts/monitoring.md" "monitoring.agent"
     click urn__nixconf__ast__option__monitoring_dashboards href "../contracts/monitoring.md" "monitoring.dashboards"
     click urn__nixconf__ast__option__monitoring_exporters href "../contracts/monitoring.md" "monitoring.exporters"
+    click urn__nixconf__ast__option__monitoring_extraGrafanaSettings href "../contracts/monitoring.md" "monitoring.extraGrafanaSettings"
     click urn__nixconf__ast__option__monitoring_logs href "../contracts/monitoring.md" "monitoring.logs"
     click urn__nixconf__ast__option__monitoring_probes href "../contracts/monitoring.md" "monitoring.probes"
     click urn__nixconf__ast__option__monitoring_rules href "../contracts/monitoring.md" "monitoring.rules"
@@ -771,6 +780,11 @@ astrolabe-services = {config, ...}: {
         loki.port = config.monitoring.server.loki.port;
         grafana.port = config.monitoring.server.grafana.port;
       };
+      dashboards.lgtm-health = {
+        title = "Monitoring Stack Health";
+        folder = "Infrastructure";
+        json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
+      };
     };
     persistence.directories = [
       "/var/lib/containers"
@@ -893,7 +907,7 @@ Capability contracts configured by `astrolabe`:
 <details>
 <summary><code><a href="../contracts/monitoring.md">monitoring</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.server`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.extraGrafanaSettings`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.server`
 
 ```nix
 # modules/hosts/astrolabe.nix
@@ -909,6 +923,8 @@ Capability contracts configured by `astrolabe`:
 ...
 42: grafana.port = config.monitoring.server.grafana.port;
 ...
+47: json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
+...
 ```
 
 </details>
@@ -922,7 +938,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-45: persistence.directories = [
+50: persistence.directories = [
 ...
 ```
 

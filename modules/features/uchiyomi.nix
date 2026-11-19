@@ -278,7 +278,14 @@
             name = "uchiyomi";
           })
           (lib.mkIf (config.monitoring.enable or false) {
-            monitoring.exporters.cadvisor.enable = true;
+            monitoring = {
+              exporters.cadvisor.enable = true;
+              dashboards.containers = lib.mkDefault {
+                title = "Containers & Services";
+                folder = "Services";
+                json = self.lib.monitoring.dashboard.mkContainersDashboard {};
+              };
+            };
           })
         ]);
       };

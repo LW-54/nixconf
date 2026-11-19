@@ -41,6 +41,11 @@
               loki.port = config.monitoring.server.loki.port;
               grafana.port = config.monitoring.server.grafana.port;
             };
+            dashboards.lgtm-health = {
+              title = "Monitoring Stack Health";
+              folder = "Infrastructure";
+              json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
+            };
           };
           persistence.directories = [
             "/var/lib/containers"

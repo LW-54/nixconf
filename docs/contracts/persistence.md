@@ -537,7 +537,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-45: persistence.directories = [
+50: persistence.directories = [
 ...
 ```
 
@@ -553,9 +553,9 @@ Modules and instances configuring options under the `persistence` contract capab
 **Configures options**: `persistence.directories`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-354: persistence.directories = lib.mkIf (config.persistence.enable or false) (
+367: persistence.directories = lib.mkIf (config.persistence.enable or false) (
 ...
 ```
 
@@ -568,9 +568,9 @@ Modules and instances configuring options under the `persistence` contract capab
 **Configures options**: `persistence.directories`
 
 ```nix
-# modules/implementations/caddy.nix
+# modules/implementations/caddy/default.nix
 ...
-173: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+103: persistence.directories = lib.mkIf (config.persistence.enable or false) [
 ...
 ```
 
@@ -632,7 +632,7 @@ config = {
 ```nix
 # modules/implementations/restic/default.nix
 ...
-136: persistence.directories = ["/var/lib/nixconf-backup"] ++ cacheDirs;
+57: persistence.directories = ["/var/lib/nixconf-backup"] ++ cacheDirs;
 ...
 ```
 

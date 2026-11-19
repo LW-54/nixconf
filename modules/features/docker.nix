@@ -1,4 +1,4 @@
-{...}: {
+{self, ...}: {
   feature.docker = {
     description = "Docker application container engine, socket activation, and state persistence.";
     modules = {
@@ -28,6 +28,11 @@
               exporters.cadvisor.enable = true;
               watchedUnits = ["docker.service"];
               logs.journal.units = ["docker.service"];
+              dashboards.containers = lib.mkOverride 1001 {
+                title = "Containers & Services";
+                folder = "Services";
+                json = self.lib.monitoring.dashboard.mkContainersDashboard {};
+              };
             };
           })
         ]);

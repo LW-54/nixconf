@@ -397,12 +397,22 @@ in {
                 rules = [
                   {
                     alert = "FilesystemSpaceLow";
-                    expr = ''(node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs|squashfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|ramfs|squashfs|overlay"}) < 0.15'';
+                    expr = ''(node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var|tmp|run|sys|proc|dev).*"} / node_filesystem_size_bytes{fstype!~"tmpfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var|tmp|run|sys|proc|dev).*"}) < 0.15'';
                     "for" = "10m";
                     labels.severity = "warning";
                     annotations = {
                       summary = "Filesystem {{ $labels.mountpoint }} low on space ({{ $labels.host }})";
                       description = "Less than 15% free space remains on {{ $labels.mountpoint }} ({{ $labels.host }}).";
+                    };
+                  }
+                  {
+                    alert = "RootTmpfsSpaceLow";
+                    expr = ''(node_filesystem_avail_bytes{mountpoint="/",fstype="tmpfs"} / node_filesystem_size_bytes{mountpoint="/",fstype="tmpfs"}) < 0.15'';
+                    "for" = "5m";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "Ephemeral root tmpfs low on space ({{ $labels.host }})";
+                      description = "Less than 15% free space remains on root tmpfs / ({{ $labels.host }}).";
                     };
                   }
                 ];

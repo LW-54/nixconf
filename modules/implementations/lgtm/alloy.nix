@@ -238,7 +238,7 @@
           target_label  = "host"
         }
         rule {
-          source_labels = ["__journal__priority_keyword"]
+          source_labels = ["__journal_priority_keyword"]
           target_label  = "level"
         }
         rule {

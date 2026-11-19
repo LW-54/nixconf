@@ -119,17 +119,20 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_server
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
@@ -156,6 +159,7 @@ flowchart LR
     urn__nixconf__ast__module__disko -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
@@ -168,6 +172,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
@@ -230,6 +235,7 @@ flowchart LR
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -675,6 +681,7 @@ flowchart LR
 
 | Symbol | Type | Description | Docs |
 | :--- | :--- | :--- | :--- |
+| [`dashboard`](../lib/monitoring.md#dashboard) | `dashboard :: AttrSet  # Values - `ds`: Provisioned Prometheus and Loki datasource descriptor references (`prometheus`, `loki`). - `promTarget`, `lokiTarget`: Construct Prometheus or Loki target objects (`expr`, `legend`, `instant`, `format`). - `thresholds`: Standard threshold presets (`percent`, `percentHigh`, `percent100Ok`, `upDown`, `zeroOk`, `zeroWarn`, `latencySec`, `neutral`). - `mappings`: Standard Grafana value mapping lists (`upDown`, `okFail`, `systemdState`, `alertState`). - `vars`: Template variable constructors (`host`, `promQuery`, `lokiLabel`, `custom`, `textbox`). - `mkStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders supporting multi-target lists or single-query shorthand (`expr`, `legend`, `loki`). - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine and dashboard constructor with shared crosshair tooltips and navigation links. - `mkContainersDashboard`: Shared OCI container and systemd service cgroup overview dashboard generator. - `mkStackHealthDashboard`: Central LGTM stack health, ingestion, alert, and scrape target dashboard generator.` | Opinionated Grafana schema v39 dashboard, layout, panel, variable, and threshold builders shared across monitoring consumers. | [More →](../lib/monitoring.md#dashboard) |
 | [`mkConfig`](../lib/monitoring.md#mkConfig) | `monitoring.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'monitoring' contract. | [More →](../lib/monitoring.md#mkConfig) |
 | [`mkOption`](../lib/monitoring.md#mkOption) | `monitoring.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'monitoring' contract. | [More →](../lib/monitoring.md#mkOption) |
 
@@ -728,7 +735,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.server`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.extraGrafanaSettings`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.server`
 
 ```nix
 # modules/hosts/astrolabe.nix
@@ -744,6 +751,8 @@ Modules and instances configuring options under the `monitoring` contract capabi
 ...
 42: grafana.port = config.monitoring.server.grafana.port;
 ...
+47: json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
+...
 ```
 
 </details>
@@ -752,7 +761,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../hosts/x240.md">x240</a></code></summary>
 
-**Configures options**: `monitoring.agent`, `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.rules`
+**Configures options**: `monitoring.agent`, `monitoring.dashboards`, `monitoring.exporters`, `monitoring.extraGrafanaSettings`, `monitoring.logs`, `monitoring.rules`
 
 ```nix
 # modules/hosts/x240.nix
@@ -773,17 +782,19 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../implementations/authelia.md">authelia</a></code></summary>
 
-**Configures options**: `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-15: monEnabled = config.monitoring.enable or false;
+28: monEnabled = config.monitoring.enable or false;
 ...
-378: monitoring = lib.mkIf monEnabled {
-379: watchedUnits =
-380: ["authelia-main.service"]
-381: ++ lib.optional cfg.directory.enable "lldap.service";
+391: monitoring = lib.mkIf monEnabled {
+392: watchedUnits =
+393: ["authelia-main.service"]
+394: ++ lib.optional cfg.directory.enable "lldap.service";
+...
+440: json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -796,12 +807,14 @@ Modules and instances configuring options under the `monitoring` contract capabi
 **Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
 
 ```nix
-# modules/implementations/caddy.nix
+# modules/implementations/caddy/default.nix
 ...
-177: monitoring = lib.mkIf (config.monitoring.enable or false) {
-178: watchedUnits = ["caddy.service"];
-179: logs.journal.units = ["caddy.service"];
-180: scrapes.caddy = {
+107: monitoring = lib.mkIf (config.monitoring.enable or false) {
+108: watchedUnits = ["caddy.service"];
+109: logs.journal.units = ["caddy.service"];
+110: scrapes.caddy = {
+...
+144: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -852,10 +865,12 @@ Modules and instances configuring options under the `monitoring` contract capabi
 ```nix
 # modules/implementations/restic/default.nix
 ...
-145: monitoring = lib.mkIf (config.monitoring.enable or false) {
-146: watchedUnits = allBackupUnits;
-147: logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
-148: rules.restic = {
+66: monitoring = lib.mkIf (config.monitoring.enable or false) {
+67: watchedUnits = allBackupUnits;
+68: logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
+69: rules.restic = {
+...
+88: json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -909,7 +924,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/docker.md">docker</a></code></summary>
 
-**Configures options**: `monitoring.exporters`, `monitoring.logs`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/docker.nix
@@ -923,6 +938,8 @@ Modules and instances configuring options under the `monitoring` contract capabi
 28: exporters.cadvisor.enable = true;
 29: watchedUnits = ["docker.service"];
 30: logs.journal.units = ["docker.service"];
+...
+34: json = self.lib.monitoring.dashboard.mkContainersDashboard {};
 ...
 ```
 
@@ -1017,11 +1034,16 @@ Modules and instances configuring options under the `monitoring` contract capabi
 279: })
 ...
 280: (lib.mkIf (config.monitoring.enable or false) {
-281: monitoring.exporters.cadvisor.enable = true;
-282: })
-283: ]);
+281: monitoring = {
+282: exporters.cadvisor.enable = true;
+283: dashboards.containers = lib.mkDefault {
 ...
-281: monitoring.exporters.cadvisor.enable = true;
+281: monitoring = {
+282: exporters.cadvisor.enable = true;
+283: dashboards.containers = lib.mkDefault {
+284: title = "Containers & Services";
+...
+286: json = self.lib.monitoring.dashboard.mkContainersDashboard {};
 ...
 ```
 

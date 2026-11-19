@@ -101,6 +101,7 @@ flowchart LR
 
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
@@ -114,6 +115,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
@@ -124,6 +126,7 @@ flowchart LR
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -506,7 +509,7 @@ Capability contracts configured by this feature:
 <details>
 <summary><code><a href="../contracts/monitoring.md">monitoring</a></code></summary>
 
-**Configures options**: `monitoring.exporters`, `monitoring.logs`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/docker.nix
@@ -520,6 +523,8 @@ Capability contracts configured by this feature:
 28: exporters.cadvisor.enable = true;
 29: watchedUnits = ["docker.service"];
 30: logs.journal.units = ["docker.service"];
+...
+34: json = self.lib.monitoring.dashboard.mkContainersDashboard {};
 ...
 ```
 

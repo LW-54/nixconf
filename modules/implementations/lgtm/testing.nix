@@ -19,6 +19,10 @@
     registeredPorts = map (p: p.port) (config.reverse-proxy.ports or []);
     promRuleFiles = config.services.prometheus.ruleFiles or [];
     enabledDashboards = lib.filterAttrs (_: d: d.enable) cfg.dashboards;
+    dashboardsPath =
+      if cfg.server.enable && enabledDashboards != {}
+      then (builtins.head config.services.grafana.provision.dashboards.settings.providers).options.path
+      else null;
   in {
     description = "Grafana Alloy, Prometheus, Loki, and Grafana provisioning, validation, and runtime checks";
 
@@ -83,11 +87,53 @@
             echo "Missing Grafana datasource.yaml" >&2
             exit 1
           }
-          ${lib.optionalString (enabledDashboards != {}) ''
+          ${lib.optionalString (enabledDashboards != {} && dashboardsPath != null) ''
             test -d "$prov_dir/dashboards" && test -s "$prov_dir/dashboards/dashboard.yaml" || {
               echo "Missing Grafana dashboards provisioning config" >&2
               exit 1
             }
+            dash_files="$(find ${lib.escapeShellArg (toString dashboardsPath)} -type f -name '*.json' | sort)"
+            test -n "$dash_files" || {
+              echo "No dashboard JSON files found under ${toString dashboardsPath}" >&2
+              exit 1
+            }
+            uids_file="$(mktemp)"
+            trap 'rm -f "$uids_file"' EXIT
+            count=0
+            while IFS= read -r df; do
+              ${pkgs.jq}/bin/jq -e '
+                def is_int: (type == "number") and (floor == .) and (. >= 0);
+                def all_panels: [.panels[] | ., (.panels[]? // empty)];
+                (.uid | type == "string" and length > 0)
+                and (.title | type == "string" and length > 0)
+                and (.schemaVersion == 39)
+                and (.panels | type == "array" and length > 0)
+                and (all_panels | all(
+                  (.id | is_int and . >= 1)
+                  and (.gridPos | type == "object")
+                  and (.gridPos.h | is_int and . >= 1)
+                  and (.gridPos.w | is_int and . >= 1 and . <= 24)
+                  and (.gridPos.x | is_int and . >= 0)
+                  and (.gridPos.y | is_int and . >= 0)
+                  and ((.gridPos.x + .gridPos.w) <= 24)
+                ))
+                and ((all_panels | map(.id)) as $ids | ($ids | length) == ($ids | unique | length))
+                and (((.templating.list // []) | all((.current | type) == "object")))
+              ' "$df" >/dev/null || {
+                echo "Dashboard JSON schema check failed for: $df" >&2
+                exit 1
+              }
+              ${pkgs.jq}/bin/jq -r '.uid' "$df" >> "$uids_file"
+              count=$((count + 1))
+            done <<< "$dash_files"
+            total_uids="$(wc -l < "$uids_file")"
+            unique_uids="$(sort -u "$uids_file" | wc -l)"
+            if [ "$total_uids" -ne "$unique_uids" ]; then
+              echo "Duplicate dashboard UIDs detected across provisioned dashboards!" >&2
+              sort "$uids_file" | uniq -d >&2
+              exit 1
+            fi
+            echo "Validated $count provisioned Grafana dashboard(s) with unique UIDs."
           ''}
         '';
       };

@@ -1,8 +1,21 @@
-{self, ...}: {
+{
+  config,
+  lib,
+  self,
+  ...
+}: let
+  internalAuthelia = config.internal.authelia;
+in {
+  options.internal.authelia = lib.mkOption {
+    type = lib.types.lazyAttrsOf lib.types.raw;
+    default = {};
+    description = "Internal helper builders for the Authelia SSO implementation.";
+  };
+
   /**
   Centralized SSO, forward authentication, and LDAP directory implementation via Authelia and LLDAP.
   */
-  implementation.authelia = {
+  config.implementation.authelia = {
     contract = "auth";
     description = "Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP.";
     module = {
@@ -420,6 +433,11 @@
               }
             ];
           };
+        };
+        dashboards.auth-security = {
+          title = "Authentication & Security";
+          folder = "Security";
+          json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
         };
       };
 

@@ -6,7 +6,7 @@ Automated TLS virtual host reverse proxy implementation using Caddy.
 
 - **Implementation**: `caddy`
 - **Fulfills Contract**: [`reverse-proxy`](../contracts/reverse-proxy.md)
-- **Definition File**: [`modules/implementations/caddy.nix`](../../modules/implementations/caddy.nix)
+- **Definition File**: [`modules/implementations/caddy/default.nix`](../../modules/implementations/caddy/default.nix)
 
 <details>
 <summary>Architecture Diagram (click to expand)</summary>
@@ -105,11 +105,13 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_server
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
@@ -117,6 +119,7 @@ flowchart LR
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
@@ -161,6 +164,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
@@ -589,12 +593,14 @@ Capability contracts configured by this implementation:
 **Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
 
 ```nix
-# modules/implementations/caddy.nix
+# modules/implementations/caddy/default.nix
 ...
-177: monitoring = lib.mkIf (config.monitoring.enable or false) {
-178: watchedUnits = ["caddy.service"];
-179: logs.journal.units = ["caddy.service"];
-180: scrapes.caddy = {
+107: monitoring = lib.mkIf (config.monitoring.enable or false) {
+108: watchedUnits = ["caddy.service"];
+109: logs.journal.units = ["caddy.service"];
+110: scrapes.caddy = {
+...
+144: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -607,9 +613,9 @@ Capability contracts configured by this implementation:
 **Configures options**: `persistence.directories`
 
 ```nix
-# modules/implementations/caddy.nix
+# modules/implementations/caddy/default.nix
 ...
-173: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+103: persistence.directories = lib.mkIf (config.persistence.enable or false) [
 ...
 ```
 
@@ -622,13 +628,13 @@ Capability contracts configured by this implementation:
 **Configures options**: `reverse-proxy.ports`
 
 ```nix
-# modules/implementations/caddy.nix
+# modules/implementations/caddy/default.nix
 ...
-16: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
+28: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
 ...
-127: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
+57: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
 ...
-162: reverse-proxy.ports = [
+92: reverse-proxy.ports = [
 ...
 ```
 

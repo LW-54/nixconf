@@ -346,7 +346,7 @@ Providers satisfying the `reverse-proxy` contract capability:
 
 | Implementation | Description | Definition | Docs |
 | :--- | :--- | :--- | :--- |
-| [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`modules/implementations/caddy.nix`](../../modules/implementations/caddy.nix) | [More →](../implementations/caddy.md) |
+| [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`modules/implementations/caddy/default.nix`](../../modules/implementations/caddy/default.nix) | [More →](../implementations/caddy.md) |
 
 ## Contract Consumers
 
@@ -378,32 +378,32 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 **Configures options**: `reverse-proxy.forwardAuth`, `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-16: metricsPort = self.lib.reverse-proxy.mkPort "authelia-metrics";
+29: metricsPort = self.lib.reverse-proxy.mkPort "authelia-metrics";
 ...
-17: domain = config.reverse-proxy.domain or null;
+30: domain = config.reverse-proxy.domain or null;
 ...
-65: (config.reverse-proxy.hosts or {});
+78: (config.reverse-proxy.hosts or {});
 ...
-298: reverse-proxy = {
-299: forwardAuth = {
-300: enable = true;
-301: upstream = "${authConnectHost}:${toString cfg.port}";
+311: reverse-proxy = {
+312: forwardAuth = {
+313: enable = true;
+314: upstream = "${authConnectHost}:${toString cfg.port}";
 ...
-338: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
+351: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
 ...
-432: (config.reverse-proxy.forwardAuth.enable or false)
+450: (config.reverse-proxy.forwardAuth.enable or false)
 ...
-433: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
+451: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
 ...
-434: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
+452: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
 ...
-439: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
+457: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
 ...
-440: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
+458: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
 ...
-476: script = lib.optionalString (config.reverse-proxy.enable or false) (
+494: script = lib.optionalString (config.reverse-proxy.enable or false) (
 ...
 ```
 
@@ -416,13 +416,13 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 **Configures options**: `reverse-proxy.ports`
 
 ```nix
-# modules/implementations/caddy.nix
+# modules/implementations/caddy/default.nix
 ...
-16: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
+28: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
 ...
-127: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
+57: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
 ...
-162: reverse-proxy.ports = [
+92: reverse-proxy.ports = [
 ...
 ```
 

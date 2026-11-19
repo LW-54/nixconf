@@ -6,7 +6,7 @@ Centralized SSO, forward authentication, 2FA, and LDAP directory implementation 
 
 - **Implementation**: `authelia`
 - **Fulfills Contract**: [`auth`](../contracts/auth.md)
-- **Definition File**: [`modules/implementations/authelia.nix`](../../modules/implementations/authelia.nix)
+- **Definition File**: [`modules/implementations/authelia/default.nix`](../../modules/implementations/authelia/default.nix)
 
 <details>
 <summary>Architecture Diagram (click to expand)</summary>
@@ -135,11 +135,13 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_server
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
@@ -154,6 +156,7 @@ flowchart LR
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__auth_directory
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
@@ -189,6 +192,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
@@ -704,22 +708,22 @@ Capability contracts configured by this implementation:
 **Configures options**: `auth.directory`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-117: message = "implementation.authelia currently requires `auth.directory.enable = true` (LLDAP backend).";
+130: message = "implementation.authelia currently requires `auth.directory.enable = true` (LLDAP backend).";
 ...
-121: message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
+134: message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
 ...
-125: auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
+138: auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
 ...
-214: endpoints.authz.forward-auth.implementation = "ForwardAuth";
+227: endpoints.authz.forward-auth.implementation = "ForwardAuth";
 ...
-474: caddy-forward-auth = {
-475: description = "Verify Caddyfile enforces forward_auth on protected services";
-476: script = lib.optionalString (config.reverse-proxy.enable or false) (
-477: self.lib.testing.mkInspectFile {
+492: caddy-forward-auth = {
+493: description = "Verify Caddyfile enforces forward_auth on protected services";
+494: script = lib.optionalString (config.reverse-proxy.enable or false) (
+495: self.lib.testing.mkInspectFile {
 ...
-503: _unauth = machine.succeed(
+521: _unauth = machine.succeed(
 ...
 ```
 
@@ -732,12 +736,12 @@ Capability contracts configured by this implementation:
 **Configures options**: `backup.paths`, `backup.units`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-359: backup = lib.mkIf (config.backup.enable or false) {
-360: paths =
-361: ["/var/lib/authelia-main"]
-362: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+372: backup = lib.mkIf (config.backup.enable or false) {
+373: paths =
+374: ["/var/lib/authelia-main"]
+375: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
 ...
 ```
 
@@ -747,17 +751,19 @@ Capability contracts configured by this implementation:
 <details>
 <summary><code><a href="../contracts/monitoring.md">monitoring</a></code></summary>
 
-**Configures options**: `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-15: monEnabled = config.monitoring.enable or false;
+28: monEnabled = config.monitoring.enable or false;
 ...
-378: monitoring = lib.mkIf monEnabled {
-379: watchedUnits =
-380: ["authelia-main.service"]
-381: ++ lib.optional cfg.directory.enable "lldap.service";
+391: monitoring = lib.mkIf monEnabled {
+392: watchedUnits =
+393: ["authelia-main.service"]
+394: ++ lib.optional cfg.directory.enable "lldap.service";
+...
+440: json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -770,9 +776,9 @@ Capability contracts configured by this implementation:
 **Configures options**: `persistence.directories`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-354: persistence.directories = lib.mkIf (config.persistence.enable or false) (
+367: persistence.directories = lib.mkIf (config.persistence.enable or false) (
 ...
 ```
 
@@ -785,32 +791,32 @@ Capability contracts configured by this implementation:
 **Configures options**: `reverse-proxy.forwardAuth`, `reverse-proxy.hosts`, `reverse-proxy.ports`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-16: metricsPort = self.lib.reverse-proxy.mkPort "authelia-metrics";
+29: metricsPort = self.lib.reverse-proxy.mkPort "authelia-metrics";
 ...
-17: domain = config.reverse-proxy.domain or null;
+30: domain = config.reverse-proxy.domain or null;
 ...
-65: (config.reverse-proxy.hosts or {});
+78: (config.reverse-proxy.hosts or {});
 ...
-298: reverse-proxy = {
-299: forwardAuth = {
-300: enable = true;
-301: upstream = "${authConnectHost}:${toString cfg.port}";
+311: reverse-proxy = {
+312: forwardAuth = {
+313: enable = true;
+314: upstream = "${authConnectHost}:${toString cfg.port}";
 ...
-338: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
+351: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
 ...
-432: (config.reverse-proxy.forwardAuth.enable or false)
+450: (config.reverse-proxy.forwardAuth.enable or false)
 ...
-433: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
+451: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
 ...
-434: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
+452: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
 ...
-439: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
+457: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
 ...
-440: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
+458: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
 ...
-476: script = lib.optionalString (config.reverse-proxy.enable or false) (
+494: script = lib.optionalString (config.reverse-proxy.enable or false) (
 ...
 ```
 
@@ -823,39 +829,39 @@ Capability contracts configured by this implementation:
 **Configures options**: `secrets.files`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-134: secrets.files =
-135: {
-136: authelia-jwt-secret = {
-137: store = "services/auth";
+147: secrets.files =
+148: {
+149: authelia-jwt-secret = {
+150: store = "services/auth";
 ...
-179: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
+192: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
 ...
-193: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
+206: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
 ...
-195: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
+208: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
 ...
-201: secrets = {
-202: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
-203: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
-204: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+214: secrets = {
+215: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+216: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+217: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-202: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+215: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
 ...
-203: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+216: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
 ...
-204: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+217: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-279: after = ["sops-install-secrets.service"];
+292: after = ["sops-install-secrets.service"];
 ...
-280: wants = ["sops-install-secrets.service"];
+293: wants = ["sops-install-secrets.service"];
 ...
-289: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
+302: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
 ...
-290: wants = ["sops-install-secrets.service"];
+303: wants = ["sops-install-secrets.service"];
 ...
-293: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
+306: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
 ...
 ```
 

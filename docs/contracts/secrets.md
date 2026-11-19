@@ -449,39 +449,39 @@ Modules and instances configuring options under the `secrets` contract capabilit
 **Configures options**: `secrets.files`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-134: secrets.files =
-135: {
-136: authelia-jwt-secret = {
-137: store = "services/auth";
+147: secrets.files =
+148: {
+149: authelia-jwt-secret = {
+150: store = "services/auth";
 ...
-179: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
+192: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
 ...
-193: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
+206: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
 ...
-195: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
+208: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
 ...
-201: secrets = {
-202: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
-203: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
-204: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+214: secrets = {
+215: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+216: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+217: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-202: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+215: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
 ...
-203: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+216: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
 ...
-204: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+217: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-279: after = ["sops-install-secrets.service"];
+292: after = ["sops-install-secrets.service"];
 ...
-280: wants = ["sops-install-secrets.service"];
+293: wants = ["sops-install-secrets.service"];
 ...
-289: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
+302: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
 ...
-290: wants = ["sops-install-secrets.service"];
+303: wants = ["sops-install-secrets.service"];
 ...
-293: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
+306: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
 ...
 ```
 
@@ -552,10 +552,10 @@ config = {
 ...
 26: passwordFile = config.secrets.files.restic-password.path;
 ...
-129: secrets.files.restic-password = {
-130: store = "backup/restic";
-131: key = "password";
-132: testValue = "test-restic-password";
+50: secrets.files.restic-password = {
+51: store = "backup/restic";
+52: key = "password";
+53: testValue = "test-restic-password";
 ...
 ```
 

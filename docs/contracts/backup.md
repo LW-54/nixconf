@@ -451,12 +451,12 @@ Modules and instances configuring options under the `backup` contract capability
 **Configures options**: `backup.paths`, `backup.units`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-359: backup = lib.mkIf (config.backup.enable or false) {
-360: paths =
-361: ["/var/lib/authelia-main"]
-362: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+372: backup = lib.mkIf (config.backup.enable or false) {
+373: paths =
+374: ["/var/lib/authelia-main"]
+375: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
 ...
 ```
 
@@ -504,7 +504,7 @@ config = {
 ...
 30: backupLib = self.lib.backup;
 ...
-137: backup.exclude = cacheDirs;
+58: backup.exclude = cacheDirs;
 ...
 ```
 

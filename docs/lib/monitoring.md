@@ -14,14 +14,17 @@ Library helpers and constructors for the 'monitoring' contract.
 flowchart LR
   urn__nixconf__ast__function__monitoring_mkConfig["monitoring.mkConfig"]:::defaultNode
     urn__nixconf__ast__function__monitoring_mkOption["monitoring.mkOption"]:::defaultNode
+    urn__nixconf__ast__symbol__monitoring_dashboard["monitoring.dashboard"]:::defaultNode
     urn__nixconf__onto__lib__monitoring["monitoring"]:::defaultNode
 
     urn__nixconf__onto__lib__monitoring -->|outputs| urn__nixconf__ast__function__monitoring_mkConfig
     urn__nixconf__onto__lib__monitoring -->|outputs| urn__nixconf__ast__function__monitoring_mkOption
+    urn__nixconf__onto__lib__monitoring -->|outputs| urn__nixconf__ast__symbol__monitoring_dashboard
 
 
     click urn__nixconf__ast__function__monitoring_mkConfig href "monitoring.md" "monitoring.mkConfig"
     click urn__nixconf__ast__function__monitoring_mkOption href "monitoring.md" "monitoring.mkOption"
+    click urn__nixconf__ast__symbol__monitoring_dashboard href "monitoring.md" "monitoring.dashboard"
     click urn__nixconf__onto__lib__monitoring href "monitoring.md" "monitoring"
 
   %% Semantic Visual Classes
@@ -47,7 +50,7 @@ This library namespace can be consumed both internally within repository modules
 
 ```nix
 { self, lib, pkgs, ... }: {
-  example = self.lib.monitoring.mkConfig;
+  example = self.lib.monitoring.dashboard;
 }
 ```
 
@@ -58,12 +61,45 @@ This library namespace can be consumed both internally within repository modules
   inputs.nixconf.url = "github:LW-54/nixconf";
 
   outputs = { self, nixconf, ... }: {
-    example = nixconf.lib.monitoring.mkConfig;
+    example = nixconf.lib.monitoring.dashboard;
   };
 }
 ```
 
 ## Exported Symbols
+
+<a id="dashboard"></a>
+### `dashboard`
+
+Opinionated Grafana schema v39 dashboard, layout, panel, variable, and threshold builders shared across monitoring consumers.
+
+#### Type
+
+```
+dashboard :: AttrSet
+
+# Values
+- `ds`: Provisioned Prometheus and Loki datasource descriptor references (`prometheus`, `loki`).
+- `promTarget`, `lokiTarget`: Construct Prometheus or Loki target objects (`expr`, `legend`, `instant`, `format`).
+- `thresholds`: Standard threshold presets (`percent`, `percentHigh`, `percent100Ok`, `upDown`, `zeroOk`, `zeroWarn`, `latencySec`, `neutral`).
+- `mappings`: Standard Grafana value mapping lists (`upDown`, `okFail`, `systemdState`, `alertState`).
+- `vars`: Template variable constructors (`host`, `promQuery`, `lokiLabel`, `custom`, `textbox`).
+- `mkStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders supporting multi-target lists or single-query shorthand (`expr`, `legend`, `loki`).
+- `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine and dashboard constructor with shared crosshair tooltips and navigation links.
+- `mkContainersDashboard`: Shared OCI container and systemd service cgroup overview dashboard generator.
+- `mkStackHealthDashboard`: Central LGTM stack health, ingestion, alert, and scrape target dashboard generator.
+```
+
+#### Examples
+
+```nix
+self.lib.monitoring.dashboard.mkDashboard {
+  uid = "example-overview";
+  title = "Example Overview";
+  variables = [(self.lib.monitoring.dashboard.vars.host {})];
+  sections = [];
+}
+```
 
 <a id="mkConfig"></a>
 ### `mkConfig`

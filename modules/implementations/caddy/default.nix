@@ -1,8 +1,20 @@
-{...}: {
+{
+  config,
+  lib,
+  ...
+}: let
+  internalCaddy = config.internal.caddy;
+in {
+  options.internal.caddy = lib.mkOption {
+    type = lib.types.lazyAttrsOf lib.types.raw;
+    default = {};
+    description = "Internal helper builders for the Caddy reverse proxy implementation.";
+  };
+
   /**
   Automated TLS virtual host reverse proxy implementation using Caddy.
   */
-  implementation.caddy = {
+  config.implementation.caddy = {
     contract = "reverse-proxy";
     description = "Automated TLS virtual host reverse proxy implementation using Caddy.";
     module = {
@@ -14,88 +26,6 @@
       cfg = config.reverse-proxy;
       adminPort = 2019;
       conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
-
-      promTarget = refId: expr: legendFormat: {
-        inherit expr legendFormat refId;
-        datasource = {
-          type = "prometheus";
-          uid = "prometheus";
-        };
-      };
-
-      ingressDashboard = {
-        uid = "nixconf-ingress";
-        title = "Ingress & Service Probes";
-        tags = ["nixconf" "caddy" "blackbox"];
-        timezone = "browser";
-        schemaVersion = 39;
-        refresh = "30s";
-        time = {
-          from = "now-3h";
-          to = "now";
-        };
-        panels = [
-          {
-            id = 1;
-            title = "Endpoint Probe Status (1 = Up)";
-            type = "stat";
-            gridPos = {
-              h = 6;
-              w = 12;
-              x = 0;
-              y = 0;
-            };
-            targets = [
-              (promTarget "A" ''probe_success'' "{{vhost}} ({{instance}})")
-            ];
-          }
-          {
-            id = 2;
-            title = "Endpoint Probe Duration (s)";
-            type = "timeseries";
-            gridPos = {
-              h = 6;
-              w = 12;
-              x = 12;
-              y = 0;
-            };
-            fieldConfig.defaults.unit = "s";
-            targets = [
-              (promTarget "A" ''probe_duration_seconds'' "{{vhost}} ({{instance}})")
-            ];
-          }
-          {
-            id = 3;
-            title = "Caddy Request Rate by Host";
-            type = "timeseries";
-            gridPos = {
-              h = 8;
-              w = 12;
-              x = 0;
-              y = 6;
-            };
-            fieldConfig.defaults.unit = "reqps";
-            targets = [
-              (promTarget "A" ''sum by (host) (rate(caddy_http_requests_total[5m]))'' "{{host}}")
-            ];
-          }
-          {
-            id = 4;
-            title = "Caddy HTTP Responses by Status Code";
-            type = "timeseries";
-            gridPos = {
-              h = 8;
-              w = 12;
-              x = 12;
-              y = 6;
-            };
-            fieldConfig.defaults.unit = "reqps";
-            targets = [
-              (promTarget "A" ''sum by (code) (rate(caddy_http_responses_total[5m]))'' "{{code}}")
-            ];
-          }
-        ];
-      };
       formatConflict = c: "${c.protocol}/${toString c.port} claimed by ${lib.concatStringsSep ", " c.owners}";
 
       mkForwardAuthBlock = hostCfg: let
@@ -192,13 +122,13 @@
               "for" = "3m";
               labels.severity = "critical";
               annotations = {
-                summary = "Health probe failed for {{ $labels.instance }}";
-                description = "Blackbox probe {{ $labels.instance }} has been failing for 3 minutes.";
+                summary = "Health probe failed for {{ $labels.vhost }} ({{ $labels.host }})";
+                description = "Blackbox probe {{ $labels.vhost }} from {{ $labels.host }} has been failing for 3 minutes.";
               };
             }
             {
               alert = "CaddyHttp5xxSpike";
-              expr = ''sum by (host) (rate(caddy_http_responses_total{code=~"5.."}[5m])) > 0.1'';
+              expr = ''sum by (host) (rate(caddy_http_request_duration_seconds_count{code=~"5.."}[5m])) > 0.1'';
               "for" = "5m";
               labels.severity = "warning";
               annotations = {
@@ -211,7 +141,7 @@
         dashboards.ingress = {
           title = "Ingress & Service Probes";
           folder = "Services";
-          json = ingressDashboard;
+          json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
         };
       };
     };

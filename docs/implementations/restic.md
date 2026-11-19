@@ -149,10 +149,12 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_server
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
@@ -162,6 +164,7 @@ flowchart LR
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
@@ -197,6 +200,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
@@ -276,6 +280,7 @@ flowchart LR
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -822,7 +827,7 @@ Capability contracts configured by this implementation:
 ...
 30: backupLib = self.lib.backup;
 ...
-137: backup.exclude = cacheDirs;
+58: backup.exclude = cacheDirs;
 ...
 ```
 
@@ -837,10 +842,12 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/restic/default.nix
 ...
-145: monitoring = lib.mkIf (config.monitoring.enable or false) {
-146: watchedUnits = allBackupUnits;
-147: logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
-148: rules.restic = {
+66: monitoring = lib.mkIf (config.monitoring.enable or false) {
+67: watchedUnits = allBackupUnits;
+68: logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
+69: rules.restic = {
+...
+88: json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -855,7 +862,7 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/restic/default.nix
 ...
-136: persistence.directories = ["/var/lib/nixconf-backup"] ++ cacheDirs;
+57: persistence.directories = ["/var/lib/nixconf-backup"] ++ cacheDirs;
 ...
 ```
 
@@ -872,10 +879,10 @@ Capability contracts configured by this implementation:
 ...
 26: passwordFile = config.secrets.files.restic-password.path;
 ...
-129: secrets.files.restic-password = {
-130: store = "backup/restic";
-131: key = "password";
-132: testValue = "test-restic-password";
+50: secrets.files.restic-password = {
+51: store = "backup/restic";
+52: key = "password";
+53: testValue = "test-restic-password";
 ...
 ```
 
@@ -892,7 +899,7 @@ Capability contracts configured by this implementation:
 ...
 31: storageLib = self.lib.storage;
 ...
-135: storage.activeSlices = jobs.activeSlices;
+56: storage.activeSlices = jobs.activeSlices;
 ...
 ```
 

@@ -163,7 +163,7 @@ Providers satisfying the `auth` contract capability:
 
 | Implementation | Description | Definition | Docs |
 | :--- | :--- | :--- | :--- |
-| [`authelia`](../implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [`modules/implementations/authelia.nix`](../../modules/implementations/authelia.nix) | [More →](../implementations/authelia.md) |
+| [`authelia`](../implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [`modules/implementations/authelia/default.nix`](../../modules/implementations/authelia/default.nix) | [More →](../implementations/authelia.md) |
 
 ## Contract Consumers
 
@@ -179,22 +179,22 @@ Modules and instances configuring options under the `auth` contract capability:
 **Configures options**: `auth.directory`
 
 ```nix
-# modules/implementations/authelia.nix
+# modules/implementations/authelia/default.nix
 ...
-117: message = "implementation.authelia currently requires `auth.directory.enable = true` (LLDAP backend).";
+130: message = "implementation.authelia currently requires `auth.directory.enable = true` (LLDAP backend).";
 ...
-121: message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
+134: message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
 ...
-125: auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
+138: auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
 ...
-214: endpoints.authz.forward-auth.implementation = "ForwardAuth";
+227: endpoints.authz.forward-auth.implementation = "ForwardAuth";
 ...
-474: caddy-forward-auth = {
-475: description = "Verify Caddyfile enforces forward_auth on protected services";
-476: script = lib.optionalString (config.reverse-proxy.enable or false) (
-477: self.lib.testing.mkInspectFile {
+492: caddy-forward-auth = {
+493: description = "Verify Caddyfile enforces forward_auth on protected services";
+494: script = lib.optionalString (config.reverse-proxy.enable or false) (
+495: self.lib.testing.mkInspectFile {
 ...
-503: _unauth = machine.succeed(
+521: _unauth = machine.succeed(
 ...
 ```
 
