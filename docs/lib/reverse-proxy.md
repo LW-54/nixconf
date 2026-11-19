@@ -126,6 +126,7 @@ Auto-derived option constructor for the 'reverse-proxy' contract.
 - `bypassPaths`: Submodule option parameter for the 'reverse-proxy' contract.
 - `forwardAuth`: Submodule option parameter for the 'reverse-proxy' contract.
 - `port`: Submodule option parameter for the 'reverse-proxy' contract.
+- `probe`: Submodule option parameter for the 'reverse-proxy' contract.
 - `subdomain`: Submodule option parameter for the 'reverse-proxy' contract.
 
 #### Type

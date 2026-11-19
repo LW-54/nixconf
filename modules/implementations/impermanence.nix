@@ -114,6 +114,25 @@
           [systemPersistence]
           ++ map mkUserPersistence (builtins.attrNames cfg.users)
         );
+
+        monitoring = lib.mkIf (config.monitoring.enable or false) {
+          rules.persistence = {
+            backend = "prometheus";
+            interval = "1m";
+            rules = [
+              {
+                alert = "PersistVolumeSpaceCritical";
+                expr = ''(node_filesystem_avail_bytes{mountpoint="/persist"} / node_filesystem_size_bytes{mountpoint="/persist"}) < 0.10'';
+                "for" = "5m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Low free space on /persist on {{ $labels.host }}";
+                  description = "Less than 10% free space remains on /persist on {{ $labels.host }}.";
+                };
+              }
+            ];
+          };
+        };
       };
     };
   };

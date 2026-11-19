@@ -119,6 +119,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot

@@ -192,6 +192,9 @@
             uid = 1000;
             gid = 100;
             umask = "002";
+          }
+          // self.lib.monitoring.mkOption {
+            units = ["copyparty.service"];
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -310,6 +313,10 @@
           (self.lib.persistence.mkConfig {inherit config cfg;})
           (self.lib.backup.mkConfig {inherit config cfg;})
           (self.lib.storage.mkConfig {inherit config cfg;})
+          (self.lib.monitoring.mkConfig {
+            inherit config cfg;
+            name = "copyparty";
+          })
         ]);
       };
     };

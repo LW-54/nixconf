@@ -40,8 +40,10 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`home`](home.md) | contract [`home`](../contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [More →](home.md) |
 | [`impermanence`](impermanence.md) | implementation [`impermanence`](../implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [More →](impermanence.md) |
 | [`labwc`](labwc.md) | feature [`labwc`](../features/labwc.md) | Labwc stacking Wayland compositor with window manager keybindings and XDG autostart. | [More →](labwc.md) |
+| [`lgtm`](lgtm.md) | implementation [`lgtm`](../implementations/lgtm.md) | Observability stack implementation using Grafana Alloy, Prometheus, Loki, and Grafana. | [More →](lgtm.md) |
 | [`locale`](locale.md) | feature [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](locale.md) |
 | [`lw`](lw.md) | implementation [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](lw.md) |
+| [`monitoring`](monitoring.md) | contract [`monitoring`](../contracts/monitoring.md) | Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provisioning contract. | [More →](monitoring.md) |
 | [`nix`](nix.md) | feature [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](nix.md) |
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
 | [`persistence`](persistence.md) | contract [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](persistence.md) |

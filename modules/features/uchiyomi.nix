@@ -109,6 +109,9 @@
             uid = 10002;
             gid = 10002;
             umask = "002";
+          }
+          // self.lib.monitoring.mkOption {
+            units = map (c: "${backend}-${c}.service") containers;
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -270,6 +273,13 @@
           (self.lib.persistence.mkConfig {inherit config cfg;})
           (self.lib.backup.mkConfig {inherit config cfg;})
           (self.lib.storage.mkConfig {inherit config cfg;})
+          (self.lib.monitoring.mkConfig {
+            inherit config cfg;
+            name = "uchiyomi";
+          })
+          (lib.mkIf (config.monitoring.enable or false) {
+            monitoring.exporters.cadvisor.enable = true;
+          })
         ]);
       };
     };

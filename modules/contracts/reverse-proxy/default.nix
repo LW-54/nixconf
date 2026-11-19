@@ -74,6 +74,7 @@ in {
       basicAuth ? null,
       forwardAuth ? true,
       bypassPaths ? [],
+      probe ? true,
     }: {
       subdomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -115,6 +116,12 @@ in {
         default = bypassPaths;
         description = "URL path patterns on this service virtual host that bypass proxy forward authentication.";
       };
+
+      probe = lib.mkOption {
+        type = lib.types.bool;
+        default = probe;
+        description = "Whether to register an automated blackbox health probe for this virtual host when monitoring is enabled.";
+      };
     };
 
     mkConfig = {
@@ -134,20 +141,31 @@ in {
         then cfg.subdomain
         else "${cfg.address}:${toString cfg.port}";
     in
-      lib.mkIf (enable && fqdn != null) {
-        reverse-proxy = {
-          ports = [
-            {
-              inherit owner;
-              inherit (cfg) address port;
-              protocol = "tcp";
-            }
-          ];
-          hosts.${fqdn} = {
-            upstream = "${cfg.address}:${toString cfg.port}";
-            inherit (cfg) basicAuth forwardAuth bypassPaths;
+      lib.mkIf (enable && fqdn != null) (lib.mkMerge [
+        {
+          reverse-proxy = {
+            ports = [
+              {
+                inherit owner;
+                inherit (cfg) address port;
+                protocol = "tcp";
+              }
+            ];
+            hosts.${fqdn} = {
+              upstream = "${cfg.address}:${toString cfg.port}";
+              inherit (cfg) basicAuth forwardAuth bypassPaths;
+            };
           };
-        };
-      };
+        }
+        (lib.mkIf ((config.monitoring.enable or false) && (cfg.probe or true)) {
+          monitoring.probes.${fqdn} = {
+            target = "http://${cfg.address}:${toString cfg.port}";
+            module = "http_2xx";
+            labels = {
+              vhost = fqdn;
+            };
+          };
+        })
+      ]);
   };
 }

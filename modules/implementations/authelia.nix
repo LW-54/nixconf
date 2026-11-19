@@ -12,6 +12,8 @@
       ...
     }: let
       cfg = config.auth;
+      monEnabled = config.monitoring.enable or false;
+      metricsPort = self.lib.reverse-proxy.mkPort "authelia-metrics";
       domain = config.reverse-proxy.domain or null;
       fqdnDomain =
         if domain != null
@@ -262,6 +264,12 @@
             default_policy = "deny";
             rules = bypassRules ++ explicitRules ++ [catchAllRule];
           };
+          telemetry = lib.mkIf monEnabled {
+            metrics = {
+              enabled = true;
+              address = "tcp://127.0.0.1:${toString metricsPort}/metrics";
+            };
+          };
         };
       };
 
@@ -320,7 +328,13 @@
               port = cfg.directory.ldapPort;
               protocol = "tcp";
             }
-          ];
+          ]
+          ++ lib.optional monEnabled {
+            owner = "authelia-metrics";
+            address = "127.0.0.1";
+            port = metricsPort;
+            protocol = "tcp";
+          };
         hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
           {
             ${authFqdn} = {
@@ -359,6 +373,54 @@
               beforeUnits = ["lldap.service"];
             };
           };
+      };
+
+      monitoring = lib.mkIf monEnabled {
+        watchedUnits =
+          ["authelia-main.service"]
+          ++ lib.optional cfg.directory.enable "lldap.service";
+        logs.journal.units =
+          ["authelia-main.service"]
+          ++ lib.optional cfg.directory.enable "lldap.service";
+        scrapes.authelia = {
+          address = "127.0.0.1";
+          port = metricsPort;
+          metricsPath = "/metrics";
+        };
+        rules = {
+          authelia = {
+            backend = "prometheus";
+            interval = "1m";
+            rules = [
+              {
+                alert = "AutheliaDown";
+                expr = ''up{job="authelia"} == 0'';
+                "for" = "2m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Authelia SSO metrics endpoint unreachable";
+                  description = "Authelia metrics scrape target on {{ $labels.host }} has been down for 2 minutes.";
+                };
+              }
+            ];
+          };
+          authelia-logs = {
+            backend = "loki";
+            interval = "1m";
+            rules = [
+              {
+                alert = "AutheliaRepeatedAuthFailures";
+                expr = ''sum by (host) (count_over_time({unit="authelia-main.service"} |~ "(?i)(unsuccessful authentication|banned)" [5m])) > 10'';
+                "for" = "1m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Repeated authentication failures in Authelia on {{ $labels.host }}";
+                  description = "More than 10 failed login or ban events occurred in Authelia over 5 minutes.";
+                };
+              }
+            ];
+          };
+        };
       };
 
       testing.authelia = {

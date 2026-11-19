@@ -38,6 +38,7 @@ in {
         testingCfg = helpers.mkTesting {
           inherit self config lib pkgs state tmpl;
         };
+        rcloneServiceUnits = map (s: "${s}.service") (builtins.attrNames units.services);
       in {
         environment = {
           systemPackages = [pkgs.rclone];
@@ -68,6 +69,11 @@ in {
         testing = {
           vm.allowedFailedUnits = units.nonAutomountUnits;
           rclone = testingCfg;
+        };
+
+        monitoring = lib.mkIf (config.monitoring.enable or false) {
+          watchedUnits = rcloneServiceUnits ++ units.nonAutomountUnits;
+          logs.journal.units = rcloneServiceUnits;
         };
       };
     };

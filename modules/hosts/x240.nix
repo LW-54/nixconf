@@ -36,11 +36,12 @@ in {
         ];
       };
 
-      x240-system = {...}: {
+      x240-system = {config, ...}: {
         imports = [
           self.nixosModules.sops
           self.nixosModules.rclone
           self.nixosModules.restic
+          self.nixosModules.lgtm
           self.nixosModules.lw
           self.nixosModules.hjem
           self.nixosModules.nix
@@ -55,6 +56,22 @@ in {
           nix.settings = {
             build-cores = cores - 1;
             cores = cores - 1;
+          };
+          secrets.files.lldap-admin-password = {
+            store = "services/auth";
+            key = "lldapAdminPassword";
+            owner = "alloy";
+            group = "alloy";
+            testValue = "nixconf-test-lldap-admin-password";
+          };
+          monitoring.agent = {
+            metricsUrl = "https://prometheus.adje.app/api/v1/write";
+            logsUrl = "https://loki.adje.app/loki/api/v1/push";
+            basicAuth = {
+              enable = true;
+              username = "admin";
+              passwordFile = config.secrets.files.lldap-admin-password.path;
+            };
           };
           backup = {
             enable = true;

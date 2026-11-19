@@ -206,6 +206,28 @@
           (lib.mkIf config.default-user.enable {
             services.ssh.authorizeForUsers = ["root" config.default-user.username];
           })
+          (lib.mkIf (config.monitoring.enable or false) {
+            monitoring = {
+              watchedUnits = ["sshd.service"];
+              logs.journal.units = ["sshd.service"];
+              rules.ssh = {
+                backend = "loki";
+                interval = "5m";
+                rules = [
+                  {
+                    alert = "SshInvalidAuthSpike";
+                    expr = ''sum by (host) (count_over_time({unit="sshd.service"} |~ "(?i)(invalid user|failed password|connection closed by authenticating user)" [5m])) > 15'';
+                    "for" = "1m";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "SSH failed authentication spike on {{ $labels.host }}";
+                      description = "More than 15 failed SSH authentication attempts in 5 minutes on {{ $labels.host }}.";
+                    };
+                  }
+                ];
+              };
+            };
+          })
         ]);
       };
     };

@@ -4,6 +4,7 @@
   option,
   output,
   hostLib,
+  hostMonitoringModule,
   hostTestingModule,
   ...
 }: {
@@ -92,6 +93,7 @@
             (config.flake.nixosModules.contracts or {})
             (config.flake.nixosModules.testing or {})
             (hostTestingModule {inherit name;})
+            (hostMonitoringModule {inherit name;})
           ];
         })
         instances;

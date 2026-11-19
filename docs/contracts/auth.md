@@ -13,6 +13,7 @@ Declarative single sign-on (SSO), forward authentication, access control policy,
 ```mermaid
 flowchart LR
   urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
+    urn__nixconf__ast__module__lgtm["nixosModule/lgtm"]:::defaultNode
     urn__nixconf__ast__option__auth_address[/"auth.address"/]:::optNode
     urn__nixconf__ast__option__auth_adminGroup[/"auth.adminGroup"/]:::optNode
     urn__nixconf__ast__option__auth_defaultPolicy[/"auth.defaultPolicy"/]:::optNode
@@ -26,14 +27,21 @@ flowchart LR
     urn__nixconf__ast__type__auth_rule[["auth.rule"]]:::typeNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
+    urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
+    urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
+    urn__nixconf__onto__implementation__lgtm["lgtm"]:::implNode
 
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__authelia -.->|reads| urn__nixconf__ast__option__auth_directory
+    urn__nixconf__ast__module__authelia -.->|reads| urn__nixconf__ast__option__auth_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__auth_directory
+    urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__authelia
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__auth_rules
     urn__nixconf__ast__option__auth_defaultPolicy -.->|typedBy| urn__nixconf__ast__type__auth_policy
     urn__nixconf__ast__option__auth_directory -.->|typedBy| urn__nixconf__ast__type__auth_directory
     urn__nixconf__ast__option__auth_directory -.->|typedBy| urn__nixconf__ast__type__auth_rule
@@ -50,19 +58,34 @@ flowchart LR
     urn__nixconf__onto__contract__auth -->|declares| urn__nixconf__ast__type__auth_directory
     urn__nixconf__onto__contract__auth -->|declares| urn__nixconf__ast__type__auth_policy
     urn__nixconf__onto__contract__auth -->|declares| urn__nixconf__ast__type__auth_rule
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lgtm
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lgtm
     urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__lgtm -->|outputs| urn__nixconf__ast__module__lgtm
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
 
 
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
+    click urn__nixconf__ast__module__lgtm href "../modules/lgtm.md" "lgtm"
     click urn__nixconf__ast__option__auth_address href "auth.md" "auth.address"
     click urn__nixconf__ast__option__auth_adminGroup href "auth.md" "auth.adminGroup"
     click urn__nixconf__ast__option__auth_defaultPolicy href "auth.md" "auth.defaultPolicy"
@@ -76,11 +99,14 @@ flowchart LR
     click urn__nixconf__ast__type__auth_rule href "auth.md" "auth.rule"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
+    click urn__nixconf__onto__contract__monitoring href "monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
+    click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
+    click urn__nixconf__onto__implementation__lgtm href "../implementations/lgtm.md" "lgtm"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -155,21 +181,35 @@ Modules and instances configuring options under the `auth` contract capability:
 ```nix
 # modules/implementations/authelia.nix
 ...
-115: message = "implementation.authelia currently requires `auth.directory.enable = true` (LLDAP backend).";
+117: message = "implementation.authelia currently requires `auth.directory.enable = true` (LLDAP backend).";
 ...
-119: message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
+121: message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
 ...
-123: auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
+125: auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
 ...
-212: endpoints.authz.forward-auth.implementation = "ForwardAuth";
+214: endpoints.authz.forward-auth.implementation = "ForwardAuth";
 ...
-412: caddy-forward-auth = {
-413: description = "Verify Caddyfile enforces forward_auth on protected services";
-414: script = lib.optionalString (config.reverse-proxy.enable or false) (
-415: self.lib.testing.mkInspectFile {
+474: caddy-forward-auth = {
+475: description = "Verify Caddyfile enforces forward_auth on protected services";
+476: script = lib.optionalString (config.reverse-proxy.enable or false) (
+477: self.lib.testing.mkInspectFile {
 ...
-441: _unauth = machine.succeed(
+503: _unauth = machine.succeed(
 ...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/lgtm.md">lgtm</a></code></summary>
+
+**Configures options**: `auth.rules`
+
+```nix
+config = {
+  auth.rules = ...;
+};
 ```
 
 </details>

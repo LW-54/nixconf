@@ -57,6 +57,7 @@ flowchart TD
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
+    urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
@@ -106,6 +107,7 @@ end
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
+    urn__nixconf__onto__implementation__lgtm["lgtm"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
@@ -124,6 +126,7 @@ end
     urn__nixconf__onto__lib__graph["graph"]:::defaultNode
     urn__nixconf__onto__lib__home["home"]:::defaultNode
     urn__nixconf__onto__lib__lw["lw"]:::defaultNode
+    urn__nixconf__onto__lib__monitoring["monitoring"]:::defaultNode
     urn__nixconf__onto__lib__persistence["persistence"]:::defaultNode
     urn__nixconf__onto__lib__primitive["primitive"]:::defaultNode
     urn__nixconf__onto__lib__reverse_proxy["reverse-proxy"]:::defaultNode
@@ -138,10 +141,13 @@ end
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
@@ -151,24 +157,31 @@ end
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
@@ -184,11 +197,14 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lgtm
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__audio
@@ -213,6 +229,7 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lgtm
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
@@ -220,24 +237,36 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
@@ -250,6 +279,7 @@ end
     click urn__nixconf__onto__contract__backup href "docs/contracts/backup.md" "backup"
     click urn__nixconf__onto__contract__default_user href "docs/contracts/default-user.md" "default-user"
     click urn__nixconf__onto__contract__home href "docs/contracts/home.md" "home"
+    click urn__nixconf__onto__contract__monitoring href "docs/contracts/monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "docs/contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "docs/contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "docs/contracts/secrets.md" "secrets"
@@ -290,6 +320,7 @@ end
     click urn__nixconf__onto__implementation__caddy href "docs/implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lgtm href "docs/implementations/lgtm.md" "lgtm"
     click urn__nixconf__onto__implementation__lw href "docs/implementations/lw.md" "lw"
     click urn__nixconf__onto__implementation__rclone href "docs/implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
@@ -305,6 +336,7 @@ end
     click urn__nixconf__onto__lib__graph href "docs/lib/graph.md" "graph"
     click urn__nixconf__onto__lib__home href "docs/lib/home.md" "home"
     click urn__nixconf__onto__lib__lw href "docs/lib/lw.md" "lw"
+    click urn__nixconf__onto__lib__monitoring href "docs/lib/monitoring.md" "monitoring"
     click urn__nixconf__onto__lib__persistence href "docs/lib/persistence.md" "persistence"
     click urn__nixconf__onto__lib__primitive href "docs/lib/primitive.md" "primitive"
     click urn__nixconf__onto__lib__reverse_proxy href "docs/lib/reverse-proxy.md" "reverse-proxy"
@@ -363,11 +395,11 @@ Foundational structural primitives governing repository architecture, typing, an
 
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
-| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 9 | [More →](docs/contracts/README.md) |
+| [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 10 | [More →](docs/contracts/README.md) |
 | [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 29 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
-| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 9 | [More →](docs/implementations/README.md) |
-| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 18 | [More →](docs/lib/README.md) |
+| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 10 | [More →](docs/implementations/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 19 | [More →](docs/lib/README.md) |
 
 </details>
 
@@ -458,6 +490,7 @@ Pure contract interfaces defining shared option schemas decoupled from backends.
 | [`backup`](docs/contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [`restic`](docs/implementations/restic.md) | [More →](docs/contracts/backup.md) |
 | [`default-user`](docs/contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](docs/implementations/lw.md) | [More →](docs/contracts/default-user.md) |
 | [`home`](docs/contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [`hjem`](docs/implementations/hjem.md) | [More →](docs/contracts/home.md) |
+| [`monitoring`](docs/contracts/monitoring.md) | Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provisioning contract. | [`lgtm`](docs/implementations/lgtm.md) | [More →](docs/contracts/monitoring.md) |
 | [`persistence`](docs/contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](docs/implementations/impermanence.md) | [More →](docs/contracts/persistence.md) |
 | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](docs/implementations/caddy.md) | [More →](docs/contracts/reverse-proxy.md) |
 | [`secrets`](docs/contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [`sops`](docs/implementations/sops.md) | [More →](docs/contracts/secrets.md) |
@@ -477,6 +510,7 @@ Concrete capability providers satisfying contract interfaces with services and p
 | [`caddy`](docs/implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | [More →](docs/implementations/caddy.md) |
 | [`hjem`](docs/implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [`home`](docs/contracts/home.md) | [More →](docs/implementations/hjem.md) |
 | [`impermanence`](docs/implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`persistence`](docs/contracts/persistence.md) | [More →](docs/implementations/impermanence.md) |
+| [`lgtm`](docs/implementations/lgtm.md) | Observability stack implementation using Grafana Alloy, Prometheus, Loki, and Grafana. | [`monitoring`](docs/contracts/monitoring.md) | [More →](docs/implementations/lgtm.md) |
 | [`lw`](docs/implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [`default-user`](docs/contracts/default-user.md) | [More →](docs/implementations/lw.md) |
 | [`rclone`](docs/implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [`storage`](docs/contracts/storage.md) | [More →](docs/implementations/rclone.md) |
 | [`restic`](docs/implementations/restic.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [`backup`](docs/contracts/backup.md) | [More →](docs/implementations/restic.md) |
@@ -541,6 +575,7 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 | [`graph`](docs/lib/graph.md) | Canonical Semantic Code Property Graph (CPG) framework, algebraic calculus, and architectural projection functors. | [More →](docs/lib/graph.md) |
 | [`home`](docs/lib/home.md) | Library helpers and constructors for the 'home' contract. | [More →](docs/lib/home.md) |
 | [`lw`](docs/lib/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](docs/lib/lw.md) |
+| [`monitoring`](docs/lib/monitoring.md) | Library helpers and constructors for the 'monitoring' contract. | [More →](docs/lib/monitoring.md) |
 | [`persistence`](docs/lib/persistence.md) | Library helpers and constructors for the 'persistence' contract. | [More →](docs/lib/persistence.md) |
 | [`primitive`](docs/lib/primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [More →](docs/lib/primitive.md) |
 | [`reverse-proxy`](docs/lib/reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [More →](docs/lib/reverse-proxy.md) |

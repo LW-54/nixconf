@@ -32,6 +32,9 @@
                 else user;
               description = "System user to run ttyd and session as.";
             };
+          }
+          // self.lib.monitoring.mkOption {
+            units = ["ttyd-web.service"];
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -51,6 +54,10 @@
             };
           }
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+          (self.lib.monitoring.mkConfig {
+            inherit config cfg;
+            name = "ttyd";
+          })
         ]);
       };
     };

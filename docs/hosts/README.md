@@ -51,10 +51,11 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
         ];
       };
 
-      astrolabe-services = {...}: {
+      astrolabe-services = {config, ...}: {
         imports = [
           self.nixosModules.caddy
           self.nixosModules.authelia
+          self.nixosModules.lgtm
           self.nixosModules.restic
           self.nixosModules.snapshot
           self.nixosModules.vaultwarden
@@ -65,6 +66,14 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
 
         config = {
           reverse-proxy.domain = "adje.app";
+          monitoring = {
+            server.enable = true;
+            scrapes = {
+              prometheus.port = config.monitoring.server.prometheus.port;
+              loki.port = config.monitoring.server.loki.port;
+              grafana.port = config.monitoring.server.grafana.port;
+            };
+          };
           persistence.directories = [
             "/var/lib/containers"
           ];

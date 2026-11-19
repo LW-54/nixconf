@@ -364,6 +364,30 @@ in {
           })
           enabledTargets);
 
+        monitoring = lib.mkIf (config.monitoring.enable or false) (let
+          snapshotServices = map (tName: "host-snapshot-${tName}.service") (builtins.attrNames enabledTargets);
+          snapshotTimers = map (tName: "host-snapshot-${tName}.timer") (builtins.attrNames enabledTargets);
+        in {
+          watchedUnits = snapshotServices ++ snapshotTimers;
+          logs.journal.units = snapshotServices;
+          rules.snapshot = {
+            backend = "prometheus";
+            interval = "1m";
+            rules = [
+              {
+                alert = "HostSnapshotUnitFailed";
+                expr = ''node_systemd_unit_state{name=~"host-snapshot-.*\\.service",state="failed"} == 1'';
+                "for" = "1m";
+                labels.severity = "critical";
+                annotations = {
+                  summary = "Host snapshot unit {{ $labels.name }} failed on {{ $labels.host }}";
+                  description = "Btrfs/restic host snapshot unit {{ $labels.name }} failed on {{ $labels.host }}.";
+                };
+              }
+            ];
+          };
+        });
+
         testing = {
           vm.allowedFailedUnits = ["host-snapshot-*.service"];
 

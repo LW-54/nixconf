@@ -57,6 +57,15 @@
           into the virtual host definition (e.g. custom headers or timeouts).
         '';
       };
+
+      probe = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Whether to register an automated blackbox health probe for this virtual host
+          when monitoring is enabled.
+        '';
+      };
     };
   };
 

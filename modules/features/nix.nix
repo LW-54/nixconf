@@ -74,6 +74,15 @@
               ".cache/nix-index"
             ];
           });
+
+          monitoring = lib.mkIf (config.monitoring.enable or false) {
+            watchedUnits =
+              ["nix-daemon.service" "nix-gc.service"]
+              ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
+            logs.journal.units =
+              ["nix-daemon.service" "nix-gc.service"]
+              ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
+          };
         };
       };
     };

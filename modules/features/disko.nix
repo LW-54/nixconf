@@ -369,24 +369,47 @@ in {
       in {
         imports = [inputs.disko.nixosModules.disko];
 
-        config = lib.mkIf (options ? disko && options.disko ? tests) {
-          testing.install.enable = lib.mkDefault (config.disko.devices.disk != {});
-          disko.memSize = lib.mkDefault (config.testing.vm.memorySize or 2048);
-          disko.tests = {
-            # Install tier runs vmChecks + installChecks
-            extraChecks = self.lib.testing.mkInstallScript {
-              inherit (config) testing;
-              label = config.testing.name;
+        config = lib.mkMerge [
+          (lib.mkIf (options ? disko && options.disko ? tests) {
+            testing.install.enable = lib.mkDefault (config.disko.devices.disk != {});
+            disko.memSize = lib.mkDefault (config.testing.vm.memorySize or 2048);
+            disko.tests = {
+              # Install tier runs vmChecks + installChecks
+              extraChecks = self.lib.testing.mkInstallScript {
+                inherit (config) testing;
+                label = config.testing.name;
+              };
+              extraConfig = {
+                boot.loader.grub.device = lib.mkForce "";
+                console.keyMap = lib.mkForce "us";
+                boot.resumeDevice = lib.mkForce "";
+                boot.initrd.availableKernelModules = virtioInitrdModules;
+                boot.kernelModules = virtioKernelModules;
+              };
             };
-            extraConfig = {
-              boot.loader.grub.device = lib.mkForce "";
-              console.keyMap = lib.mkForce "us";
-              boot.resumeDevice = lib.mkForce "";
-              boot.initrd.availableKernelModules = virtioInitrdModules;
-              boot.kernelModules = virtioKernelModules;
+          })
+          (lib.mkIf (config.monitoring.enable or false) {
+            monitoring = {
+              exporters.unix.collectors = ["filesystem" "diskstats"];
+              rules.disk = {
+                backend = "prometheus";
+                interval = "1m";
+                rules = [
+                  {
+                    alert = "FilesystemSpaceLow";
+                    expr = ''(node_filesystem_avail_bytes{fstype!~"tmpfs|ramfs|squashfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|ramfs|squashfs|overlay"}) < 0.15'';
+                    "for" = "10m";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "Filesystem {{ $labels.mountpoint }} low on space ({{ $labels.host }})";
+                      description = "Less than 15% free space remains on {{ $labels.mountpoint }} ({{ $labels.host }}).";
+                    };
+                  }
+                ];
+              };
             };
-          };
-        };
+          })
+        ];
       };
     };
     lib = {

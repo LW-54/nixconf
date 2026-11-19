@@ -23,6 +23,13 @@
           (lib.mkIf config.default-user.enable {
             users.users.${config.default-user.username}.extraGroups = ["docker"];
           })
+          (lib.mkIf (config.monitoring.enable or false) {
+            monitoring = {
+              exporters.cadvisor.enable = true;
+              watchedUnits = ["docker.service"];
+              logs.journal.units = ["docker.service"];
+            };
+          })
         ]);
       };
     };

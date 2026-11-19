@@ -21,6 +21,7 @@ flowchart LR
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
+    urn__nixconf__ast__module__lgtm["nixosModule/lgtm"]:::defaultNode
     urn__nixconf__ast__module__ttyd["nixosModule/ttyd"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
@@ -36,6 +37,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
+    urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
@@ -51,34 +53,49 @@ flowchart LR
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
+    urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
+    urn__nixconf__onto__implementation__lgtm["lgtm"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
+    urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_forwardAuth
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_forwardAuth
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__authelia
+    urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__option__reverse_proxy_domain -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_fqdn
@@ -99,6 +116,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__authelia
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__copyparty
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lgtm
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
@@ -113,24 +131,32 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_portAllocation
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -->|outputs| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe
@@ -140,6 +166,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
@@ -155,28 +182,56 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lgtm
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lgtm
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -->|outputs| urn__nixconf__ast__module__lgtm
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
@@ -194,6 +249,7 @@ flowchart LR
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
     click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
+    click urn__nixconf__ast__module__lgtm href "../modules/lgtm.md" "lgtm"
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
@@ -209,6 +265,7 @@ flowchart LR
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
+    click urn__nixconf__onto__contract__monitoring href "monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
@@ -224,9 +281,11 @@ flowchart LR
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
+    click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
+    click urn__nixconf__onto__implementation__lgtm href "../implementations/lgtm.md" "lgtm"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
     click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
@@ -303,7 +362,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-35: reverse-proxy.domain = "adje.app";
+36: reverse-proxy.domain = "adje.app";
 ...
 ```
 
@@ -321,29 +380,67 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/implementations/authelia.nix
 ...
-15: domain = config.reverse-proxy.domain or null;
+16: metricsPort = self.lib.reverse-proxy.mkPort "authelia-metrics";
 ...
-63: (config.reverse-proxy.hosts or {});
+17: domain = config.reverse-proxy.domain or null;
 ...
-290: reverse-proxy = {
-291: forwardAuth = {
-292: enable = true;
-293: upstream = "${authConnectHost}:${toString cfg.port}";
+65: (config.reverse-proxy.hosts or {});
 ...
-324: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
+298: reverse-proxy = {
+299: forwardAuth = {
+300: enable = true;
+301: upstream = "${authConnectHost}:${toString cfg.port}";
 ...
-370: (config.reverse-proxy.forwardAuth.enable or false)
+338: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
 ...
-371: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
+432: (config.reverse-proxy.forwardAuth.enable or false)
 ...
-372: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
+433: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
 ...
-377: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
+434: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
 ...
-378: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
+439: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
 ...
-414: script = lib.optionalString (config.reverse-proxy.enable or false) (
+440: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
 ...
+476: script = lib.optionalString (config.reverse-proxy.enable or false) (
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/caddy.md">caddy</a></code></summary>
+
+**Configures options**: `reverse-proxy.ports`
+
+```nix
+# modules/implementations/caddy.nix
+...
+15: adminPort = self.lib.reverse-proxy.mkPort "caddy-admin";
+...
+16: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
+...
+127: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
+...
+162: reverse-proxy.ports = [
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/lgtm.md">lgtm</a></code></summary>
+
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
+
+```nix
+config = {
+  reverse-proxy.hosts = ...;
+  reverse-proxy.ports = ...;
+};
 ```
 
 </details>
@@ -362,7 +459,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ...
 13: domain = config.reverse-proxy.domain or null;
 ...
-309: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+312: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -377,7 +474,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/features/ttyd.nix
 ...
-53: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+56: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -394,7 +491,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ...
 24: domain = config.reverse-proxy.domain or null;
 ...
-269: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+272: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -409,9 +506,9 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/features/vaultwarden.nix
 ...
-36: domain = config.reverse-proxy.domain or null;
+39: domain = config.reverse-proxy.domain or null;
 ...
-45: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+48: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 

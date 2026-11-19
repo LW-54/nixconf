@@ -25,6 +25,9 @@
             scope = "shared";
             destinationOverrides.b2-shared.enable = true;
             beforeUnits = ["vaultwarden.service"];
+          }
+          // self.lib.monitoring.mkOption {
+            units = ["vaultwarden.service"];
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -45,6 +48,10 @@
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
           (self.lib.persistence.mkConfig {inherit config cfg;})
           (self.lib.backup.mkConfig {inherit config cfg;})
+          (self.lib.monitoring.mkConfig {
+            inherit config cfg;
+            name = "vaultwarden";
+          })
         ]);
       };
     };
