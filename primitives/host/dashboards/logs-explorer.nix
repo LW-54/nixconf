@@ -17,7 +17,7 @@
         (d.vars.custom {
           name = "level";
           label = "Level";
-          options = ["emerg" "alert" "crit" "err" "warning" "notice" "info" "debug"];
+          options = ["emerg" "alert" "crit" "error" "warning" "notice" "info" "debug"];
         })
         (d.vars.custom {
           name = "watched";
@@ -64,7 +64,7 @@
             noValue = "0";
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
-            expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", unit=~"$unit", level=~"emerg|alert|crit|err", watched=~"$watched"} |~ "$search" [$__range]))'';
+            expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", unit=~"$unit", level=~"emerg|alert|crit|err|error", watched=~"$watched"} |~ "$search" [$__range]))'';
             legend = "Errors";
           })
           (d.mkStat {
@@ -85,7 +85,7 @@
             noValue = "0";
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
-            expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", watched="true", level=~"emerg|alert|crit|err"} |~ "$search" [$__range]))'';
+            expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", watched="true", level=~"emerg|alert|crit|err|error"} |~ "$search" [$__range]))'';
             legend = "Watched Errors";
           })
         ])

@@ -118,7 +118,7 @@ in {
                 title = "Prometheus TSDB Append Rate";
                 w = 12;
                 unit = "ops";
-                expr = ''rate(prometheus_tsdb_head_samples_appended_total[5m])'';
+                expr = ''sum by (host) (rate(prometheus_tsdb_head_samples_appended_total[5m]))'';
                 legend = "{{host}} samples/s";
               })
               (d.mkTimeseries {

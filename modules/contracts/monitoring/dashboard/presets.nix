@@ -319,7 +319,7 @@
   ];
 
   logLevelColorOverrides = _: [
-    (overrideByRegexp "/^(emerg|alert|crit|err)$/" [(colorFixed "red")])
+    (overrideByRegexp "/^(emerg|emergency|alert|crit|critical|err|error)$/" [(colorFixed "red")])
     (overrideByRegexp "/^warning$/" [(colorFixed "orange")])
     (overrideByRegexp "/^notice$/" [(colorFixed "yellow")])
     (overrideByRegexp "/^info$/" [(colorFixed "blue")])

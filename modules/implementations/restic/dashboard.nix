@@ -30,7 +30,7 @@
             title = "Active Rclone Mounts";
             w = 6;
             decimals = 0;
-            expr = ''sum(node_systemd_unit_state{host=~"$host",name=~"mnt-storage-.*\\.mount",state="active"}) or vector(0)'';
+            expr = ''count(node_filesystem_size_bytes{host=~"$host",fstype="fuse.rclone"}) or vector(0)'';
             legend = "Mounts";
           })
           (d.mkStat {
@@ -67,11 +67,29 @@
           title = "Rclone Remote Storage";
           rows = [
             [
-              (d.mkSystemdUnitsTable {
-                title = "Rclone Mount & Config Units";
+              (d.mkTable {
+                title = "Mounted Rclone Filesystems";
                 w = 12;
                 h = 7;
-                expr = ''node_systemd_unit_state{host=~"$host",name=~"mnt-storage-.*\\.mount|rclone-config\\.service"} == 1'';
+                expr = ''node_filesystem_size_bytes{host=~"$host",fstype="fuse.rclone"}'';
+                transformations = [
+                  (d.organizeTransform {
+                    exclude = ["Time" "__name__" "instance" "job" "fstype"];
+                    rename = {
+                      host = "Host";
+                      mountpoint = "Mountpoint";
+                      device = "Remote";
+                      Value = "Capacity";
+                    };
+                    index = {
+                      host = 0;
+                      mountpoint = 1;
+                      device = 2;
+                      Value = 3;
+                    };
+                  })
+                ];
+                overrides = [(d.unitOverride "Capacity" "bytes")];
               })
               (d.mkBarGauge {
                 title = "Remote Storage Usage (%)";
