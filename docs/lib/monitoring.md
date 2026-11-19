@@ -88,6 +88,7 @@ dashboard :: AttrSet
 - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine and dashboard constructor with shared crosshair tooltips and navigation links.
 - `mkContainersDashboard`: Shared OCI container and systemd service cgroup overview dashboard generator.
 - `mkStackHealthDashboard`: Central LGTM stack health, ingestion, alert, and scrape target dashboard generator.
+- `mkServiceInspectorDashboard`: Unified per-service vertical drilldown dashboard correlating HTTP, probes, units, compute, storage, and logs.
 ```
 
 #### Examples
@@ -167,3 +168,4 @@ Custom option types declared under this library namespace:
 - `ruleItem`: submodule
 - `scrape`: submodule
 - `server`: submodule
+- `service`: submodule

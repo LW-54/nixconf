@@ -210,6 +210,7 @@
             monitoring = {
               watchedUnits = ["sshd.service"];
               logs.journal.units = ["sshd.service"];
+              services.sshd.units = ["sshd.service"];
               rules.ssh = {
                 backend = "loki";
                 interval = "5m";

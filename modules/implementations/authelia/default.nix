@@ -395,6 +395,21 @@ in {
         logs.journal.units =
           ["authelia-main.service"]
           ++ lib.optional cfg.directory.enable "lldap.service";
+        services =
+          {
+            authelia = {
+              units = ["authelia-main.service"];
+              vhost = authFqdn;
+              backupUnit = "authelia";
+            };
+          }
+          // lib.optionalAttrs cfg.directory.enable {
+            lldap = {
+              units = ["lldap.service"];
+              vhost = lldapFqdn;
+              backupUnit = "lldap";
+            };
+          };
         scrapes.authelia = {
           address = "127.0.0.1";
           port = metricsPort;

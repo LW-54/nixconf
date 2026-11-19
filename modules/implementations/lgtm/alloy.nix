@@ -87,6 +87,29 @@
     watchedUnits = lib.unique cfg.watchedUnits;
     watchedUnitRegex = lib.concatStringsSep "|" (map escapeRegex watchedUnits);
 
+    enabledServices = lib.filterAttrs (_: s: s.enable) cfg.services;
+    serviceNames = builtins.attrNames enabledServices;
+
+    mkRelabelRule = {
+      sourceLabels,
+      regex,
+      targetLabel,
+      replacement,
+    }: ''
+      rule {
+        source_labels = ${builtins.toJSON sourceLabels}
+        regex         = ${builtins.toJSON regex}
+        target_label  = ${builtins.toJSON targetLabel}
+        replacement   = ${builtins.toJSON replacement}
+      }
+    '';
+
+    serviceExactUnitPatterns = s: map escapeRegex (lib.unique s.units);
+    serviceUnitPatterns = s:
+      (serviceExactUnitPatterns s)
+      ++ lib.optional (s.backupUnit != null) "restic-(backups|restore)-${escapeRegex s.backupUnit}(-.*)?\\.(service|timer)";
+    serviceMountPatterns = s: map escapeRegex (lib.unique s.storageMounts);
+
     unixExporterBlock = lib.optionalString (cfg.exporters.unix.enable && metricsWriteUrl != null) (let
       unixCfg = cfg.exporters.unix;
       collectorLine =
@@ -95,24 +118,46 @@
         else if unixCfg.collectors != []
         then "enable_collectors = ${builtins.toJSON (lib.unique unixCfg.collectors)}"
         else "";
-      hasWatchedUnits = watchedUnits != [];
+      unixRelabelRules =
+        (lib.optional (watchedUnits != []) (mkRelabelRule {
+          sourceLabels = ["__name__" "name"];
+          regex = "node_systemd_unit_state;(${watchedUnitRegex})";
+          targetLabel = "watched";
+          replacement = "true";
+        }))
+        ++ (lib.concatMap (sName: let
+          pats = serviceUnitPatterns enabledServices.${sName};
+        in
+          lib.optional (pats != []) (mkRelabelRule {
+            sourceLabels = ["__name__" "name"];
+            regex = "node_systemd_unit_state;(${lib.concatStringsSep "|" pats})";
+            targetLabel = "service";
+            replacement = sName;
+          }))
+        serviceNames)
+        ++ (lib.concatMap (sName: let
+          pats = serviceMountPatterns enabledServices.${sName};
+        in
+          lib.optional (pats != []) (mkRelabelRule {
+            sourceLabels = ["__name__" "mountpoint"];
+            regex = "node_filesystem_(avail|size)_bytes;(${lib.concatStringsSep "|" pats})";
+            targetLabel = "service";
+            replacement = sName;
+          }))
+        serviceNames);
+      hasUnixRelabel = unixRelabelRules != [];
       unixForward =
-        if hasWatchedUnits
-        then "prometheus.relabel.unix_watched.receiver"
+        if hasUnixRelabel
+        then "prometheus.relabel.unix_relabel.receiver"
         else "prometheus.remote_write.default.receiver";
     in ''
       prometheus.exporter.unix "host" {
         ${collectorLine}
       }
-      ${lib.optionalString hasWatchedUnits ''
+      ${lib.optionalString hasUnixRelabel ''
 
-        prometheus.relabel "unix_watched" {
-          rule {
-            source_labels = ["__name__", "name"]
-            regex         = ${builtins.toJSON "node_systemd_unit_state;(${watchedUnitRegex})"}
-            target_label  = "watched"
-            replacement   = "true"
-          }
+        prometheus.relabel "unix_relabel" {
+          ${lib.concatStringsSep "\n" unixRelabelRules}
           forward_to = [prometheus.remote_write.default.receiver]
         }
       ''}
@@ -124,21 +169,80 @@
       }
     '');
 
-    cadvisorBlock = lib.optionalString (cfg.exporters.cadvisor.enable && metricsWriteUrl != null) ''
+    cadvisorBlock = lib.optionalString (cfg.exporters.cadvisor.enable && metricsWriteUrl != null) (let
+      cadvisorServiceRules = lib.concatMap (sName: let
+        pats = serviceExactUnitPatterns enabledServices.${sName};
+      in
+        lib.optional (pats != []) (mkRelabelRule {
+          sourceLabels = ["id"];
+          regex = "/system\\.slice/(${lib.concatStringsSep "|" pats})";
+          targetLabel = "service";
+          replacement = sName;
+        }))
+      serviceNames;
+      hasCadvisorRelabel = cadvisorServiceRules != [];
+      cadvisorForward =
+        if hasCadvisorRelabel
+        then "prometheus.relabel.cadvisor_service.receiver"
+        else "prometheus.remote_write.default.receiver";
+    in ''
       prometheus.exporter.cadvisor "containers" {
         docker_only = ${lib.boolToString cfg.exporters.cadvisor.dockerOnly}
       }
+      ${lib.optionalString hasCadvisorRelabel ''
+
+        prometheus.relabel "cadvisor_service" {
+          ${lib.concatStringsSep "\n" cadvisorServiceRules}
+          forward_to = [prometheus.remote_write.default.receiver]
+        }
+      ''}
 
       prometheus.scrape "cadvisor" {
         targets         = prometheus.exporter.cadvisor.containers.targets
         scrape_interval = ${builtins.toJSON cfg.agent.scrapeInterval}
-        forward_to      = [prometheus.remote_write.default.receiver]
+        forward_to      = [${cadvisorForward}]
       }
-    '';
+    '');
 
     enabledScrapes = lib.filterAttrs (_: s: s.enable) cfg.scrapes;
-    scrapeBlocks = lib.optionalString (metricsWriteUrl != null) (
-      lib.concatStringsSep "\n" (lib.mapAttrsToList (sName: s: let
+    scrapeServiceRules =
+      (lib.concatMap (sName:
+        lib.optional (sName != "caddy") (mkRelabelRule {
+          sourceLabels = ["job"];
+          regex = "^${escapeRegex sName}$";
+          targetLabel = "service";
+          replacement = sName;
+        }))
+      serviceNames)
+      ++ (lib.optional (enabledServices ? caddy) (mkRelabelRule {
+        sourceLabels = ["job" "host"];
+        regex = "^caddy;$";
+        targetLabel = "service";
+        replacement = "caddy";
+      }))
+      ++ (lib.concatMap (sName: let
+        s = enabledServices.${sName};
+      in
+        lib.optional (s.vhost != null) (mkRelabelRule {
+          sourceLabels = ["job" "host"];
+          regex = "^caddy;${escapeRegex s.vhost}(:[0-9]+)?$";
+          targetLabel = "service";
+          replacement = sName;
+        }))
+      serviceNames);
+    hasScrapeRelabel = enabledScrapes != {} && scrapeServiceRules != [];
+    scrapeForward =
+      if hasScrapeRelabel
+      then "prometheus.relabel.scrape_service.receiver"
+      else "prometheus.remote_write.default.receiver";
+    scrapeBlocks = lib.optionalString (metricsWriteUrl != null && enabledScrapes != {}) (
+      lib.optionalString hasScrapeRelabel ''
+        prometheus.relabel "scrape_service" {
+          ${lib.concatStringsSep "\n" scrapeServiceRules}
+          forward_to = [prometheus.remote_write.default.receiver]
+        }
+      ''
+      + lib.concatStringsSep "\n" (lib.mapAttrsToList (sName: s: let
           sid = sanitizeLabel "scrape_${sName}";
           targetMap =
             {
@@ -156,7 +260,7 @@
             metrics_path    = ${builtins.toJSON s.metricsPath}
             scheme          = ${builtins.toJSON s.scheme}
             scrape_interval = ${builtins.toJSON interval}
-            forward_to      = [prometheus.remote_write.default.receiver]
+            forward_to      = [${scrapeForward}]
           }
         '')
         enabledScrapes)
@@ -182,9 +286,30 @@
           timeout: 5s
     '';
 
+    probeServiceRules = lib.concatMap (sName: let
+      s = enabledServices.${sName};
+    in
+      lib.optional (s.vhost != null) (mkRelabelRule {
+        sourceLabels = ["vhost"];
+        regex = "^${escapeRegex s.vhost}$";
+        targetLabel = "service";
+        replacement = sName;
+      }))
+    serviceNames;
+    hasProbeRelabel = blackboxActive && enabledProbes != {} && probeServiceRules != [];
+    probeForward =
+      if hasProbeRelabel
+      then "prometheus.relabel.probe_service.receiver"
+      else "prometheus.remote_write.default.receiver";
     probesByInterval = lib.groupBy (pName: enabledProbes.${pName}.interval) (builtins.attrNames enabledProbes);
     probeBlocks = lib.optionalString (blackboxActive && enabledProbes != {}) (
-      lib.concatStringsSep "\n" (lib.mapAttrsToList (interval: pNames: let
+      lib.optionalString hasProbeRelabel ''
+        prometheus.relabel "probe_service" {
+          ${lib.concatStringsSep "\n" probeServiceRules}
+          forward_to = [prometheus.remote_write.default.receiver]
+        }
+      ''
+      + lib.concatStringsSep "\n" (lib.mapAttrsToList (interval: pNames: let
           iid = sanitizeLabel "probes_${interval}";
           targetBlocks = lib.concatStringsSep "\n" (map (pName: let
               p = enabledProbes.${pName};
@@ -205,7 +330,7 @@
           prometheus.scrape ${builtins.toJSON iid} {
             targets         = prometheus.exporter.blackbox.${iid}.targets
             scrape_interval = ${builtins.toJSON interval}
-            forward_to      = [prometheus.remote_write.default.receiver]
+            forward_to      = [${probeForward}]
           }
         '')
         probesByInterval)
@@ -215,6 +340,16 @@
     journalBlocks = lib.optionalString (journalCfg.enable && logsPushUrl != null) (let
       journalWatchedUnits = lib.unique (journalCfg.units ++ watchedUnits);
       journalWatchedRegex = lib.concatStringsSep "|" (map escapeRegex journalWatchedUnits);
+      journalServiceRules = lib.concatMap (sName: let
+        pats = serviceUnitPatterns enabledServices.${sName};
+      in
+        lib.optional (pats != []) (mkRelabelRule {
+          sourceLabels = ["unit"];
+          regex = "^(${lib.concatStringsSep "|" pats})$";
+          targetLabel = "service";
+          replacement = sName;
+        }))
+      serviceNames;
       hasStages = journalCfg.stages != [];
       journalForward =
         if hasStages
@@ -253,6 +388,7 @@
           replacement   = "true"
         }
       ''}
+        ${lib.concatStringsSep "\n" journalServiceRules}
       }
 
       ${lib.optionalString hasStages ''

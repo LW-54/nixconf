@@ -24,4 +24,5 @@ Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provi
 | `monitoring.rules` | `attribute set of (submodule)` | `{ }` | `{ ... }` | Attribute set of alerting and recording rule groups evaluated by Prometheus or Loki. |
 | `monitoring.scrapes` | `attribute set of (submodule)` | `{ }` | `{ ... }` | Attribute set of Prometheus scrape targets collected by the local telemetry agent. |
 | `monitoring.server` | `submodule` | `{ }` | `{ ... }` | Central telemetry ingestion, time-series storage, and visualization server configuration. |
+| `monitoring.services` | `attribute set of (submodule)` | `{ }` | `{ ... }` | Declarative service catalog mapping logical application names to systemd units, virtual hosts, backup jobs, and storage mounts. |
 | `monitoring.watchedUnits` | `list of string` | `[ ]` | `[ ... ]` | Critical systemd units (services, timers, or mounts) registered for health monitoring and journal tracking. |

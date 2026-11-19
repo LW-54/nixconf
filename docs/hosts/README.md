@@ -73,6 +73,21 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
               loki.port = config.monitoring.server.loki.port;
               grafana.port = config.monitoring.server.grafana.port;
             };
+            services = {
+              grafana = {
+                units = ["grafana.service"];
+                vhost = "grafana.adje.app";
+                backupUnit = "grafana";
+              };
+              prometheus = {
+                units = ["prometheus.service"];
+                vhost = "prometheus.adje.app";
+              };
+              loki = {
+                units = ["loki.service"];
+                vhost = "loki.adje.app";
+              };
+            };
             dashboards.lgtm-health = {
               title = "Monitoring Stack Health";
               folder = "Infrastructure";

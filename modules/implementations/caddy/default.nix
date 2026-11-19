@@ -107,6 +107,7 @@ in {
       monitoring = lib.mkIf (config.monitoring.enable or false) {
         watchedUnits = ["caddy.service"];
         logs.journal.units = ["caddy.service"];
+        services.caddy.units = ["caddy.service"];
         scrapes.caddy = {
           address = "127.0.0.1";
           port = adminPort;

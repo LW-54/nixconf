@@ -28,6 +28,7 @@
               exporters.cadvisor.enable = true;
               watchedUnits = ["docker.service"];
               logs.journal.units = ["docker.service"];
+              services.docker.units = ["docker.service"];
               dashboards.containers = lib.mkOverride 1001 {
                 title = "Containers & Services";
                 folder = "Services";

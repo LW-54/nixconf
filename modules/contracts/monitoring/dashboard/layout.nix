@@ -186,6 +186,16 @@
         tooltip = "Open centralized journald logs explorer";
         type = "link";
         url = "/d/nixconf-logs-explorer";
+      }
+      ++ lib.optional (uid != "nixconf-service-inspector") {
+        icon = "dashboard";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Service Inspector";
+        tooltip = "Inspect metrics, units, and logs for a specific service";
+        type = "link";
+        url = "/d/nixconf-service-inspector";
       };
 
     assembled =

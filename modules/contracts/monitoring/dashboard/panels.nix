@@ -46,6 +46,7 @@
     h ? 4,
     w ? null,
     overrides ? [],
+    links ? [],
   }: let
     resolvedTargets = resolveTargets {inherit targets expr legend instant loki;};
   in {
@@ -63,7 +64,8 @@
               color.mode = "thresholds";
             }
             // lib.optionalAttrs (decimals != null) {inherit decimals;}
-            // lib.optionalAttrs (noValue != null) {inherit noValue;};
+            // lib.optionalAttrs (noValue != null) {inherit noValue;}
+            // lib.optionalAttrs (links != []) {inherit links;};
           inherit overrides;
         };
         options = {
@@ -251,6 +253,7 @@
     description ? null,
     h ? 8,
     w ? null,
+    links ? [],
   }: let
     resolvedTargets = resolveTargets {inherit targets expr legend instant format loki;};
   in {
@@ -271,7 +274,8 @@
                 inspect = false;
               };
             }
-            // lib.optionalAttrs (noValue != null) {inherit noValue;};
+            // lib.optionalAttrs (noValue != null) {inherit noValue;}
+            // lib.optionalAttrs (links != []) {inherit links;};
           inherit overrides;
         };
         options = {

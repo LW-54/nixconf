@@ -78,8 +78,14 @@
                 textMode = "value_and_name";
                 mappings = d.mappings.upDown;
                 thresholds = d.thresholds.upDown;
-                expr = ''max by (vhost) (probe_success{vhost=~"$probe"})'';
+                expr = ''max by (vhost, service) (probe_success{vhost=~"$probe"})'';
                 legend = "{{vhost}}";
+                links = [
+                  {
+                    title = ''Inspect ''${__field.labels.service}'';
+                    url = ''/d/nixconf-service-inspector?var-service=''${__field.labels.service}&''${__url_time_range}'';
+                  }
+                ];
               })
               (d.mkTable {
                 title = "Probe Summary";

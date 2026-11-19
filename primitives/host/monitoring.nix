@@ -87,6 +87,11 @@
               folder = "Infrastructure";
               json = mkLogsExplorerDashboard d;
             };
+            service-inspector = lib.mkIf (config.monitoring.services != {}) {
+              title = "Service Inspector";
+              folder = "Services";
+              json = d.mkServiceInspectorDashboard {};
+            };
           };
         };
       };

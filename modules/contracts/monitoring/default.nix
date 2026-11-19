@@ -118,6 +118,19 @@ in {
         description = "Attribute set of declarative Grafana dashboards provisioned automatically as code.";
       };
 
+      services = lib.mkOption {
+        type = lib.types.attrsOf types.service;
+        default = {};
+        example = {
+          vaultwarden = {
+            units = ["vaultwarden.service"];
+            vhost = "vaultwarden.adje.app";
+            backupUnit = "vaultwarden";
+          };
+        };
+        description = "Declarative service catalog mapping logical application names to systemd units, virtual hosts, backup jobs, and storage mounts.";
+      };
+
       extraAlloyConfig = lib.mkOption {
         type = lib.types.lines;
         default = "";
@@ -264,6 +277,13 @@ in {
       metricsCfg = mon.metrics or {};
       probeCfg = mon.probe or {};
       units = mon.units or [];
+      domain = config.reverse-proxy.domain or null;
+      serviceVhost =
+        if (cfg.subdomain or null) != null && cfg.subdomain != "" && domain != null
+        then "${cfg.subdomain}.${domain}"
+        else null;
+      hasBackup = cfg.backup.enable or false;
+      hasStorageMount = (cfg.storage.enable or false) && (cfg.storage.mountPoint or null) != null;
     in
       lib.mkIf enabled {
         monitoring = {
@@ -282,6 +302,15 @@ in {
             ${serviceName} = {
               inherit (probeCfg) target module;
             };
+          };
+          services.${serviceName} = {
+            inherit units;
+            vhost = serviceVhost;
+            backupUnit =
+              if hasBackup
+              then serviceName
+              else null;
+            storageMounts = lib.optional hasStorageMount cfg.storage.mountPoint;
           };
           rules = mon.rules or {};
           dashboards = mon.dashboards or {};

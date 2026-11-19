@@ -464,6 +464,44 @@
       };
     };
   });
+
+  serviceSubmodule = lib.types.submodule {
+    options = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether this service registration participates in unified telemetry labeling and service views.";
+      };
+
+      units = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        example = ["vaultwarden.service"];
+        description = "Systemd unit names belonging to this service for unit state, cgroup, and journal labeling.";
+      };
+
+      vhost = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "vaultwarden.adje.app";
+        description = "Primary reverse-proxy virtual host FQDN served by this service for Caddy and blackbox correlation.";
+      };
+
+      backupUnit = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "vaultwarden";
+        description = "Optional backup unit name prefix correlating restic backup and restore units with this service.";
+      };
+
+      storageMounts = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        example = ["/mnt/storage/copyparty"];
+        description = "Mountpoint paths associated with this service for per-service storage telemetry.";
+      };
+    };
+  };
 in {
   contract.monitoring.types = {
     agent = agentSubmodule;
@@ -477,5 +515,6 @@ in {
     ruleItem = ruleItemSubmodule;
     ruleGroup = ruleGroupSubmodule;
     dashboard = dashboardSubmodule;
+    service = serviceSubmodule;
   };
 }

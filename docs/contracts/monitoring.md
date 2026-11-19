@@ -54,6 +54,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_rules[/"monitoring.rules"/]:::optNode
     urn__nixconf__ast__option__monitoring_scrapes[/"monitoring.scrapes"/]:::optNode
     urn__nixconf__ast__option__monitoring_server[/"monitoring.server"/]:::optNode
+    urn__nixconf__ast__option__monitoring_services[/"monitoring.services"/]:::optNode
     urn__nixconf__ast__option__monitoring_watchedUnits[/"monitoring.watchedUnits"/]:::optNode
     urn__nixconf__ast__type__monitoring_agent[["monitoring.agent"]]:::typeNode
     urn__nixconf__ast__type__monitoring_dashboard[["monitoring.dashboard"]]:::typeNode
@@ -66,6 +67,7 @@ flowchart LR
     urn__nixconf__ast__type__monitoring_ruleItem[["monitoring.ruleItem"]]:::typeNode
     urn__nixconf__ast__type__monitoring_scrape[["monitoring.scrape"]]:::typeNode
     urn__nixconf__ast__type__monitoring_server[["monitoring.server"]]:::typeNode
+    urn__nixconf__ast__type__monitoring_service[["monitoring.service"]]:::typeNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
@@ -128,6 +130,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_server
+    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -136,6 +139,7 @@ flowchart LR
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
+    urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -143,6 +147,7 @@ flowchart LR
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
+    urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -153,6 +158,7 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__disko -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__disko -.->|writes| urn__nixconf__ast__option__monitoring_exporters
@@ -162,6 +168,7 @@ flowchart LR
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_logs
+    urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__impermanence -.->|writes| urn__nixconf__ast__option__monitoring_rules
@@ -178,6 +185,7 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_server
+    urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -204,6 +212,7 @@ flowchart LR
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__ttyd -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -211,6 +220,7 @@ flowchart LR
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__ttyd -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -222,6 +232,7 @@ flowchart LR
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -231,6 +242,7 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
@@ -252,6 +264,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_agent -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_agent -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_agent -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_agent -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -263,6 +276,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_dashboards -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -274,6 +288,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_exporters -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -285,6 +300,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_logs -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -296,6 +312,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_probes -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -307,6 +324,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_rules -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -318,6 +336,7 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_scrapes -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
     urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
@@ -329,6 +348,19 @@ flowchart LR
     urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_server -.->|typedBy| urn__nixconf__ast__type__monitoring_service
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_dashboard
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_exporters
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_fileLog
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_journalLogs
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_logs
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_probe
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleGroup
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_ruleItem
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_scrape
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__ast__option__monitoring_services -.->|typedBy| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
@@ -376,6 +408,7 @@ flowchart LR
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_server
+    urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__type__monitoring_agent
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__type__monitoring_dashboard
@@ -388,6 +421,7 @@ flowchart LR
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__type__monitoring_ruleItem
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__type__monitoring_scrape
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__type__monitoring_server
+    urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__type__monitoring_service
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
@@ -592,6 +626,7 @@ flowchart LR
     click urn__nixconf__ast__option__monitoring_rules href "monitoring.md" "monitoring.rules"
     click urn__nixconf__ast__option__monitoring_scrapes href "monitoring.md" "monitoring.scrapes"
     click urn__nixconf__ast__option__monitoring_server href "monitoring.md" "monitoring.server"
+    click urn__nixconf__ast__option__monitoring_services href "monitoring.md" "monitoring.services"
     click urn__nixconf__ast__option__monitoring_watchedUnits href "monitoring.md" "monitoring.watchedUnits"
     click urn__nixconf__ast__type__monitoring_agent href "monitoring.md" "monitoring.agent"
     click urn__nixconf__ast__type__monitoring_dashboard href "monitoring.md" "monitoring.dashboard"
@@ -604,6 +639,7 @@ flowchart LR
     click urn__nixconf__ast__type__monitoring_ruleItem href "monitoring.md" "monitoring.ruleItem"
     click urn__nixconf__ast__type__monitoring_scrape href "monitoring.md" "monitoring.scrape"
     click urn__nixconf__ast__type__monitoring_server href "monitoring.md" "monitoring.server"
+    click urn__nixconf__ast__type__monitoring_service href "monitoring.md" "monitoring.service"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
@@ -681,7 +717,7 @@ flowchart LR
 
 | Symbol | Type | Description | Docs |
 | :--- | :--- | :--- | :--- |
-| [`dashboard`](../lib/monitoring.md#dashboard) | `dashboard :: AttrSet  # Values - `ds`: Provisioned Prometheus and Loki datasource descriptor references (`prometheus`, `loki`). - `promTarget`, `lokiTarget`: Construct Prometheus or Loki target objects (`expr`, `legend`, `instant`, `format`). - `thresholds`: Standard threshold presets (`percent`, `percentHigh`, `percent100Ok`, `upDown`, `zeroOk`, `zeroWarn`, `latencySec`, `neutral`). - `mappings`: Standard Grafana value mapping lists (`upDown`, `okFail`, `systemdState`, `alertState`). - `vars`: Template variable constructors (`host`, `promQuery`, `lokiLabel`, `custom`, `textbox`). - `mkStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders supporting multi-target lists or single-query shorthand (`expr`, `legend`, `loki`). - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine and dashboard constructor with shared crosshair tooltips and navigation links. - `mkContainersDashboard`: Shared OCI container and systemd service cgroup overview dashboard generator. - `mkStackHealthDashboard`: Central LGTM stack health, ingestion, alert, and scrape target dashboard generator.` | Opinionated Grafana schema v39 dashboard, layout, panel, variable, and threshold builders shared across monitoring consumers. | [More →](../lib/monitoring.md#dashboard) |
+| [`dashboard`](../lib/monitoring.md#dashboard) | `dashboard :: AttrSet  # Values - `ds`: Provisioned Prometheus and Loki datasource descriptor references (`prometheus`, `loki`). - `promTarget`, `lokiTarget`: Construct Prometheus or Loki target objects (`expr`, `legend`, `instant`, `format`). - `thresholds`: Standard threshold presets (`percent`, `percentHigh`, `percent100Ok`, `upDown`, `zeroOk`, `zeroWarn`, `latencySec`, `neutral`). - `mappings`: Standard Grafana value mapping lists (`upDown`, `okFail`, `systemdState`, `alertState`). - `vars`: Template variable constructors (`host`, `promQuery`, `lokiLabel`, `custom`, `textbox`). - `mkStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders supporting multi-target lists or single-query shorthand (`expr`, `legend`, `loki`). - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine and dashboard constructor with shared crosshair tooltips and navigation links. - `mkContainersDashboard`: Shared OCI container and systemd service cgroup overview dashboard generator. - `mkStackHealthDashboard`: Central LGTM stack health, ingestion, alert, and scrape target dashboard generator. - `mkServiceInspectorDashboard`: Unified per-service vertical drilldown dashboard correlating HTTP, probes, units, compute, storage, and logs.` | Opinionated Grafana schema v39 dashboard, layout, panel, variable, and threshold builders shared across monitoring consumers. | [More →](../lib/monitoring.md#dashboard) |
 | [`mkConfig`](../lib/monitoring.md#mkConfig) | `monitoring.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'monitoring' contract. | [More →](../lib/monitoring.md#mkConfig) |
 | [`mkOption`](../lib/monitoring.md#mkOption) | `monitoring.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'monitoring' contract. | [More →](../lib/monitoring.md#mkOption) |
 
@@ -698,6 +734,7 @@ flowchart LR
 - `ruleItem`: submodule
 - `scrape`: submodule
 - `server`: submodule
+- `service`: submodule
 
 ## Option Schema Definitions
 
@@ -716,6 +753,7 @@ flowchart LR
 | `monitoring.rules` | `attribute set of (submodule)` | `{ }` | Attribute set of alerting and recording rule groups evaluated by Prometheus or Loki. |
 | `monitoring.scrapes` | `attribute set of (submodule)` | `{ }` | Attribute set of Prometheus scrape targets collected by the local telemetry agent. |
 | `monitoring.server` | `submodule` | `{ }` | Central telemetry ingestion, time-series storage, and visualization server configuration. |
+| `monitoring.services` | `attribute set of (submodule)` | `{ }` | Declarative service catalog mapping logical application names to systemd units, virtual hosts, backup jobs, and storage mounts. |
 | `monitoring.watchedUnits` | `list of string` | `[ ]` | Critical systemd units (services, timers, or mounts) registered for health monitoring and journal tracking. |
 
 ## Fulfilling Implementations
@@ -735,7 +773,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.extraGrafanaSettings`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.server`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.extraGrafanaSettings`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.server`, `monitoring.services`
 
 ```nix
 # modules/hosts/astrolabe.nix
@@ -751,7 +789,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 ...
 42: grafana.port = config.monitoring.server.grafana.port;
 ...
-47: json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
+62: json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
 ...
 ```
 
@@ -782,7 +820,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../implementations/authelia.md">authelia</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/implementations/authelia/default.nix
@@ -794,7 +832,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 393: ["authelia-main.service"]
 394: ++ lib.optional cfg.directory.enable "lldap.service";
 ...
-440: json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
+455: json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -804,7 +842,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../implementations/caddy.md">caddy</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/implementations/caddy/default.nix
@@ -812,9 +850,9 @@ Modules and instances configuring options under the `monitoring` contract capabi
 107: monitoring = lib.mkIf (config.monitoring.enable or false) {
 108: watchedUnits = ["caddy.service"];
 109: logs.journal.units = ["caddy.service"];
-110: scrapes.caddy = {
+110: services.caddy.units = ["caddy.service"];
 ...
-144: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
+145: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -883,7 +921,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/copyparty.md">copyparty</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/copyparty.nix
@@ -892,6 +930,13 @@ Modules and instances configuring options under the `monitoring` contract capabi
 317: inherit config cfg;
 318: name = "copyparty";
 319: })
+...
+320: (lib.mkIf ((config.monitoring.enable or false) && cfg.enableGdrive) {
+321: monitoring.services.copyparty.storageMounts = [cfg.gdriveMountPoint];
+322: })
+323: ]);
+...
+321: monitoring.services.copyparty.storageMounts = [cfg.gdriveMountPoint];
 ...
 ```
 
@@ -924,7 +969,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/docker.md">docker</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/docker.nix
@@ -939,7 +984,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 29: watchedUnits = ["docker.service"];
 30: logs.journal.units = ["docker.service"];
 ...
-34: json = self.lib.monitoring.dashboard.mkContainersDashboard {};
+35: json = self.lib.monitoring.dashboard.mkContainersDashboard {};
 ...
 ```
 
@@ -982,7 +1027,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/ssh.md">ssh</a></code></summary>
 
-**Configures options**: `monitoring.logs`, `monitoring.rules`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.logs`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/ssh.nix
@@ -995,7 +1040,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 210: monitoring = {
 211: watchedUnits = ["sshd.service"];
 212: logs.journal.units = ["sshd.service"];
-213: rules.ssh = {
+213: services.sshd.units = ["sshd.service"];
 ...
 ```
 
@@ -1005,7 +1050,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/ttyd.md">ttyd</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/ttyd.nix
@@ -1023,7 +1068,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/uchiyomi.md">uchiyomi</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/uchiyomi.nix
@@ -1053,7 +1098,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 <details>
 <summary><code><a href="../features/vaultwarden.md">vaultwarden</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 # modules/features/vaultwarden.nix

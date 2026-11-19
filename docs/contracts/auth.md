@@ -189,12 +189,12 @@ Modules and instances configuring options under the `auth` contract capability:
 ...
 227: endpoints.authz.forward-auth.implementation = "ForwardAuth";
 ...
-492: caddy-forward-auth = {
-493: description = "Verify Caddyfile enforces forward_auth on protected services";
-494: script = lib.optionalString (config.reverse-proxy.enable or false) (
-495: self.lib.testing.mkInspectFile {
+507: caddy-forward-auth = {
+508: description = "Verify Caddyfile enforces forward_auth on protected services";
+509: script = lib.optionalString (config.reverse-proxy.enable or false) (
+510: self.lib.testing.mkInspectFile {
 ...
-521: _unauth = machine.succeed(
+536: _unauth = machine.succeed(
 ...
 ```
 

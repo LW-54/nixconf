@@ -537,7 +537,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-50: persistence.directories = [
+65: persistence.directories = [
 ...
 ```
 

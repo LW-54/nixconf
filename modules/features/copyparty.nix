@@ -317,6 +317,9 @@
             inherit config cfg;
             name = "copyparty";
           })
+          (lib.mkIf ((config.monitoring.enable or false) && cfg.enableGdrive) {
+            monitoring.services.copyparty.storageMounts = [cfg.gdriveMountPoint];
+          })
         ]);
       };
     };
