@@ -396,7 +396,12 @@
         ];
 
         persistence.directories = lib.mkIf (config.persistence.enable or false) [
-          "/var/lib/alloy"
+          {
+            directory = "/var/lib/alloy";
+            user = "alloy";
+            group = "alloy";
+            mode = "0750";
+          }
         ];
 
         backup.exclude = lib.mkIf (config.backup.enable or false) [

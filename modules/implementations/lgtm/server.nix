@@ -264,15 +264,26 @@
 
         systemd = {
           tmpfiles.rules = [
+            "d /var/lib/grafana 0750 grafana grafana -"
             "d /var/lib/loki 0750 loki loki -"
             "d /var/lib/loki/chunks 0750 loki loki -"
             "d /var/lib/loki/rules 0750 loki loki -"
             "d /var/lib/loki/rules-temp 0750 loki loki -"
             "d /var/lib/loki/compactor 0750 loki loki -"
           ];
-          services.grafana = {
-            after = ["sops-install-secrets.service"];
-            wants = ["sops-install-secrets.service"];
+          services = {
+            grafana = {
+              after = ["sops-install-secrets.service"];
+              wants = ["sops-install-secrets.service"];
+              serviceConfig = {
+                StateDirectory = "grafana";
+                StateDirectoryMode = "0750";
+              };
+            };
+            loki.serviceConfig = {
+              StateDirectory = "loki";
+              StateDirectoryMode = "0750";
+            };
           };
         };
 
@@ -345,9 +356,24 @@
         };
 
         persistence.directories = lib.mkIf (config.persistence.enable or false) [
-          "/var/lib/grafana"
-          "/var/lib/${config.services.prometheus.stateDir}"
-          "/var/lib/loki"
+          {
+            directory = "/var/lib/grafana";
+            user = "grafana";
+            group = "grafana";
+            mode = "0750";
+          }
+          {
+            directory = "/var/lib/${config.services.prometheus.stateDir}";
+            user = "prometheus";
+            group = "prometheus";
+            mode = "0700";
+          }
+          {
+            directory = "/var/lib/loki";
+            user = "loki";
+            group = "loki";
+            mode = "0750";
+          }
         ];
 
         backup = lib.mkIf (config.backup.enable or false) {

@@ -12,7 +12,7 @@
       ...
     }: let
       cfg = config.reverse-proxy;
-      adminPort = self.lib.reverse-proxy.mkPort "caddy-admin";
+      adminPort = 2019;
       conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
 
       promTarget = refId: expr: legendFormat: {
