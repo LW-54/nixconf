@@ -36,6 +36,8 @@
       adminEmail =
         if cfg.directory.adminEmail != "admin@example.com"
         then cfg.directory.adminEmail
+        else if (config.default-user.enable or false) && (config.default-user.email or "") != ""
+        then config.default-user.email
         else if domain != null
         then "${cfg.directory.adminUser}@${domain}"
         else cfg.directory.adminEmail;

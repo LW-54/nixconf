@@ -59,6 +59,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
+    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__authelia
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
@@ -140,6 +141,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
@@ -322,26 +324,26 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ...
 15: domain = config.reverse-proxy.domain or null;
 ...
-68: (config.reverse-proxy.hosts or {});
+70: (config.reverse-proxy.hosts or {});
 ...
-293: reverse-proxy = {
-294: forwardAuth = {
-295: enable = true;
-296: upstream = "${authConnectHost}:${toString cfg.port}";
+295: reverse-proxy = {
+296: forwardAuth = {
+297: enable = true;
+298: upstream = "${authConnectHost}:${toString cfg.port}";
 ...
-327: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
+329: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
 ...
-373: (config.reverse-proxy.forwardAuth.enable or false)
+375: (config.reverse-proxy.forwardAuth.enable or false)
 ...
-374: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
+376: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
 ...
-375: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
+377: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
 ...
-380: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
+382: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
 ...
-381: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
+383: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
 ...
-417: script = lib.optionalString (config.reverse-proxy.enable or false) (
+419: script = lib.optionalString (config.reverse-proxy.enable or false) (
 ...
 ```
 

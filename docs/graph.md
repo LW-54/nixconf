@@ -9,7 +9,7 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 | Dimension | Value | Description |
 | :--- | :--- | :--- |
 | **Nodes** | 299 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
-| **Edges** | 660 | Typed semantic directed edges connecting graph entities. |
+| **Edges** | 663 | Typed semantic directed edges connecting graph entities. |
 | **Relations** | 10 | Unique relation kinds expressing dependencies, flows, definitions, and bindings. |
 | **Node kinds** | 14 | Structural node classifications (e.g. host, contract, feature, module, option, package). |
 | **Strata** | 4 | Orthogonal graph evaluation layers (Ontology, AST, Evaluation, Derivation). |
@@ -104,13 +104,13 @@ end
 | `declares` | `ast` | 71 | Interface specification declaration. | Contracts declaring public options and custom types. |
 | `dependsOn` | `drv` | 28 | Software package dependency. | Modules and devShells depending on executable packages. |
 | `documents` | — | 0 | Documentation attachment. | Docstrings attached to library symbols. |
-| `flowsTo` | `eval` | 93 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
+| `flowsTo` | `eval` | 94 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
 | `implements` | `onto` | 9 | Contract fulfillment. | Primitive relationships such as `implementation.<name>.contract`. |
 | `imports` | `eval` | 57 | Compilation unit composition. | Evaluated NixOS configurations importing concrete NixOS modules. |
 | `outputs` | `ast` | 138 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
-| `reads` | `eval` | 37 | Option value inspection (use / load). | Implementations reading contract options. |
+| `reads` | `eval` | 38 | Option value inspection (use / load). | Implementations reading contract options. |
 | `typedBy` | `ast` | 53 | Option type-system binding. | Contract options bound to custom submodule types. |
-| `writes` | `eval` | 107 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
+| `writes` | `eval` | 108 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
 
 ## Node Kinds
 
