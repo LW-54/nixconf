@@ -11,7 +11,7 @@ Declarative multi-provider backup contract separating per-provider schedules/ret
 
 | Option Path | Type | Default | Example | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `backup.destinations` | `attribute set of (submodule)` | `{ hbox-host = ...; gdrive-host = ...; b2-host = { enable = false; ... }; hbox-shared = ...; gdrive-shared = ...; b2-shared = { enable = false; ... }; }` | `{ b2-shared.enable = true; gdrive-host.retention.daily = 60; }` | Named backup destinations parameterized by backing storage slice, `host`/`shared` scope, priority, schedule, and per-tier retention. |
+| `backup.destinations` | `attribute set of (submodule)` | `{ }` | `{ b2-shared.enable = true; gdrive-host.retention.daily = 60; }` | Named backup destinations parameterized by backing storage slice, `host`/`shared` scope, priority, schedule, and per-tier retention. |
 | `backup.enable` | `boolean` | `false` | `true` | Whether to enable declarative backup configuration. |
 | `backup.exclude` | `list of string` | `[ ]` | `[ ... ]` | Global exclusion patterns applied across backup units. |
 | `backup.paths` | `list of string` | `[ ]` | `[ ... ]` | Host-level filesystem paths included in synthetic `system` backups when not claimed by any declared `backup.units` entry. |

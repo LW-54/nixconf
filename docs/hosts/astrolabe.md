@@ -23,6 +23,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
+    urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
     urn__nixconf__ast__module__direnv["nixosModule/direnv"]:::defaultNode
     urn__nixconf__ast__module__disko["nixosModule/disko"]:::defaultNode
     urn__nixconf__ast__module__docker["nixosModule/docker"]:::defaultNode
@@ -75,6 +76,7 @@ flowchart LR
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
+    urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
@@ -106,6 +108,22 @@ flowchart LR
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__ast__module__caddy -.->|reads| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_enable
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_paths
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_enable
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__direnv -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__direnv -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -228,6 +246,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__copyparty
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__disko
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
@@ -271,6 +290,9 @@ flowchart LR
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_domain
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__disko -->|outputs| urn__nixconf__ast__module__disko
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_cli
@@ -298,6 +320,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
@@ -336,6 +359,7 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
+    click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
     click urn__nixconf__ast__module__direnv href "../modules/direnv.md" "direnv"
     click urn__nixconf__ast__module__disko href "../modules/disko.md" "disko"
     click urn__nixconf__ast__module__docker href "../modules/docker.md" "docker"
@@ -388,6 +412,7 @@ flowchart LR
     click urn__nixconf__eval__configuration__x240 href "x240.md" "x240"
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
+    click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
@@ -439,6 +464,7 @@ The following system and desktop features are imported by `astrolabe`:
 
 | Feature | Description | Outputs Used | Docs |
 | :--- | :--- | :--- | :--- |
+| [`copyparty`](../features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [`copyparty`](../modules/copyparty.md) (module) | [More →](../features/copyparty.md) |
 | [`disko`](../features/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [`disko`](../modules/disko.md) (module) | [More →](../features/disko.md) |
 | [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [`git`](../modules/git.md) (module), [`git`](../packages.md#git) (package) | [More →](../features/git.md) |
 | [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [`locale`](../modules/locale.md) (module) | [More →](../features/locale.md) |
@@ -532,6 +558,7 @@ astrolabe-services = {...}: {
     self.nixosModules.vaultwarden
     self.nixosModules.ttyd
     self.nixosModules.uchiyomi
+    self.nixosModules.copyparty
   ];
 
   config = {
@@ -601,7 +628,10 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /etc/NetworkManager/system-connections/
 ├── [dir]  /etc/nixos/
 ├── [dir]  /tmp/
+├── [dir]  /var/cache/copyparty/
 ├── [dir]  /var/cache/rclone/
+├── [dir]  /var/cache/restic-backups-copyparty-gdrive-host/
+├── [dir]  /var/cache/restic-backups-copyparty-hbox-host/
 ├── [dir]  /var/cache/restic-backups-uchiyomi-gdrive-host/
 ├── [dir]  /var/cache/restic-backups-uchiyomi-hbox-host/
 ├── [dir]  /var/cache/restic-backups-vaultwarden-b2-shared/
@@ -610,6 +640,7 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /var/cache/uchiyomi/
 ├── [dir]  /var/lib/caddy/
 ├── [dir]  /var/lib/containers/
+├── [dir]  /var/lib/copyparty/
 ├── [dir]  /var/lib/nixconf-backup/
 ├── [dir]  /var/lib/nixos/
 ├── [dir]  /var/lib/systemd/coredump/
@@ -646,7 +677,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-34: persistence.directories = [
+35: persistence.directories = [
 ...
 ```
 
@@ -661,7 +692,7 @@ Capability contracts configured by `astrolabe`:
 ```nix
 # modules/hosts/astrolabe.nix
 ...
-33: reverse-proxy.domain = "adje.app";
+34: reverse-proxy.domain = "adje.app";
 ...
 ```
 

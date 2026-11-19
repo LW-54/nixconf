@@ -59,6 +59,7 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
           self.nixosModules.vaultwarden
           self.nixosModules.ttyd
           self.nixosModules.uchiyomi
+          self.nixosModules.copyparty
         ];
 
         config = {

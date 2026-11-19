@@ -1,5 +1,16 @@
 {
   internal.storage.defaults.slices = {
+    copyparty = {
+      kind = "direct";
+      scope = "shared";
+      provider = "hbox";
+      path = "copyparty";
+      protocols = {
+        ssh = true;
+        webdav = true;
+        samba = true;
+      };
+    };
     uchiyomi = {
       kind = "direct";
       scope = "shared";

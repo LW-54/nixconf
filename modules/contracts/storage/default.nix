@@ -37,7 +37,6 @@ in {
           type = lib.types.attrsOf types.driver;
           default = {};
           apply = helpers.mergeBuiltinDefaults normalizedDrivers;
-          defaultText = lib.literalExpression "{ hetzner-box = ...; gdrive = ...; b2 = ...; s3 = ...; }";
           example = lib.literalExpression "{ garage = { description = \"...\"; settingsModule = ...; resolveSlice = ...; }; }";
           description = "Open registry of storage driver modules implementing `settingsModule` and `resolveSlice` (pre-seeded with built-in drivers).";
         };
@@ -46,7 +45,6 @@ in {
           type = lib.types.attrsOf types.provider;
           default = {};
           apply = helpers.mergeBuiltinDefaults config.internal.storage.defaults.providers;
-          defaultText = lib.literalExpression "{ hbox = ...; gdrive = ...; b2 = ...; }";
           example = lib.literalExpression "{ hbox-archive = { driver = \"hetzner-box\"; settings.boxId = \"u999999\"; }; }";
           description = "Named storage provider instances parameterized by an open `driver` and isolated per-instance SOPS secret store.";
         };
@@ -55,7 +53,6 @@ in {
           type = lib.types.attrsOf types.slice;
           default = {};
           apply = helpers.mergeBuiltinDefaults normalizedSlices;
-          defaultText = lib.literalExpression "{ uchiyomi = ...; hbox-backup-host = ...; hbox-backup-shared = ...; gdrive = ...; gdrive-backup-host = ...; gdrive-backup-shared = ...; b2 = ...; b2-backup-host = ...; b2-backup-shared = ...; }";
           example = lib.literalExpression "{ shared-docs = { kind = \"direct\"; scope = \"shared\"; provider = \"hbox\"; path = \"docs\"; }; }";
           description = "Logical storage slices across direct providers, rclone crypt layers, and union tiers, with `shared` or `per-host` scoping.";
         };

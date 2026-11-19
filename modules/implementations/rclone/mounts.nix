@@ -63,7 +63,7 @@
             ++ lib.optional (mCfg.gid != null) "gid=${toString mCfg.gid}"
             ++ lib.optional (mCfg.umask != null) "umask=${mCfg.umask}"
           );
-          wantedBy = lib.optional (!mCfg.automount) "multi-user.target";
+          wantedBy = lib.optional (!mCfg.automount && !config.testing.enable) "multi-user.target";
         }
       )
       mountNames;
@@ -73,7 +73,7 @@
         mCfg = enabledMounts.${mName};
       in {
         where = mCfg.mountPoint;
-        wantedBy = ["multi-user.target"];
+        wantedBy = lib.optional (!config.testing.enable) "multi-user.target";
       }
     ) (lib.filter (mName: enabledMounts.${mName}.automount) mountNames);
 

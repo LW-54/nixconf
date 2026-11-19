@@ -21,6 +21,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`bw`](bw.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bw.md) |
 | [`caddy`](caddy.md) | implementation [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](caddy.md) |
 | [`contracts`](contracts.md) | — | Exported NixOS module 'contracts'. | [More →](contracts.md) |
+| [`copyparty`](copyparty.md) | feature [`copyparty`](../features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [More →](copyparty.md) |
 | [`cosmic`](cosmic.md) | feature [`cosmic`](../features/cosmic.md) | Next-generation COSMIC desktop environment and greeter. | [More →](cosmic.md) |
 | [`cursor`](cursor.md) | feature [`cursor`](../features/cursor.md) | XCursor theme configuration and icon assets. | [More →](cursor.md) |
 | [`default-user`](default-user.md) | contract [`default-user`](../contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [More →](default-user.md) |

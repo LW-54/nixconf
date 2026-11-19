@@ -27,6 +27,7 @@
           self.nixosModules.vaultwarden
           self.nixosModules.ttyd
           self.nixosModules.uchiyomi
+          self.nixosModules.copyparty
         ];
 
         config = {

@@ -12,7 +12,8 @@ Declarative multi-provider storage contract separating open driver definitions, 
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
+  urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
+    urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
@@ -36,6 +37,7 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
+    urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
@@ -43,6 +45,10 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
 
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_enable
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_enable
@@ -87,6 +93,12 @@ flowchart LR
     urn__nixconf__onto__contract__storage -->|declares| urn__nixconf__ast__type__storage_slice
     urn__nixconf__onto__contract__storage -->|outputs| urn__nixconf__drv__devShell__storage_admin
     urn__nixconf__onto__contract__storage -->|outputs| urn__nixconf__drv__package__storage
+    urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
@@ -97,6 +109,7 @@ flowchart LR
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
@@ -117,6 +130,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
 
 
+    click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
     click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
@@ -141,6 +155,7 @@ flowchart LR
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
+    click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
@@ -248,6 +263,44 @@ Modules and instances configuring options under the `storage` contract capabilit
 
 
 ### Features
+
+<details>
+<summary><code><a href="../features/copyparty.md">copyparty</a></code></summary>
+
+**Configures options**: `storage.enable`, `storage.mounts`
+
+```nix
+# modules/features/copyparty.nix
+...
+95: if cfg.storage.enable && cfg.storage.mountPoint != null
+...
+96: then "${cfg.storage.mountPoint}/files"
+...
+104: if cfg.storage.enable && cfg.storage.mountPoint != null
+...
+105: then "${cfg.storage.mountPoint}/drop"
+...
+208: storage = lib.mkIf cfg.enableGdrive {
+209: enable = lib.mkDefault true;
+210: mounts.gdrive = {
+211: enable = true;
+...
+229: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
+...
+239: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+...
+242: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+...
+276: slice=${lib.escapeShellArg cfg.storage.slice}
+...
+295: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
+...
+321: (self.lib.storage.mkConfig {inherit config cfg;})
+...
+```
+
+</details>
+
 
 <details>
 <summary><code><a href="../features/snapshot.md">snapshot</a></code></summary>

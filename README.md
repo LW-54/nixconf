@@ -67,6 +67,7 @@ end
   urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
+    urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__cosmic("cosmic"):::featureNode
     urn__nixconf__onto__feature__cursor("cursor"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
@@ -133,6 +134,11 @@ end
   urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -163,6 +169,7 @@ end
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
@@ -241,6 +248,7 @@ end
     click urn__nixconf__onto__feature__antigravity href "docs/features/antigravity.md" "antigravity"
     click urn__nixconf__onto__feature__audio href "docs/features/audio.md" "audio"
     click urn__nixconf__onto__feature__bitwarden href "docs/features/bitwarden.md" "bitwarden"
+    click urn__nixconf__onto__feature__copyparty href "docs/features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__cosmic href "docs/features/cosmic.md" "cosmic"
     click urn__nixconf__onto__feature__cursor href "docs/features/cursor.md" "cursor"
     click urn__nixconf__onto__feature__direnv href "docs/features/direnv.md" "direnv"
@@ -344,7 +352,7 @@ Foundational structural primitives governing repository architecture, typing, an
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
 | [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 8 | [More →](docs/contracts/README.md) |
-| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 28 | [More →](docs/features/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 29 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
 | [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 8 | [More →](docs/implementations/README.md) |
 | [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 17 | [More →](docs/lib/README.md) |
@@ -473,6 +481,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | [`antigravity`](docs/features/antigravity.md) | Google Antigravity IDE, agentic workflow tools, and CLI runtime. | [More →](docs/features/antigravity.md) |
 | [`audio`](docs/features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](docs/features/audio.md) |
 | [`bitwarden`](docs/features/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/features/bitwarden.md) |
+| [`copyparty`](docs/features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [More →](docs/features/copyparty.md) |
 | [`cosmic`](docs/features/cosmic.md) | Next-generation COSMIC desktop environment and greeter. | [More →](docs/features/cosmic.md) |
 | [`cursor`](docs/features/cursor.md) | XCursor theme configuration and icon assets. | [More →](docs/features/cursor.md) |
 | [`direnv`](docs/features/direnv.md) | Per-directory declarative shell environment integration via nix-direnv. | [More →](docs/features/direnv.md) |

@@ -8,7 +8,7 @@ Reusable system configurations, applications, desktop environments, development 
 
 - **Declared as**: `feature.<name>` in any flake-parts module under `modules/features/`
 - **Primitive definition**: [`primitives/feature/default.nix`](../../primitives/feature/default.nix)
-- **Instances**: 28
+- **Instances**: 29
 
 ## Option Schema (`feature.<name>`)
 
@@ -45,6 +45,7 @@ Smallest declaration in the repository, [`modules/features/fonts.nix`](../../mod
 | [`antigravity`](antigravity.md) | Google Antigravity IDE, agentic workflow tools, and CLI runtime. | [`antigravity`](../modules/antigravity.md) (module), [`antigravity-cli`](../modules/antigravity-cli.md) (module), [`antigravity-ide`](../modules/antigravity-ide.md) (module), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-cli`](../packages.md#antigravity-cli) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package) | [`modules/features/antigravity.nix`](../../modules/features/antigravity.nix) | [More →](antigravity.md) |
 | [`audio`](audio.md) | PipeWire sound server and real-time audio processing stack. | [`audio`](../modules/audio.md) (module) | [`modules/features/audio.nix`](../../modules/features/audio.nix) | [More →](audio.md) |
 | [`bitwarden`](bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`bitwarden-desktop`](../modules/bitwarden-desktop.md) (module), [`bw`](../modules/bw.md) (module), [`bw`](../packages.md#bw) (package) | [`modules/features/bitwarden.nix`](../../modules/features/bitwarden.nix) | [More →](bitwarden.md) |
+| [`copyparty`](copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [`copyparty`](../modules/copyparty.md) (module) | [`modules/features/copyparty.nix`](../../modules/features/copyparty.nix) | [More →](copyparty.md) |
 | [`cosmic`](cosmic.md) | Next-generation COSMIC desktop environment and greeter. | [`cosmic`](../modules/cosmic.md) (module) | [`modules/features/cosmic.nix`](../../modules/features/cosmic.nix) | [More →](cosmic.md) |
 | [`cursor`](cursor.md) | XCursor theme configuration and icon assets. | [`cursor`](../modules/cursor.md) (module) | [`modules/features/cursor.nix`](../../modules/features/cursor.nix) | [More →](cursor.md) |
 | [`direnv`](direnv.md) | Per-directory declarative shell environment integration via nix-direnv. | [`direnv`](../modules/direnv.md) (module) | [`modules/features/direnv.nix`](../../modules/features/direnv.nix) | [More →](direnv.md) |

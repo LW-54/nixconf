@@ -46,7 +46,6 @@ in {
           type = lib.types.attrsOf types.destination;
           default = {};
           apply = helpers.mergeBuiltinDefaults normalizedDestinations;
-          defaultText = lib.literalExpression "{ hbox-host = ...; gdrive-host = ...; b2-host = { enable = false; ... }; hbox-shared = ...; gdrive-shared = ...; b2-shared = { enable = false; ... }; }";
           example = lib.literalExpression "{ b2-shared.enable = true; gdrive-host.retention.daily = 60; }";
           description = "Named backup destinations parameterized by backing storage slice, `host`/`shared` scope, priority, schedule, and per-tier retention.";
         };
