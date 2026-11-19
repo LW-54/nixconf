@@ -33,14 +33,7 @@
         then lib.concatMapStringsSep "," (p: "dc=${p}") (lib.splitString "." domain)
         else "dc=example,dc=com";
 
-      adminEmail =
-        if cfg.directory.adminEmail != "admin@example.com"
-        then cfg.directory.adminEmail
-        else if (config.default-user.enable or false) && (config.default-user.email or "") != ""
-        then config.default-user.email
-        else if domain != null
-        then "${cfg.directory.adminUser}@${domain}"
-        else cfg.directory.adminEmail;
+      adminEmail = cfg.directory.adminEmail;
 
       authFqdn =
         if domain != null
@@ -126,6 +119,8 @@
           message = "auth.subdomain and auth.directory.subdomain must be distinct virtual host prefixes.";
         }
       ];
+
+      auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
 
       users.groups.lldap = lib.mkIf cfg.directory.enable {};
       users.users.lldap = lib.mkIf cfg.directory.enable {

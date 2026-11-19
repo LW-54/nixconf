@@ -169,7 +169,6 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
@@ -226,6 +225,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
     urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -410,10 +410,10 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/implementations/authelia.nix
 ...
-350: backup = lib.mkIf (config.backup.enable or false) {
-351: paths =
-352: ["/var/lib/authelia-main"]
-353: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+345: backup = lib.mkIf (config.backup.enable or false) {
+346: paths =
+347: ["/var/lib/authelia-main"]
+348: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
 ...
 ```
 

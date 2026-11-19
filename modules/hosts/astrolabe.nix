@@ -19,7 +19,7 @@
         ];
       };
 
-      astrolabe-services = {config, ...}: {
+      astrolabe-services = {...}: {
         imports = [
           self.nixosModules.caddy
           self.nixosModules.authelia
@@ -33,7 +33,6 @@
 
         config = {
           reverse-proxy.domain = "adje.app";
-          auth.directory.adminEmail = config.default-user.email;
           persistence.directories = [
             "/var/lib/containers"
           ];

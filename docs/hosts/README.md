@@ -51,7 +51,7 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
         ];
       };
 
-      astrolabe-services = {config, ...}: {
+      astrolabe-services = {...}: {
         imports = [
           self.nixosModules.caddy
           self.nixosModules.authelia
@@ -65,7 +65,6 @@ Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../mo
 
         config = {
           reverse-proxy.domain = "adje.app";
-          auth.directory.adminEmail = config.default-user.email;
           persistence.directories = [
             "/var/lib/containers"
           ];

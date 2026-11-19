@@ -100,7 +100,6 @@ flowchart LR
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__wifi_eduroam -->|outputs| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
@@ -120,6 +119,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -257,37 +257,37 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/implementations/authelia.nix
 ...
-137: secrets.files =
-138: {
-139: authelia-jwt-secret = {
-140: store = "services/auth";
+132: secrets.files =
+133: {
+134: authelia-jwt-secret = {
+135: store = "services/auth";
 ...
-182: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
+177: LLDAP_JWT_SECRET_FILE = config.secrets.files.lldap-jwt-secret.path;
 ...
-196: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
+191: ldap_user_pass_file = config.secrets.files.lldap-admin-password.path;
 ...
-198: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
+193: jwt_secret_file = config.secrets.files.lldap-jwt-secret.path;
 ...
-204: secrets = {
-205: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
-206: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
-207: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+199: secrets = {
+200: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+201: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+202: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-205: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
+200: jwtSecretFile = config.secrets.files.authelia-jwt-secret.path;
 ...
-206: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
+201: sessionSecretFile = config.secrets.files.authelia-session-secret.path;
 ...
-207: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
+202: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-276: after = ["sops-install-secrets.service"];
+271: after = ["sops-install-secrets.service"];
 ...
-277: wants = ["sops-install-secrets.service"];
+272: wants = ["sops-install-secrets.service"];
 ...
-286: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
+281: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
 ...
-287: wants = ["sops-install-secrets.service"];
+282: wants = ["sops-install-secrets.service"];
 ...
-290: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
+285: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
 ...
 ```
 
