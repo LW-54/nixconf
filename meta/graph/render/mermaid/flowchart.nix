@@ -5,6 +5,24 @@
 }: let
   theme = config.internal.graph.render.mermaid.theme;
 
+  isWs = c: c == " " || c == "\t" || c == "\r" || c == "\n";
+  trim = s: let
+    len = builtins.stringLength s;
+    findStart = i:
+      if i < len && isWs (builtins.substring i 1 s)
+      then findStart (i + 1)
+      else i;
+    findEnd = i:
+      if i > 0 && isWs (builtins.substring (i - 1) 1 s)
+      then findEnd (i - 1)
+      else i;
+    start = findStart 0;
+    end = findEnd len;
+  in
+    if start >= end
+    then ""
+    else builtins.substring start (end - start) s;
+
   /**
   Renders an arbitrary LPG graph or subgraph into an advanced, themed Mermaid flowchart.
   Supports dynamic clustering/subgraphs, clickable hyperlinks, and edge value annotations.
@@ -106,7 +124,7 @@
 
     themeSection =
       if includeTheme
-      then "\n\n  %% Semantic Visual Classes\n  " + lib.concatStringsSep "\n  " (lib.splitString "\n" (lib.trim theme.classDefs))
+      then "\n\n  %% Semantic Visual Classes\n  " + lib.concatStringsSep "\n  " (lib.splitString "\n" (trim theme.classDefs))
       else "";
 
     titleSection =
@@ -125,10 +143,10 @@
     if wrapCodeBlock && !raw
     then ''
       ```mermaid
-      ${lib.trim chartContent}
+      ${trim chartContent}
       ```
     ''
-    else lib.trim chartContent;
+    else trim chartContent;
 in {
   internal.graph.render.mermaid.flowchart = {
     inherit renderFlowchart;

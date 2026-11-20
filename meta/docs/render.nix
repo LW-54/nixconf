@@ -18,10 +18,14 @@
       if lib.isFunction raw
       then raw ctx
       else raw;
+    trimmed =
+      if evaluated == null
+      then ""
+      else md.trim evaluated;
   in
-    if evaluated == null || lib.trim evaluated == ""
+    if trimmed == ""
     then null
-    else lib.trim evaluated;
+    else trimmed;
 
   renderPage = ctx: let
     page = ctx.page;

@@ -114,12 +114,13 @@
         wantedBy = ["multi-user.target"];
         serviceConfig = {
           Type = "oneshot";
+          RemainAfterExit = true;
           ExecStart = lib.getExe powerScript;
         };
       };
 
       services.udev.extraRules = ''
-        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ACTION=="change", RUN+="${pkgs.systemd}/bin/systemctl start --no-block resources-power-policy.service"
+        SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ACTION=="change", RUN+="${pkgs.systemd}/bin/systemctl restart --no-block resources-power-policy.service"
       '';
     };
 }

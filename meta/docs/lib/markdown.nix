@@ -40,19 +40,38 @@
       else anchor
     else rel + anchor;
 
+  # Pure-Nix regex-free trim (avoids std::regex stack overflow on >100KB strings).
+  isWs = c: c == " " || c == "\t" || c == "\r" || c == "\n";
+  trim = s: let
+    len = builtins.stringLength s;
+    findStart = i:
+      if i < len && isWs (builtins.substring i 1 s)
+      then findStart (i + 1)
+      else i;
+    findEnd = i:
+      if i > 0 && isWs (builtins.substring (i - 1) 1 s)
+      then findEnd (i - 1)
+      else i;
+    start = findStart 0;
+    end = findEnd len;
+  in
+    if start >= end
+    then ""
+    else builtins.substring start (end - start) s;
+
   # Collapses whitespace so text fits in a table cell or a bullet.
   oneLine = s: lib.concatStringsSep " " (lib.filter (w: w != "") (lib.splitString " " (builtins.replaceStrings ["\n" "\r" "\t"] [" " " " " "] (toString s))));
 
   code = lang: text: ''
     ```${lang}
-    ${lib.trim text}
+    ${trim text}
     ```'';
 
   details = summary: body: ''
     <details>
     <summary>${summary}</summary>
 
-    ${lib.trim body}
+    ${trim body}
 
     </details>'';
 
@@ -87,7 +106,7 @@
     else "`${toString v}`";
 
   # Joins non-empty markdown blocks with blank lines.
-  blocks = parts: lib.concatStringsSep "\n\n" (map lib.trim (lib.filter (p: p != null && lib.trim p != "") parts));
+  blocks = parts: lib.concatStringsSep "\n\n" (map trim (lib.filter (p: p != null && trim p != "") parts));
 
   /*
   Renders a markdown table, or `empty` when there are no rows.
@@ -134,6 +153,7 @@ in {
   internal.docs.md = {
     inherit
       relPath
+      trim
       oneLine
       code
       details
