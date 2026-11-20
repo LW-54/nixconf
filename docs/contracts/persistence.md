@@ -38,12 +38,14 @@ flowchart LR
     urn__nixconf__ast__module__victoria["nixosModule/victoria"]:::defaultNode
     urn__nixconf__ast__module__vivaldi["nixosModule/vivaldi"]:::defaultNode
     urn__nixconf__ast__module__vscode["nixosModule/vscode"]:::defaultNode
+    urn__nixconf__ast__module__zed["nixosModule/zed"]:::defaultNode
     urn__nixconf__ast__option__persistence_directories[/"persistence.directories"/]:::optNode
     urn__nixconf__ast__option__persistence_enable[/"persistence.enable"/]:::optNode
     urn__nixconf__ast__option__persistence_files[/"persistence.files"/]:::optNode
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
+    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
     urn__nixconf__drv__package__antigravity_cli[("package/antigravity-cli")]:::pkgNode
@@ -78,6 +80,7 @@ flowchart LR
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
@@ -180,9 +183,13 @@ flowchart LR
     urn__nixconf__ast__module__vivaldi -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__vscode -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__vscode -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__zed -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_enable
@@ -193,6 +200,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
@@ -262,6 +270,8 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -->|outputs| urn__nixconf__ast__module__vscode
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__zed -->|outputs| urn__nixconf__ast__module__zed
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -295,6 +305,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
@@ -375,12 +386,14 @@ flowchart LR
     click urn__nixconf__ast__module__victoria href "../modules/victoria.md" "victoria"
     click urn__nixconf__ast__module__vivaldi href "../modules/vivaldi.md" "vivaldi"
     click urn__nixconf__ast__module__vscode href "../modules/vscode.md" "vscode"
+    click urn__nixconf__ast__module__zed href "../modules/zed.md" "zed"
     click urn__nixconf__ast__option__persistence_directories href "persistence.md" "persistence.directories"
     click urn__nixconf__ast__option__persistence_enable href "persistence.md" "persistence.enable"
     click urn__nixconf__ast__option__persistence_files href "persistence.md" "persistence.files"
     click urn__nixconf__ast__option__persistence_users href "persistence.md" "persistence.users"
     click urn__nixconf__ast__type__persistence_entries href "persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "persistence.md" "persistence.user"
+    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
     click urn__nixconf__drv__package__antigravity_cli href "../packages.md#antigravity-cli" "antigravity-cli"
@@ -415,6 +428,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__feature__vivaldi href "../features/vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
+    click urn__nixconf__onto__feature__zed href "../features/zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
@@ -864,6 +878,26 @@ config = {
 ...
 18: persistence.users = self.lib.user.forNormalUsers config (_: _: {
 19: data.directories = [".config/Code" ".vscode"];
+20: });
+21: };
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/zed.md">zed</a></code></summary>
+
+**Configures options**: `persistence.users`
+
+```nix
+# modules/features/zed.nix
+...
+3: description = "Zed editor environment and persistence.";
+...
+18: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+19: data.directories = [".config/zed" ".local/share/zed"];
 20: });
 21: };
 ...

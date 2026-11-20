@@ -13,6 +13,7 @@
         self.nixosModules.foot
         self.nixosModules.vivaldi
         self.nixosModules.vscode
+        self.nixosModules.zed
         self.nixosModules.antigravity-ide
       ];
 

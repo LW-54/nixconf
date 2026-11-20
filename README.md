@@ -97,6 +97,7 @@ end
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
 end
 
   subgraph cluster_host ["host"]
@@ -198,6 +199,7 @@ end
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
@@ -247,6 +249,7 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -347,6 +350,7 @@ end
     click urn__nixconf__onto__feature__vivaldi href "docs/features/vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "docs/features/vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "docs/features/wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__feature__zed href "docs/features/zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "docs/hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "docs/hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "docs/implementations/authelia.md" "authelia"
@@ -431,7 +435,7 @@ Foundational structural primitives governing repository architecture, typing, an
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
 | [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 11 | [More →](docs/contracts/README.md) |
-| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 30 | [More →](docs/features/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 31 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
 | [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 11 | [More →](docs/implementations/README.md) |
 | [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 20 | [More →](docs/lib/README.md) |
@@ -593,6 +597,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | [`vivaldi`](docs/features/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](docs/features/vivaldi.md) |
 | [`vscode`](docs/features/vscode.md) | Visual Studio Code editor environment and persistence. | [More →](docs/features/vscode.md) |
 | [`wifi-eduroam`](docs/features/wifi-eduroam.md) | Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager. | [More →](docs/features/wifi-eduroam.md) |
+| [`zed`](docs/features/zed.md) | Zed editor environment and persistence. | [More →](docs/features/zed.md) |
 
 </details>
 
@@ -790,6 +795,17 @@ nix develop .#default
 
 ```bash
 nix develop github:LW-54/nixconf#default
+```
+
+#### [`gemini`](docs/devshells.md#gemini)
+Development shell with the Antigravity CLI and SOPS-encrypted GEMINI_API_KEY.
+
+```bash
+nix develop .#gemini
+```
+
+```bash
+nix develop github:LW-54/nixconf#gemini
 ```
 
 #### [`github-cli`](docs/devshells.md#github-cli)

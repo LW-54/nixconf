@@ -74,3 +74,4 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`x240-hardware`](x240-hardware.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-hardware.md) |
 | [`x240-resources`](x240-resources.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-resources.md) |
 | [`x240-system`](x240-system.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-system.md) |
+| [`zed`](zed.md) | feature [`zed`](../features/zed.md) | Zed editor environment and persistence. | [More →](zed.md) |

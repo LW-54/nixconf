@@ -116,6 +116,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
@@ -445,6 +446,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
@@ -500,6 +502,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -653,6 +656,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__feature__zed href "zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"

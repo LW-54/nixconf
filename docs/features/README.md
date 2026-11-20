@@ -8,7 +8,7 @@ Reusable system configurations, applications, desktop environments, development 
 
 - **Declared as**: `feature.<name>` in any flake-parts module under `modules/features/`
 - **Primitive definition**: [`primitives/feature/default.nix`](../../primitives/feature/default.nix)
-- **Instances**: 30
+- **Instances**: 31
 
 ## Option Schema (`feature.<name>`)
 
@@ -42,7 +42,7 @@ Smallest declaration in the repository, [`modules/features/fonts.nix`](../../mod
 
 | Feature | Description | Outputs | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
-| [`antigravity`](antigravity.md) | Google Antigravity IDE, agentic workflow tools, and CLI runtime. | [`antigravity`](../modules/antigravity.md) (module), [`antigravity-cli`](../modules/antigravity-cli.md) (module), [`antigravity-ide`](../modules/antigravity-ide.md) (module), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-cli`](../packages.md#antigravity-cli) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package) | [`modules/features/antigravity.nix`](../../modules/features/antigravity.nix) | [More →](antigravity.md) |
+| [`antigravity`](antigravity.md) | Google Antigravity IDE, agentic workflow tools, and CLI runtime. | [`antigravity`](../modules/antigravity.md) (module), [`antigravity-cli`](../modules/antigravity-cli.md) (module), [`antigravity-ide`](../modules/antigravity-ide.md) (module), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-cli`](../packages.md#antigravity-cli) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package), [`gemini`](../devshells.md#gemini) (devShell) | [`modules/features/antigravity.nix`](../../modules/features/antigravity.nix) | [More →](antigravity.md) |
 | [`audio`](audio.md) | PipeWire sound server and real-time audio processing stack. | [`audio`](../modules/audio.md) (module) | [`modules/features/audio.nix`](../../modules/features/audio.nix) | [More →](audio.md) |
 | [`bitwarden`](bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`bitwarden-desktop`](../modules/bitwarden-desktop.md) (module), [`bw`](../modules/bw.md) (module), [`bw`](../packages.md#bw) (package) | [`modules/features/bitwarden.nix`](../../modules/features/bitwarden.nix) | [More →](bitwarden.md) |
 | [`copyparty`](copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [`copyparty`](../modules/copyparty.md) (module) | [`modules/features/copyparty.nix`](../../modules/features/copyparty.nix) | [More →](copyparty.md) |
@@ -72,3 +72,4 @@ Smallest declaration in the repository, [`modules/features/fonts.nix`](../../mod
 | [`vivaldi`](vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [`vivaldi`](../modules/vivaldi.md) (module) | [`modules/features/vivaldi.nix`](../../modules/features/vivaldi.nix) | [More →](vivaldi.md) |
 | [`vscode`](vscode.md) | Visual Studio Code editor environment and persistence. | [`vscode`](../modules/vscode.md) (module) | [`modules/features/vscode.nix`](../../modules/features/vscode.nix) | [More →](vscode.md) |
 | [`wifi-eduroam`](wifi-eduroam.md) | Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager. | [`wifi-eduroam`](../modules/wifi-eduroam.md) (module) | [`modules/features/wifi.nix`](../../modules/features/wifi.nix) | [More →](wifi-eduroam.md) |
+| [`zed`](zed.md) | Zed editor environment and persistence. | [`zed`](../modules/zed.md) (module) | [`modules/features/zed.nix`](../../modules/features/zed.nix) | [More →](zed.md) |

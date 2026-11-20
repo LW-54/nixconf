@@ -35,6 +35,7 @@ flowchart LR
     urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
     urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
+    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
     urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
@@ -75,6 +76,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
@@ -100,6 +102,8 @@ flowchart LR
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__drv__devShell__github_ssh -->|dependsOn| urn__nixconf__drv__package__bw
@@ -127,6 +131,7 @@ flowchart LR
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_relativeHomePath
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_userHome
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
@@ -233,6 +238,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -302,6 +308,7 @@ flowchart LR
     click urn__nixconf__ast__type__home_userHome href "../contracts/home.md" "home.userHome"
     click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
     click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
+    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
     click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
@@ -342,6 +349,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__feature__zed href "zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"

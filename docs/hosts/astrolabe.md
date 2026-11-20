@@ -55,6 +55,7 @@ flowchart LR
     urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
     urn__nixconf__ast__module__x240_resources["nixosModule/x240-resources"]:::defaultNode
     urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
+    urn__nixconf__ast__module__zed["nixosModule/zed"]:::defaultNode
     urn__nixconf__ast__option__auth_directory[/"auth.directory"/]:::optNode
     urn__nixconf__ast__option__auth_rules[/"auth.rules"/]:::optNode
     urn__nixconf__ast__option__backup_enable[/"backup.enable"/]:::optNode
@@ -99,6 +100,7 @@ flowchart LR
     urn__nixconf__ast__option__storage_enable[/"storage.enable"/]:::optNode
     urn__nixconf__ast__option__storage_mounts[/"storage.mounts"/]:::optNode
     urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
+    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
     urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
@@ -482,7 +484,10 @@ flowchart LR
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__zed -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
@@ -537,6 +542,7 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_resources
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__zed
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_exporters
@@ -695,6 +701,7 @@ flowchart LR
     click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
     click urn__nixconf__ast__module__x240_resources href "../modules/x240-resources.md" "x240-resources"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
+    click urn__nixconf__ast__module__zed href "../modules/zed.md" "zed"
     click urn__nixconf__ast__option__auth_directory href "../contracts/auth.md" "auth.directory"
     click urn__nixconf__ast__option__auth_rules href "../contracts/auth.md" "auth.rules"
     click urn__nixconf__ast__option__backup_enable href "../contracts/backup.md" "backup.enable"
@@ -739,6 +746,7 @@ flowchart LR
     click urn__nixconf__ast__option__storage_enable href "../contracts/storage.md" "storage.enable"
     click urn__nixconf__ast__option__storage_mounts href "../contracts/storage.md" "storage.mounts"
     click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
+    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
     click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__eval__configuration__astrolabe href "astrolabe.md" "astrolabe"

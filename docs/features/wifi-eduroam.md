@@ -56,6 +56,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
@@ -146,6 +147,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -228,6 +230,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__feature__zed href "zed.md" "zed"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__cgroups href "../implementations/cgroups.md" "cgroups"

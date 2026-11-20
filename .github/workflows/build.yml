@@ -31,6 +31,7 @@ jobs:
           - checks-inspect-x240
           - checks-schemas
           - devShells-default
+          - devShells-gemini
           - devShells-github-cli
           - devShells-github-ssh
           - devShells-master-ssh

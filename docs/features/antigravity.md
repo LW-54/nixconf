@@ -37,9 +37,12 @@ flowchart LR
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
+    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
     urn__nixconf__drv__package__antigravity_cli[("package/antigravity-cli")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
+    urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
+    urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
@@ -73,6 +76,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
@@ -111,7 +115,12 @@ flowchart LR
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__antigravity_ide
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__hjem
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__impermanence
@@ -137,11 +146,13 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -155,6 +166,7 @@ flowchart LR
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__package__git
     urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -184,6 +196,7 @@ flowchart LR
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_disk
@@ -217,6 +230,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -292,9 +306,12 @@ flowchart LR
     click urn__nixconf__ast__type__home_xdg href "../contracts/home.md" "home.xdg"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
+    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
     click urn__nixconf__drv__package__antigravity_cli href "../packages.md#antigravity-cli" "antigravity-cli"
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
+    click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
+    click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
     click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
@@ -328,6 +345,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vivaldi href "vivaldi.md" "vivaldi"
     click urn__nixconf__onto__feature__vscode href "vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "wifi-eduroam.md" "wifi-eduroam"
+    click urn__nixconf__onto__feature__zed href "zed.md" "zed"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
@@ -373,6 +391,12 @@ flowchart LR
 | [`antigravity`](../packages.md#antigravity) | `nix run .#antigravity` | Google Antigravity | [More →](../packages.md#antigravity) |
 | [`antigravity-cli`](../packages.md#antigravity-cli) | `nix run .#antigravity-cli` | Google Antigravity CLI - Describe what you need, and Antigravity handles the rest | [More →](../packages.md#antigravity-cli) |
 | [`antigravity-ide`](../packages.md#antigravity-ide) | `nix run .#antigravity-ide` | Google Antigravity IDE | [More →](../packages.md#antigravity-ide) |
+
+### Development Shells
+
+| Development Shell | Command | Description | Docs |
+| :--- | :--- | :--- | :--- |
+| [`gemini`](../devshells.md#gemini) | `nix develop .#gemini` | Development shell with the Antigravity CLI and SOPS-encrypted GEMINI_API_KEY. | [More →](../devshells.md#gemini) |
 
 ## Importing Hosts
 

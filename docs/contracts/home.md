@@ -29,6 +29,7 @@ flowchart LR
     urn__nixconf__ast__type__home_relativeHomePath[["home.relativeHomePath"]]:::typeNode
     urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
+    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
     urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
@@ -83,6 +84,8 @@ flowchart LR
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
+    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_enable
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_shared
@@ -95,6 +98,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
@@ -154,6 +158,7 @@ flowchart LR
     click urn__nixconf__ast__type__home_relativeHomePath href "home.md" "home.relativeHomePath"
     click urn__nixconf__ast__type__home_userHome href "home.md" "home.userHome"
     click urn__nixconf__ast__type__home_xdg href "home.md" "home.xdg"
+    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
     click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
