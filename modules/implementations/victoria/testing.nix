@@ -171,12 +171,12 @@
           ${self.lib.testing.mkHttpCheck {
             port = cfg.server.metrics.port;
             host = connectAddr cfg.server.metrics.address;
-            path = "/ping";
+            path = "/health";
           }}
           ${self.lib.testing.mkHttpCheck {
             port = cfg.server.logs.port;
             host = connectAddr cfg.server.logs.address;
-            path = "/ping";
+            path = "/health";
           }}
           ${self.lib.testing.mkHttpCheck {
             port = cfg.server.alerts.port;
