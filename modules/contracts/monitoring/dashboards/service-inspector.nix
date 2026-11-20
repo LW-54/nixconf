@@ -26,7 +26,7 @@ in {
         (d.vars.textbox {
           name = "search";
           label = "Log Search (LogsQL)";
-          default = "*";
+          default = "";
         })
       ];
       sections = [
@@ -87,7 +87,7 @@ in {
             noValue = "0";
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
-            expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in("emerg","alert","crit","err","error") ($search) | stats count() as total'';
+            expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in("emerg","alert","crit","err","error") $search | stats count() as total'';
             legend = "Errors";
           })
         ])
@@ -234,7 +234,7 @@ in {
                 stacked = true;
                 legendMode = "list";
                 overrides = d.logLevelColorOverrides {};
-                expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in($level) ($search) | stats by (level) count() as lines'';
+                expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in($level) $search | stats by (level) count() as lines'';
                 legend = "{{level}}";
               })
             ]
@@ -243,7 +243,7 @@ in {
                 title = "Live Service Journal Stream";
                 w = 24;
                 h = 14;
-                expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in($level) ($search)'';
+                expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in($level) $search'';
               })
             ]
           ];

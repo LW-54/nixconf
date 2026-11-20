@@ -222,7 +222,10 @@
 
           grafana = {
             enable = true;
-            declarativePlugins = [pkgs.grafanaPlugins.victoriametrics-logs-datasource];
+            declarativePlugins = with pkgs.grafanaPlugins; [
+              prometheus
+              victoriametrics-logs-datasource
+            ];
             settings =
               lib.recursiveUpdate {
                 server = {
@@ -301,7 +304,7 @@
                   {
                     name = "nixconf";
                     type = "file";
-                    disableDeletion = true;
+                    disableDeletion = false;
                     updateIntervalSeconds = 30;
                     options = {
                       path = dashboardsDir;

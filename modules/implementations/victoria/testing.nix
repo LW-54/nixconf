@@ -194,6 +194,22 @@
               "http://${connectAddr cfg.server.grafana.address}:${toString cfg.server.grafana.port}/api/user"
           )
           assert '"login":"admin"' in _grafana_user, f"Expected Grafana auth.proxy login for admin, got: {_grafana_user}"
+
+          _grafana_prom = machine.succeed(
+              "curl -fsS -H 'Remote-User: admin' -H 'Remote-Groups: lldap_admin' "
+              "-H 'Content-Type: application/json' "
+              "-d '{\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"prometheus\",\"uid\":\"prometheus\"},\"expr\":\"vector(1)\",\"instant\":true}],\"from\":\"now-5m\",\"to\":\"now\"}' "
+              "http://${connectAddr cfg.server.grafana.address}:${toString cfg.server.grafana.port}/api/ds/query"
+          )
+          assert '"status":200' in _grafana_prom, f"Expected Grafana VictoriaMetrics datasource query to succeed, got: {_grafana_prom}"
+
+          _grafana_vlogs = machine.succeed(
+              "curl -fsS -H 'Remote-User: admin' -H 'Remote-Groups: lldap_admin' "
+              "-H 'Content-Type: application/json' "
+              "-d '{\"queries\":[{\"refId\":\"A\",\"datasource\":{\"type\":\"victoriametrics-logs-datasource\",\"uid\":\"victorialogs\"},\"expr\":\"* | stats count() as n\",\"queryType\":\"stats\"}],\"from\":\"now-5m\",\"to\":\"now\"}' "
+              "http://${connectAddr cfg.server.grafana.address}:${toString cfg.server.grafana.port}/api/ds/query"
+          )
+          assert '"status":200' in _grafana_vlogs, f"Expected Grafana VictoriaLogs datasource query to succeed, got: {_grafana_vlogs}"
         '';
       };
     };

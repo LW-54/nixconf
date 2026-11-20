@@ -44,7 +44,7 @@ in {
         (d.vars.textbox {
           name = "search";
           label = "Search (LogsQL / Phrase / ~Regex)";
-          default = "*";
+          default = "";
         })
       ];
       sections = [
@@ -55,7 +55,7 @@ in {
             logs = true;
             decimals = 0;
             noValue = "0";
-            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) ($watched) ($search) | stats count() as total'';
+            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) $watched $search | stats count() as total'';
             legend = "Total";
           })
           (d.mkStat {
@@ -66,7 +66,7 @@ in {
             noValue = "0";
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
-            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in("emerg","alert","crit","err","error") ($watched) ($search) | stats count() as total'';
+            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in("emerg","alert","crit","err","error") $watched $search | stats count() as total'';
             legend = "Errors";
           })
           (d.mkStat {
@@ -76,7 +76,7 @@ in {
             decimals = 0;
             noValue = "0";
             thresholds = d.thresholds.zeroWarn;
-            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:="warning" ($watched) ($search) | stats count() as total'';
+            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:="warning" $watched $search | stats count() as total'';
             legend = "Warnings";
           })
           (d.mkStat {
@@ -87,7 +87,7 @@ in {
             noValue = "0";
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
-            expr = ''job:="systemd-journal" host:in($host) watched:="true" level:in("emerg","alert","crit","err","error") ($search) | stats count() as total'';
+            expr = ''job:="systemd-journal" host:in($host) watched:="true" level:in("emerg","alert","crit","err","error") $search | stats count() as total'';
             legend = "Watched Errors";
           })
         ])
@@ -101,7 +101,7 @@ in {
             stacked = true;
             legendMode = "list";
             overrides = d.logLevelColorOverrides {};
-            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) ($watched) ($search) | stats by (level) count() as lines'';
+            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) $watched $search | stats by (level) count() as lines'';
             legend = "{{level}}";
           })
           (d.mkBarGauge {
@@ -111,7 +111,7 @@ in {
             logs = true;
             unit = "short";
             thresholds = d.thresholds.neutral;
-            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) ($watched) ($search) | stats by (host, unit) count() as lines | sort by (lines desc) limit 10'';
+            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) $watched $search | stats by (host, unit) count() as lines | sort by (lines desc) limit 10'';
             legend = "{{host}} / {{unit}}";
           })
         ])
@@ -120,7 +120,7 @@ in {
             title = "Journald Log Stream (VictoriaLogs)";
             w = 24;
             h = 16;
-            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) ($watched) ($search)'';
+            expr = ''job:="systemd-journal" host:in($host) unit:in($unit) level:in($level) $watched $search'';
           })
         ])
       ];

@@ -18,7 +18,7 @@ in {
         (d.vars.textbox {
           name = "search";
           label = "Log Filter (LogsQL)";
-          default = "*";
+          default = "";
         })
       ];
       sections = [
@@ -422,7 +422,7 @@ in {
                 title = "Journald Stream Locked to Window ($host)";
                 w = 24;
                 h = 12;
-                expr = ''job:="systemd-journal" host:="$host" ($search)'';
+                expr = ''job:="systemd-journal" host:="$host" $search'';
               })
             ]
           ];
