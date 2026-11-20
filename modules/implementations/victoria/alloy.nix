@@ -1,5 +1,5 @@
 {
-  internal.lgtm.mkAlloy = {
+  internal.victoria.mkAlloy = {
     config,
     lib,
     pkgs,
@@ -31,14 +31,14 @@
       if cfg.agent.metricsUrl != null
       then cfg.agent.metricsUrl
       else if cfg.server.enable
-      then "http://${connectAddr cfg.server.prometheus.address}:${toString cfg.server.prometheus.port}/api/v1/write"
+      then "http://${connectAddr cfg.server.metrics.address}:${toString cfg.server.metrics.port}/api/v1/write"
       else null;
 
     logsPushUrl =
       if cfg.agent.logsUrl != null
       then cfg.agent.logsUrl
       else if cfg.server.enable
-      then "http://${connectAddr cfg.server.loki.address}:${toString cfg.server.loki.port}/loki/api/v1/push"
+      then "http://${connectAddr cfg.server.logs.address}:${toString cfg.server.logs.port}/insert/loki/api/v1/push"
       else null;
 
     externalLabels =
@@ -70,6 +70,11 @@
         endpoint {
           url = ${builtins.toJSON metricsWriteUrl}
           ${renderBasicAuth}
+          queue_config {
+            min_backoff = "1s"
+            max_backoff = "5m"
+            capacity    = 10000
+          }
         }
       }
     '';
@@ -78,7 +83,10 @@
       loki.write "default" {
         external_labels = ${renderLabels externalLabels}
         endpoint {
-          url = ${builtins.toJSON logsPushUrl}
+          url                 = ${builtins.toJSON logsPushUrl}
+          min_backoff_period  = "1s"
+          max_backoff_period  = "5m"
+          max_backoff_retries = 0
           ${renderBasicAuth}
         }
       }
@@ -217,6 +225,25 @@
         forward_to      = [prometheus.relabel.cadvisor_relabel.receiver]
       }
     '');
+
+    processBlock = lib.optionalString (cfg.exporters.process.enable && metricsWriteUrl != null) ''
+      prometheus.exporter.process "local" {
+        track_children      = false
+        track_threads       = false
+        gather_smaps        = false
+        remove_empty_groups = true
+        matcher {
+          name    = "{{.Comm}}"
+          cmdline = [".+"]
+        }
+      }
+
+      prometheus.scrape "process" {
+        targets         = prometheus.exporter.process.local.targets
+        scrape_interval = ${builtins.toJSON cfg.agent.scrapeInterval}
+        forward_to      = [prometheus.remote_write.default.receiver]
+      }
+    '';
 
     enabledScrapes = lib.filterAttrs (_: s: s.enable) cfg.scrapes;
     scrapeServiceRules =
@@ -462,6 +489,7 @@
       lokiWriteBlock
       unixExporterBlock
       cadvisorBlock
+      processBlock
       scrapeBlocks
       probeBlocks
       journalBlocks
@@ -531,7 +559,7 @@
         systemd.services.alloy = {
           after =
             lib.optional hasBasicAuthFile "sops-install-secrets.service"
-            ++ lib.optionals cfg.server.enable ["prometheus.service" "loki.service"];
+            ++ lib.optionals cfg.server.enable ["victoriametrics.service" "victorialogs.service"];
           wants = lib.optional hasBasicAuthFile "sops-install-secrets.service";
           serviceConfig = {
             DynamicUser = lib.mkForce false;

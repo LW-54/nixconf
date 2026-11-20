@@ -8,8 +8,8 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Dimension | Value | Description |
 | :--- | :--- | :--- |
-| **Nodes** | 367 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
-| **Edges** | 1159 | Typed semantic directed edges connecting graph entities. |
+| **Nodes** | 371 | Discrete architectural entities tracked across ontology, AST syntax, evaluation, and derivations. |
+| **Edges** | 1208 | Typed semantic directed edges connecting graph entities. |
 | **Relations** | 10 | Unique relation kinds expressing dependencies, flows, definitions, and bindings. |
 | **Node kinds** | 14 | Structural node classifications (e.g. host, contract, feature, module, option, package). |
 | **Strata** | 4 | Orthogonal graph evaluation layers (Ontology, AST, Evaluation, Derivation). |
@@ -18,10 +18,10 @@ Unified pure-Nix graph merging ontological intent, syntax, evaluation, and deriv
 
 | Stratum | Name | Nodes | Description |
 | :--- | :--- | :--- | :--- |
-| `ast` | Syntactic Structure | 266 | Modules, options, types, and library symbols as declared in Nix expressions. |
+| `ast` | Syntactic Structure | 269 | Modules, options, types, and library symbols as declared in Nix expressions. |
 | `drv` | Derivation Substrate | 20 | Packages, development shells, and their store-level dependencies. |
 | `eval` | Operational Fixpoint | 2 | Evaluated NixOS configurations, option definitions, and data dependences. |
-| `onto` | Ontological Intent | 79 | Primitives and their declared instances: what the repository intends to exist. |
+| `onto` | Ontological Intent | 80 | Primitives and their declared instances: what the repository intends to exist. |
 
 ## Graph Schema
 
@@ -100,17 +100,17 @@ end
 
 | Relation | Strata | Edges | Meaning | Grounding |
 | :--- | :--- | :--- | :--- | :--- |
-| `contains` | `onto` | 73 | Lexical parent-child containment. | Primitives containing their declared instances. |
-| `declares` | `ast` | 123 | Interface specification declaration. | Contracts declaring public options and custom types. |
+| `contains` | `onto` | 74 | Lexical parent-child containment. | Primitives containing their declared instances. |
+| `declares` | `ast` | 125 | Interface specification declaration. | Contracts declaring public options and custom types. |
 | `dependsOn` | `drv` | 28 | Software package dependency. | Modules and devShells depending on executable packages. |
 | `documents` | — | 0 | Documentation attachment. | Docstrings attached to library symbols. |
-| `flowsTo` | `eval` | 225 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
+| `flowsTo` | `eval` | 238 | End-to-end data dependence channel. | Option writers connected to the implementations consuming them. |
 | `implements` | `onto` | 11 | Contract fulfillment. | Primitive relationships such as `implementation.<name>.contract`. |
-| `imports` | `eval` | 59 | Compilation unit composition. | Evaluated NixOS configurations importing concrete NixOS modules. |
-| `outputs` | `ast` | 146 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
+| `imports` | `eval` | 60 | Compilation unit composition. | Evaluated NixOS configurations importing concrete NixOS modules. |
+| `outputs` | `ast` | 147 | Flake artifact emission. | Primitive instances emitting configurations, modules, packages, devShells, and functions. |
 | `reads` | `eval` | 71 | Option value inspection (use / load). | Implementations reading contract options. |
-| `typedBy` | `ast` | 169 | Option type-system binding. | Contract options bound to custom submodule types. |
-| `writes` | `eval` | 254 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
+| `typedBy` | `ast` | 187 | Option type-system binding. | Contract options bound to custom submodule types. |
+| `writes` | `eval` | 267 | Option value definition (def / store). | Module definitions extracted via `definitionsWithLocations`. |
 
 ## Node Kinds
 
@@ -119,17 +119,17 @@ end
 | `configuration` | `eval` | 2 | `urn:nixconf:eval:configuration:astrolabe` | Evaluated NixOS configurations on `flake.nixosConfigurations`. |
 | `contract` | `onto` | 11 | `urn:nixconf:onto:contract:auth` | Typed contract interfaces. |
 | `devShell` | `drv` | 7 | `urn:nixconf:drv:devShell:default` | Development shells exported on `flake.devShells`. |
-| `feature` | `onto` | 29 | `urn:nixconf:onto:feature:antigravity` | Reusable system and desktop capability bundles. |
+| `feature` | `onto` | 30 | `urn:nixconf:onto:feature:antigravity` | Reusable system and desktop capability bundles. |
 | `function` | `ast` | 62 | `urn:nixconf:ast:function:auth.mkConfig` | Library functions with RFC 145 docstring metadata. |
 | `host` | `onto` | 2 | `urn:nixconf:onto:host:astrolabe` | Target machines evaluated into NixOS systems. |
 | `implementation` | `onto` | 11 | `urn:nixconf:onto:implementation:authelia` | Concrete providers fulfilling contracts. |
 | `lib` | `onto` | 20 | `urn:nixconf:onto:lib:auth` | Library namespaces grouping functions and symbols. |
-| `module` | `ast` | 67 | `urn:nixconf:ast:module:antigravity` | NixOS modules exported on `flake.nixosModules`. |
+| `module` | `ast` | 68 | `urn:nixconf:ast:module:antigravity` | NixOS modules exported on `flake.nixosModules`. |
 | `option` | `ast` | 69 | `urn:nixconf:ast:option:auth.address` | Public contract options with types and descriptions. |
 | `package` | `drv` | 13 | `urn:nixconf:drv:package:antigravity` | Packages exported on `flake.packages`. |
 | `primitive` | `onto` | 6 | `urn:nixconf:onto:primitive:contract` | Meta-primitives defining how instances are declared and exported. |
 | `symbol` | `ast` | 14 | `urn:nixconf:ast:symbol:docs.audit` | Non-function library values and constants. |
-| `type` | `ast` | 54 | `urn:nixconf:ast:type:auth.directory` | Custom option types declared by contracts and features. |
+| `type` | `ast` | 56 | `urn:nixconf:ast:type:auth.directory` | Custom option types declared by contracts and features. |
 
 ## Querying & Inspecting the Graph
 

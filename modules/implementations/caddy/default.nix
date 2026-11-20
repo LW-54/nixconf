@@ -114,7 +114,7 @@ in {
           metricsPath = "/metrics";
         };
         rules.caddy = {
-          backend = "prometheus";
+          backend = "metrics";
           interval = "1m";
           rules = [
             {
@@ -140,8 +140,8 @@ in {
           ];
         };
         dashboards.ingress = {
-          title = "Ingress & Service Probes";
-          folder = "Services";
+          title = "Ingress & Edge";
+          folder = "02 · Infrastructure";
           json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
         };
       };

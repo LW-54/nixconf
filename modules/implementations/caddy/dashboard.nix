@@ -2,7 +2,7 @@
   internal.caddy.mkDashboard = d:
     d.mkDashboard {
       uid = "nixconf-ingress";
-      title = "Ingress & Service Probes";
+      title = "Ingress & Edge";
       description = "Caddy virtual host HTTP traffic, response status codes, latency percentiles, upstream health, and blackbox probes.";
       tags = ["caddy" "blackbox" "ingress"];
       variables = [
@@ -19,38 +19,48 @@
       ];
       sections = [
         (d.mkRow [
-          (d.mkStat {
+          (d.mkRatioStat {
             title = "Probe Availability";
-            w = 5;
-            unit = "percent";
-            decimals = 1;
+            w = 7;
+            unit = "short";
+            usedDecimals = 0;
+            totalDecimals = 0;
             thresholds = d.thresholds.percent100Ok;
             colorMode = "background";
-            expr = ''avg(probe_success{vhost=~"$probe"}) * 100'';
-            legend = "Availability";
+            percentLegend = "Availability %";
+            usedLegend = "Up";
+            totalLegend = "Total";
+            percentExpr = ''avg(probe_success{vhost=~"$probe"}) * 100'';
+            usedExpr = ''sum(probe_success{vhost=~"$probe"} == 1) or vector(0)'';
+            totalExpr = ''count(probe_success{vhost=~"$probe"}) or vector(0)'';
           })
           (d.mkStat {
             title = "Caddy Config Reload";
-            w = 5;
+            w = 3;
             mappings = d.mappings.okFail;
             thresholds = d.thresholds.upDown;
             colorMode = "background";
             expr = "min(caddy_config_last_reload_successful)";
             legend = "Reload";
           })
-          (d.mkStat {
+          (d.mkRatioStat {
             title = "Healthy Upstreams";
-            w = 5;
-            unit = "percent";
-            decimals = 1;
+            w = 7;
+            unit = "short";
+            usedDecimals = 0;
+            totalDecimals = 0;
             thresholds = d.thresholds.percent100Ok;
             colorMode = "background";
-            expr = "avg(caddy_reverse_proxy_upstreams_healthy) * 100";
-            legend = "Upstreams";
+            percentLegend = "Healthy %";
+            usedLegend = "Healthy";
+            totalLegend = "Total";
+            percentExpr = "avg(caddy_reverse_proxy_upstreams_healthy) * 100";
+            usedExpr = "sum(caddy_reverse_proxy_upstreams_healthy == 1) or vector(0)";
+            totalExpr = "count(caddy_reverse_proxy_upstreams_healthy) or vector(0)";
           })
           (d.mkStat {
             title = "In-Flight Requests";
-            w = 4;
+            w = 3;
             decimals = 0;
             noValue = "0";
             expr = ''sum(caddy_http_requests_in_flight{host=~"$vhost"})'';
@@ -58,11 +68,11 @@
           })
           (d.mkStat {
             title = "Request Rate";
-            w = 5;
+            w = 4;
             unit = "reqps";
             decimals = 2;
             graphMode = "area";
-            expr = ''sum(rate(caddy_http_requests_total{server="srv0",host=~"$vhost"}[5m]))'';
+            expr = ''sum(rate(caddy_http_requests_total{server="srv0",host=~"$vhost"}[$__rate_interval]))'';
             legend = "RPS";
           })
         ])
@@ -165,7 +175,7 @@
                 title = "Request Rate by Virtual Host";
                 w = 12;
                 unit = "reqps";
-                expr = ''sum by (host) (rate(caddy_http_requests_total{server="srv0",host=~"$vhost"}[5m]))'';
+                expr = ''sum by (host) (rate(caddy_http_requests_total{server="srv0",host=~"$vhost"}[$__rate_interval]))'';
                 legend = "{{host}}";
               })
               (d.mkTimeseries {
@@ -173,7 +183,7 @@
                 w = 12;
                 unit = "reqps";
                 overrides = d.statusColorOverrides {};
-                expr = ''sum by (code) (rate(caddy_http_request_duration_seconds_count{server="srv0",host=~"$vhost"}[5m]))'';
+                expr = ''sum by (code) (rate(caddy_http_request_duration_seconds_count{server="srv0",host=~"$vhost"}[$__rate_interval]))'';
                 legend = "HTTP {{code}}";
               })
             ]
@@ -185,17 +195,17 @@
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''histogram_quantile(0.50, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",host=~"$vhost"}[5m])))'';
+                    expr = ''histogram_quantile(0.50, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",host=~"$vhost"}[$__rate_interval])))'';
                     legend = "p50";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''histogram_quantile(0.95, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",host=~"$vhost"}[5m])))'';
+                    expr = ''histogram_quantile(0.95, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",host=~"$vhost"}[$__rate_interval])))'';
                     legend = "p95";
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''histogram_quantile(0.99, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",host=~"$vhost"}[5m])))'';
+                    expr = ''histogram_quantile(0.99, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",host=~"$vhost"}[$__rate_interval])))'';
                     legend = "p99";
                   })
                 ];

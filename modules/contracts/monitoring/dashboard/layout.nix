@@ -1,4 +1,10 @@
-{lib, ...}: let
+{
+  config,
+  lib,
+  ...
+}: let
+  d = config.internal.monitoring.dashboard;
+
   mkRow = panels: {
     _kind = "row";
     inherit panels;
@@ -162,7 +168,11 @@
     variables ? [],
     sections ? [],
     links ? null,
+    graphTooltip ? 1,
+    eventAnnotations ? true,
   }: let
+    hasHostVar = builtins.any (v: (v.name or "") == "host") variables;
+
     defaultLinks =
       [
         {
@@ -177,25 +187,55 @@
           type = "dashboards";
         }
       ]
+      ++ lib.optional (uid != "nixconf-fleet-overview") {
+        icon = "home";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Fleet Home";
+        tooltip = "Open Fleet Command Center";
+        type = "link";
+        url = "/d/nixconf-fleet-overview";
+      }
+      ++ lib.optional (uid != "nixconf-task-manager") {
+        icon = "bolt";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Task Manager";
+        tooltip = "Open per-host process & hardware Task Manager";
+        type = "link";
+        url = "/d/nixconf-task-manager";
+      }
+      ++ lib.optional (uid != "nixconf-time-machine") {
+        icon = "clock";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Time Machine";
+        tooltip = "Investigate host state at a point in time";
+        type = "link";
+        url = "/d/nixconf-time-machine";
+      }
+      ++ lib.optional (uid != "nixconf-services-catalog") {
+        icon = "apps";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Services";
+        tooltip = "Browse all monitored services and jump to Service Inspector";
+        type = "link";
+        url = "/d/nixconf-services-catalog";
+      }
       ++ lib.optional (uid != "nixconf-logs-explorer") {
         icon = "doc";
         includeVars = true;
         keepTime = true;
         targetBlank = false;
-        title = "Logs Explorer";
-        tooltip = "Open centralized journald logs explorer";
+        title = "Logs";
+        tooltip = "Search centralized journald logs in VictoriaLogs";
         type = "link";
         url = "/d/nixconf-logs-explorer";
-      }
-      ++ lib.optional (uid != "nixconf-service-inspector") {
-        icon = "dashboard";
-        includeVars = true;
-        keepTime = true;
-        targetBlank = false;
-        title = "Service Inspector";
-        tooltip = "Inspect metrics, units, and logs for a specific service";
-        type = "link";
-        url = "/d/nixconf-service-inspector";
       };
 
     assembled =
@@ -255,24 +295,25 @@
       sections;
   in
     {
-      inherit uid title refresh;
-      annotations.list = [
-        {
-          builtIn = 1;
-          datasource = {
-            type = "grafana";
-            uid = "-- Grafana --";
-          };
-          enable = true;
-          hide = true;
-          iconColor = "rgba(0, 211, 255, 1)";
-          name = "Annotations & Alerts";
-          type = "dashboard";
-        }
-      ];
+      inherit uid title refresh graphTooltip;
+      annotations.list =
+        [
+          {
+            builtIn = 1;
+            datasource = {
+              type = "grafana";
+              uid = "-- Grafana --";
+            };
+            enable = true;
+            hide = true;
+            iconColor = "rgba(0, 211, 255, 1)";
+            name = "Annotations & Alerts";
+            type = "dashboard";
+          }
+        ]
+        ++ lib.optionals eventAnnotations (d.mkEventAnnotations hasHostVar);
       editable = false;
       fiscalYearStartMonth = 0;
-      graphTooltip = 1;
       links =
         if links != null
         then links

@@ -2,8 +2,8 @@
   internal.restic.mkDashboard = d:
     d.mkDashboard {
       uid = "nixconf-backups-storage";
-      title = "Backup, Snapshots & Storage";
-      description = "Restic backup jobs, Btrfs host snapshot timers, rclone FUSE mounts, and storage journal logs.";
+      title = "Storage & Backups";
+      description = "Restic backup jobs (including telemetry archives on hbox and gdrive), Btrfs host snapshot timers, rclone FUSE mounts, and storage journal logs.";
       tags = ["restic" "snapshot" "rclone" "storage"];
       refresh = "1m";
       timeFrom = "now-24h";
@@ -12,7 +12,7 @@
         (d.mkRow [
           (d.mkStat {
             title = "Failed Backup / Mount Units";
-            w = 6;
+            w = 5;
             decimals = 0;
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
@@ -21,26 +21,28 @@
           })
           (d.mkStat {
             title = "Active Timers";
-            w = 6;
+            w = 5;
             decimals = 0;
             expr = ''sum(node_systemd_unit_state{host=~"$host",name=~"(restic-backups-.*|host-snapshot-.*)\\.timer",state="active"}) or vector(0)'';
             legend = "Timers";
           })
           (d.mkStat {
             title = "Active Rclone Mounts";
-            w = 6;
+            w = 5;
             decimals = 0;
             expr = ''count(node_filesystem_size_bytes{host=~"$host",fstype="fuse.rclone"}) or vector(0)'';
             legend = "Mounts";
           })
-          (d.mkStat {
+          (d.mkRatioStat {
             title = "/persist Disk Usage";
-            w = 6;
-            unit = "percent";
-            decimals = 1;
+            w = 9;
             thresholds = d.thresholds.percentHigh;
-            expr = ''max by (host) ((1 - (node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"} / node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"})) * 100)'';
-            legend = "{{host}}";
+            percentLegend = "{{host}} %";
+            usedLegend = "{{host}} Used";
+            totalLegend = "{{host}} Total";
+            percentExpr = ''max by (host) (((node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"}) / clamp_min(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}, 1)) * 100)'';
+            usedExpr = ''max by (host) (node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"})'';
+            totalExpr = ''max by (host) (node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"})'';
           })
         ])
         (d.mkSection {
@@ -67,40 +69,18 @@
           title = "Rclone Remote Storage";
           rows = [
             [
-              (d.mkTable {
-                title = "Mounted Rclone Filesystems";
-                w = 12;
+              (d.mkStorageTable {
+                title = "Mounted Rclone Filesystems (Usage & Capacity)";
+                w = 24;
                 h = 7;
-                expr = ''node_filesystem_size_bytes{host=~"$host",fstype="fuse.rclone"}'';
-                transformations = [
-                  (d.organizeTransform {
-                    exclude = ["Time" "__name__" "instance" "job" "fstype"];
-                    rename = {
-                      host = "Host";
-                      mountpoint = "Mountpoint";
-                      device = "Remote";
-                      Value = "Capacity";
-                    };
-                    index = {
-                      host = 0;
-                      mountpoint = 1;
-                      device = 2;
-                      Value = 3;
-                    };
-                  })
-                ];
-                overrides = [(d.unitOverride "Capacity" "bytes")];
-              })
-              (d.mkBarGauge {
-                title = "Remote Storage Usage (%)";
-                w = 12;
-                h = 7;
-                unit = "percent";
-                min = 0;
-                max = 100;
-                thresholds = d.thresholds.percentHigh;
-                expr = ''max by (host, mountpoint, device) ((1 - (node_filesystem_avail_bytes{host=~"$host",fstype="fuse.rclone"} / clamp_min(node_filesystem_size_bytes{host=~"$host",fstype="fuse.rclone"}, 1))) * 100)'';
-                legend = "{{host}} {{mountpoint}} ({{device}})";
+                selector = ''host=~"$host",fstype="fuse.rclone"'';
+                groupBy = ["host" "mountpoint" "device"];
+                columns = {
+                  host = "Host";
+                  mountpoint = "Mountpoint";
+                  device = "Remote";
+                };
+                columnOrder = ["host" "mountpoint" "device"];
               })
             ]
           ];
@@ -112,7 +92,7 @@
               (d.mkLogs {
                 title = "Restic, Snapshot & Rclone Journal Stream";
                 w = 24;
-                expr = ''{job="systemd-journal", host=~"$host", unit=~"(restic-.*|host-snapshot-.*|rclone-config|storage-drift-check)\\.service"}'';
+                expr = ''job:="systemd-journal" host:in($host) unit:~"(restic-.*|host-snapshot-.*|rclone-config|storage-drift-check)\\.service"'';
               })
             ]
           ];

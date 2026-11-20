@@ -30,6 +30,8 @@
           destinationOverrides = {};
           autoRestore = false;
           beforeUnits = [];
+          prepareCommand = null;
+          cleanupCommand = null;
         };
       });
 
@@ -106,23 +108,30 @@
 
     jobAttrs = builtins.listToAttrs (map (j: {
         name = j.jobName;
-        value = {
-          inherit (j) repository timerConfig pruneOpts;
-          inherit passwordFile;
-          initialize = true;
-          paths = j.uCfg.paths;
-          exclude = lib.unique (cfg.exclude ++ j.uCfg.exclude);
-          extraOptions = ["rclone.program=${pkgs.rclone}/bin/rclone"];
-          rcloneOptions = {
-            b2-hard-delete = true;
+        value =
+          {
+            inherit (j) repository timerConfig pruneOpts;
+            inherit passwordFile;
+            initialize = true;
+            paths = j.uCfg.paths;
+            exclude = lib.unique (cfg.exclude ++ j.uCfg.exclude);
+            extraOptions = ["rclone.program=${pkgs.rclone}/bin/rclone"];
+            rcloneOptions = {
+              b2-hard-delete = true;
+            };
+            extraBackupArgs = [
+              "--tag"
+              "unit:${j.uName}"
+              "--tag"
+              "scope:${j.uCfg.scope}"
+            ];
+          }
+          // lib.optionalAttrs ((j.uCfg.prepareCommand or null) != null) {
+            backupPrepareCommand = j.uCfg.prepareCommand;
+          }
+          // lib.optionalAttrs ((j.uCfg.cleanupCommand or null) != null) {
+            backupCleanupCommand = j.uCfg.cleanupCommand;
           };
-          extraBackupArgs = [
-            "--tag"
-            "unit:${j.uName}"
-            "--tag"
-            "scope:${j.uCfg.scope}"
-          ];
-        };
       })
       allJobsList);
 

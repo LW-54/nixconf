@@ -212,12 +212,12 @@
               logs.journal.units = ["sshd.service"];
               services.sshd.units = ["sshd.service"];
               rules.ssh = {
-                backend = "loki";
+                backend = "logs";
                 interval = "5m";
                 rules = [
                   {
                     alert = "SshInvalidAuthSpike";
-                    expr = ''sum by (host) (count_over_time({unit="sshd.service"} |~ "(?i)(invalid user|failed password|connection closed by authenticating user)" [5m])) > 15'';
+                    expr = ''_time:5m unit:="sshd.service" _msg:~"(?i)(invalid user|failed password|connection closed by authenticating user)" | stats by (host) count() as failures | filter failures:>15'';
                     "for" = "1m";
                     labels.severity = "warning";
                     annotations = {

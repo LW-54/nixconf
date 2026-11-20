@@ -82,6 +82,18 @@
             dirMode = "0700";
             beforeUnits = ["vaultwarden.service"];
           };
+          ntfy-data = {
+            mode = "reserved";
+            size =
+              if isTest
+              then "32M"
+              else "256M";
+            mountPoint = "/var/lib/ntfy-sh";
+            owner = "ntfy-sh";
+            group = "ntfy-sh";
+            dirMode = "0700";
+            beforeUnits = ["ntfy-sh.service"];
+          };
           rclone-cache = {
             mode = "thin";
             size =
@@ -93,33 +105,33 @@
             excludeFromSnapshot = true;
             excludeFromBackup = true;
           };
-          loki-data = {
+          victorialogs-data = {
             mode = "thin";
             size =
               if isTest
               then "256M"
-              else "10G";
-            mountPoint = "/var/lib/loki";
-            owner = "loki";
-            group = "loki";
-            dirMode = "0750";
-            beforeUnits = ["loki.service"];
-            excludeFromSnapshot = true;
-            excludeFromBackup = true;
-          };
-          prometheus-data = {
-            mode = "thin";
-            size =
-              if isTest
-              then "256M"
-              else "10G";
-            mountPoint = "/var/lib/${config.services.prometheus.stateDir}";
-            owner = "prometheus";
-            group = "prometheus";
+              else "15G";
+            mountPoint = "/var/lib/victorialogs";
+            owner = "victorialogs";
+            group = "victorialogs";
             dirMode = "0700";
-            beforeUnits = ["prometheus.service"];
+            beforeUnits = ["victorialogs.service"];
             excludeFromSnapshot = true;
-            excludeFromBackup = true;
+            excludeFromBackup = false;
+          };
+          victoriametrics-data = {
+            mode = "thin";
+            size =
+              if isTest
+              then "256M"
+              else "25G";
+            mountPoint = "/var/lib/victoriametrics";
+            owner = "victoriametrics";
+            group = "victoriametrics";
+            dirMode = "0700";
+            beforeUnits = ["victoriametrics.service"];
+            excludeFromSnapshot = true;
+            excludeFromBackup = false;
           };
         };
 
@@ -143,6 +155,11 @@
             maxSize = "100G";
             warnPercent = 85;
             interval = "12h";
+          };
+          gdrive-backup-host = {
+            maxSize = "100G";
+            warnPercent = 80;
+            interval = "24h";
           };
           b2-backup-shared = {
             maxSize = "10G";

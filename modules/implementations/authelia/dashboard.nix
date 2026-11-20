@@ -45,11 +45,11 @@
           (d.mkStat {
             title = "SSH Auth Failures";
             w = 5;
-            loki = true;
+            logs = true;
             decimals = 0;
             noValue = "0";
             thresholds = d.thresholds.zeroWarn;
-            expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", unit="sshd.service"} |~ "(?i)(invalid user|failed password|connection closed by authenticating user)" [$__range]))'';
+            expr = ''job:="systemd-journal" host:in($host) unit:="sshd.service" _msg:~"(?i)(invalid user|failed password|connection closed by authenticating user)" | stats count() as total'';
             legend = "SSH Failures";
           })
         ])
@@ -62,7 +62,7 @@
                 w = 12;
                 unit = "reqps";
                 overrides = d.statusColorOverrides {};
-                expr = ''sum by (code) (rate(authelia_authz{host=~"$host"}[5m]))'';
+                expr = ''sum by (code) (rate(authelia_authz{host=~"$host"}[$__rate_interval]))'';
                 legend = "HTTP {{code}}";
               })
               (d.mkTimeseries {
@@ -77,17 +77,17 @@
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''sum(rate(authelia_authn{host=~"$host",success="true"}[5m]))'';
+                    expr = ''sum(rate(authelia_authn{host=~"$host",success="true"}[$__rate_interval]))'';
                     legend = "Success";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''sum(rate(authelia_authn{host=~"$host",success="false",banned="false"}[5m]))'';
+                    expr = ''sum(rate(authelia_authn{host=~"$host",success="false",banned="false"}[$__rate_interval]))'';
                     legend = "Failed";
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''sum(rate(authelia_authn{host=~"$host",banned="true"}[5m]))'';
+                    expr = ''sum(rate(authelia_authn{host=~"$host",banned="true"}[$__rate_interval]))'';
                     legend = "Banned";
                   })
                 ];
@@ -102,12 +102,12 @@
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''histogram_quantile(0.50, sum by (le) (rate(authelia_request_duration_bucket{host=~"$host"}[5m])))'';
+                    expr = ''histogram_quantile(0.50, sum by (le) (rate(authelia_request_duration_bucket{host=~"$host"}[$__rate_interval])))'';
                     legend = "p50";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''histogram_quantile(0.95, sum by (le) (rate(authelia_request_duration_bucket{host=~"$host"}[5m])))'';
+                    expr = ''histogram_quantile(0.95, sum by (le) (rate(authelia_request_duration_bucket{host=~"$host"}[$__rate_interval])))'';
                     legend = "p95";
                   })
                 ];
@@ -116,25 +116,16 @@
                 title = "Security Failure Events (Logs)";
                 w = 12;
                 h = 7;
+                logs = true;
                 drawStyle = "bars";
                 stacked = true;
                 legendMode = "list";
                 overrides = [
-                  (d.overrideByName "Authelia Failures/Bans" [(d.colorFixed "orange")])
-                  (d.overrideByName "SSH Invalid Auth" [(d.colorFixed "red")])
+                  (d.overrideByName "authelia-main.service" [(d.colorFixed "orange")])
+                  (d.overrideByName "sshd.service" [(d.colorFixed "red")])
                 ];
-                targets = [
-                  (d.lokiTarget {
-                    refId = "A";
-                    expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", unit="authelia-main.service"} |~ "(?i)(unsuccessful authentication|banned)" [$__auto]))'';
-                    legend = "Authelia Failures/Bans";
-                  })
-                  (d.lokiTarget {
-                    refId = "B";
-                    expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", unit="sshd.service"} |~ "(?i)(invalid user|failed password|connection closed by authenticating user)" [$__auto]))'';
-                    legend = "SSH Invalid Auth";
-                  })
-                ];
+                expr = ''job:="systemd-journal" host:in($host) unit:in("authelia-main.service","sshd.service") ((unit:="authelia-main.service" _msg:~"(?i)(unsuccessful authentication|banned)") OR (unit:="sshd.service" _msg:~"(?i)(invalid user|failed password|connection closed by authenticating user)")) | stats by (unit) count() as events'';
+                legend = "{{unit}}";
               })
             ]
           ];
@@ -146,7 +137,7 @@
               (d.mkLogs {
                 title = "Authelia, LLDAP & SSH Journal Stream";
                 w = 24;
-                expr = ''{job="systemd-journal", host=~"$host", unit=~"authelia-main\\.service|lldap\\.service|sshd\\.service"}'';
+                expr = ''job:="systemd-journal" host:in($host) unit:~"authelia-main\\.service|lldap\\.service|sshd\\.service"'';
               })
             ]
           ];

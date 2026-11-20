@@ -1,5 +1,5 @@
 {
-  internal.lgtm.mkTesting = {
+  internal.victoria.mkTesting = {
     self,
     config,
     lib,
@@ -17,14 +17,15 @@
       || cfg.agent.logsUrl != null;
 
     registeredPorts = map (p: p.port) (config.reverse-proxy.ports or []);
-    promRuleFiles = config.services.prometheus.ruleFiles or [];
+    vmalertInstances = lib.filterAttrs (_: inst: inst.enable) (config.services.vmalert.instances or {});
     enabledDashboards = lib.filterAttrs (_: d: d.enable) cfg.dashboards;
     dashboardsPath =
       if cfg.server.enable && enabledDashboards != {}
       then (builtins.head config.services.grafana.provision.dashboards.settings.providers).options.path
       else null;
+    yamlFormat = pkgs.formats.yaml {};
   in {
-    description = "Grafana Alloy, Prometheus, Loki, and Grafana provisioning, validation, and runtime checks";
+    description = "Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana provisioning, validation, and runtime checks";
 
     evalChecks = {
       agent-has-destination = {
@@ -37,11 +38,11 @@
           !cfg.server.enable
           || (
             builtins.elem cfg.server.grafana.port registeredPorts
-            && builtins.elem cfg.server.prometheus.port registeredPorts
-            && builtins.elem cfg.server.loki.port registeredPorts
-            && builtins.elem cfg.server.loki.grpcPort registeredPorts
+            && builtins.elem cfg.server.metrics.port registeredPorts
+            && builtins.elem cfg.server.logs.port registeredPorts
+            && builtins.elem cfg.server.alerts.port registeredPorts
           );
-        message = "When `monitoring.server.enable` is true, Grafana, Prometheus, and Loki ports must be registered in `reverse-proxy.ports`.";
+        message = "When `monitoring.server.enable` is true, Grafana, VictoriaMetrics, VictoriaLogs, and Alertmanager ports must be registered in `reverse-proxy.ports`.";
       };
     };
 
@@ -62,15 +63,19 @@
         '';
       };
 
-      prometheus-rules = {
-        enable = cfg.server.enable && promRuleFiles != [];
-        description = "Verify generated Prometheus rule files pass promtool check rules";
+      vmalert-rules = {
+        enable = cfg.server.enable && vmalertInstances != {};
+        description = "Verify generated vmalert metrics and LogsQL rule files pass vmalert -dryRun";
         priority = 155;
-        script =
-          lib.concatMapStringsSep "\n" (rf: ''
-            ${pkgs.prometheus.cli}/bin/promtool check rules ${lib.escapeShellArg (toString rf)}
+        script = lib.concatStrings (
+          lib.mapAttrsToList (name: inst: let
+            ruleFile = yamlFormat.generate "vmalert-${name}-rules.yml" inst.rules;
+            dsUrl = builtins.head (lib.toList inst.settings."datasource.url");
+          in ''
+            ${pkgs.victoriametrics}/bin/vmalert -rule=${lib.escapeShellArg (toString ruleFile)} -dryRun -datasource.url=${lib.escapeShellArg dsUrl} -notifier.blackhole >/dev/null
           '')
-          promRuleFiles;
+          vmalertInstances
+        );
       };
 
       grafana-provisioning = {
@@ -155,17 +160,27 @@
 
       server = {
         enable = cfg.server.enable;
-        description = "Prometheus, Loki, and Grafana start cleanly, answer health checks, and accept Authelia proxy headers";
+        description = "VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana start cleanly, answer health checks, and accept Authelia proxy headers";
         script = ''
-          import datetime
-
-          ${self.lib.testing.mkServiceCheck {unit = "prometheus.service";}}
-          ${self.lib.testing.mkServiceCheck {unit = "loki.service";}}
+          ${self.lib.testing.mkServiceCheck {unit = "victoriametrics.service";}}
+          ${self.lib.testing.mkServiceCheck {unit = "victorialogs.service";}}
+          ${self.lib.testing.mkServiceCheck {unit = "alertmanager.service";}}
           ${self.lib.testing.mkServiceCheck {unit = "grafana.service";}}
+          ${lib.concatStrings (map (n: self.lib.testing.mkServiceCheck {unit = "vmalert-${n}.service";}) (builtins.attrNames vmalertInstances))}
 
           ${self.lib.testing.mkHttpCheck {
-            port = cfg.server.prometheus.port;
-            host = connectAddr cfg.server.prometheus.address;
+            port = cfg.server.metrics.port;
+            host = connectAddr cfg.server.metrics.address;
+            path = "/ping";
+          }}
+          ${self.lib.testing.mkHttpCheck {
+            port = cfg.server.logs.port;
+            host = connectAddr cfg.server.logs.address;
+            path = "/ping";
+          }}
+          ${self.lib.testing.mkHttpCheck {
+            port = cfg.server.alerts.port;
+            host = connectAddr cfg.server.alerts.address;
             path = "/-/healthy";
           }}
           ${self.lib.testing.mkHttpCheck {
@@ -173,12 +188,6 @@
             host = connectAddr cfg.server.grafana.address;
             path = "/api/health";
           }}
-
-          machine.wait_for_open_port(${toString cfg.server.loki.port})
-          machine.wait_until_succeeds(
-              "curl -fsS http://${connectAddr cfg.server.loki.address}:${toString cfg.server.loki.port}/ready",
-              timeout=datetime.timedelta(seconds=30),
-          )
 
           _grafana_user = machine.succeed(
               "curl -fsS -H 'Remote-User: admin' -H 'Remote-Groups: lldap_admin' "

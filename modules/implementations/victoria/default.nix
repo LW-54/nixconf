@@ -3,17 +3,17 @@
   lib,
   ...
 }: let
-  helpers = config.internal.lgtm;
+  helpers = config.internal.victoria;
 in {
-  options.internal.lgtm = lib.mkOption {
+  options.internal.victoria = lib.mkOption {
     type = lib.types.lazyAttrsOf lib.types.raw;
     default = {};
-    description = "Internal builder helpers for Grafana Alloy, Prometheus, Loki, and Grafana.";
+    description = "Internal builder helpers for Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana.";
   };
 
-  config.implementation.lgtm = {
+  config.implementation.victoria = {
     contract = "monitoring";
-    description = "Observability stack implementation using Grafana Alloy, Prometheus, Loki, and Grafana.";
+    description = "Observability stack implementation using Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana.";
 
     module = {
       config,
@@ -28,6 +28,7 @@ in {
       };
       serverCfg = helpers.mkServer {
         inherit config lib pkgs options self;
+        inherit (helpers) mkDashboard;
       };
       testingSuite = helpers.mkTesting {
         inherit self config lib pkgs;
@@ -37,7 +38,7 @@ in {
         alloyCfg
         serverCfg
         {
-          testing.lgtm = testingSuite;
+          testing.victoria = testingSuite;
         }
       ];
   };

@@ -1,12 +1,16 @@
 {lib, ...}: let
   ds = {
+    metrics = {
+      type = "prometheus";
+      uid = "prometheus";
+    };
     prometheus = {
       type = "prometheus";
       uid = "prometheus";
     };
-    loki = {
-      type = "loki";
-      uid = "loki";
+    logs = {
+      type = "victoriametrics-logs-datasource";
+      uid = "victorialogs";
     };
   };
 
@@ -18,26 +22,115 @@
     range ? !instant,
     format ? "time_series",
   }: {
-    datasource = ds.prometheus;
+    datasource = ds.metrics;
     inherit expr refId instant range format;
     legendFormat = legend;
   };
 
-  lokiTarget = {
+  logsTarget = {
     expr,
     legend ? "",
     refId ? "A",
-    instant ? false,
-    queryType ? (
-      if instant
-      then "instant"
-      else "range"
-    ),
-  }: {
-    datasource = ds.loki;
-    inherit expr refId instant queryType;
-    legendFormat = legend;
+    queryType ? "instant",
+    maxLines ? null,
+  }:
+    {
+      datasource = ds.logs;
+      editorMode = "code";
+      inherit expr refId queryType;
+      legendFormat = legend;
+    }
+    // lib.optionalAttrs (maxLines != null) {inherit maxLines;};
+
+  links = {
+    toTaskManager = {
+      title = "Open Task Manager";
+      url = ''/d/nixconf-task-manager?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
+    toTimeMachine = {
+      title = "Open Incident Time Machine";
+      url = ''/d/nixconf-time-machine?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
+    toHostHardware = {
+      title = "Open Host & Hardware";
+      url = ''/d/nixconf-host-hardware?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
+    toService = {
+      title = "Inspect Service";
+      url = ''/d/nixconf-service-inspector?var-service=''${__data.fields.Service}&''${__url_time_range}'';
+    };
+    toUnitLogs = {
+      title = "View Unit Logs";
+      url = ''/d/nixconf-logs-explorer?var-host=''${__data.fields.Host}&var-unit=''${__data.fields.Unit}&''${__url_time_range}'';
+    };
   };
+
+  mkEventAnnotations = hasHostVar: let
+    withHostSel = extra:
+      if hasHostVar
+      then
+        if extra == ""
+        then ''host=~"$host"''
+        else ''host=~"$host",${extra}''
+      else extra;
+    rebootSel = withHostSel "";
+    deploySel = withHostSel "";
+    oomSel = withHostSel "";
+    failedSel = withHostSel ''state="failed"'';
+  in [
+    {
+      datasource = ds.metrics;
+      enable = true;
+      expr = ''changes(node_boot_time_seconds{${rebootSel}}[2m]) > 0'';
+      hide = false;
+      iconColor = "orange";
+      name = "Reboots";
+      step = "60s";
+      tagKeys = "host";
+      textFormat = "{{host}} booted";
+      titleFormat = "Host Reboot";
+      useValueForTime = false;
+    }
+    {
+      datasource = ds.metrics;
+      enable = true;
+      expr = ''changes(nixconf_deployment_timestamp_seconds{${deploySel}}[2m]) > 0'';
+      hide = false;
+      iconColor = "blue";
+      name = "NixOS Deployments";
+      step = "60s";
+      tagKeys = "host,rev";
+      textFormat = "{{host}} deployed {{rev}}";
+      titleFormat = "NixOS Deploy";
+      useValueForTime = false;
+    }
+    {
+      datasource = ds.metrics;
+      enable = true;
+      expr = ''increase(container_oom_events_total{${oomSel}}[2m]) > 0'';
+      hide = false;
+      iconColor = "red";
+      name = "OOM Kills";
+      step = "60s";
+      tagKeys = "host,unit";
+      textFormat = "OOM in {{unit}} on {{host}}";
+      titleFormat = "OOM Event";
+      useValueForTime = false;
+    }
+    {
+      datasource = ds.metrics;
+      enable = true;
+      expr = ''changes(node_systemd_unit_state{${failedSel}}[2m]) > 0 and node_systemd_unit_state{${failedSel}} == 1'';
+      hide = false;
+      iconColor = "purple";
+      name = "Unit Failures";
+      step = "60s";
+      tagKeys = "host,name";
+      textFormat = "{{name}} failed on {{host}}";
+      titleFormat = "Unit Failed";
+      useValueForTime = false;
+    }
+  ];
 
   thresholds = {
     percent = {
@@ -147,6 +240,23 @@
         }
       ];
     };
+    tempC = {
+      mode = "absolute";
+      steps = [
+        {
+          color = "green";
+          value = null;
+        }
+        {
+          color = "yellow";
+          value = 75;
+        }
+        {
+          color = "red";
+          value = 90;
+        }
+      ];
+    };
     neutral = {
       mode = "absolute";
       steps = [
@@ -233,6 +343,8 @@
     ];
   };
 
+  defaultThresholds = thresholds;
+
   overrideByName = name: properties: {
     matcher = {
       id = "byName";
@@ -245,6 +357,14 @@
     matcher = {
       id = "byRegexp";
       options = regexp;
+    };
+    inherit properties;
+  };
+
+  overrideByRefId = refId: properties: {
+    matcher = {
+      id = "byFrameRefID";
+      options = refId;
     };
     inherit properties;
   };
@@ -262,6 +382,14 @@
       {
         id = "unit";
         value = unit;
+      }
+    ];
+
+  decimalsOverride = colName: decimals:
+    overrideByName colName [
+      {
+        id = "decimals";
+        value = decimals;
       }
     ];
 
@@ -307,6 +435,52 @@
         value = {
           mode = "basic";
           type = "color-background";
+        };
+      }
+    ];
+
+  cellGaugeOverride = {
+    colName,
+    unit ? "percent",
+    min ? 0,
+    max ? 100,
+    decimals ? 1,
+    thresholds ? defaultThresholds.percentHigh,
+    mode ? "gradient",
+  }:
+    overrideByName colName [
+      {
+        id = "unit";
+        value = unit;
+      }
+      {
+        id = "decimals";
+        value = decimals;
+      }
+      {
+        id = "min";
+        value = min;
+      }
+      {
+        id = "max";
+        value = max;
+      }
+      {
+        id = "thresholds";
+        value = thresholds;
+      }
+      {
+        id = "color";
+        value = {
+          mode = "thresholds";
+        };
+      }
+      {
+        id = "custom.cellOptions";
+        value = {
+          type = "gauge";
+          inherit mode;
+          valueDisplayMode = "color";
         };
       }
     ];
@@ -357,16 +531,21 @@ in {
     inherit
       ds
       promTarget
-      lokiTarget
+      logsTarget
+      links
+      mkEventAnnotations
       thresholds
       mappings
       overrideByName
       overrideByRegexp
+      overrideByRefId
       colorFixed
       unitOverride
+      decimalsOverride
       negativeYOverride
       dashedLineOverride
       cellBadgeOverride
+      cellGaugeOverride
       statusColorOverrides
       logLevelColorOverrides
       cpuModeColorOverrides

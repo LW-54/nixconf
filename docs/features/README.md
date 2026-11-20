@@ -8,7 +8,7 @@ Reusable system configurations, applications, desktop environments, development 
 
 - **Declared as**: `feature.<name>` in any flake-parts module under `modules/features/`
 - **Primitive definition**: [`primitives/feature/default.nix`](../../primitives/feature/default.nix)
-- **Instances**: 29
+- **Instances**: 30
 
 ## Option Schema (`feature.<name>`)
 
@@ -61,6 +61,7 @@ Smallest declaration in the repository, [`modules/features/fonts.nix`](../../mod
 | [`locale`](locale.md) | System internationalization, time zone, and language locale configuration. | [`locale`](../modules/locale.md) (module) | [`modules/features/locale.nix`](../../modules/features/locale.nix) | [More →](locale.md) |
 | [`nix`](nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [`nix`](../modules/nix.md) (module) | [`modules/features/nix.nix`](../../modules/features/nix.nix) | [More →](nix.md) |
 | [`noctalia`](noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [`noctalia`](../modules/noctalia.md) (module) | [`modules/features/noctalia.nix`](../../modules/features/noctalia.nix) | [More →](noctalia.md) |
+| [`ntfy`](ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [`ntfy`](../modules/ntfy.md) (module) | [`modules/features/ntfy.nix`](../../modules/features/ntfy.nix) | [More →](ntfy.md) |
 | [`snapshot`](snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [`snapshot`](../modules/snapshot.md) (module) | [`modules/features/snapshot.nix`](../../modules/features/snapshot.nix) | [More →](snapshot.md) |
 | [`ssh`](ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [`ssh`](../modules/ssh.md) (module), [`master-ssh`](../devshells.md#master-ssh) (devShell) | [`modules/features/ssh.nix`](../../modules/features/ssh.nix) | [More →](ssh.md) |
 | [`tack`](tack.md) | Flake input pinning and lockfile orchestration tool. | [`tack`](../modules/tack.md) (module) | [`modules/features/tack.nix`](../../modules/features/tack.nix) | [More →](tack.md) |

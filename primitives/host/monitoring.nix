@@ -1,9 +1,5 @@
-# Host monitoring module: baseline OS metrics, systemd journal streaming, host alert rules, and overview dashboards.
-{
-  mkHostOverviewDashboard,
-  mkLogsExplorerDashboard,
-  ...
-}: {
+# Host monitoring module: baseline OS/process metrics, deployment annotations, systemd journal streaming, host alert rules, and core dashboards.
+{...}: {
   _module.args = {
     hostMonitoringModule = {name}: {
       config,
@@ -12,35 +8,54 @@
       ...
     }: let
       d = self.lib.monitoring.dashboard;
+      textfileDir = let
+        t = config.monitoring.exporters.unix.textfileDirectory or null;
+      in
+        if t != null
+        then t
+        else "/var/lib/alloy/textfile";
+      rawRev = config.system.configurationRevision or "unknown";
+      deployRev =
+        if rawRev == null || rawRev == ""
+        then "unknown"
+        else toString rawRev;
     in {
       _file = "modules/hosts/${name}.nix, via option host.${name}.configuration";
       key = "primitives-host-monitoring-${name}";
 
       config = lib.mkIf (config.monitoring.enable or false) {
         monitoring = {
-          exporters.unix = {
-            enable = true;
-            collectors = [
-              "cpu"
-              "meminfo"
-              "loadavg"
-              "netdev"
-              "systemd"
-              "uname"
-              "vmstat"
-              "time"
-              "processes"
-              "boottime"
-              "stat"
-            ];
+          exporters = {
+            process.enable = lib.mkDefault true;
+            unix = {
+              enable = true;
+              textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
+              collectors = [
+                "cpu"
+                "cpufreq"
+                "hwmon"
+                "meminfo"
+                "loadavg"
+                "netdev"
+                "sockstat"
+                "systemd"
+                "textfile"
+                "uname"
+                "vmstat"
+                "time"
+                "processes"
+                "boottime"
+                "stat"
+              ];
+            };
           };
 
           logs.journal.enable = true;
 
-          extraGrafanaSettings.users.home_page = lib.mkDefault "/d/nixconf-host-overview";
+          extraGrafanaSettings.users.home_page = lib.mkDefault "/d/nixconf-fleet-overview";
 
           rules.host = {
-            backend = "prometheus";
+            backend = "metrics";
             interval = "1m";
             rules = [
               {
@@ -55,7 +70,7 @@
               }
               {
                 alert = "HostHighMemoryUsage";
-                expr = ''(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 90'';
+                expr = ''((node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / clamp_min(node_memory_MemTotal_bytes, 1)) * 100 > 90'';
                 "for" = "5m";
                 labels.severity = "warning";
                 annotations = {
@@ -76,24 +91,72 @@
             ];
           };
 
-          dashboards = {
-            host-overview = {
-              title = "Host & Systemd Overview";
-              folder = "Infrastructure";
-              json = mkHostOverviewDashboard d;
+          dashboards = let
+            hasContainers =
+              (config.virtualisation.docker.enable or false)
+              || (config.virtualisation.podman.enable or false)
+              || ((config.virtualisation.oci-containers.containers or {}) != {});
+          in {
+            fleet-overview = {
+              title = "Fleet Command Center";
+              folder = "00 · Overview";
+              json = d.mkFleetOverviewDashboard {};
+            };
+            task-manager = {
+              title = "Task Manager";
+              folder = "01 · Investigate";
+              json = d.mkTaskManagerDashboard {};
+            };
+            time-machine = {
+              title = "Incident Time Machine";
+              folder = "01 · Investigate";
+              json = d.mkTimeMachineDashboard {};
             };
             logs-explorer = {
               title = "Logs Explorer";
-              folder = "Infrastructure";
-              json = mkLogsExplorerDashboard d;
+              folder = "01 · Investigate";
+              json = d.mkLogsExplorerDashboard {};
+            };
+            host-hardware = {
+              title = "Host & Hardware";
+              folder = "02 · Infrastructure";
+              json = d.mkHostHardwareDashboard {};
+            };
+            services-catalog = lib.mkIf (config.monitoring.services != {}) {
+              title = "Services Catalog";
+              folder = "03 · Services";
+              json = d.mkServicesCatalogDashboard {};
             };
             service-inspector = lib.mkIf (config.monitoring.services != {}) {
               title = "Service Inspector";
-              folder = "Services";
+              folder = "03 · Services";
               json = d.mkServiceInspectorDashboard {};
+            };
+            containers = lib.mkIf hasContainers {
+              title = "Containers & OCI";
+              folder = "03 · Services";
+              json = d.mkContainersDashboard {};
             };
           };
         };
+
+        system.activationScripts.nixconf-deployment-metric = ''
+          install -d -m 0755 ${lib.escapeShellArg textfileDir}
+          tmp_prom="$(mktemp ${lib.escapeShellArg "${textfileDir}/.deployment.XXXXXX"})"
+          now_ts="$(date +%s)"
+          cat > "$tmp_prom" <<'EOF'
+          # HELP nixconf_deployment_info Static label metadata identifying the active NixOS revision.
+          # TYPE nixconf_deployment_info gauge
+          EOF
+          printf 'nixconf_deployment_info{rev=%s} 1\n' ${lib.escapeShellArg (builtins.toJSON deployRev)} >> "$tmp_prom"
+          cat >> "$tmp_prom" <<'EOF'
+          # HELP nixconf_deployment_timestamp_seconds Unix epoch timestamp of the latest NixOS activation.
+          # TYPE nixconf_deployment_timestamp_seconds gauge
+          EOF
+          printf 'nixconf_deployment_timestamp_seconds{rev=%s} %s\n' ${lib.escapeShellArg (builtins.toJSON deployRev)} "$now_ts" >> "$tmp_prom"
+          chmod 0644 "$tmp_prom"
+          mv -f "$tmp_prom" ${lib.escapeShellArg "${textfileDir}/deployment.prom"}
+        '';
       };
     };
   };

@@ -11,27 +11,34 @@
     legend ? "",
     instant ? false,
     format ? "time_series",
-    loki ? false,
+    logs ? false,
+    logsQueryType ? "instant",
+    maxLines ? null,
   }:
     if targets != null
     then targets
     else if expr == null
     then builtins.throw "Panel builder requires either `targets` or `expr`."
-    else if loki
-    then [(d.lokiTarget {inherit expr legend instant;})]
+    else if logs
+    then [
+      (d.logsTarget {
+        inherit expr legend maxLines;
+        queryType = logsQueryType;
+      })
+    ]
     else [(d.promTarget {inherit expr legend instant format;})];
 
   primaryDatasource = targets:
     if targets != [] && (builtins.head targets) ? datasource
     then (builtins.head targets).datasource
-    else d.ds.prometheus;
+    else d.ds.metrics;
 
   mkStat = {
     title,
     targets ? null,
     expr ? null,
     legend ? "",
-    loki ? false,
+    logs ? false,
     graphMode ? "none",
     instant ? (graphMode == "none"),
     unit ? "short",
@@ -48,7 +55,10 @@
     overrides ? [],
     links ? [],
   }: let
-    resolvedTargets = resolveTargets {inherit targets expr legend instant loki;};
+    resolvedTargets = resolveTargets {
+      inherit targets expr legend instant logs;
+      logsQueryType = "stats";
+    };
   in {
     inherit h w;
     panel =
@@ -82,14 +92,107 @@
       // lib.optionalAttrs (description != null) {inherit description;};
   };
 
+  mkRatioStat = {
+    title,
+    percentExpr,
+    usedExpr,
+    totalExpr,
+    percentLegend ? "%",
+    usedLegend ? "Used",
+    totalLegend ? "Total",
+    unit ? "bytes",
+    percentDecimals ? 1,
+    usedDecimals ? 1,
+    totalDecimals ? usedDecimals,
+    thresholds ? d.thresholds.percent,
+    graphMode ? "none",
+    instant ? (graphMode == "none"),
+    colorMode ? "value",
+    noValue ? null,
+    description ? null,
+    h ? 4,
+    w ? null,
+  }:
+    mkStat {
+      inherit title graphMode instant colorMode noValue description h w;
+      unit = "short";
+      textMode = "value_and_name";
+      thresholds = d.thresholds.neutral;
+      targets = [
+        (d.promTarget {
+          refId = "A";
+          expr = percentExpr;
+          legend = percentLegend;
+          inherit instant;
+        })
+        (d.promTarget {
+          refId = "B";
+          expr = usedExpr;
+          legend = usedLegend;
+          inherit instant;
+        })
+        (d.promTarget {
+          refId = "C";
+          expr = totalExpr;
+          legend = totalLegend;
+          inherit instant;
+        })
+      ];
+      overrides = [
+        (d.overrideByRefId "A" [
+          {
+            id = "unit";
+            value = "percent";
+          }
+          {
+            id = "decimals";
+            value = percentDecimals;
+          }
+          {
+            id = "thresholds";
+            value = thresholds;
+          }
+        ])
+        (d.overrideByRefId "B" [
+          {
+            id = "unit";
+            value = unit;
+          }
+          {
+            id = "decimals";
+            value = usedDecimals;
+          }
+          {
+            id = "thresholds";
+            value = d.thresholds.neutral;
+          }
+        ])
+        (d.overrideByRefId "C" [
+          {
+            id = "unit";
+            value = unit;
+          }
+          {
+            id = "decimals";
+            value = totalDecimals;
+          }
+          {
+            id = "thresholds";
+            value = d.thresholds.neutral;
+          }
+        ])
+      ];
+    };
+
   mkBarGauge = {
     title,
     targets ? null,
     expr ? null,
     legend ? "",
-    loki ? false,
+    logs ? false,
     instant ? true,
     unit ? "percent",
+    decimals ? null,
     min ? 0,
     max ? null,
     thresholds ? d.thresholds.percent,
@@ -104,7 +207,10 @@
     w ? null,
     overrides ? [],
   }: let
-    resolvedTargets = resolveTargets {inherit targets expr legend instant loki;};
+    resolvedTargets = resolveTargets {
+      inherit targets expr legend instant logs;
+      logsQueryType = "stats";
+    };
   in {
     inherit h w;
     panel =
@@ -119,6 +225,7 @@
               inherit unit thresholds;
               color.mode = "thresholds";
             }
+            // lib.optionalAttrs (decimals != null) {inherit decimals;}
             // lib.optionalAttrs (min != null) {inherit min;}
             // lib.optionalAttrs (max != null) {inherit max;}
             // lib.optionalAttrs (noValue != null) {inherit noValue;};
@@ -145,9 +252,10 @@
     targets ? null,
     expr ? null,
     legend ? "",
-    loki ? false,
+    logs ? false,
     instant ? false,
     unit ? "short",
+    decimals ? null,
     min ? null,
     max ? null,
     stacked ? false,
@@ -169,7 +277,10 @@
     h ? 8,
     w ? null,
   }: let
-    resolvedTargets = resolveTargets {inherit targets expr legend instant loki;};
+    resolvedTargets = resolveTargets {
+      inherit targets expr legend instant logs;
+      logsQueryType = "statsRange";
+    };
   in {
     inherit h w;
     panel =
@@ -214,6 +325,7 @@
                   else "off";
               };
             }
+            // lib.optionalAttrs (decimals != null) {inherit decimals;}
             // lib.optionalAttrs (min != null) {inherit min;}
             // lib.optionalAttrs (max != null) {inherit max;}
             // lib.optionalAttrs (thresholds != null) {inherit thresholds;}
@@ -241,7 +353,7 @@
     targets ? null,
     expr ? null,
     legend ? "",
-    loki ? false,
+    logs ? false,
     instant ? true,
     format ? "table",
     transformations ? [],
@@ -255,7 +367,10 @@
     w ? null,
     links ? [],
   }: let
-    resolvedTargets = resolveTargets {inherit targets expr legend instant format loki;};
+    resolvedTargets = resolveTargets {
+      inherit targets expr legend instant format logs;
+      logsQueryType = "stats";
+    };
   in {
     inherit h w;
     panel =
@@ -300,9 +415,10 @@
     h ? 8,
     noValue ? null,
     description ? null,
+    links ? [d.links.toUnitLogs],
   }:
     mkTable {
-      inherit title expr w h noValue description;
+      inherit title expr w h noValue description links;
       transformations = [
         (d.organizeTransform {
           exclude = ["Time" "__name__" "instance" "job" "watched" "Value"];
@@ -325,13 +441,99 @@
       ];
     };
 
+  mkStorageTable = {
+    title,
+    selector,
+    groupBy ? ["host" "mountpoint" "fstype"],
+    columns ? {
+      host = "Host";
+      mountpoint = "Mountpoint";
+      fstype = "FS";
+    },
+    columnOrder ? ["host" "mountpoint" "fstype"],
+    w ? 24,
+    h ? 7,
+    noValue ? null,
+    description ? null,
+  }: let
+    byClause = lib.concatStringsSep ", " groupBy;
+    valueColStart = builtins.length columnOrder;
+    colIndices = builtins.listToAttrs (lib.imap0 (i: col: lib.nameValuePair col i) columnOrder);
+  in
+    mkTable {
+      inherit title w h noValue description;
+      sortBy = [
+        {
+          desc = true;
+          displayName = "Usage %";
+        }
+      ];
+      transformations = [
+        (d.mergeTransform {})
+        (d.organizeTransform {
+          exclude = ["Time"];
+          rename =
+            columns
+            // {
+              "Value #A" = "Used";
+              "Value #B" = "Available";
+              "Value #C" = "Total";
+              "Value #D" = "Usage %";
+            };
+          index =
+            colIndices
+            // {
+              "Value #A" = valueColStart;
+              "Value #B" = valueColStart + 1;
+              "Value #C" = valueColStart + 2;
+              "Value #D" = valueColStart + 3;
+            };
+        })
+      ];
+      overrides = [
+        (d.unitOverride "Used" "bytes")
+        (d.unitOverride "Available" "bytes")
+        (d.unitOverride "Total" "bytes")
+        (d.cellGaugeOverride {
+          colName = "Usage %";
+          thresholds = d.thresholds.percentHigh;
+        })
+      ];
+      targets = [
+        (d.promTarget {
+          refId = "A";
+          expr = ''max by (${byClause}) (node_filesystem_size_bytes{${selector}} - node_filesystem_avail_bytes{${selector}})'';
+          instant = true;
+          format = "table";
+        })
+        (d.promTarget {
+          refId = "B";
+          expr = ''max by (${byClause}) (node_filesystem_avail_bytes{${selector}})'';
+          instant = true;
+          format = "table";
+        })
+        (d.promTarget {
+          refId = "C";
+          expr = ''max by (${byClause}) (node_filesystem_size_bytes{${selector}})'';
+          instant = true;
+          format = "table";
+        })
+        (d.promTarget {
+          refId = "D";
+          expr = ''max by (${byClause}) (((node_filesystem_size_bytes{${selector}} - node_filesystem_avail_bytes{${selector}}) / clamp_min(node_filesystem_size_bytes{${selector}}, 1)) * 100)'';
+          instant = true;
+          format = "table";
+        })
+      ];
+    };
+
   mkLogs = {
     title,
     targets ? null,
     expr ? null,
     legend ? "",
-    loki ? true,
-    instant ? false,
+    logs ? true,
+    maxLines ? 500,
     showTime ? true,
     showLabels ? true,
     showCommonLabels ? false,
@@ -344,7 +546,10 @@
     h ? 12,
     w ? null,
   }: let
-    resolvedTargets = resolveTargets {inherit targets expr legend instant loki;};
+    resolvedTargets = resolveTargets {
+      inherit targets expr legend logs maxLines;
+      logsQueryType = "instant";
+    };
   in {
     inherit h w;
     panel =
@@ -372,9 +577,11 @@ in {
   internal.monitoring.dashboard = {
     inherit
       mkStat
+      mkRatioStat
       mkBarGauge
       mkTimeseries
       mkTable
+      mkStorageTable
       mkSystemdUnitsTable
       mkLogs
       ;

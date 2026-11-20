@@ -132,7 +132,7 @@
 
         monitoring = lib.mkIf (config.monitoring.enable or false) {
           rules.persistence = {
-            backend = "prometheus";
+            backend = "metrics";
             interval = "1m";
             rules = [
               {

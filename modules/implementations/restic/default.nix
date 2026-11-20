@@ -67,7 +67,7 @@ in {
             watchedUnits = allBackupUnits;
             logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
             rules.restic = {
-              backend = "prometheus";
+              backend = "metrics";
               interval = "1m";
               rules = [
                 {
@@ -83,8 +83,8 @@ in {
               ];
             };
             dashboards.backups = {
-              title = "Backup, Snapshots & Storage";
-              folder = "Storage & Backups";
+              title = "Storage & Backups";
+              folder = "02 · Infrastructure";
               json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
             };
           };

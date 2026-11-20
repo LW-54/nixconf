@@ -71,7 +71,7 @@ This library namespace can be consumed both internally within repository modules
 <a id="dashboard"></a>
 ### `dashboard`
 
-Opinionated Grafana schema v39 dashboard, layout, panel, variable, and threshold builders shared across monitoring consumers.
+Opinionated Grafana schema v39 dashboard, layout, panel, variable, annotation, and threshold builders shared across monitoring consumers.
 
 #### Type
 
@@ -79,16 +79,14 @@ Opinionated Grafana schema v39 dashboard, layout, panel, variable, and threshold
 dashboard :: AttrSet
 
 # Values
-- `ds`: Provisioned Prometheus and Loki datasource descriptor references (`prometheus`, `loki`).
-- `promTarget`, `lokiTarget`: Construct Prometheus or Loki target objects (`expr`, `legend`, `instant`, `format`).
-- `thresholds`: Standard threshold presets (`percent`, `percentHigh`, `percent100Ok`, `upDown`, `zeroOk`, `zeroWarn`, `latencySec`, `neutral`).
-- `mappings`: Standard Grafana value mapping lists (`upDown`, `okFail`, `systemdState`, `alertState`).
-- `vars`: Template variable constructors (`host`, `promQuery`, `lokiLabel`, `custom`, `textbox`).
-- `mkStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders supporting multi-target lists or single-query shorthand (`expr`, `legend`, `loki`).
-- `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine and dashboard constructor with shared crosshair tooltips and navigation links.
-- `mkContainersDashboard`: Shared OCI container and systemd service cgroup overview dashboard generator.
-- `mkStackHealthDashboard`: Central LGTM stack health, ingestion, alert, and scrape target dashboard generator.
-- `mkServiceInspectorDashboard`: Unified per-service vertical drilldown dashboard correlating HTTP, probes, units, compute, storage, and logs.
+- `ds`: Provisioned metrics and logs datasource descriptor references (`metrics`, `prometheus`, `logs`).
+- `promTarget`, `logsTarget`: Construct metrics (`PromQL`/`MetricsQL`) or logs (`LogsQL`) target objects (`expr`, `legend`, `queryType`).
+- `thresholds`, `mappings`: Standard threshold presets and Grafana value mappings.
+- `links`: Click-to-drilldown Grafana data links (`toTaskManager`, `toTimeMachine`, `toHostHardware`, `toService`, `toUnitLogs`).
+- `vars`: Template variable constructors (`host`, `promQuery`, `logsField`, `custom`, `textbox`).
+- `mkStat`, `mkRatioStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkStorageTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders.
+- `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine with automatic host event annotations (`Reboots`, `NixOS Deployments`, `OOM Kills`, `Unit Failures`) and top navigation bar.
+- `mkFleetOverviewDashboard`, `mkTaskManagerDashboard`, `mkTimeMachineDashboard`, `mkLogsExplorerDashboard`, `mkHostHardwareDashboard`, `mkServicesCatalogDashboard`, `mkServiceInspectorDashboard`, `mkContainersDashboard`: 4-layer core infrastructure and investigation dashboards.
 ```
 
 #### Examples
@@ -163,7 +161,9 @@ Custom option types declared under this library namespace:
 - `fileLog`: submodule
 - `journalLogs`: submodule
 - `logs`: submodule
+- `ntfyNotification`: submodule
 - `probe`: submodule
+- `retention`: submodule
 - `ruleGroup`: submodule
 - `ruleItem`: submodule
 - `scrape`: submodule

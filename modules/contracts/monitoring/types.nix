@@ -42,22 +42,22 @@
 
       scrapeInterval = lib.mkOption {
         type = lib.types.str;
-        default = "15s";
+        default = "10s";
         description = "Default metrics scrape interval used by the telemetry agent.";
       };
 
       metricsUrl = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        example = "https://prometheus.adje.app/api/v1/write";
-        description = "Remote Prometheus write endpoint URL (`null` defaults to local server when `monitoring.server.enable` is true).";
+        example = "https://vm.adje.app/api/v1/write";
+        description = "Remote metrics write endpoint URL (`null` defaults to local server when `monitoring.server.enable` is true).";
       };
 
       logsUrl = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        example = "https://loki.adje.app/loki/api/v1/push";
-        description = "Remote Loki push endpoint URL (`null` defaults to local server when `monitoring.server.enable` is true).";
+        example = "https://vlogs.adje.app/insert/loki/api/v1/push";
+        description = "Remote log push endpoint URL (`null` defaults to local server when `monitoring.server.enable` is true).";
       };
 
       basicAuth = lib.mkOption {
@@ -79,65 +79,125 @@
     defaultSubdomain,
     portSeed,
     serviceDesc,
+    extraOptions ? {},
   }:
     lib.types.submodule {
-      options = {
-        subdomain = lib.mkOption {
-          type = lib.types.str;
-          default = defaultSubdomain;
-          description = "Subdomain prefix under `reverse-proxy.domain` exposing ${serviceDesc}.";
-        };
+      options =
+        {
+          subdomain = lib.mkOption {
+            type = lib.types.str;
+            default = defaultSubdomain;
+            description = "Subdomain prefix under `reverse-proxy.domain` exposing ${serviceDesc}.";
+          };
 
-        address = lib.mkOption {
-          type = lib.types.str;
-          default = "127.0.0.1";
-          description = "Local bind address for ${serviceDesc}.";
-        };
+          address = lib.mkOption {
+            type = lib.types.str;
+            default = "127.0.0.1";
+            description = "Local bind address for ${serviceDesc}.";
+          };
 
-        port = lib.mkOption {
-          type = lib.types.port;
-          default = mkPort portSeed;
-          description = "Local TCP HTTP port for ${serviceDesc}.";
-        };
-      };
+          port = lib.mkOption {
+            type = lib.types.port;
+            default = mkPort portSeed;
+            description = "Local TCP HTTP port for ${serviceDesc}.";
+          };
+        }
+        // extraOptions;
     };
 
-  lokiEndpointSubmodule = lib.types.submodule {
+  ntfyNotificationSubmodule = lib.types.submodule {
     options = {
-      subdomain = lib.mkOption {
+      enable = lib.mkEnableOption "Alertmanager webhook notifications to ntfy";
+
+      url = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "http://127.0.0.1:2586/alerts?template=alertmanager";
+        description = "Webhook endpoint URL on the target ntfy server (`?template=alertmanager`).";
+      };
+
+      username = lib.mkOption {
         type = lib.types.str;
-        default = "loki";
-        description = "Subdomain prefix under `reverse-proxy.domain` exposing Loki HTTP ingestion and query endpoints.";
+        default = "admin";
+        description = "Username sent via HTTP Basic Authentication to ntfy.";
       };
 
-      address = lib.mkOption {
+      passwordFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "/run/secrets/ntfy-admin-password";
+        description = "Filesystem path containing the password for Alertmanager webhook authentication to ntfy.";
+      };
+    };
+  };
+
+  retentionSubmodule = lib.types.submodule {
+    options = {
+      metrics = lib.mkOption {
         type = lib.types.str;
-        default = "127.0.0.1";
-        description = "Local bind address for Loki HTTP and gRPC listeners.";
+        default = "100y";
+        description = "Retention period duration for metrics time-series storage (e.g., `100y` for effectively unlimited historical metrics).";
       };
 
-      port = lib.mkOption {
-        type = lib.types.port;
-        default = mkPort "loki";
-        description = "Local TCP HTTP port for Loki.";
+      logs = lib.mkOption {
+        type = lib.types.str;
+        default = "100y";
+        description = "Retention period duration for logs storage (paired with `logsMaxDiskPercent` for capacity-bounded cleanup).";
       };
 
-      grpcPort = lib.mkOption {
-        type = lib.types.port;
-        default = mkPort "loki-grpc";
-        description = "Local TCP gRPC port for Loki internal server listeners.";
+      logsMaxDiskPercent = lib.mkOption {
+        type = lib.types.ints.between 1 99;
+        default = 85;
+        description = "Maximum allowed filesystem usage percentage (`1..99`) before the logs store automatically drops oldest daily partitions.";
       };
     };
   };
 
   serverSubmodule = lib.types.submodule {
     options = {
-      enable = lib.mkEnableOption "central monitoring server stack (Grafana, Prometheus, Loki)";
+      enable = lib.mkEnableOption "central monitoring server stack (metrics store, log store, rule evaluator, Alertmanager, and Grafana)";
 
-      retentionDays = lib.mkOption {
-        type = lib.types.ints.positive;
-        default = 30;
-        description = "Retention period in days for metrics and logs time-series storage.";
+      retention = lib.mkOption {
+        type = retentionSubmodule;
+        default = {};
+        description = "Time- and capacity-based retention policies for metrics and log storage.";
+      };
+
+      metrics = lib.mkOption {
+        type = mkEndpointSubmodule {
+          defaultSubdomain = "vm";
+          portSeed = "victoriametrics";
+          serviceDesc = "metrics time-series store and remote-write receiver";
+        };
+        default = {};
+        description = "Metrics time-series storage listener and reverse proxy configuration.";
+      };
+
+      logs = lib.mkOption {
+        type = mkEndpointSubmodule {
+          defaultSubdomain = "vlogs";
+          portSeed = "victorialogs";
+          serviceDesc = "log storage and query server";
+        };
+        default = {};
+        description = "Log storage listener and reverse proxy configuration.";
+      };
+
+      alerts = lib.mkOption {
+        type = mkEndpointSubmodule {
+          defaultSubdomain = "alerts";
+          portSeed = "alertmanager";
+          serviceDesc = "Alertmanager routing and silencing UI";
+          extraOptions = {
+            ntfy = lib.mkOption {
+              type = ntfyNotificationSubmodule;
+              default = {};
+              description = "Self-hosted or external ntfy webhook notification target for firing alerts.";
+            };
+          };
+        };
+        default = {};
+        description = "Alertmanager HTTP listener, reverse proxy, and notification routing configuration.";
       };
 
       grafana = lib.mkOption {
@@ -149,22 +209,6 @@
         default = {};
         description = "Grafana web visualization listener and reverse proxy configuration.";
       };
-
-      prometheus = lib.mkOption {
-        type = mkEndpointSubmodule {
-          defaultSubdomain = "prometheus";
-          portSeed = "prometheus";
-          serviceDesc = "Prometheus TSDB and remote-write receiver";
-        };
-        default = {};
-        description = "Prometheus metrics storage listener and reverse proxy configuration.";
-      };
-
-      loki = lib.mkOption {
-        type = lokiEndpointSubmodule;
-        default = {};
-        description = "Loki log aggregation listener and reverse proxy configuration.";
-      };
     };
   };
 
@@ -173,7 +217,7 @@
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Whether this Prometheus scrape job is active.";
+        description = "Whether this metrics scrape job is active.";
       };
 
       address = lib.mkOption {
@@ -241,13 +285,17 @@
       };
 
       cadvisor = {
-        enable = lib.mkEnableOption "container resource metrics exporter";
+        enable = lib.mkEnableOption "container and cgroup resource metrics exporter";
 
         dockerOnly = lib.mkOption {
           type = lib.types.bool;
           default = false;
           description = "Whether to restrict container metrics collection to Docker containers.";
         };
+      };
+
+      process = {
+        enable = lib.mkEnableOption "process-level resource metrics exporter (Task Manager)";
       };
 
       blackbox = {
@@ -389,7 +437,7 @@
       expr = lib.mkOption {
         type = lib.types.str;
         example = "up == 0";
-        description = "PromQL or LogQL query expression evaluated for this rule.";
+        description = "MetricsQL/PromQL or LogsQL query expression evaluated for this rule.";
       };
 
       for = lib.mkOption {
@@ -417,13 +465,13 @@
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Whether this evaluation rule group is loaded by the metrics or logs backend.";
+        description = "Whether this evaluation rule group is loaded by the rule engine.";
       };
 
       backend = lib.mkOption {
-        type = lib.types.enum ["prometheus" "loki"];
-        default = "prometheus";
-        description = "Target rule evaluation engine (`prometheus` for PromQL or `loki` for LogQL).";
+        type = lib.types.enum ["metrics" "logs"];
+        default = "metrics";
+        description = "Target rule evaluation engine (`metrics` for PromQL/MetricsQL or `logs` for LogsQL).";
       };
 
       interval = lib.mkOption {
@@ -513,6 +561,8 @@ in {
   contract.monitoring.types = {
     agent = agentSubmodule;
     server = serverSubmodule;
+    retention = retentionSubmodule;
+    ntfyNotification = ntfyNotificationSubmodule;
     scrape = scrapeSubmodule;
     exporters = exportersSubmodule;
     journalLogs = journalLogsSubmodule;

@@ -4,9 +4,9 @@ in {
   internal.monitoring.dashboard.mkContainersDashboard = _:
     d.mkDashboard {
       uid = "nixconf-containers";
-      title = "Containers & Services";
-      description = "OCI container and systemd cgroup CPU, memory, and runtime logs across hosts.";
-      tags = ["cadvisor" "containers" "services"];
+      title = "Containers & OCI";
+      description = "OCI container (Podman / Docker) memory, CPU, and runtime logs across hosts.";
+      tags = ["cadvisor" "containers" "podman" "docker"];
       variables = [(d.vars.host {})];
       sections = [
         (d.mkRow [
@@ -28,12 +28,12 @@ in {
             legend = "Memory";
           })
           (d.mkStat {
-            title = "Systemd Services Memory";
+            title = "Container CPU Total (cores)";
             w = 6;
-            unit = "bytes";
-            decimals = 1;
-            expr = ''sum(container_memory_working_set_bytes{host=~"$host",unit=~".+\\.service"})'';
-            legend = "Services";
+            decimals = 2;
+            noValue = "0";
+            expr = ''(sum(rate(container_cpu_usage_seconds_total{host=~"$host",id=~".*libpod-.*container"}[$__rate_interval])) or vector(0)) + (sum(rate(container_cpu_usage_seconds_total{host=~"$host",name!=""}[$__rate_interval])) or vector(0))'';
+            legend = "Cores";
           })
           (d.mkStat {
             title = "Host Memory Available";
@@ -52,6 +52,7 @@ in {
                 title = "Container Memory Working Set";
                 w = 12;
                 unit = "bytes";
+                noValue = "No active OCI containers";
                 targets = [
                   (d.promTarget {
                     refId = "A";
@@ -68,39 +69,19 @@ in {
               (d.mkTimeseries {
                 title = "Container CPU Usage (cores)";
                 w = 12;
+                noValue = "No active OCI containers";
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''label_replace(rate(container_cpu_usage_seconds_total{host=~"$host",id=~".*libpod-.*container"}[5m]), "container", "$1", "id", ".*libpod-([0-9a-f]{12}).*")'';
+                    expr = ''label_replace(rate(container_cpu_usage_seconds_total{host=~"$host",id=~".*libpod-.*container"}[$__rate_interval]), "container", "$1", "id", ".*libpod-([0-9a-f]{12}).*")'';
                     legend = "{{host}} podman:{{container}}";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''rate(container_cpu_usage_seconds_total{host=~"$host",name!=""}[5m])'';
+                    expr = ''rate(container_cpu_usage_seconds_total{host=~"$host",name!=""}[$__rate_interval])'';
                     legend = "{{host}} {{name}}";
                   })
                 ];
-              })
-            ]
-          ];
-        })
-        (d.mkSection {
-          title = "Top Systemd Services by Resource Usage";
-          rows = [
-            [
-              (d.mkBarGauge {
-                title = "Top 12 Services — Memory Working Set";
-                w = 12;
-                unit = "bytes";
-                thresholds = d.thresholds.neutral;
-                expr = ''topk(12, container_memory_working_set_bytes{host=~"$host",unit=~".+\\.service"})'';
-                legend = "{{host}} {{unit}} ({{slice}})";
-              })
-              (d.mkTimeseries {
-                title = "Top 12 Services — CPU Usage (cores)";
-                w = 12;
-                expr = ''topk(12, rate(container_cpu_usage_seconds_total{host=~"$host",unit=~".+\\.service"}[5m]))'';
-                legend = "{{host}} {{unit}} ({{slice}})";
               })
             ]
           ];
@@ -113,7 +94,7 @@ in {
                 title = "Podman & Docker Service Logs";
                 w = 24;
                 h = 10;
-                expr = ''{job="systemd-journal", host=~"$host", unit=~"(podman-.*|docker|docker-.*)\\.service"}'';
+                expr = ''job:="systemd-journal" host:in($host) unit:~"(podman-.*|docker|docker-.*)\\.service"'';
               })
             ]
           ];

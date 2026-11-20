@@ -217,6 +217,16 @@
         default = ["${name}.service"];
         description = "Systemd units ordered after this unit's restore service so service startup waits for state recovery.";
       };
+      prepareCommand = lib.mkOption {
+        type = lib.types.nullOr lib.types.lines;
+        default = null;
+        description = "Optional shell script executed before each backup snapshot run (for creating consistent database or TSDB snapshots).";
+      };
+      cleanupCommand = lib.mkOption {
+        type = lib.types.nullOr lib.types.lines;
+        default = null;
+        description = "Optional shell script executed after each backup snapshot run to clean up temporary snapshots or locks.";
+      };
     };
   });
 in {

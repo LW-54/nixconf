@@ -392,7 +392,7 @@ in {
             monitoring = {
               exporters.unix.collectors = ["filesystem" "diskstats"];
               rules.disk = {
-                backend = "prometheus";
+                backend = "metrics";
                 interval = "1m";
                 rules = [
                   {

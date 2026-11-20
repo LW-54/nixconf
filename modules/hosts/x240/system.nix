@@ -10,7 +10,7 @@
         self.nixosModules.cgroups
         self.nixosModules.rclone
         self.nixosModules.restic
-        self.nixosModules.lgtm
+        self.nixosModules.victoria
         self.nixosModules.lw
         self.nixosModules.hjem
         self.nixosModules.nix
@@ -46,8 +46,8 @@
         };
 
         monitoring.agent = {
-          metricsUrl = "https://prometheus.adje.app/api/v1/write";
-          logsUrl = "https://loki.adje.app/loki/api/v1/push";
+          metricsUrl = "https://vm.adje.app/api/v1/write";
+          logsUrl = "https://vlogs.adje.app/insert/loki/api/v1/push";
           basicAuth = {
             enable = true;
             username = "admin";

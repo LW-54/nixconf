@@ -272,7 +272,7 @@ in {
 
             rules = {
               resources = {
-                backend = "prometheus";
+                backend = "metrics";
                 interval = "1m";
                 rules = [
                   {
@@ -339,12 +339,12 @@ in {
               };
 
               resources-logs = {
-                backend = "loki";
+                backend = "logs";
                 interval = "1m";
                 rules = [
                   {
                     alert = "OomKillDetected";
-                    expr = ''sum by (host) (count_over_time({job="systemd-journal"} |~ "(?i)(Out of memory: Killed process|systemd-oomd.*Killed)" [5m])) > 0'';
+                    expr = ''_time:5m job:="systemd-journal" _msg:~"(?i)(Out of memory: Killed process|systemd-oomd.*Killed)" | stats by (host) count() as kills | filter kills:>0'';
                     "for" = null;
                     labels.severity = "critical";
                     annotations = {
@@ -358,7 +358,7 @@ in {
 
             dashboards.resources = {
               title = "Resources & Allocation";
-              folder = "Infrastructure";
+              folder = "02 · Infrastructure";
               json = helpers.mkDashboard self.lib.monitoring.dashboard;
             };
           };

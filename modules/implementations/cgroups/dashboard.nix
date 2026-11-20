@@ -24,7 +24,7 @@
             graphMode = "area";
             instant = false;
             noValue = "0%";
-            expr = ''avg(rate(node_pressure_cpu_waiting_seconds_total{host=~"$host"}[5m])) * 100'';
+            expr = ''avg(rate(node_pressure_cpu_waiting_seconds_total{host=~"$host"}[$__rate_interval])) * 100'';
             legend = "CPU PSI";
           })
           (d.mkStat {
@@ -36,7 +36,7 @@
             graphMode = "area";
             instant = false;
             noValue = "0%";
-            expr = ''avg(rate(node_pressure_memory_stalled_seconds_total{host=~"$host"}[5m])) * 100'';
+            expr = ''avg(rate(node_pressure_memory_stalled_seconds_total{host=~"$host"}[$__rate_interval])) * 100'';
             legend = "Mem PSI";
           })
           (d.mkStat {
@@ -48,7 +48,7 @@
             graphMode = "area";
             instant = false;
             noValue = "0%";
-            expr = ''avg(rate(node_pressure_io_stalled_seconds_total{host=~"$host"}[5m])) * 100'';
+            expr = ''avg(rate(node_pressure_io_stalled_seconds_total{host=~"$host"}[$__rate_interval])) * 100'';
             legend = "I/O PSI";
           })
           (d.mkStat {
@@ -58,7 +58,7 @@
             thresholds = d.thresholds.zeroWarn;
             colorMode = "background";
             noValue = "0";
-            expr = ''count(rate(container_cpu_cfs_throttled_periods_total{host=~"$host",unit!=""}[5m]) > 0) or vector(0)'';
+            expr = ''count(rate(container_cpu_cfs_throttled_periods_total{host=~"$host",unit!=""}[$__rate_interval]) > 0) or vector(0)'';
             legend = "Throttled";
           })
           (d.mkStat {
@@ -108,15 +108,37 @@
                 w = 12;
                 unit = "bytes";
                 stacked = true;
-                expr = ''sum by (host, slice) (container_memory_working_set_bytes{host=~"$host",id=~"/[^/]+\\.slice",slice=~"$slice"})'';
-                legend = "{{host}} {{slice}}.slice";
+                overrides = [(d.dashedLineOverride "/Host Total/" "red")];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''sum by (host, slice) (container_memory_working_set_bytes{host=~"$host",id=~"/[^/]+\\.slice",slice=~"$slice"})'';
+                    legend = "{{host}} {{slice}}.slice";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''sum(node_memory_MemTotal_bytes{host=~"$host"})'';
+                    legend = "Host Total RAM";
+                  })
+                ];
               })
               (d.mkTimeseries {
                 title = "CPU Usage by Slice (cores)";
                 w = 12;
                 stacked = true;
-                expr = ''sum by (host, slice) (rate(container_cpu_usage_seconds_total{host=~"$host",id=~"/[^/]+\\.slice",slice=~"$slice"}[5m]))'';
-                legend = "{{host}} {{slice}}.slice";
+                overrides = [(d.dashedLineOverride "/Host Total/" "red")];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''sum by (host, slice) (rate(container_cpu_usage_seconds_total{host=~"$host",id=~"/[^/]+\\.slice",slice=~"$slice"}[$__rate_interval]))'';
+                    legend = "{{host}} {{slice}}.slice";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''count(node_cpu_seconds_total{host=~"$host",mode="idle"})'';
+                    legend = "Host Total Cores";
+                  })
+                ];
               })
             ]
           ];
@@ -134,17 +156,17 @@
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''rate(node_pressure_cpu_waiting_seconds_total{host=~"$host"}[5m]) * 100'';
+                    expr = ''rate(node_pressure_cpu_waiting_seconds_total{host=~"$host"}[$__rate_interval]) * 100'';
                     legend = "{{host}} CPU waiting";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''rate(node_pressure_memory_stalled_seconds_total{host=~"$host"}[5m]) * 100'';
+                    expr = ''rate(node_pressure_memory_stalled_seconds_total{host=~"$host"}[$__rate_interval]) * 100'';
                     legend = "{{host}} Memory stalled";
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''rate(node_pressure_io_stalled_seconds_total{host=~"$host"}[5m]) * 100'';
+                    expr = ''rate(node_pressure_io_stalled_seconds_total{host=~"$host"}[$__rate_interval]) * 100'';
                     legend = "{{host}} I/O stalled";
                   })
                 ];
@@ -154,7 +176,7 @@
                 w = 12;
                 min = 0;
                 noValue = "No CPU quota throttling";
-                expr = ''topk(12, rate(container_cpu_cfs_throttled_seconds_total{host=~"$host",slice=~"$slice",unit!=""}[5m]) > 0)'';
+                expr = ''topk(12, rate(container_cpu_cfs_throttled_seconds_total{host=~"$host",slice=~"$slice",unit!=""}[$__rate_interval]) > 0)'';
                 legend = "{{host}} {{unit}} ({{slice}})";
               })
             ]
@@ -164,20 +186,17 @@
           title = "Service Right-Sizing & Headroom";
           rows = [
             [
-              (d.mkBarGauge {
-                title = "Memory Limit Utilization (%)";
-                w = 10;
-                unit = "percent";
-                min = 0;
-                max = 100;
-                thresholds = d.thresholds.percentHigh;
-                noValue = "No bounded service memory limits";
-                expr = ''max by (host, slice, unit) ((container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""} / (container_spec_memory_limit_bytes{host=~"$host",slice=~"$slice",unit!=""} > 0)) * 100)'';
-                legend = "{{host}} {{unit}} ({{slice}})";
-              })
               (d.mkTable {
-                title = "Managed Services Resource Summary";
-                w = 14;
+                title = "Managed Services — Memory, Limits & CPU";
+                w = 24;
+                h = 10;
+                links = [d.links.toUnitLogs];
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Limit %";
+                  }
+                ];
                 transformations = [
                   (d.mergeTransform {})
                   (d.organizeTransform {
@@ -188,7 +207,9 @@
                       unit = "Unit";
                       "Value #A" = "Memory";
                       "Value #B" = "Mem Limit";
-                      "Value #C" = "CPU (cores)";
+                      "Value #C" = "Headroom";
+                      "Value #D" = "Limit %";
+                      "Value #E" = "CPU (cores)";
                     };
                     index = {
                       host = 0;
@@ -197,12 +218,20 @@
                       "Value #A" = 3;
                       "Value #B" = 4;
                       "Value #C" = 5;
+                      "Value #D" = 6;
+                      "Value #E" = 7;
                     };
                   })
                 ];
                 overrides = [
                   (d.unitOverride "Memory" "bytes")
                   (d.unitOverride "Mem Limit" "bytes")
+                  (d.unitOverride "Headroom" "bytes")
+                  (d.cellGaugeOverride {
+                    colName = "Limit %";
+                    thresholds = d.thresholds.percentHigh;
+                  })
+                  (d.decimalsOverride "CPU (cores)" 2)
                 ];
                 targets = [
                   (d.promTarget {
@@ -219,7 +248,19 @@
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~"$host",slice=~"$slice",unit!=""}[5m]))'';
+                    expr = ''max by (host, slice, unit) (clamp_min((container_spec_memory_limit_bytes{host=~"$host",slice=~"$slice",unit!=""} > 0) - container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""}, 0))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "D";
+                    expr = ''max by (host, slice, unit) ((container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""} / (container_spec_memory_limit_bytes{host=~"$host",slice=~"$slice",unit!=""} > 0)) * 100)'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "E";
+                    expr = ''max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~"$host",slice=~"$slice",unit!=""}[$__rate_interval]))'';
                     instant = true;
                     format = "table";
                   })
@@ -232,26 +273,91 @@
           title = "Local Volumes & Remote Storage Budgets";
           rows = [
             [
-              (d.mkBarGauge {
-                title = "Local Filesystem & Dedicated Volumes (%)";
-                w = 12;
-                unit = "percent";
-                min = 0;
-                max = 100;
-                thresholds = d.thresholds.percentHigh;
-                expr = ''max by (host, mountpoint, fstype) ((1 - (node_filesystem_avail_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} / clamp_min(node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"}, 1))) * 100)'';
-                legend = "{{host}} {{mountpoint}} ({{fstype}})";
+              (d.mkStorageTable {
+                title = "Local Filesystems & Dedicated Volumes";
+                w = 24;
+                h = 8;
+                selector = ''host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"'';
               })
-              (d.mkBarGauge {
-                title = "Remote Storage Budgets Utilization (%)";
-                w = 12;
-                unit = "percent";
-                min = 0;
-                max = 100;
-                thresholds = d.thresholds.percentHigh;
+            ]
+            [
+              (d.mkTable {
+                title = "Remote Storage Budgets";
+                w = 24;
+                h = 6;
                 noValue = "No remote storage budgets configured";
-                expr = ''max by (host, slice) ((nixconf_storage_budget_used_bytes{host=~"$host"} / clamp_min(nixconf_storage_budget_limit_bytes{host=~"$host"}, 1)) * 100)'';
-                legend = "{{host}} {{slice}}";
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Usage %";
+                  }
+                ];
+                transformations = [
+                  (d.mergeTransform {})
+                  (d.organizeTransform {
+                    exclude = ["Time"];
+                    rename = {
+                      host = "Host";
+                      slice = "Slice";
+                      "Value #A" = "Used";
+                      "Value #B" = "Available";
+                      "Value #C" = "Limit";
+                      "Value #D" = "Objects";
+                      "Value #E" = "Usage %";
+                    };
+                    index = {
+                      host = 0;
+                      slice = 1;
+                      "Value #A" = 2;
+                      "Value #B" = 3;
+                      "Value #C" = 4;
+                      "Value #D" = 5;
+                      "Value #E" = 6;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.unitOverride "Used" "bytes")
+                  (d.unitOverride "Available" "bytes")
+                  (d.unitOverride "Limit" "bytes")
+                  (d.decimalsOverride "Objects" 0)
+                  (d.cellGaugeOverride {
+                    colName = "Usage %";
+                    thresholds = d.thresholds.percentHigh;
+                  })
+                ];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''max by (host, slice) (nixconf_storage_budget_used_bytes{host=~"$host"})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''max by (host, slice) (clamp_min(nixconf_storage_budget_limit_bytes{host=~"$host"} - nixconf_storage_budget_used_bytes{host=~"$host"}, 0))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''max by (host, slice) (nixconf_storage_budget_limit_bytes{host=~"$host"})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "D";
+                    expr = ''max by (host, slice) (nixconf_storage_budget_objects{host=~"$host"})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "E";
+                    expr = ''max by (host, slice) ((nixconf_storage_budget_used_bytes{host=~"$host"} / clamp_min(nixconf_storage_budget_limit_bytes{host=~"$host"}, 1)) * 100)'';
+                    instant = true;
+                    format = "table";
+                  })
+                ];
               })
             ]
           ];
@@ -264,7 +370,7 @@
                 title = "OOM Killer & Power Policy Journal Stream";
                 w = 24;
                 h = 10;
-                expr = ''{job="systemd-journal", host=~"$host"} |~ "(?i)(systemd-oomd|Out of memory|Killed process|resources-power-policy|oom-kill)"'';
+                expr = ''job:="systemd-journal" host:in($host) _msg:~"(?i)(systemd-oomd|Out of memory|Killed process|resources-power-policy|oom-kill)"'';
               })
             ]
           ];

@@ -1,11 +1,11 @@
-# Module: `lgtm`
+# Module: `victoria`
 
-Observability stack implementation using Grafana Alloy, Prometheus, Loki, and Grafana.
+Observability stack implementation using Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-- **Attribute**: `flake.nixosModules.lgtm`
-- **Provided by**: implementation [`lgtm`](../implementations/lgtm.md)
+- **Attribute**: `flake.nixosModules.victoria`
+- **Provided by**: implementation [`victoria`](../implementations/victoria.md)
 
 ## Importing Hosts
 

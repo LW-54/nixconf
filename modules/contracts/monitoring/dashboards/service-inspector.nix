@@ -5,8 +5,9 @@ in {
     d.mkDashboard {
       uid = "nixconf-service-inspector";
       title = "Service Inspector";
-      description = "Vertical per-service drilldown correlating HTTP traffic, blackbox probes, systemd units, cgroup compute, storage mounts, and logs.";
+      description = "Vertical per-service drilldown correlating HTTP traffic, blackbox probes, systemd units, cgroup compute, storage mounts, and VictoriaLogs.";
       tags = ["service" "app" "inspector"];
+      graphTooltip = 2;
       variables = [
         (d.vars.promQuery {
           name = "service";
@@ -19,12 +20,13 @@ in {
         (d.vars.custom {
           name = "level";
           label = "Log Level";
-          options = ["emerg" "alert" "crit" "error" "warning" "notice" "info" "debug"];
+          allValue = "*";
+          options = ["emerg" "alert" "crit" "err" "error" "warning" "notice" "info" "debug"];
         })
         (d.vars.textbox {
           name = "search";
-          label = "Log Search (Regex)";
-          default = "";
+          label = "Log Search (LogsQL)";
+          default = "*";
         })
       ];
       sections = [
@@ -64,7 +66,7 @@ in {
             decimals = 2;
             graphMode = "area";
             noValue = "—";
-            expr = ''sum(rate(caddy_http_requests_total{server="srv0",service="$service"}[5m]))'';
+            expr = ''sum(rate(caddy_http_requests_total{server="srv0",service="$service"}[$__rate_interval]))'';
             legend = "RPS";
           })
           (d.mkStat {
@@ -80,12 +82,12 @@ in {
           (d.mkStat {
             title = "Error Logs";
             w = 4;
-            loki = true;
+            logs = true;
             decimals = 0;
             noValue = "0";
             thresholds = d.thresholds.zeroOk;
             colorMode = "background";
-            expr = ''sum(count_over_time({job="systemd-journal", host=~"$host", service="$service", level=~"emerg|alert|crit|err|error"} |~ "$search" [$__range]))'';
+            expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in("emerg","alert","crit","err","error") ($search) | stats count() as total'';
             legend = "Errors";
           })
         ])
@@ -100,7 +102,7 @@ in {
                 unit = "reqps";
                 noValue = "No HTTP traffic";
                 overrides = d.statusColorOverrides {};
-                expr = ''sum by (code) (rate(caddy_http_request_duration_seconds_count{server="srv0",service="$service"}[5m]))'';
+                expr = ''sum by (code) (rate(caddy_http_request_duration_seconds_count{server="srv0",service="$service"}[$__rate_interval]))'';
                 legend = "HTTP {{code}}";
               })
               (d.mkTimeseries {
@@ -112,17 +114,17 @@ in {
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''histogram_quantile(0.50, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",service="$service"}[5m])))'';
+                    expr = ''histogram_quantile(0.50, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",service="$service"}[$__rate_interval])))'';
                     legend = "p50";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''histogram_quantile(0.95, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",service="$service"}[5m])))'';
+                    expr = ''histogram_quantile(0.95, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",service="$service"}[$__rate_interval])))'';
                     legend = "p95";
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''histogram_quantile(0.99, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",service="$service"}[5m])))'';
+                    expr = ''histogram_quantile(0.99, sum by (le) (rate(caddy_http_request_duration_seconds_bucket{server="srv0",service="$service"}[$__rate_interval])))'';
                     legend = "p99";
                   })
                 ];
@@ -185,12 +187,12 @@ in {
                 targets = [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''rate(container_cpu_usage_seconds_total{host=~"$host",service="$service"}[5m])'';
+                    expr = ''rate(container_cpu_usage_seconds_total{host=~"$host",service="$service"}[$__rate_interval])'';
                     legend = "{{host}} {{unit}} ({{slice}})";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''rate(container_cpu_cfs_throttled_seconds_total{host=~"$host",service="$service"}[5m]) > 0'';
+                    expr = ''rate(container_cpu_cfs_throttled_seconds_total{host=~"$host",service="$service"}[$__rate_interval]) > 0'';
                     legend = "{{host}} {{unit}} throttled";
                   })
                 ];
@@ -199,21 +201,22 @@ in {
             [
               (d.mkSystemdUnitsTable {
                 title = "Service & Backup Units Health";
-                w = 14;
+                w = 10;
                 h = 6;
                 expr = ''node_systemd_unit_state{host=~"$host",service="$service"} == 1'';
               })
-              (d.mkBarGauge {
-                title = "Service Storage Usage (%)";
-                w = 10;
+              (d.mkStorageTable {
+                title = "Service Storage Mounts";
+                w = 14;
                 h = 6;
-                unit = "percent";
-                min = 0;
-                max = 100;
-                thresholds = d.thresholds.percentHigh;
+                selector = ''host=~"$host",service="$service"'';
+                groupBy = ["host" "mountpoint"];
+                columns = {
+                  host = "Host";
+                  mountpoint = "Mountpoint";
+                };
+                columnOrder = ["host" "mountpoint"];
                 noValue = "No dedicated storage mounts";
-                expr = ''max by (host, mountpoint, device) ((1 - (node_filesystem_avail_bytes{host=~"$host",service="$service"} / clamp_min(node_filesystem_size_bytes{host=~"$host",service="$service"}, 1))) * 100)'';
-                legend = "{{mountpoint}} ({{device}})";
               })
             ]
           ];
@@ -226,12 +229,12 @@ in {
                 title = "Log Volume by Severity";
                 w = 24;
                 h = 6;
-                loki = true;
+                logs = true;
                 drawStyle = "bars";
                 stacked = true;
                 legendMode = "list";
                 overrides = d.logLevelColorOverrides {};
-                expr = ''sum by (level) (count_over_time({job="systemd-journal", host=~"$host", service="$service", level=~"$level"} |~ "$search" [$__auto]))'';
+                expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in($level) ($search) | stats by (level) count() as lines'';
                 legend = "{{level}}";
               })
             ]
@@ -240,7 +243,7 @@ in {
                 title = "Live Service Journal Stream";
                 w = 24;
                 h = 14;
-                expr = ''{job="systemd-journal", host=~"$host", service="$service", level=~"$level"} |~ "$search"'';
+                expr = ''job:="systemd-journal" host:in($host) service:="$service" level:in($level) ($search)'';
               })
             ]
           ];

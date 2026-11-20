@@ -4,7 +4,8 @@
       imports = [
         self.nixosModules.caddy
         self.nixosModules.authelia
-        self.nixosModules.lgtm
+        self.nixosModules.victoria
+        self.nixosModules.ntfy
         self.nixosModules.restic
         self.nixosModules.snapshot
         self.nixosModules.vaultwarden

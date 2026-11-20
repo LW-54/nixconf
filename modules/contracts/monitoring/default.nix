@@ -16,8 +16,8 @@ in {
         default = {};
         example = {
           enable = true;
-          metricsUrl = "https://prometheus.adje.app/api/v1/write";
-          logsUrl = "https://loki.adje.app/loki/api/v1/push";
+          metricsUrl = "https://vm.adje.app/api/v1/write";
+          logsUrl = "https://vlogs.adje.app/insert/loki/api/v1/push";
         };
         description = "Local telemetry collector agent configuration for metrics scraping, log shipping, and remote-write buffering.";
       };
@@ -27,9 +27,9 @@ in {
         default = {};
         example = {
           enable = true;
-          retentionDays = 30;
+          retention.logsMaxDiskPercent = 85;
         };
-        description = "Central telemetry ingestion, time-series storage, and visualization server configuration.";
+        description = "Central telemetry ingestion, time-series storage, alerting, and visualization server configuration.";
       };
 
       scrapes = lib.mkOption {
@@ -89,7 +89,7 @@ in {
         default = {};
         example = {
           host = {
-            backend = "prometheus";
+            backend = "metrics";
             rules = [
               {
                 alert = "SystemdUnitFailed";
@@ -98,7 +98,7 @@ in {
             ];
           };
         };
-        description = "Attribute set of alerting and recording rule groups evaluated by Prometheus or Loki.";
+        description = "Attribute set of alerting and recording rule groups evaluated against metrics or logs.";
       };
 
       dashboards = lib.mkOption {
@@ -142,22 +142,18 @@ in {
         description = "Raw Grafana Alloy River configuration blocks appended directly to `/etc/alloy/config.alloy`.";
       };
 
-      extraPrometheusConfig = lib.mkOption {
-        type = lib.types.attrsOf lib.types.anything;
-        default = {};
-        example = {
-          globalConfig.evaluation_interval = "30s";
-        };
-        description = "Additional backend-specific attributes merged into the Prometheus server configuration.";
+      extraMetricsOptions = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        example = ["-search.maxUniqueTimeseries=500000"];
+        description = "Additional backend-specific CLI flags passed to the central metrics storage daemon.";
       };
 
-      extraLokiConfig = lib.mkOption {
-        type = lib.types.attrsOf lib.types.anything;
-        default = {};
-        example = {
-          limits_config.ingestion_rate_mb = 8;
-        };
-        description = "Additional backend-specific attributes merged into `services.loki.configuration`.";
+      extraLogsOptions = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [];
+        example = ["-search.maxQueryDuration=30s"];
+        description = "Additional backend-specific CLI flags passed to the central logs storage daemon.";
       };
 
       extraGrafanaSettings = lib.mkOption {

@@ -421,7 +421,7 @@ in {
         };
         rules = {
           authelia = {
-            backend = "prometheus";
+            backend = "metrics";
             interval = "1m";
             rules = [
               {
@@ -437,12 +437,12 @@ in {
             ];
           };
           authelia-logs = {
-            backend = "loki";
+            backend = "logs";
             interval = "1m";
             rules = [
               {
                 alert = "AutheliaRepeatedAuthFailures";
-                expr = ''sum by (host) (count_over_time({unit="authelia-main.service"} |~ "(?i)(unsuccessful authentication|banned)" [5m])) > 10'';
+                expr = ''_time:5m unit:="authelia-main.service" _msg:~"(?i)(unsuccessful authentication|banned)" | stats by (host) count() as failures | filter failures:>10'';
                 "for" = "1m";
                 labels.severity = "warning";
                 annotations = {
@@ -455,7 +455,7 @@ in {
         };
         dashboards.auth-security = {
           title = "Authentication & Security";
-          folder = "Security";
+          folder = "02 · Infrastructure";
           json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
         };
       };

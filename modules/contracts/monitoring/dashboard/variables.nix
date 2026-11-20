@@ -17,7 +17,7 @@
       {
         inherit name label includeAll multi;
         type = "query";
-        datasource = d.ds.prometheus;
+        datasource = d.ds.metrics;
         definition = query;
         query = {
           qryType = 1;
@@ -48,29 +48,26 @@
         query = "label_values(node_uname_info, host)";
       };
 
-    lokiLabel = {
+    logsField = {
       name,
       label ? name,
-      labelName ? name,
-      stream ? "",
+      field ? name,
+      query ? "",
       includeAll ? true,
       multi ? true,
-      allValue ? ".*",
+      allValue ? "*",
     }:
       {
         inherit name label includeAll multi;
         type = "query";
-        datasource = d.ds.loki;
-        definition =
-          if stream == ""
-          then "label_values(${labelName})"
-          else "label_values(${stream}, ${labelName})";
-        query = {
-          label = labelName;
-          refId = "LokiVariableQueryEditor-VariableQuery";
-          inherit stream;
-          type = 1;
-        };
+        datasource = d.ds.logs;
+        definition = "fieldValue:${field}";
+        query =
+          {
+            type = "fieldValue";
+            inherit field;
+          }
+          // lib.optionalAttrs (query != "") {inherit query;};
         refresh = 2;
         sort = 1;
         hide = 0;

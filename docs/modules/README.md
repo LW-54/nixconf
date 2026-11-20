@@ -41,12 +41,12 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`home`](home.md) | contract [`home`](../contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [More →](home.md) |
 | [`impermanence`](impermanence.md) | implementation [`impermanence`](../implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [More →](impermanence.md) |
 | [`labwc`](labwc.md) | feature [`labwc`](../features/labwc.md) | Labwc stacking Wayland compositor with window manager keybindings and XDG autostart. | [More →](labwc.md) |
-| [`lgtm`](lgtm.md) | implementation [`lgtm`](../implementations/lgtm.md) | Observability stack implementation using Grafana Alloy, Prometheus, Loki, and Grafana. | [More →](lgtm.md) |
 | [`locale`](locale.md) | feature [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](locale.md) |
 | [`lw`](lw.md) | implementation [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](lw.md) |
 | [`monitoring`](monitoring.md) | contract [`monitoring`](../contracts/monitoring.md) | Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provisioning contract. | [More →](monitoring.md) |
 | [`nix`](nix.md) | feature [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](nix.md) |
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
+| [`ntfy`](ntfy.md) | feature [`ntfy`](../features/ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [More →](ntfy.md) |
 | [`persistence`](persistence.md) | contract [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](persistence.md) |
 | [`rclone`](rclone.md) | implementation [`rclone`](../implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [More →](rclone.md) |
 | [`resources`](resources.md) | contract [`resources`](../contracts/resources.md) | Declarative compute tiering, cgroups v2 limits, OOM ordering, power-aware throttling, local disk volumes, and remote storage budgets. | [More →](resources.md) |
@@ -63,6 +63,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`uchiyomi`](uchiyomi.md) | feature [`uchiyomi`](../features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](uchiyomi.md) |
 | [`uwsm`](uwsm.md) | implementation [`uwsm`](../implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [More →](uwsm.md) |
 | [`vaultwarden`](vaultwarden.md) | feature [`vaultwarden`](../features/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](vaultwarden.md) |
+| [`victoria`](victoria.md) | implementation [`victoria`](../implementations/victoria.md) | Observability stack implementation using Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana. | [More →](victoria.md) |
 | [`vivaldi`](vivaldi.md) | feature [`vivaldi`](../features/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](vivaldi.md) |
 | [`vscode`](vscode.md) | feature [`vscode`](../features/vscode.md) | Visual Studio Code editor environment and persistence. | [More →](vscode.md) |
 | [`wayland`](wayland.md) | contract [`wayland`](../contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [More →](wayland.md) |

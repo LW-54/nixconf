@@ -371,7 +371,7 @@ in {
           watchedUnits = snapshotServices ++ snapshotTimers;
           logs.journal.units = snapshotServices;
           rules.snapshot = {
-            backend = "prometheus";
+            backend = "metrics";
             interval = "1m";
             rules = [
               {
