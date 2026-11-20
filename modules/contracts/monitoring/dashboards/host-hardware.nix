@@ -21,7 +21,7 @@ in {
             w = 4;
             unit = "s";
             decimals = 0;
-            expr = ''max(node_time_seconds{host="$host"} - node_boot_time_seconds{host="$host"})'';
+            expr = ''max(last_over_time(node_time_seconds{host="$host"}[5m]) - last_over_time(node_boot_time_seconds{host="$host"}[5m]))'';
             legend = "Uptime";
           })
           (d.mkStat {
@@ -68,9 +68,9 @@ in {
             percentLegend = "%";
             usedLegend = "Used";
             totalLegend = "Total";
-            percentExpr = ''((node_filesystem_size_bytes{host="$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host="$host",mountpoint="/persist"}) / clamp_min(node_filesystem_size_bytes{host="$host",mountpoint="/persist"}, 1)) * 100'';
-            usedExpr = ''node_filesystem_size_bytes{host="$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host="$host",mountpoint="/persist"}'';
-            totalExpr = ''node_filesystem_size_bytes{host="$host",mountpoint="/persist"}'';
+            percentExpr = ''((last_over_time(node_filesystem_size_bytes{host="$host",mountpoint="/persist"}[5m]) - last_over_time(node_filesystem_avail_bytes{host="$host",mountpoint="/persist"}[5m])) / clamp_min(last_over_time(node_filesystem_size_bytes{host="$host",mountpoint="/persist"}[5m]), 1)) * 100'';
+            usedExpr = ''last_over_time(node_filesystem_size_bytes{host="$host",mountpoint="/persist"}[5m]) - last_over_time(node_filesystem_avail_bytes{host="$host",mountpoint="/persist"}[5m])'';
+            totalExpr = ''last_over_time(node_filesystem_size_bytes{host="$host",mountpoint="/persist"}[5m])'';
           })
           (d.mkRatioStat {
             title = "/ Root tmpfs";

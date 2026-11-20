@@ -64,12 +64,17 @@
               password_file = ${builtins.toJSON ba.passwordFile}
             }'';
 
+    renderAuth =
+      if cfg.agent.bearerTokenFile != null
+      then "bearer_token_file = ${builtins.toJSON cfg.agent.bearerTokenFile}"
+      else renderBasicAuth;
+
     remoteWriteBlock = lib.optionalString (metricsWriteUrl != null) ''
       prometheus.remote_write "default" {
         external_labels = ${renderLabels externalLabels}
         endpoint {
           url = ${builtins.toJSON metricsWriteUrl}
-          ${renderBasicAuth}
+          ${renderAuth}
           queue_config {
             min_backoff = "1s"
             max_backoff = "5m"
@@ -87,7 +92,7 @@
           min_backoff_period  = "1s"
           max_backoff_period  = "5m"
           max_backoff_retries = 0
-          ${renderBasicAuth}
+          ${renderAuth}
         }
       }
     '';
@@ -521,7 +526,7 @@
 
     hasHostSnapshot = options ? services && options.services ? hostSnapshot;
     dockerActive = config.virtualisation.docker.enable or false;
-    hasBasicAuthFile = cfg.agent.basicAuth.enable && cfg.agent.basicAuth.passwordFile != null;
+    hasAuthFile = cfg.agent.bearerTokenFile != null || (cfg.agent.basicAuth.enable && cfg.agent.basicAuth.passwordFile != null);
   in
     lib.mkIf agentActive (lib.mkMerge [
       {
@@ -558,9 +563,9 @@
 
         systemd.services.alloy = {
           after =
-            lib.optional hasBasicAuthFile "sops-install-secrets.service"
+            lib.optional hasAuthFile "sops-install-secrets.service"
             ++ lib.optionals cfg.server.enable ["victoriametrics.service" "victorialogs.service"];
-          wants = lib.optional hasBasicAuthFile "sops-install-secrets.service";
+          wants = lib.optional hasAuthFile "sops-install-secrets.service";
           serviceConfig = {
             DynamicUser = lib.mkForce false;
             User = "alloy";

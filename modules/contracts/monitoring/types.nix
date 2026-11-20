@@ -66,6 +66,13 @@
         description = "HTTP Basic Authentication configuration used when pushing telemetry to remote endpoints.";
       };
 
+      bearerTokenFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "/run/secrets/telemetry-ingest-token";
+        description = "Filesystem path containing a Bearer token sent via `Authorization: Bearer <token>` when pushing telemetry to remote endpoints.";
+      };
+
       extraLabels = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
         default = {};

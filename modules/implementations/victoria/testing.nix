@@ -23,6 +23,13 @@
       if cfg.server.enable && enabledDashboards != {}
       then (builtins.head config.services.grafana.provision.dashboards.settings.providers).options.path
       else null;
+    domain = config.reverse-proxy.domain or null;
+    bearerAuthActive = cfg.server.enable && (config.reverse-proxy.enable or false) && domain != null;
+    bearerVar = hostName:
+      "NIXCONF_BEARER_"
+      + lib.toUpper (builtins.replaceStrings ["." "-" ":" "/"] ["_" "_" "_" "_"] hostName);
+    vmFqdn = "${cfg.server.metrics.subdomain}.${domain}";
+    vlFqdn = "${cfg.server.logs.subdomain}.${domain}";
     yamlFormat = pkgs.formats.yaml {};
   in {
     description = "Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana provisioning, validation, and runtime checks";
@@ -31,6 +38,11 @@
       agent-has-destination = {
         assertion = !cfg.agent.enable || hasDestination;
         message = "`monitoring.agent.enable` is true, but neither `monitoring.server.enable` nor `monitoring.agent.metricsUrl`/`logsUrl` is configured.";
+      };
+
+      agent-single-auth-method = {
+        assertion = !(cfg.agent.bearerTokenFile != null && cfg.agent.basicAuth.enable);
+        message = "`monitoring.agent.bearerTokenFile` and `monitoring.agent.basicAuth.enable` are mutually exclusive; pick one telemetry push authentication mechanism.";
       };
 
       server-ports-registered = {
@@ -142,6 +154,22 @@
           ''}
         '';
       };
+
+      caddy-bearer-config = {
+        enable = bearerAuthActive;
+        description = "Verify Caddyfile configures @bearer routes with NIXCONF_BEARER_ env vars for telemetry ingest endpoints";
+        priority = 165;
+        script = ''
+          ${self.lib.testing.mkInspectFile {
+            path = "$etc/caddy/caddy_config";
+            pattern = "@bearer";
+          }}
+          ${self.lib.testing.mkInspectFile {
+            path = "$etc/caddy/caddy_config";
+            pattern = "NIXCONF_BEARER_";
+          }}
+        '';
+      };
     };
 
     vmChecks = {
@@ -210,6 +238,13 @@
               "http://${connectAddr cfg.server.grafana.address}:${toString cfg.server.grafana.port}/api/ds/query"
           )
           assert '"status":200' in _grafana_vlogs, f"Expected Grafana VictoriaLogs datasource query to succeed, got: {_grafana_vlogs}"
+          ${lib.optionalString bearerAuthActive ''
+            ${self.lib.testing.mkServiceCheck {unit = "caddy-bearer-env.service";}}
+            _bearer_mode = machine.succeed("stat -c '%a' /run/caddy-bearer/tokens.env").strip()
+            assert _bearer_mode == "600", f"Expected /run/caddy-bearer/tokens.env mode 600, got {_bearer_mode}"
+            machine.succeed("grep -q '^${bearerVar vmFqdn}=' /run/caddy-bearer/tokens.env")
+            machine.succeed("grep -q '^${bearerVar vlFqdn}=' /run/caddy-bearer/tokens.env")
+          ''}
         '';
       };
     };

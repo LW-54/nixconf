@@ -127,6 +127,13 @@
           group = "grafana";
           testValue = "nixconf-test-grafana-secret-key-0123456789abcdef";
         };
+        secrets.files.telemetry-ingest-token = {
+          store = "services/monitoring";
+          key = "telemetryIngestToken";
+          owner = "root";
+          group = "root";
+          testValue = "nixconf-test-telemetry-ingest-token-0123456789abcdef";
+        };
 
         services = {
           victoriametrics = {
@@ -425,10 +432,20 @@
             ${vmFqdn} = {
               upstream = "${vmConnectHost}:${toString cfg.server.metrics.port}";
               forwardAuth = true;
+              bearerAuth = {
+                enable = true;
+                paths = ["/api/v1/write"];
+                tokenFile = config.secrets.files.telemetry-ingest-token.path;
+              };
             };
             ${vlFqdn} = {
               upstream = "${vlConnectHost}:${toString cfg.server.logs.port}";
               forwardAuth = true;
+              bearerAuth = {
+                enable = true;
+                paths = ["/insert/loki/api/v1/push"];
+                tokenFile = config.secrets.files.telemetry-ingest-token.path;
+              };
             };
             ${alertsFqdn} = {
               upstream = "${alertsConnectHost}:${toString cfg.server.alerts.port}";

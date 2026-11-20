@@ -461,10 +461,10 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/hosts/x240/system.nix
 ...
-58: backup = {
-59: enable = true;
-60: units.lw = {
-61: paths = [
+54: backup = {
+55: enable = true;
+56: units.lw = {
+57: paths = [
 ...
 ```
 

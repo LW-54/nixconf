@@ -20,6 +20,7 @@ in {
     module = {
       config,
       lib,
+      pkgs,
       self,
       ...
     }: let
@@ -27,6 +28,28 @@ in {
       adminPort = 2019;
       conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
       formatConflict = c: "${c.protocol}/${toString c.port} claimed by ${lib.concatStringsSep ", " c.owners}";
+
+      envVarForHost = hostName:
+        "NIXCONF_BEARER_"
+        + lib.toUpper (builtins.replaceStrings ["." "-" ":" "/"] ["_" "_" "_" "_"] hostName);
+      bearerHosts = lib.filterAttrs (_: h: h.bearerAuth.enable) cfg.hosts;
+      hasBearerHosts = bearerHosts != {};
+      invalidBearerHosts = lib.filterAttrs (_: h: h.bearerAuth.paths == [] || h.bearerAuth.tokenFile == null) bearerHosts;
+
+      bearerEnvLines = lib.concatStrings (lib.mapAttrsToList (
+          hostName: hostCfg: let
+            varName = envVarForHost hostName;
+            tokPath = hostCfg.bearerAuth.tokenFile;
+          in ''
+            tok="$(${pkgs.coreutils}/bin/tr -d '\r\n' < ${lib.escapeShellArg tokPath})"
+            if [ -z "$tok" ]; then
+              echo "Missing or empty bearer token at ${tokPath}" >&2
+              exit 1
+            fi
+            printf '%s=%s\n' ${lib.escapeShellArg varName} "$tok" >> "$tmp_env"
+          ''
+        )
+        bearerHosts);
 
       mkForwardAuthBlock = hostCfg: let
         fa = cfg.forwardAuth;
@@ -56,10 +79,15 @@ in {
           assertion = !cfg.forwardAuth.enable || cfg.forwardAuth.upstream != null;
           message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
         }
+        {
+          assertion = invalidBearerHosts == {};
+          message = "Reverse proxy hosts with `bearerAuth.enable = true` must declare non-empty `paths` and `tokenFile`: ${lib.concatStringsSep ", " (builtins.attrNames invalidBearerHosts)}.";
+        }
       ];
 
       services.caddy = {
         enable = true;
+        environmentFile = lib.mkIf hasBearerHosts "/run/caddy-bearer/tokens.env";
         globalConfig = ''
           admin 127.0.0.1:${toString adminPort}
           metrics {
@@ -67,10 +95,9 @@ in {
           }
         '';
         virtualHosts =
-          lib.mapAttrs (_: hostCfg: let
+          lib.mapAttrs (hostName: hostCfg: let
             useForwardAuth = cfg.forwardAuth.enable && hostCfg.forwardAuth && cfg.forwardAuth.upstream != null;
-          in {
-            extraConfig = lib.concatStringsSep "\n" (
+            innerBlock = lib.concatStringsSep "\n" (
               lib.filter (s: s != "") [
                 (lib.optionalString (hostCfg.basicAuth != null) ''
                   basicauth / {
@@ -82,11 +109,69 @@ in {
                   then mkForwardAuthBlock hostCfg
                   else "reverse_proxy ${hostCfg.upstream}"
                 )
+              ]
+            );
+            stripHeaders = lib.concatMapStringsSep "\n" (h: "request_header -${h}") (
+              lib.unique (["Authorization"] ++ cfg.forwardAuth.copyHeaders)
+            );
+            bearerPlaceholder = "{$" + envVarForHost hostName + "}";
+            bearerBlock = ''
+              @bearer path ${lib.concatStringsSep " " hostCfg.bearerAuth.paths}
+              handle @bearer {
+                @bearer_ok header Authorization "Bearer ${bearerPlaceholder}"
+                handle @bearer_ok {
+                  ${stripHeaders}
+                  reverse_proxy ${hostCfg.upstream}
+                }
+                respond "Unauthorized" 401
+              }
+              handle {
+                ${innerBlock}
+              }
+            '';
+          in {
+            extraConfig = lib.concatStringsSep "\n" (
+              lib.filter (s: s != "") [
+                (
+                  if hostCfg.bearerAuth.enable
+                  then bearerBlock
+                  else innerBlock
+                )
                 hostCfg.extraConfig
               ]
             );
           })
           cfg.hosts;
+      };
+
+      systemd.services = lib.mkIf hasBearerHosts {
+        caddy-bearer-env = {
+          description = "Render Caddy Bearer authentication environment file from runtime secrets";
+          after = ["sops-install-secrets.service"];
+          wants = ["sops-install-secrets.service"];
+          before = ["caddy.service"];
+          partOf = ["caddy.service"];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            RuntimeDirectory = "caddy-bearer";
+            RuntimeDirectoryMode = "0700";
+          };
+          script = ''
+            umask 077
+            ${pkgs.coreutils}/bin/install -d -m 0700 /run/caddy-bearer
+            tmp_env="$(${pkgs.coreutils}/bin/mktemp /run/caddy-bearer/.tokens.XXXXXX)"
+            : > "$tmp_env"
+            ${bearerEnvLines}
+            ${pkgs.coreutils}/bin/chmod 0600 "$tmp_env"
+            ${pkgs.coreutils}/bin/mv -f "$tmp_env" /run/caddy-bearer/tokens.env
+          '';
+        };
+
+        caddy = {
+          requires = ["caddy-bearer-env.service"];
+          after = ["caddy-bearer-env.service"];
+        };
       };
 
       reverse-proxy.ports = [

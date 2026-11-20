@@ -509,7 +509,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-103: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+188: persistence.directories = lib.mkIf (config.persistence.enable or false) [
 ...
 ```
 

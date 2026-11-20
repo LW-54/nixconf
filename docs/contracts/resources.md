@@ -703,10 +703,10 @@ Modules and instances configuring options under the `resources` contract capabil
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-149: resources.units = lib.mkIf (config.resources.enable or false) {
-150: "caddy.service" = {
-151: tier = lib.mkDefault "critical";
-152: memory = {
+234: resources.units = lib.mkIf (config.resources.enable or false) {
+235: "caddy.service" = {
+236: tier = lib.mkDefault "critical";
+237: memory = {
 ...
 ```
 

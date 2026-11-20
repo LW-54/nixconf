@@ -37,22 +37,18 @@
           jq
         ];
 
-        secrets.files.lldap-admin-password = {
-          store = "services/auth";
-          key = "lldapAdminPassword";
+        secrets.files.telemetry-ingest-token = {
+          store = "services/monitoring";
+          key = "telemetryIngestToken";
           owner = "alloy";
           group = "alloy";
-          testValue = "nixconf-test-lldap-admin-password";
+          testValue = "nixconf-test-telemetry-ingest-token-0123456789abcdef";
         };
 
         monitoring.agent = {
           metricsUrl = "https://vm.adje.app/api/v1/write";
           logsUrl = "https://vlogs.adje.app/insert/loki/api/v1/push";
-          basicAuth = {
-            enable = true;
-            username = "admin";
-            passwordFile = config.secrets.files.lldap-admin-password.path;
-          };
+          bearerTokenFile = config.secrets.files.telemetry-ingest-token.path;
         };
 
         backup = {

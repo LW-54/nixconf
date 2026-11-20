@@ -889,7 +889,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 48: monitoring.agent = {
 49: metricsUrl = "https://vm.adje.app/api/v1/write";
 50: logsUrl = "https://vlogs.adje.app/insert/loki/api/v1/push";
-51: basicAuth = {
+51: bearerTokenFile = config.secrets.files.telemetry-ingest-token.path;
 ...
 ```
 
@@ -929,12 +929,12 @@ Modules and instances configuring options under the `monitoring` contract capabi
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-107: monitoring = lib.mkIf (config.monitoring.enable or false) {
-108: watchedUnits = ["caddy.service"];
-109: logs.journal.units = ["caddy.service"];
-110: services.caddy.units = ["caddy.service"];
+192: monitoring = lib.mkIf (config.monitoring.enable or false) {
+193: watchedUnits = ["caddy.service"];
+194: logs.journal.units = ["caddy.service"];
+195: services.caddy.units = ["caddy.service"];
 ...
-145: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
+230: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 

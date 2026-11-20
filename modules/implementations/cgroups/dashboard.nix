@@ -94,8 +94,8 @@
             ];
             thresholds = d.thresholds.upDown;
             colorMode = "background";
-            noValue = "AC / N/A";
-            expr = ''max(node_power_supply_online{host=~"$host"})'';
+            noValue = "N/A (Mains Only)";
+            expr = ''max(last_over_time(node_power_supply_online{host=~"$host"}[5m]))'';
             legend = "Power";
           })
         ])

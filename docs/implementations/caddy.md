@@ -828,12 +828,12 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-107: monitoring = lib.mkIf (config.monitoring.enable or false) {
-108: watchedUnits = ["caddy.service"];
-109: logs.journal.units = ["caddy.service"];
-110: services.caddy.units = ["caddy.service"];
+192: monitoring = lib.mkIf (config.monitoring.enable or false) {
+193: watchedUnits = ["caddy.service"];
+194: logs.journal.units = ["caddy.service"];
+195: services.caddy.units = ["caddy.service"];
 ...
-145: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
+230: json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -848,7 +848,7 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-103: persistence.directories = lib.mkIf (config.persistence.enable or false) [
+188: persistence.directories = lib.mkIf (config.persistence.enable or false) [
 ...
 ```
 
@@ -863,10 +863,10 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-149: resources.units = lib.mkIf (config.resources.enable or false) {
-150: "caddy.service" = {
-151: tier = lib.mkDefault "critical";
-152: memory = {
+234: resources.units = lib.mkIf (config.resources.enable or false) {
+235: "caddy.service" = {
+236: tier = lib.mkDefault "critical";
+237: memory = {
 ...
 ```
 
@@ -881,11 +881,11 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-28: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
+29: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
 ...
-57: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
+80: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
 ...
-92: reverse-proxy.ports = [
+177: reverse-proxy.ports = [
 ...
 ```
 

@@ -458,11 +458,11 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/implementations/caddy/default.nix
 ...
-28: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
+29: conflicts = self.lib.reverse-proxy.findPortConflicts cfg.ports;
 ...
-57: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
+80: message = "Reverse proxy forwardAuth is enabled (`reverse-proxy.forwardAuth.enable = true`), but `reverse-proxy.forwardAuth.upstream` is null.";
 ...
-92: reverse-proxy.ports = [
+177: reverse-proxy.ports = [
 ...
 ```
 

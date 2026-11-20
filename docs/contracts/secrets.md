@@ -454,12 +454,12 @@ Modules and instances configuring options under the `secrets` contract capabilit
 ```nix
 # modules/hosts/x240/system.nix
 ...
-40: secrets.files.lldap-admin-password = {
-41: store = "services/auth";
-42: key = "lldapAdminPassword";
+40: secrets.files.telemetry-ingest-token = {
+41: store = "services/monitoring";
+42: key = "telemetryIngestToken";
 43: owner = "alloy";
 ...
-54: passwordFile = config.secrets.files.lldap-admin-password.path;
+51: bearerTokenFile = config.secrets.files.telemetry-ingest-token.path;
 ...
 ```
 

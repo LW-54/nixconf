@@ -30,6 +30,38 @@
         '';
       };
 
+      bearerAuth = lib.mkOption {
+        type = lib.types.submodule {
+          options = {
+            enable = lib.mkEnableOption "static Bearer token authentication on specific paths (bypasses interactive forwardAuth on those paths)";
+
+            paths = lib.mkOption {
+              type = lib.types.listOf lib.types.str;
+              default = [];
+              example = ["/api/v1/write"];
+              description = ''
+                URL path patterns on this virtual host authenticated with an `Authorization: Bearer <token>`
+                header instead of interactive forward authentication.
+              '';
+            };
+
+            tokenFile = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              example = "/run/secrets/telemetry-ingest-token";
+              description = ''
+                Filesystem path containing the expected Bearer token secret.
+              '';
+            };
+          };
+        };
+        default = {};
+        description = ''
+          Optional path-scoped Bearer token authentication for high-frequency machine-to-machine
+          endpoints that should bypass interactive SSO forward authentication.
+        '';
+      };
+
       forwardAuth = lib.mkOption {
         type = lib.types.bool;
         default = false;

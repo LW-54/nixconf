@@ -78,9 +78,9 @@ in {
             percentLegend = "%";
             usedLegend = "Used";
             totalLegend = "Total";
-            percentExpr = ''((sum(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}) - sum(node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"})) / clamp_min(sum(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}), 1)) * 100'';
-            usedExpr = ''sum(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"})'';
-            totalExpr = ''sum(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"})'';
+            percentExpr = ''((sum(last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m])) - sum(last_over_time(node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"}[5m]))) / clamp_min(sum(last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m])), 1)) * 100'';
+            usedExpr = ''sum(last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m]) - last_over_time(node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"}[5m]))'';
+            totalExpr = ''sum(last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m]))'';
           })
         ])
         (d.mkSection {
@@ -162,7 +162,7 @@ in {
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''max by (host) (node_time_seconds{host=~"$host"} - node_boot_time_seconds{host=~"$host"})'';
+                    expr = ''max by (host) (last_over_time(node_time_seconds{host=~"$host"}[5m]) - last_over_time(node_boot_time_seconds{host=~"$host"}[5m]))'';
                     instant = true;
                     format = "table";
                   })
@@ -198,19 +198,19 @@ in {
                   })
                   (d.promTarget {
                     refId = "H";
-                    expr = ''max by (host) (node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"})'';
+                    expr = ''max by (host) (last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m]) - last_over_time(node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"}[5m]))'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "I";
-                    expr = ''max by (host) (node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"})'';
+                    expr = ''max by (host) (last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m]))'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "J";
-                    expr = ''max by (host) (((node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"}) / clamp_min(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}, 1)) * 100)'';
+                    expr = ''max by (host) (((last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m]) - last_over_time(node_filesystem_avail_bytes{host=~"$host",mountpoint="/persist"}[5m])) / clamp_min(last_over_time(node_filesystem_size_bytes{host=~"$host",mountpoint="/persist"}[5m]), 1)) * 100)'';
                     instant = true;
                     format = "table";
                   })
