@@ -36,6 +36,9 @@
               };
             };
           })
+          (lib.mkIf (config.resources.enable or false) {
+            resources.units."docker.service".tier = lib.mkDefault "standard";
+          })
         ]);
       };
     };

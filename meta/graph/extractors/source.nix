@@ -64,13 +64,32 @@
       then null
       else relativeSource (builtins.head chosen).file;
 
-  # Source text of the file declaring a primitive instance.
-  instanceSourceText = pName: iName: let
-    file = resolveFile pName iName;
+  # All unique existing repository-relative files declaring a primitive instance.
+  resolveFiles = pName: iName: let
+    primary = resolveFile pName iName;
+    rawFiles =
+      if pName == "primitive"
+      then ["primitives/${iName}/default.nix"]
+      else if pName == "lib"
+      then
+        map (d: relativeSource d.file) (
+          lib.filter (d: let f = relativeSource d.file; in builtins.pathExists (self + "/${f}") && f != "primitives/default.nix") (instanceDefinitions "lib" iName)
+        )
+      else
+        map (d: relativeSource d.file) (
+          lib.filter (d: let f = relativeSource d.file; in builtins.pathExists (self + "/${f}")) (instanceDefinitions pName iName)
+        );
+    existing = lib.filter (f: f != null && builtins.pathExists (self + "/${f}")) (
+      (lib.optional (primary != null) primary) ++ rawFiles
+    );
   in
-    if file != null && builtins.pathExists (self + "/${file}")
-    then builtins.readFile (self + "/${file}")
-    else "";
+    lib.unique existing;
+
+  # Concatenated source text of all files declaring a primitive instance.
+  instanceSourceText = pName: iName: let
+    files = resolveFiles pName iName;
+  in
+    lib.concatMapStringsSep "\n" (f: builtins.readFile (self + "/${f}")) files;
 
   # Source code of an attribute (e.g. a host submodule), located via its definition position.
   attrSourceCode = pName: iName: path: attr: let
@@ -110,6 +129,6 @@
       lib.concatMapStringsSep "\n" (l: builtins.substring indent (builtins.stringLength l) l) block;
 in {
   internal.graph.extractors.source = {
-    inherit relativeSource referenceConfiguration instanceDefinitions resolveFile instanceSourceText attrSourceCode;
+    inherit relativeSource referenceConfiguration instanceDefinitions resolveFile resolveFiles instanceSourceText attrSourceCode;
   };
 }

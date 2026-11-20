@@ -247,7 +247,7 @@
                   else lib.filter (e: e.source == node.id && lib.toUpper (e.relation or "") == "CONSUMES") ctx.graph.edges;
                 grouped = lib.groupBy (e: e.target) edges;
 
-                srcFile = ctx.sourceOf "feature" name;
+                srcFiles = ctx.sourceFilesOf "feature" name;
 
                 renderConsumedContract = targetId: let
                   cNode = ctx.graph.nodes.${targetId} or null;
@@ -261,7 +261,7 @@
                     then lib.concatStringsSep ", " (map (o: "`${o}`") opts)
                     else "*general capability bindings*";
                   codeSnippet = ctx.targetedSnippet {
-                    file = srcFile;
+                    files = srcFiles;
                     options = opts;
                     terms = ["${cName}." "${cName} =" "self.lib.${cName}"];
                   };

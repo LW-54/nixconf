@@ -13,6 +13,7 @@ Declarative multi-provider backup contract separating per-provider schedules/ret
 ```mermaid
 flowchart LR
   urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
+    urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
     urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
     urn__nixconf__ast__module__lgtm["nixosModule/lgtm"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
@@ -21,12 +22,10 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
     urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
     urn__nixconf__ast__module__x240_desktop["nixosModule/x240-desktop"]:::defaultNode
-    urn__nixconf__ast__module__x240_desktop_features["nixosModule/x240-desktop-features"]:::defaultNode
     urn__nixconf__ast__module__x240_disk["nixosModule/x240-disk"]:::defaultNode
     urn__nixconf__ast__module__x240_hardware["nixosModule/x240-hardware"]:::defaultNode
-    urn__nixconf__ast__module__x240_packages["nixosModule/x240-packages"]:::defaultNode
+    urn__nixconf__ast__module__x240_resources["nixosModule/x240-resources"]:::defaultNode
     urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
-    urn__nixconf__ast__module__x240_system_features["nixosModule/x240-system-features"]:::defaultNode
     urn__nixconf__ast__option__backup_destinations[/"backup.destinations"/]:::optNode
     urn__nixconf__ast__option__backup_enable[/"backup.enable"/]:::optNode
     urn__nixconf__ast__option__backup_exclude[/"backup.exclude"/]:::optNode
@@ -42,6 +41,7 @@ flowchart LR
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
@@ -73,6 +73,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
+    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lgtm["lgtm"]:::implNode
@@ -82,10 +83,16 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -94,6 +101,7 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__authelia
+    urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__backup_paths
@@ -101,6 +109,7 @@ flowchart LR
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_enable
@@ -108,6 +117,7 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__backup_exclude
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -115,6 +125,7 @@ flowchart LR
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__backup_units
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_enable
@@ -122,6 +133,7 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__x240_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_enable
@@ -136,16 +148,15 @@ flowchart LR
     urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_retention
     urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_schedule
     urn__nixconf__ast__option__backup_units -.->|typedBy| urn__nixconf__ast__type__backup_unit
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__cgroups
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lgtm
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop_features
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_disk
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_resources
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_destinations
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_enable
     urn__nixconf__onto__contract__backup -->|declares| urn__nixconf__ast__option__backup_exclude
@@ -162,39 +173,45 @@ flowchart LR
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__uchiyomi -->|outputs| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
@@ -205,6 +222,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lgtm
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
@@ -213,15 +231,14 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_disk
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_resources
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__eval__configuration__x240
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
@@ -245,6 +262,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lgtm
@@ -258,15 +276,24 @@ flowchart LR
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lgtm -->|outputs| urn__nixconf__ast__module__lgtm
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
@@ -282,6 +309,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
@@ -291,6 +319,7 @@ flowchart LR
 
 
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
+    click urn__nixconf__ast__module__cgroups href "../modules/cgroups.md" "cgroups"
     click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
     click urn__nixconf__ast__module__lgtm href "../modules/lgtm.md" "lgtm"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
@@ -299,12 +328,10 @@ flowchart LR
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
     click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
     click urn__nixconf__ast__module__x240_desktop href "../modules/x240-desktop.md" "x240-desktop"
-    click urn__nixconf__ast__module__x240_desktop_features href "../modules/x240-desktop-features.md" "x240-desktop-features"
     click urn__nixconf__ast__module__x240_disk href "../modules/x240-disk.md" "x240-disk"
     click urn__nixconf__ast__module__x240_hardware href "../modules/x240-hardware.md" "x240-hardware"
-    click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
+    click urn__nixconf__ast__module__x240_resources href "../modules/x240-resources.md" "x240-resources"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
-    click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
     click urn__nixconf__ast__option__backup_destinations href "backup.md" "backup.destinations"
     click urn__nixconf__ast__option__backup_enable href "backup.md" "backup.enable"
     click urn__nixconf__ast__option__backup_exclude href "backup.md" "backup.exclude"
@@ -320,6 +347,7 @@ flowchart LR
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__monitoring href "monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__resources href "resources.md" "resources"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
@@ -351,6 +379,7 @@ flowchart LR
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
+    click urn__nixconf__onto__implementation__cgroups href "../implementations/cgroups.md" "cgroups"
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lgtm href "../implementations/lgtm.md" "lgtm"
@@ -430,12 +459,12 @@ Modules and instances configuring options under the `backup` contract capability
 **Configures options**: `backup.enable`, `backup.units`
 
 ```nix
-# modules/hosts/x240.nix
+# modules/hosts/x240/system.nix
 ...
-76: backup = {
-77: enable = true;
-78: units.lw = {
-79: paths = [
+58: backup = {
+59: enable = true;
+60: units.lw = {
+61: paths = [
 ...
 ```
 
@@ -453,11 +482,25 @@ Modules and instances configuring options under the `backup` contract capability
 ```nix
 # modules/implementations/authelia/default.nix
 ...
-372: backup = lib.mkIf (config.backup.enable or false) {
-373: paths =
-374: ["/var/lib/authelia-main"]
-375: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+376: backup = lib.mkIf (config.backup.enable or false) {
+377: paths =
+378: ["/var/lib/authelia-main"]
+379: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
 ...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/cgroups.md">cgroups</a></code></summary>
+
+**Configures options**: `backup.exclude`
+
+```nix
+config = {
+  backup.exclude = ...;
+};
 ```
 
 </details>
@@ -522,7 +565,7 @@ config = {
 ```nix
 # modules/features/copyparty.nix
 ...
-314: (self.lib.backup.mkConfig {inherit config cfg;})
+321: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -537,7 +580,7 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-274: (self.lib.backup.mkConfig {inherit config cfg;})
+289: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -552,7 +595,7 @@ config = {
 ```nix
 # modules/features/vaultwarden.nix
 ...
-50: (self.lib.backup.mkConfig {inherit config cfg;})
+57: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 

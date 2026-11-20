@@ -388,6 +388,16 @@ in {
           };
         });
 
+        resources.units = lib.mkIf (config.resources.enable or false) (
+          builtins.listToAttrs (map (tName: {
+            name = "host-snapshot-${tName}.service";
+            value = {
+              tier = lib.mkDefault "background";
+              deferOnBattery = lib.mkDefault true;
+            };
+          }) (builtins.attrNames enabledTargets))
+        );
+
         testing = {
           vm.allowedFailedUnits = ["host-snapshot-*.service"];
 

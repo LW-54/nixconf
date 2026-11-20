@@ -22,12 +22,10 @@ flowchart LR
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
     urn__nixconf__ast__module__x240_desktop["nixosModule/x240-desktop"]:::defaultNode
-    urn__nixconf__ast__module__x240_desktop_features["nixosModule/x240-desktop-features"]:::defaultNode
     urn__nixconf__ast__module__x240_disk["nixosModule/x240-disk"]:::defaultNode
     urn__nixconf__ast__module__x240_hardware["nixosModule/x240-hardware"]:::defaultNode
-    urn__nixconf__ast__module__x240_packages["nixosModule/x240-packages"]:::defaultNode
+    urn__nixconf__ast__module__x240_resources["nixosModule/x240-resources"]:::defaultNode
     urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
-    urn__nixconf__ast__module__x240_system_features["nixosModule/x240-system-features"]:::defaultNode
     urn__nixconf__ast__option__home_enable[/"home.enable"/]:::optNode
     urn__nixconf__ast__option__home_shared[/"home.shared"/]:::optNode
     urn__nixconf__ast__option__home_users[/"home.users"/]:::optNode
@@ -40,6 +38,7 @@ flowchart LR
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
@@ -64,6 +63,7 @@ flowchart LR
     urn__nixconf__onto__feature__vscode("vscode"):::featureNode
     urn__nixconf__onto__feature__wifi_eduroam("wifi-eduroam"):::featureNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lgtm["lgtm"]:::implNode
@@ -102,12 +102,10 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__locale
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop_features
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_disk
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_resources
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_enable
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_shared
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_users
@@ -120,6 +118,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__ast__module__foot
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
@@ -130,21 +129,22 @@ flowchart LR
     urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_disk
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_resources
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__eval__configuration__x240
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
@@ -168,6 +168,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lgtm
@@ -176,10 +177,16 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
@@ -190,6 +197,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -206,12 +214,10 @@ flowchart LR
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
     click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
     click urn__nixconf__ast__module__x240_desktop href "../modules/x240-desktop.md" "x240-desktop"
-    click urn__nixconf__ast__module__x240_desktop_features href "../modules/x240-desktop-features.md" "x240-desktop-features"
     click urn__nixconf__ast__module__x240_disk href "../modules/x240-disk.md" "x240-disk"
     click urn__nixconf__ast__module__x240_hardware href "../modules/x240-hardware.md" "x240-hardware"
-    click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
+    click urn__nixconf__ast__module__x240_resources href "../modules/x240-resources.md" "x240-resources"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
-    click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
     click urn__nixconf__ast__option__home_enable href "../contracts/home.md" "home.enable"
     click urn__nixconf__ast__option__home_shared href "../contracts/home.md" "home.shared"
     click urn__nixconf__ast__option__home_users href "../contracts/home.md" "home.users"
@@ -224,6 +230,7 @@ flowchart LR
     click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
     click urn__nixconf__onto__contract__home href "../contracts/home.md" "home"
     click urn__nixconf__onto__contract__monitoring href "../contracts/monitoring.md" "monitoring"
+    click urn__nixconf__onto__contract__resources href "../contracts/resources.md" "resources"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
@@ -248,6 +255,7 @@ flowchart LR
     click urn__nixconf__onto__feature__vscode href "../features/vscode.md" "vscode"
     click urn__nixconf__onto__feature__wifi_eduroam href "../features/wifi-eduroam.md" "wifi-eduroam"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__cgroups href "cgroups.md" "cgroups"
     click urn__nixconf__onto__implementation__hjem href "hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lgtm href "lgtm.md" "lgtm"

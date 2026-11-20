@@ -27,7 +27,7 @@ in {
         inherit config lib pkgs options;
       };
       serverCfg = helpers.mkServer {
-        inherit config lib pkgs options;
+        inherit config lib pkgs options self;
       };
       testingSuite = helpers.mkTesting {
         inherit self config lib pkgs;

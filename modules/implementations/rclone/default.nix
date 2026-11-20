@@ -75,6 +75,13 @@ in {
           watchedUnits = rcloneServiceUnits ++ units.nonAutomountUnits;
           logs.journal.units = rcloneServiceUnits;
         };
+
+        resources.units = lib.mkIf ((config.resources.enable or false) && state.cfg.driftCheck.enable) {
+          "storage-drift-check.service" = {
+            tier = lib.mkDefault "background";
+            deferOnBattery = lib.mkDefault true;
+          };
+        };
       };
     };
   };

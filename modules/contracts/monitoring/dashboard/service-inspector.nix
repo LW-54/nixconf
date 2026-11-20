@@ -162,16 +162,38 @@ in {
                 h = 7;
                 unit = "bytes";
                 noValue = "No systemd cgroup metrics";
-                expr = ''label_replace(container_memory_working_set_bytes{host=~"$host",service="$service"}, "unit", "$1", "id", "/system\\.slice/(.*)\\.service")'';
-                legend = "{{host}} {{unit}}";
+                overrides = [(d.dashedLineOverride "/limit/" "red")];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''container_memory_working_set_bytes{host=~"$host",service="$service"}'';
+                    legend = "{{host}} {{unit}} ({{slice}})";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''container_spec_memory_limit_bytes{host=~"$host",service="$service"} > 0'';
+                    legend = "{{host}} {{unit}} limit";
+                  })
+                ];
               })
               (d.mkTimeseries {
                 title = "CPU Usage (cores)";
                 w = 12;
                 h = 7;
                 noValue = "No systemd cgroup metrics";
-                expr = ''label_replace(rate(container_cpu_usage_seconds_total{host=~"$host",service="$service"}[5m]), "unit", "$1", "id", "/system\\.slice/(.*)\\.service")'';
-                legend = "{{host}} {{unit}}";
+                overrides = [(d.dashedLineOverride "/throttled/" "orange")];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''rate(container_cpu_usage_seconds_total{host=~"$host",service="$service"}[5m])'';
+                    legend = "{{host}} {{unit}} ({{slice}})";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''rate(container_cpu_cfs_throttled_seconds_total{host=~"$host",service="$service"}[5m]) > 0'';
+                    legend = "{{host}} {{unit}} throttled";
+                  })
+                ];
               })
             ]
             [

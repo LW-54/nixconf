@@ -139,8 +139,8 @@ in {
                 title = "Monitoring Services Memory Working Set";
                 w = 12;
                 unit = "bytes";
-                expr = ''label_replace(container_memory_working_set_bytes{id=~"/system\\.slice/(prometheus|loki|grafana|alloy)\\.service"}, "service", "$1", "id", "/system\\.slice/(.*)\\.service")'';
-                legend = "{{host}} {{service}}";
+                expr = ''container_memory_working_set_bytes{unit=~"(prometheus|loki|grafana|alloy)\\.service"}'';
+                legend = "{{host}} {{unit}}";
               })
               (d.mkTimeseries {
                 title = "Grafana HTTP Request Rate by Status";

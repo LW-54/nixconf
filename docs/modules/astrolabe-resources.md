@@ -1,10 +1,10 @@
-# Module: `astrolabe-packages`
+# Module: `astrolabe-resources`
 
 NixOS module exported by host 'astrolabe'.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-- **Attribute**: `flake.nixosModules.astrolabe-packages`
+- **Attribute**: `flake.nixosModules.astrolabe-resources`
 - **Provided by**: host [`astrolabe`](../hosts/astrolabe.md)
 
 ## Importing Hosts

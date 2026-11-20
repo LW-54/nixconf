@@ -32,7 +32,7 @@ in {
       };
 
       restore = internalRestic.mkRestore {
-        inherit lib pkgs passwordFile;
+        inherit config lib pkgs passwordFile;
         inherit (jobs) resolvedUnits;
       };
 
@@ -88,6 +88,16 @@ in {
               json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
             };
           };
+
+          resources.units = lib.mkIf (config.resources.enable or false) (
+            builtins.listToAttrs (map (jName: {
+              name = "restic-backups-${jName}.service";
+              value = {
+                tier = lib.mkDefault "background";
+                deferOnBattery = lib.mkDefault true;
+              };
+            }) (builtins.attrNames jobs.jobs))
+          );
         })
 
         {

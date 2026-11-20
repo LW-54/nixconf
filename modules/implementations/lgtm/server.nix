@@ -4,6 +4,7 @@
     lib,
     pkgs,
     options,
+    self,
   }: let
     cfg = config.monitoring;
     serverActive = cfg.enable && cfg.server.enable;
@@ -385,6 +386,64 @@
           units.grafana = {
             paths = ["/var/lib/grafana"];
             beforeUnits = ["grafana.service"];
+          };
+        };
+
+        monitoring = {
+          watchedUnits = ["prometheus.service" "loki.service" "grafana.service"];
+          logs.journal.units = ["prometheus.service" "loki.service" "grafana.service"];
+          scrapes = {
+            prometheus.port = lib.mkDefault cfg.server.prometheus.port;
+            loki.port = lib.mkDefault cfg.server.loki.port;
+            grafana.port = lib.mkDefault cfg.server.grafana.port;
+          };
+          services = {
+            grafana = {
+              units = lib.mkDefault ["grafana.service"];
+              vhost = lib.mkDefault grafanaFqdn;
+              backupUnit = lib.mkDefault (
+                if (config.backup.enable or false)
+                then "grafana"
+                else null
+              );
+            };
+            prometheus = {
+              units = lib.mkDefault ["prometheus.service"];
+              vhost = lib.mkDefault promFqdn;
+            };
+            loki = {
+              units = lib.mkDefault ["loki.service"];
+              vhost = lib.mkDefault lokiFqdn;
+            };
+          };
+          dashboards.lgtm-health = lib.mkDefault {
+            title = "Monitoring Stack Health";
+            folder = "Infrastructure";
+            json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
+          };
+        };
+
+        resources.units = lib.mkIf (config.resources.enable or false) {
+          "prometheus.service" = {
+            tier = lib.mkDefault "standard";
+            memory = {
+              high = lib.mkDefault "25%";
+              max = lib.mkDefault "40%";
+            };
+          };
+          "loki.service" = {
+            tier = lib.mkDefault "standard";
+            memory = {
+              high = lib.mkDefault "25%";
+              max = lib.mkDefault "40%";
+            };
+          };
+          "grafana.service" = {
+            tier = lib.mkDefault "standard";
+            memory = {
+              high = lib.mkDefault "15%";
+              max = lib.mkDefault "25%";
+            };
           };
         };
       }

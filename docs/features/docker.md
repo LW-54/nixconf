@@ -12,17 +12,16 @@ Docker application container engine, socket activation, and state persistence.
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__docker["nixosModule/docker"]:::defaultNode
+  urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
+    urn__nixconf__ast__module__docker["nixosModule/docker"]:::defaultNode
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__lgtm["nixosModule/lgtm"]:::defaultNode
     urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
     urn__nixconf__ast__module__x240_desktop["nixosModule/x240-desktop"]:::defaultNode
-    urn__nixconf__ast__module__x240_desktop_features["nixosModule/x240-desktop-features"]:::defaultNode
     urn__nixconf__ast__module__x240_disk["nixosModule/x240-disk"]:::defaultNode
     urn__nixconf__ast__module__x240_hardware["nixosModule/x240-hardware"]:::defaultNode
-    urn__nixconf__ast__module__x240_packages["nixosModule/x240-packages"]:::defaultNode
+    urn__nixconf__ast__module__x240_resources["nixosModule/x240-resources"]:::defaultNode
     urn__nixconf__ast__module__x240_system["nixosModule/x240-system"]:::defaultNode
-    urn__nixconf__ast__module__x240_system_features["nixosModule/x240-system-features"]:::defaultNode
     urn__nixconf__ast__option__monitoring_agent[/"monitoring.agent"/]:::optNode
     urn__nixconf__ast__option__monitoring_dashboards[/"monitoring.dashboards"/]:::optNode
     urn__nixconf__ast__option__monitoring_enable[/"monitoring.enable"/]:::optNode
@@ -42,6 +41,15 @@ flowchart LR
     urn__nixconf__ast__option__persistence_enable[/"persistence.enable"/]:::optNode
     urn__nixconf__ast__option__persistence_files[/"persistence.files"/]:::optNode
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
+    urn__nixconf__ast__option__resources_disk[/"resources.disk"/]:::optNode
+    urn__nixconf__ast__option__resources_enable[/"resources.enable"/]:::optNode
+    urn__nixconf__ast__option__resources_oom[/"resources.oom"/]:::optNode
+    urn__nixconf__ast__option__resources_power[/"resources.power"/]:::optNode
+    urn__nixconf__ast__option__resources_profile[/"resources.profile"/]:::optNode
+    urn__nixconf__ast__option__resources_storageBudgets[/"resources.storageBudgets"/]:::optNode
+    urn__nixconf__ast__option__resources_tiers[/"resources.tiers"/]:::optNode
+    urn__nixconf__ast__option__resources_units[/"resources.units"/]:::optNode
+    urn__nixconf__ast__option__resources_volumes[/"resources.volumes"/]:::optNode
     urn__nixconf__ast__type__monitoring_agent[["monitoring.agent"]]:::typeNode
     urn__nixconf__ast__type__monitoring_dashboard[["monitoring.dashboard"]]:::typeNode
     urn__nixconf__ast__type__monitoring_exporters[["monitoring.exporters"]]:::typeNode
@@ -56,10 +64,27 @@ flowchart LR
     urn__nixconf__ast__type__monitoring_service[["monitoring.service"]]:::typeNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
+    urn__nixconf__ast__type__resources_byteSize[["resources.byteSize"]]:::typeNode
+    urn__nixconf__ast__type__resources_cgroupWeight[["resources.cgroupWeight"]]:::typeNode
+    urn__nixconf__ast__type__resources_cpuQuota[["resources.cpuQuota"]]:::typeNode
+    urn__nixconf__ast__type__resources_disk[["resources.disk"]]:::typeNode
+    urn__nixconf__ast__type__resources_onBattery[["resources.onBattery"]]:::typeNode
+    urn__nixconf__ast__type__resources_oom[["resources.oom"]]:::typeNode
+    urn__nixconf__ast__type__resources_oomPreference[["resources.oomPreference"]]:::typeNode
+    urn__nixconf__ast__type__resources_oomScore[["resources.oomScore"]]:::typeNode
+    urn__nixconf__ast__type__resources_percentage[["resources.percentage"]]:::typeNode
+    urn__nixconf__ast__type__resources_power[["resources.power"]]:::typeNode
+    urn__nixconf__ast__type__resources_profile[["resources.profile"]]:::typeNode
+    urn__nixconf__ast__type__resources_resourceSize[["resources.resourceSize"]]:::typeNode
+    urn__nixconf__ast__type__resources_storageBudget[["resources.storageBudget"]]:::typeNode
+    urn__nixconf__ast__type__resources_tier[["resources.tier"]]:::typeNode
+    urn__nixconf__ast__type__resources_unit[["resources.unit"]]:::typeNode
+    urn__nixconf__ast__type__resources_volume[["resources.volume"]]:::typeNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
@@ -92,6 +117,7 @@ flowchart LR
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lgtm["lgtm"]:::implNode
@@ -101,6 +127,24 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__lgtm
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_oom
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_power
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_storageBudgets
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_volumes
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_power
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
@@ -109,11 +153,13 @@ flowchart LR
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__impermanence -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__lgtm -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
@@ -126,13 +172,24 @@ flowchart LR
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_server
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__lgtm -.->|reads| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__monitoring_logs
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__monitoring_services
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__lgtm -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__x240_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_volumes
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__lgtm
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__ast__option__monitoring_agent -.->|typedBy| urn__nixconf__ast__type__monitoring_agent
@@ -246,16 +303,23 @@ flowchart LR
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__ast__option__resources_disk -.->|typedBy| urn__nixconf__ast__type__resources_disk
+    urn__nixconf__ast__option__resources_oom -.->|typedBy| urn__nixconf__ast__type__resources_oom
+    urn__nixconf__ast__option__resources_power -.->|typedBy| urn__nixconf__ast__type__resources_power
+    urn__nixconf__ast__option__resources_profile -.->|typedBy| urn__nixconf__ast__type__resources_profile
+    urn__nixconf__ast__option__resources_storageBudgets -.->|typedBy| urn__nixconf__ast__type__resources_storageBudget
+    urn__nixconf__ast__option__resources_tiers -.->|typedBy| urn__nixconf__ast__type__resources_tier
+    urn__nixconf__ast__option__resources_units -.->|typedBy| urn__nixconf__ast__type__resources_unit
+    urn__nixconf__ast__option__resources_volumes -.->|typedBy| urn__nixconf__ast__type__resources_volume
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__cgroups
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__docker
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lgtm
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop_features
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_disk
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_resources
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system
-    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_agent
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__onto__contract__monitoring -->|declares| urn__nixconf__ast__option__monitoring_enable
@@ -289,41 +353,74 @@ flowchart LR
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_enable
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_oom
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_power
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_storageBudgets
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_units
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_volumes
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_byteSize
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_cgroupWeight
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_cpuQuota
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_disk
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_onBattery
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_oom
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_oomPreference
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_oomScore
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_percentage
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_power
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_profile
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_resourceSize
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_storageBudget
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_tier
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_unit
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_volume
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -->|outputs| urn__nixconf__ast__module__docker
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
@@ -336,6 +433,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lgtm
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
@@ -344,15 +442,14 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_desktop_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_disk
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_hardware
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_packages
+    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_resources
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system
-    urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__ast__module__x240_system_features
     urn__nixconf__onto__host__x240 -->|outputs| urn__nixconf__eval__configuration__x240
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
@@ -376,6 +473,7 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lgtm
@@ -387,15 +485,24 @@ flowchart LR
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lgtm -->|outputs| urn__nixconf__ast__module__lgtm
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -407,6 +514,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
@@ -414,17 +522,16 @@ flowchart LR
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
 
 
+    click urn__nixconf__ast__module__cgroups href "../modules/cgroups.md" "cgroups"
     click urn__nixconf__ast__module__docker href "../modules/docker.md" "docker"
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__lgtm href "../modules/lgtm.md" "lgtm"
     click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
     click urn__nixconf__ast__module__x240_desktop href "../modules/x240-desktop.md" "x240-desktop"
-    click urn__nixconf__ast__module__x240_desktop_features href "../modules/x240-desktop-features.md" "x240-desktop-features"
     click urn__nixconf__ast__module__x240_disk href "../modules/x240-disk.md" "x240-disk"
     click urn__nixconf__ast__module__x240_hardware href "../modules/x240-hardware.md" "x240-hardware"
-    click urn__nixconf__ast__module__x240_packages href "../modules/x240-packages.md" "x240-packages"
+    click urn__nixconf__ast__module__x240_resources href "../modules/x240-resources.md" "x240-resources"
     click urn__nixconf__ast__module__x240_system href "../modules/x240-system.md" "x240-system"
-    click urn__nixconf__ast__module__x240_system_features href "../modules/x240-system-features.md" "x240-system-features"
     click urn__nixconf__ast__option__monitoring_agent href "../contracts/monitoring.md" "monitoring.agent"
     click urn__nixconf__ast__option__monitoring_dashboards href "../contracts/monitoring.md" "monitoring.dashboards"
     click urn__nixconf__ast__option__monitoring_enable href "../contracts/monitoring.md" "monitoring.enable"
@@ -444,6 +551,15 @@ flowchart LR
     click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
     click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
     click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
+    click urn__nixconf__ast__option__resources_disk href "../contracts/resources.md" "resources.disk"
+    click urn__nixconf__ast__option__resources_enable href "../contracts/resources.md" "resources.enable"
+    click urn__nixconf__ast__option__resources_oom href "../contracts/resources.md" "resources.oom"
+    click urn__nixconf__ast__option__resources_power href "../contracts/resources.md" "resources.power"
+    click urn__nixconf__ast__option__resources_profile href "../contracts/resources.md" "resources.profile"
+    click urn__nixconf__ast__option__resources_storageBudgets href "../contracts/resources.md" "resources.storageBudgets"
+    click urn__nixconf__ast__option__resources_tiers href "../contracts/resources.md" "resources.tiers"
+    click urn__nixconf__ast__option__resources_units href "../contracts/resources.md" "resources.units"
+    click urn__nixconf__ast__option__resources_volumes href "../contracts/resources.md" "resources.volumes"
     click urn__nixconf__ast__type__monitoring_agent href "../contracts/monitoring.md" "monitoring.agent"
     click urn__nixconf__ast__type__monitoring_dashboard href "../contracts/monitoring.md" "monitoring.dashboard"
     click urn__nixconf__ast__type__monitoring_exporters href "../contracts/monitoring.md" "monitoring.exporters"
@@ -458,10 +574,27 @@ flowchart LR
     click urn__nixconf__ast__type__monitoring_service href "../contracts/monitoring.md" "monitoring.service"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
+    click urn__nixconf__ast__type__resources_byteSize href "../contracts/resources.md" "resources.byteSize"
+    click urn__nixconf__ast__type__resources_cgroupWeight href "../contracts/resources.md" "resources.cgroupWeight"
+    click urn__nixconf__ast__type__resources_cpuQuota href "../contracts/resources.md" "resources.cpuQuota"
+    click urn__nixconf__ast__type__resources_disk href "../contracts/resources.md" "resources.disk"
+    click urn__nixconf__ast__type__resources_onBattery href "../contracts/resources.md" "resources.onBattery"
+    click urn__nixconf__ast__type__resources_oom href "../contracts/resources.md" "resources.oom"
+    click urn__nixconf__ast__type__resources_oomPreference href "../contracts/resources.md" "resources.oomPreference"
+    click urn__nixconf__ast__type__resources_oomScore href "../contracts/resources.md" "resources.oomScore"
+    click urn__nixconf__ast__type__resources_percentage href "../contracts/resources.md" "resources.percentage"
+    click urn__nixconf__ast__type__resources_power href "../contracts/resources.md" "resources.power"
+    click urn__nixconf__ast__type__resources_profile href "../contracts/resources.md" "resources.profile"
+    click urn__nixconf__ast__type__resources_resourceSize href "../contracts/resources.md" "resources.resourceSize"
+    click urn__nixconf__ast__type__resources_storageBudget href "../contracts/resources.md" "resources.storageBudget"
+    click urn__nixconf__ast__type__resources_tier href "../contracts/resources.md" "resources.tier"
+    click urn__nixconf__ast__type__resources_unit href "../contracts/resources.md" "resources.unit"
+    click urn__nixconf__ast__type__resources_volume href "../contracts/resources.md" "resources.volume"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__backup href "../contracts/backup.md" "backup"
     click urn__nixconf__onto__contract__monitoring href "../contracts/monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "../contracts/persistence.md" "persistence"
+    click urn__nixconf__onto__contract__resources href "../contracts/resources.md" "resources"
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
     click urn__nixconf__onto__contract__wayland href "../contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "antigravity.md" "antigravity"
@@ -494,6 +627,7 @@ flowchart LR
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__cgroups href "../implementations/cgroups.md" "cgroups"
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lgtm href "../implementations/lgtm.md" "lgtm"
@@ -570,6 +704,26 @@ Capability contracts configured by this feature:
 3: description = "Docker application container engine, socket activation, and state persistence.";
 ...
 21: persistence.directories = ["/var/lib/docker"];
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/resources.md">resources</a></code></summary>
+
+**Configures options**: `resources.units`
+
+```nix
+# modules/features/docker.nix
+...
+39: (lib.mkIf (config.resources.enable or false) {
+40: resources.units."docker.service".tier = lib.mkDefault "standard";
+41: })
+42: ]);
+...
+40: resources.units."docker.service".tier = lib.mkDefault "standard";
 ...
 ```
 

@@ -24,150 +24,28 @@ Declarative target host definitions binding concrete hardware configurations, pl
 
 ## Declaration Example
 
-Smallest declaration in the repository, [`modules/hosts/astrolabe.nix`](../../modules/hosts/astrolabe.nix):
-
-<details>
-<summary><code>modules/hosts/astrolabe.nix</code></summary>
+Smallest declaration in the repository, [`modules/hosts/x240/default.nix`](../../modules/hosts/x240/default.nix):
 
 ```nix
 {self, ...}: {
-  host.astrolabe = {
-    description = "Headless VPS Server (adje.app public edge and core services).";
+  host.x240 = {
+    description = "ThinkPad Laptop Workstation (Desktop graphical workstation).";
     configuration = {
       imports = [
-        self.nixosModules.astrolabe-hardware
-        self.nixosModules.astrolabe-disk
-        self.nixosModules.astrolabe-system
-        self.nixosModules.astrolabe-services
-        self.nixosModules.astrolabe-packages
+        self.nixosModules.x240-hardware
+        self.nixosModules.x240-disk
+        self.nixosModules.x240-system
+        self.nixosModules.x240-desktop
+        self.nixosModules.x240-resources
       ];
-    };
-    subModules = {
-      astrolabe-packages = {pkgs, ...}: {
-        environment.systemPackages = with pkgs; [
-          nano
-          rsync
-          btop
-        ];
-      };
-
-      astrolabe-services = {config, ...}: {
-        imports = [
-          self.nixosModules.caddy
-          self.nixosModules.authelia
-          self.nixosModules.lgtm
-          self.nixosModules.restic
-          self.nixosModules.snapshot
-          self.nixosModules.vaultwarden
-          self.nixosModules.ttyd
-          self.nixosModules.uchiyomi
-          self.nixosModules.copyparty
-        ];
-
-        config = {
-          reverse-proxy.domain = "adje.app";
-          monitoring = {
-            server.enable = true;
-            scrapes = {
-              prometheus.port = config.monitoring.server.prometheus.port;
-              loki.port = config.monitoring.server.loki.port;
-              grafana.port = config.monitoring.server.grafana.port;
-            };
-            services = {
-              grafana = {
-                units = ["grafana.service"];
-                vhost = "grafana.adje.app";
-                backupUnit = "grafana";
-              };
-              prometheus = {
-                units = ["prometheus.service"];
-                vhost = "prometheus.adje.app";
-              };
-              loki = {
-                units = ["loki.service"];
-                vhost = "loki.adje.app";
-              };
-            };
-            dashboards.lgtm-health = {
-              title = "Monitoring Stack Health";
-              folder = "Infrastructure";
-              json = self.lib.monitoring.dashboard.mkStackHealthDashboard {};
-            };
-          };
-          persistence.directories = [
-            "/var/lib/containers"
-          ];
-          testing.vm.allowedFailedUnits = [
-            "docker-*.service"
-          ];
-        };
-      };
-
-      astrolabe-system = {
-        imports = [
-          self.nixosModules.sops
-          self.nixosModules.rclone
-          self.nixosModules.lw
-          self.nixosModules.nix
-          self.nixosModules.locale
-          self.nixosModules.ssh
-          self.nixosModules.git
-        ];
-
-        config = {
-          networking.hostName = "astrolabe";
-          system.configurationRevision = self.rev or self.dirtyRev or "unknown";
-          system.stateVersion = "25.11";
-        };
-      };
-
-      astrolabe-disk = {...}: {
-        imports = [
-          self.nixosModules.disko
-          self.nixosModules.impermanence
-        ];
-
-        config =
-          self.lib.disko.mkLayout {
-            device = "/dev/sda";
-            espSize = "512M";
-            biosBootSize = "1M";
-          }
-          // {
-            zramSwap.enable = true;
-          };
-      };
-
-      astrolabe-hardware = {
-        modulesPath,
-        lib,
-        ...
-      }: {
-        imports = [
-          (modulesPath + "/installer/scan/not-detected.nix")
-          (modulesPath + "/profiles/qemu-guest.nix")
-        ];
-
-        config = {
-          nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-          boot.loader.grub = {
-            enable = true;
-            efiSupport = true;
-            efiInstallAsRemovable = true;
-            device = "/dev/sda";
-          };
-        };
-      };
     };
   };
 }
 ```
 
-</details>
-
 ## Catalog
 
 | Host | Description | System | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
-| [`astrolabe`](astrolabe.md) | Headless VPS Server (adje.app public edge and core services). | `x86_64-linux` | [`modules/hosts/astrolabe.nix`](../../modules/hosts/astrolabe.nix) | [More →](astrolabe.md) |
-| [`x240`](x240.md) | ThinkPad Laptop Workstation (Desktop graphical workstation). | `x86_64-linux` | [`modules/hosts/x240.nix`](../../modules/hosts/x240.nix) | [More →](x240.md) |
+| [`astrolabe`](astrolabe.md) | Headless VPS Server (adje.app public edge and core services). | `x86_64-linux` | [`modules/hosts/astrolabe/default.nix`](../../modules/hosts/astrolabe/default.nix) | [More →](astrolabe.md) |
+| [`x240`](x240.md) | ThinkPad Laptop Workstation (Desktop graphical workstation). | `x86_64-linux` | [`modules/hosts/x240/default.nix`](../../modules/hosts/x240/default.nix) | [More →](x240.md) |

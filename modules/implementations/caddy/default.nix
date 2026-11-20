@@ -145,6 +145,16 @@ in {
           json = internalCaddy.mkDashboard self.lib.monitoring.dashboard;
         };
       };
+
+      resources.units = lib.mkIf (config.resources.enable or false) {
+        "caddy.service" = {
+          tier = lib.mkDefault "critical";
+          memory = {
+            min = lib.mkDefault "32M";
+            low = lib.mkDefault "64M";
+          };
+        };
+      };
     };
   };
 }

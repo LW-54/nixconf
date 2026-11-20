@@ -15,12 +15,6 @@ flowchart LR
   urn__nixconf__ast__module__antigravity["nixosModule/antigravity"]:::defaultNode
     urn__nixconf__ast__module__antigravity_cli["nixosModule/antigravity-cli"]:::defaultNode
     urn__nixconf__ast__module__antigravity_ide["nixosModule/antigravity-ide"]:::defaultNode
-    urn__nixconf__ast__module__astrolabe["nixosModule/astrolabe"]:::defaultNode
-    urn__nixconf__ast__module__astrolabe_disk["nixosModule/astrolabe-disk"]:::defaultNode
-    urn__nixconf__ast__module__astrolabe_hardware["nixosModule/astrolabe-hardware"]:::defaultNode
-    urn__nixconf__ast__module__astrolabe_packages["nixosModule/astrolabe-packages"]:::defaultNode
-    urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
-    urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__bitwarden_desktop["nixosModule/bitwarden-desktop"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
@@ -56,13 +50,13 @@ flowchart LR
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__drv__package__dolphin[("package/dolphin")]:::pkgNode
     urn__nixconf__drv__package__foot[("package/foot")]:::pkgNode
-    urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
     urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
@@ -71,18 +65,13 @@ flowchart LR
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
-    urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__docker("docker"):::featureNode
     urn__nixconf__onto__feature__dolphin("dolphin"):::featureNode
     urn__nixconf__onto__feature__foot("foot"):::featureNode
-    urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__labwc("labwc"):::featureNode
-    urn__nixconf__onto__feature__locale("locale"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
-    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
-    urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
     urn__nixconf__onto__feature__vivaldi("vivaldi"):::featureNode
@@ -96,7 +85,6 @@ flowchart LR
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
-    urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
     urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity
     urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
@@ -109,11 +97,6 @@ flowchart LR
     urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
     urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__lgtm
-    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__lgtm
-    urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__lgtm
@@ -194,23 +177,6 @@ flowchart LR
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
     urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_packages
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__authelia
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__copyparty
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lgtm
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__lw
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__uchiyomi
-    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_enable
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_files
@@ -233,14 +199,15 @@ flowchart LR
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__direnv -->|outputs| urn__nixconf__ast__module__direnv
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -->|outputs| urn__nixconf__ast__module__docker
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__docker -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__dolphin -->|outputs| urn__nixconf__ast__module__dolphin
     urn__nixconf__onto__feature__dolphin -->|outputs| urn__nixconf__drv__package__dolphin
     urn__nixconf__onto__feature__dolphin -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -248,61 +215,46 @@ flowchart LR
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__drv__package__foot
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__git -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -->|outputs| urn__nixconf__ast__module__labwc
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__nix -->|outputs| urn__nixconf__ast__module__nix
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__nix -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__noctalia -->|outputs| urn__nixconf__ast__module__noctalia
     urn__nixconf__onto__feature__noctalia -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -->|outputs| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__vaultwarden -->|outputs| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__vaultwarden -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__vivaldi -->|outputs| urn__nixconf__ast__module__vivaldi
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -->|outputs| urn__nixconf__ast__module__vscode
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_disk
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_hardware
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_packages
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_services
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__ast__module__astrolabe_system
-    urn__nixconf__onto__host__astrolabe -->|outputs| urn__nixconf__eval__configuration__astrolabe
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
@@ -312,21 +264,18 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
-    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__docker
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__dolphin
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
-    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
-    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__noctalia
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
@@ -337,18 +286,19 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__authelia ==>|implements| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__caddy -->|outputs| urn__nixconf__ast__module__caddy
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
@@ -357,7 +307,9 @@ flowchart LR
     urn__nixconf__onto__implementation__lgtm -->|outputs| urn__nixconf__ast__module__lgtm
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__lgtm -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__lgtm ==>|implements| urn__nixconf__onto__contract__monitoring
@@ -377,22 +329,15 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
     click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
     click urn__nixconf__ast__module__antigravity_cli href "../modules/antigravity-cli.md" "antigravity-cli"
     click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
-    click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
-    click urn__nixconf__ast__module__astrolabe_disk href "../modules/astrolabe-disk.md" "astrolabe-disk"
-    click urn__nixconf__ast__module__astrolabe_hardware href "../modules/astrolabe-hardware.md" "astrolabe-hardware"
-    click urn__nixconf__ast__module__astrolabe_packages href "../modules/astrolabe-packages.md" "astrolabe-packages"
-    click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
-    click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__bitwarden_desktop href "../modules/bitwarden-desktop.md" "bitwarden-desktop"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
@@ -428,13 +373,13 @@ flowchart LR
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__drv__package__dolphin href "../packages.md#dolphin" "dolphin"
     click urn__nixconf__drv__package__foot href "../packages.md#foot" "foot"
-    click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
     click urn__nixconf__onto__contract__home href "home.md" "home"
     click urn__nixconf__onto__contract__monitoring href "monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__resources href "resources.md" "resources"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
@@ -443,18 +388,13 @@ flowchart LR
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
-    click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__docker href "../features/docker.md" "docker"
     click urn__nixconf__onto__feature__dolphin href "../features/dolphin.md" "dolphin"
     click urn__nixconf__onto__feature__foot href "../features/foot.md" "foot"
-    click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__labwc href "../features/labwc.md" "labwc"
-    click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
-    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
-    click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
     click urn__nixconf__onto__feature__vivaldi href "../features/vivaldi.md" "vivaldi"
@@ -468,7 +408,6 @@ flowchart LR
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
     click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__sops href "../implementations/sops.md" "sops"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -527,22 +466,6 @@ Providers satisfying the `persistence` contract capability:
 
 Modules and instances configuring options under the `persistence` contract capability:
 
-### Hosts
-
-<details>
-<summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
-
-**Configures options**: `persistence.directories`
-
-```nix
-# modules/hosts/astrolabe.nix
-...
-65: persistence.directories = [
-...
-```
-
-</details>
-
 
 
 ### Implementations
@@ -555,7 +478,7 @@ Modules and instances configuring options under the `persistence` contract capab
 ```nix
 # modules/implementations/authelia/default.nix
 ...
-367: persistence.directories = lib.mkIf (config.persistence.enable or false) (
+371: persistence.directories = lib.mkIf (config.persistence.enable or false) (
 ...
 ```
 
@@ -696,7 +619,7 @@ config = {
 ```nix
 # modules/features/copyparty.nix
 ...
-313: (self.lib.persistence.mkConfig {inherit config cfg;})
+320: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -800,10 +723,10 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-71: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-72: cache.directories = [
-73: ".cache/nix"
-74: ".cache/nix-index"
+76: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+77: cache.directories = [
+78: ".cache/nix"
+79: ".cache/nix-index"
 ...
 ```
 
@@ -851,7 +774,14 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-273: (self.lib.persistence.mkConfig {inherit config cfg;})
+284: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
+285: persistence.directories = ["/var/lib/containers"];
+286: })
+287: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+...
+285: persistence.directories = ["/var/lib/containers"];
+...
+288: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -866,7 +796,7 @@ config = {
 ```nix
 # modules/features/vaultwarden.nix
 ...
-49: (self.lib.persistence.mkConfig {inherit config cfg;})
+56: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 

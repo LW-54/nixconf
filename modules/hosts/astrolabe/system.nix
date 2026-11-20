@@ -1,0 +1,27 @@
+{self, ...}: {
+  host.astrolabe.subModules = {
+    astrolabe-system = {pkgs, ...}: {
+      imports = [
+        self.nixosModules.sops
+        self.nixosModules.cgroups
+        self.nixosModules.rclone
+        self.nixosModules.lw
+        self.nixosModules.nix
+        self.nixosModules.locale
+        self.nixosModules.ssh
+        self.nixosModules.git
+      ];
+
+      config = {
+        networking.hostName = "astrolabe";
+        environment.systemPackages = with pkgs; [
+          nano
+          rsync
+          btop
+        ];
+        system.configurationRevision = self.rev or self.dirtyRev or "unknown";
+        system.stateVersion = "25.11";
+      };
+    };
+  };
+}

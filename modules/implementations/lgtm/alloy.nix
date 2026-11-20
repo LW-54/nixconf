@@ -118,6 +118,11 @@
         else if unixCfg.collectors != []
         then "enable_collectors = ${builtins.toJSON (lib.unique unixCfg.collectors)}"
         else "";
+      textfileBlock = lib.optionalString (unixCfg.textfileDirectory != null) ''
+        textfile {
+          directory = ${builtins.toJSON unixCfg.textfileDirectory}
+        }
+      '';
       unixRelabelRules =
         (lib.optional (watchedUnits != []) (mkRelabelRule {
           sourceLabels = ["__name__" "name"];
@@ -153,6 +158,7 @@
     in ''
       prometheus.exporter.unix "host" {
         ${collectorLine}
+        ${textfileBlock}
       }
       ${lib.optionalString hasUnixRelabel ''
 
@@ -170,37 +176,45 @@
     '');
 
     cadvisorBlock = lib.optionalString (cfg.exporters.cadvisor.enable && metricsWriteUrl != null) (let
-      cadvisorServiceRules = lib.concatMap (sName: let
-        pats = serviceExactUnitPatterns enabledServices.${sName};
-      in
-        lib.optional (pats != []) (mkRelabelRule {
-          sourceLabels = ["id"];
-          regex = "/system\\.slice/(${lib.concatStringsSep "|" pats})";
-          targetLabel = "service";
-          replacement = sName;
-        }))
-      serviceNames;
-      hasCadvisorRelabel = cadvisorServiceRules != [];
-      cadvisorForward =
-        if hasCadvisorRelabel
-        then "prometheus.relabel.cadvisor_service.receiver"
-        else "prometheus.remote_write.default.receiver";
+      cadvisorRelabelRules =
+        [
+          (mkRelabelRule {
+            sourceLabels = ["id"];
+            regex = "/([^/]+)\\.slice(?:/.*)?";
+            targetLabel = "slice";
+            replacement = "$1";
+          })
+          (mkRelabelRule {
+            sourceLabels = ["id"];
+            regex = "/.+\\.slice/([^/]+\\.service)";
+            targetLabel = "unit";
+            replacement = "$1";
+          })
+        ]
+        ++ lib.concatMap (sName: let
+          pats = serviceExactUnitPatterns enabledServices.${sName};
+        in
+          lib.optional (pats != []) (mkRelabelRule {
+            sourceLabels = ["id"];
+            regex = "/.+\\.slice/(${lib.concatStringsSep "|" pats})";
+            targetLabel = "service";
+            replacement = sName;
+          }))
+        serviceNames;
     in ''
       prometheus.exporter.cadvisor "containers" {
         docker_only = ${lib.boolToString cfg.exporters.cadvisor.dockerOnly}
       }
-      ${lib.optionalString hasCadvisorRelabel ''
 
-        prometheus.relabel "cadvisor_service" {
-          ${lib.concatStringsSep "\n" cadvisorServiceRules}
-          forward_to = [prometheus.remote_write.default.receiver]
-        }
-      ''}
+      prometheus.relabel "cadvisor_relabel" {
+        ${lib.concatStringsSep "\n" cadvisorRelabelRules}
+        forward_to = [prometheus.remote_write.default.receiver]
+      }
 
       prometheus.scrape "cadvisor" {
         targets         = prometheus.exporter.cadvisor.containers.targets
         scrape_interval = ${builtins.toJSON cfg.agent.scrapeInterval}
-        forward_to      = [${cadvisorForward}]
+        forward_to      = [prometheus.relabel.cadvisor_relabel.receiver]
       }
     '');
 
@@ -510,6 +524,10 @@
           ];
         };
 
+        systemd.tmpfiles.rules =
+          lib.optional (cfg.exporters.unix.enable && cfg.exporters.unix.textfileDirectory != null)
+          "d ${cfg.exporters.unix.textfileDirectory} 0755 alloy alloy -";
+
         systemd.services.alloy = {
           after =
             lib.optional hasBasicAuthFile "sops-install-secrets.service"
@@ -519,6 +537,16 @@
             DynamicUser = lib.mkForce false;
             User = "alloy";
             Group = "alloy";
+          };
+        };
+
+        resources.units = lib.mkIf (config.resources.enable or false) {
+          "alloy.service" = {
+            tier = lib.mkDefault "standard";
+            memory = {
+              high = lib.mkDefault "15%";
+              max = lib.mkDefault "25%";
+            };
           };
         };
 

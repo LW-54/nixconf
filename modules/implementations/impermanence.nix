@@ -38,10 +38,28 @@
         "/persist/users/${userName}/cache".users.${userName} = mkUserScope userName "cache";
       };
 
+      entryPath = entry:
+        if builtins.isString entry
+        then entry
+        else entry.directory or entry.file;
+
+      managedVolumeMountPoints =
+        if (config.resources.enable or false)
+        then
+          lib.filter (mp: mp != null) (
+            lib.mapAttrsToList (
+              _: v:
+                if (v.enable or true) && (v.mode or "reserved") != "tmpfs"
+                then (v.mountPoint or null)
+                else null
+            ) (config.resources.volumes or {})
+          )
+        else [];
+
       systemPersistence = {
         ${systemRoot} = {
           hideMounts = true;
-          directories =
+          directories = builtins.filter (entry: !(builtins.elem (entryPath entry) managedVolumeMountPoints)) (
             [
               "/etc/nixos"
               "/var/log"
@@ -53,7 +71,8 @@
                 mode = "1777";
               }
             ]
-            ++ cfg.directories;
+            ++ cfg.directories
+          );
           files =
             [
               "/etc/machine-id"
@@ -61,10 +80,6 @@
             ++ cfg.files;
         };
       };
-      entryPath = entry:
-        if builtins.isString entry
-        then entry
-        else entry.directory or entry.file;
       persistedDirectories = map entryPath systemPersistence.${systemRoot}.directories;
       ephemeralRoot = (config.fileSystems."/".fsType or "") == "tmpfs";
     in {

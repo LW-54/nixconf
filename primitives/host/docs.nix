@@ -191,7 +191,7 @@
                 grouped = lib.groupBy (e: e.target) edges;
                 optionsOf = otherId: lib.unique (lib.filter (o: o != null) (map (e: e.qualifier or (e.properties.optionWritten or null)) grouped.${otherId}));
 
-                hostFile = ctx.sourceOf "host" name;
+                hostFiles = ctx.sourceFilesOf "host" name;
 
                 renderConsumedContract = otherId: let
                   cNode = ctx.graph.nodes.${otherId} or null;
@@ -206,7 +206,7 @@
                     else "*general contract configuration*";
 
                   codeSnippet = ctx.targetedSnippet {
-                    file = hostFile;
+                    files = hostFiles;
                     options = opts;
                     terms = ["${cName}." "${cName} ="];
                     hostName = name;

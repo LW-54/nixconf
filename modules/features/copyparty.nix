@@ -195,6 +195,13 @@
           }
           // self.lib.monitoring.mkOption {
             units = ["copyparty.service"];
+          }
+          // self.lib.resources.mkOption {
+            tier = "standard";
+            memory = {
+              high = "25%";
+              max = "40%";
+            };
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -317,6 +324,7 @@
             inherit config cfg;
             name = "copyparty";
           })
+          (self.lib.resources.mkConfig {inherit config cfg;})
           (lib.mkIf ((config.monitoring.enable or false) && cfg.enableGdrive) {
             monitoring.services.copyparty.storageMounts = [cfg.gdriveMountPoint];
           })

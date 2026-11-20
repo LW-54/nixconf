@@ -35,6 +35,13 @@
           }
           // self.lib.monitoring.mkOption {
             units = ["ttyd-web.service"];
+          }
+          // self.lib.resources.mkOption {
+            tier = "standard";
+            memory = {
+              high = "20%";
+              max = "35%";
+            };
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -58,6 +65,7 @@
             inherit config cfg;
             name = "ttyd";
           })
+          (self.lib.resources.mkConfig {inherit config cfg;})
         ]);
       };
     };

@@ -299,10 +299,10 @@
                     then lib.concatStringsSep ", " (map (o: "`${o}`") opts)
                     else "*general contract configuration*";
 
-                  srcFile = ctx.sourceOf srcKind srcName;
+                  srcFiles = ctx.sourceFilesOf srcKind srcName;
 
                   codeSnippet = ctx.targetedSnippet {
-                    file = srcFile;
+                    files = srcFiles;
                     options = opts;
                     terms = ["${name}." "${name} =" "self.lib.${name}"];
                     hostName =

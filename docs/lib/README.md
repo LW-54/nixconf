@@ -8,7 +8,7 @@ Pure reusable helper functions, data types, calculations, and configuration pres
 
 - **Declared as**: `lib.<name>` in any flake-parts module under `modules/` or `primitives/`
 - **Primitive definition**: [`primitives/lib/default.nix`](../../primitives/lib/default.nix)
-- **Instances**: 19
+- **Instances**: 20
 
 ## Option Schema (`lib.<name>`)
 
@@ -75,6 +75,7 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 | [`monitoring`](monitoring.md) | Library helpers and constructors for the 'monitoring' contract. | [`dashboard`](monitoring.md#dashboard), [`mkConfig`](monitoring.md#mkConfig), [`mkOption`](monitoring.md#mkOption), [`types`](monitoring.md#types) | [`modules/contracts/monitoring/default.nix`](../../modules/contracts/monitoring/default.nix) | [More →](monitoring.md) |
 | [`persistence`](persistence.md) | Library helpers and constructors for the 'persistence' contract. | [`entries`](persistence.md#entries), [`mkConfig`](persistence.md#mkConfig), [`mkOption`](persistence.md#mkOption), [`types`](persistence.md#types) | [`modules/contracts/persistence.nix`](../../modules/contracts/persistence.nix) | [More →](persistence.md) |
 | [`primitive`](primitive.md) | Primitives framework helper functions, option constructors, and utilities. | [`check`](primitive.md#check), [`option`](primitive.md#option), [`output`](primitive.md#output), [`parser`](primitive.md#parser), [`schemas`](primitive.md#schemas), [`unwrapLib`](primitive.md#unwrapLib) | [`primitives/primitive/default.nix`](../../primitives/primitive/default.nix) | [More →](primitive.md) |
+| [`resources`](resources.md) | Library helpers and constructors for the 'resources' contract. | [`mkConfig`](resources.md#mkConfig), [`mkOption`](resources.md#mkOption), [`profiles`](resources.md#profiles), [`sliceName`](resources.md#sliceName), [`toBytes`](resources.md#toBytes), [`types`](resources.md#types) | [`modules/contracts/resources/default.nix`](../../modules/contracts/resources/default.nix) | [More →](resources.md) |
 | [`reverse-proxy`](reverse-proxy.md) | Library helpers and constructors for the 'reverse-proxy' contract. | [`findPortConflicts`](reverse-proxy.md#findPortConflicts), [`mkConfig`](reverse-proxy.md#mkConfig), [`mkOption`](reverse-proxy.md#mkOption), [`mkPort`](reverse-proxy.md#mkPort), [`types`](reverse-proxy.md#types) | [`modules/contracts/reverse-proxy/default.nix`](../../modules/contracts/reverse-proxy/default.nix) | [More →](reverse-proxy.md) |
 | [`secrets`](secrets.md) | Library helpers and constructors for the 'secrets' contract. | [`mkConfig`](secrets.md#mkConfig), [`mkOption`](secrets.md#mkOption), [`types`](secrets.md#types) | [`modules/contracts/secrets.nix`](../../modules/contracts/secrets.nix) | [More →](secrets.md) |
 | [`sops`](sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`mkHostShell`](sops.md#mkHostShell), [`mkTestSecrets`](sops.md#mkTestSecrets), [`mkWriteSecretScript`](sops.md#mkWriteSecretScript) | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](sops.md) |

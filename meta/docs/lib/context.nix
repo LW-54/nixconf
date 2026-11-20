@@ -209,8 +209,9 @@
       then "`${text}`"
       else "[`${text}`](${target})";
 
-    # Repository-relative source path of an instance
+    # Repository-relative source path(s) of an instance
     sourceOf = kind: name: config.internal.graph.extractors.onto.resolveFile kind name;
+    sourceFilesOf = kind: name: config.internal.graph.extractors.onto.resolveFiles kind name;
 
     # Evaluated option schema table for a primitive
     schemaOptionsTable = kind: let
@@ -327,37 +328,44 @@
 
     # Targeted source code snippet matching specific terms/options with line numbers
     targetedSnippet = {
-      file,
+      file ? null,
+      files ? (lib.optional (file != null) file),
       terms ? [],
       options ? [],
       hostName ? null,
     }: let
-      fullPath = self + "/${file}";
-      exists = file != null && builtins.pathExists fullPath;
-      lines =
-        if exists
-        then lib.splitString "\n" (builtins.readFile fullPath)
-        else [];
-      withIdx = lib.imap1 (idx: line: {inherit idx line;}) lines;
       clean = l: lib.trim l;
       isComment = l: lib.hasPrefix "#" (clean l) || lib.hasPrefix "//" (clean l) || lib.hasPrefix "/*" (clean l);
       allTerms = terms ++ options;
-      matches =
-        lib.filter (
-          x:
-            !isComment x.line && clean x.line != "" && lib.any (t: lib.hasInfix t x.line) allTerms
-        )
-        withIdx;
-      formattedMatches = map (m: let
-        trimmed = clean m.line;
-        needsBlock = lib.hasSuffix "{" trimmed || lib.hasSuffix "=" trimmed;
-        blockLines =
-          if needsBlock
-          then map (i: "${toString i}: ${clean (builtins.elemAt lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) (builtins.length lines)))
-          else ["${toString m.idx}: ${trimmed}"];
+      renderFileMatches = f: let
+        fullPath = self + "/${f}";
+        exists = f != null && builtins.pathExists fullPath;
+        lines =
+          if exists
+          then lib.splitString "\n" (builtins.readFile fullPath)
+          else [];
+        withIdx = lib.imap1 (idx: line: {inherit idx line;}) lines;
+        matches =
+          lib.filter (
+            x:
+              !isComment x.line && clean x.line != "" && lib.any (t: lib.hasInfix t x.line) allTerms
+          )
+          withIdx;
+        formattedMatches = map (m: let
+          trimmed = clean m.line;
+          needsBlock = lib.hasSuffix "{" trimmed || lib.hasSuffix "=" trimmed;
+          blockLines =
+            if needsBlock
+            then map (i: "${toString i}: ${clean (builtins.elemAt lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) (builtins.length lines)))
+            else ["${toString m.idx}: ${trimmed}"];
+        in
+          lib.concatStringsSep "\n" blockLines)
+        matches;
       in
-        lib.concatStringsSep "\n" blockLines)
-      matches;
+        if matches != []
+        then "# " + f + "\n...\n" + lib.concatStringsSep "\n...\n" formattedMatches + "\n..."
+        else null;
+      fileSnippets = lib.filter (s: s != null) (map renderFileMatches (lib.unique (lib.filter (f: f != null) files)));
       evalSnippet =
         if options != []
         then
@@ -369,14 +377,14 @@
             valTry = builtins.tryEval (lib.attrByPath (lib.splitString "." o) null cfg);
             valStr =
               if valTry.success && valTry.value != null
-              then lib.generators.toPretty {} valTry.value
+              then builtins.replaceStrings ["${toString self.outPath}/"] ["./"] (builtins.unsafeDiscardStringContext (lib.generators.toPretty {} valTry.value))
               else "...";
           in "${o} = ${valStr};")
           options
         else null;
     in
-      if matches != []
-      then "# " + file + "\n...\n" + lib.concatStringsSep "\n...\n" formattedMatches + "\n..."
+      if fileSnippets != []
+      then lib.concatStringsSep "\n\n" fileSnippets
       else if evalSnippet != null
       then "config = {\n  " + evalSnippet + "\n};"
       else null;

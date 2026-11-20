@@ -12,7 +12,8 @@ Declarative multi-provider storage contract separating open driver definitions, 
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
+  urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
+    urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
@@ -35,6 +36,7 @@ flowchart LR
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
@@ -43,9 +45,14 @@ flowchart LR
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
 
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__storage_activeSlices
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_enable
@@ -54,10 +61,13 @@ flowchart LR
     urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_enable
     urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_mounts
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__storage_activeSlices
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__storage_activeSlices
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_enable
@@ -98,31 +108,43 @@ flowchart LR
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__uchiyomi -->|outputs| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__uchiyomi -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
+    urn__nixconf__onto__implementation__cgroups -->|outputs| urn__nixconf__ast__module__cgroups
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__storage
+    urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -133,11 +155,13 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
 
 
+    click urn__nixconf__ast__module__cgroups href "../modules/cgroups.md" "cgroups"
     click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
@@ -161,6 +185,7 @@ flowchart LR
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__monitoring href "monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__resources href "resources.md" "resources"
     click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
@@ -169,6 +194,7 @@ flowchart LR
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__cgroups href "../implementations/cgroups.md" "cgroups"
     click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
 
@@ -254,6 +280,21 @@ Modules and instances configuring options under the `storage` contract capabilit
 ### Implementations
 
 <details>
+<summary><code><a href="../implementations/cgroups.md">cgroups</a></code></summary>
+
+**Configures options**: `storage.activeSlices`
+
+```nix
+# modules/implementations/cgroups/default.nix
+...
+271: ++ lib.optional (hasStorageBudgets && (config.storage.enable or false)) "resources-storage-budgets.timer";
+...
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../implementations/restic.md">restic</a></code></summary>
 
 **Configures options**: `storage.activeSlices`
@@ -289,22 +330,22 @@ Modules and instances configuring options under the `storage` contract capabilit
 ...
 104: then "${cfg.storage.mountPoint}/drop"
 ...
-204: storage = lib.mkIf cfg.enableGdrive {
-205: enable = lib.mkDefault true;
-206: mounts.gdrive = {
-207: enable = true;
+211: storage = lib.mkIf cfg.enableGdrive {
+212: enable = lib.mkDefault true;
+213: mounts.gdrive = {
+214: enable = true;
 ...
-225: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
+232: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 ${cfg.user} ${cfg.group} -"
 ...
-235: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+242: ++ lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
 ...
-236: wants = lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
+243: wants = lib.optionals cfg.storage.enable ["rclone-config.service" "copyparty-storage-prep.service"];
 ...
-270: slice=${lib.escapeShellArg cfg.storage.slice}
+277: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-289: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
+296: vm.allowedFailedUnits = lib.optional cfg.storage.enable "copyparty-storage-prep.service";
 ...
-315: (self.lib.storage.mkConfig {inherit config cfg;})
+322: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -332,11 +373,11 @@ Modules and instances configuring options under the `storage` contract capabilit
 ...
 330: storage.activeSlices = lib.unique (lib.mapAttrsToList (_: t: t.slice) enabledTargets);
 ...
-398: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
+408: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
 ...
-402: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
+412: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
 ...
-403: message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
+413: message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
 ...
 ```
 
@@ -351,29 +392,29 @@ Modules and instances configuring options under the `storage` contract capabilit
 ```nix
 # modules/features/uchiyomi.nix
 ...
-57: if cfg.storage.enable && cfg.storage.mountPoint != null
+60: if cfg.storage.enable && cfg.storage.mountPoint != null
 ...
-58: then "${cfg.storage.mountPoint}/library"
+61: then "${cfg.storage.mountPoint}/library"
 ...
-66: if cfg.storage.enable && cfg.storage.mountPoint != null
+69: if cfg.storage.enable && cfg.storage.mountPoint != null
 ...
-67: then "${cfg.storage.mountPoint}/downloads"
+70: then "${cfg.storage.mountPoint}/downloads"
 ...
-130: ++ lib.optional cfg.storage.enable "uchiyomi-storage-prep.service";
+136: ++ lib.optional cfg.storage.enable "uchiyomi-storage-prep.service";
 ...
-213: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
+225: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
 ...
-214: ++ lib.optionals (!cfg.storage.enable) [
+226: ++ lib.optionals (!cfg.storage.enable) [
 ...
-248: slice=${lib.escapeShellArg cfg.storage.slice}
+260: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-263: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+275: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-266: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+278: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-269: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
+281: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
 ...
-275: (self.lib.storage.mkConfig {inherit config cfg;})
+290: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 

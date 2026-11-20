@@ -12,7 +12,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`astrolabe`](astrolabe.md) | host [`astrolabe`](../hosts/astrolabe.md) | Headless VPS Server (adje.app public edge and core services). | [More →](astrolabe.md) |
 | [`astrolabe-disk`](astrolabe-disk.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-disk.md) |
 | [`astrolabe-hardware`](astrolabe-hardware.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-hardware.md) |
-| [`astrolabe-packages`](astrolabe-packages.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-packages.md) |
+| [`astrolabe-resources`](astrolabe-resources.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-resources.md) |
 | [`astrolabe-services`](astrolabe-services.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-services.md) |
 | [`astrolabe-system`](astrolabe-system.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-system.md) |
 | [`audio`](audio.md) | feature [`audio`](../features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](audio.md) |
@@ -22,6 +22,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`bitwarden-desktop`](bitwarden-desktop.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bitwarden-desktop.md) |
 | [`bw`](bw.md) | feature [`bitwarden`](../features/bitwarden.md) | NixOS module exported by feature 'bitwarden'. | [More →](bw.md) |
 | [`caddy`](caddy.md) | implementation [`caddy`](../implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [More →](caddy.md) |
+| [`cgroups`](cgroups.md) | implementation [`cgroups`](../implementations/cgroups.md) | Systemd control groups v2 tiering, OOM ordering, power policy, local disk volumes, and remote storage budget implementation. | [More →](cgroups.md) |
 | [`contracts`](contracts.md) | — | Exported NixOS module 'contracts'. | [More →](contracts.md) |
 | [`copyparty`](copyparty.md) | feature [`copyparty`](../features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [More →](copyparty.md) |
 | [`cosmic`](cosmic.md) | feature [`cosmic`](../features/cosmic.md) | Next-generation COSMIC desktop environment and greeter. | [More →](cosmic.md) |
@@ -48,6 +49,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
 | [`persistence`](persistence.md) | contract [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](persistence.md) |
 | [`rclone`](rclone.md) | implementation [`rclone`](../implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [More →](rclone.md) |
+| [`resources`](resources.md) | contract [`resources`](../contracts/resources.md) | Declarative compute tiering, cgroups v2 limits, OOM ordering, power-aware throttling, local disk volumes, and remote storage budgets. | [More →](resources.md) |
 | [`restic`](restic.md) | implementation [`restic`](../implementations/restic.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [More →](restic.md) |
 | [`reverse-proxy`](reverse-proxy.md) | contract [`reverse-proxy`](../contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [More →](reverse-proxy.md) |
 | [`secrets`](secrets.md) | contract [`secrets`](../contracts/secrets.md) | Declarative encrypted secrets provisioning, filesystem mounting, and permission management. | [More →](secrets.md) |
@@ -67,9 +69,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`wifi-eduroam`](wifi-eduroam.md) | feature [`wifi-eduroam`](../features/wifi-eduroam.md) | Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager. | [More →](wifi-eduroam.md) |
 | [`x240`](x240.md) | host [`x240`](../hosts/x240.md) | ThinkPad Laptop Workstation (Desktop graphical workstation). | [More →](x240.md) |
 | [`x240-desktop`](x240-desktop.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-desktop.md) |
-| [`x240-desktop-features`](x240-desktop-features.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-desktop-features.md) |
 | [`x240-disk`](x240-disk.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-disk.md) |
 | [`x240-hardware`](x240-hardware.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-hardware.md) |
-| [`x240-packages`](x240-packages.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-packages.md) |
+| [`x240-resources`](x240-resources.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-resources.md) |
 | [`x240-system`](x240-system.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-system.md) |
-| [`x240-system-features`](x240-system-features.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-system-features.md) |

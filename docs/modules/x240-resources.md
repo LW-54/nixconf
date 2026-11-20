@@ -1,10 +1,10 @@
-# Module: `x240-system-features`
+# Module: `x240-resources`
 
 NixOS module exported by host 'x240'.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-- **Attribute**: `flake.nixosModules.x240-system-features`
+- **Attribute**: `flake.nixosModules.x240-resources`
 - **Provided by**: host [`x240`](../hosts/x240.md)
 
 ## Importing Hosts

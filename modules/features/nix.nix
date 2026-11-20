@@ -33,7 +33,12 @@
           };
 
           nix = {
+            daemonCPUSchedPolicy = lib.mkDefault "idle";
+            daemonIOSchedClass = lib.mkDefault "idle";
+
             settings = {
+              cores = lib.mkDefault 0;
+              max-jobs = lib.mkDefault "auto";
               experimental-features = ["nix-command" "flakes"];
               auto-optimise-store = true;
               extra-substituters = [
@@ -83,6 +88,23 @@
               ["nix-daemon.service" "nix-gc.service"]
               ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
           };
+
+          resources.units = lib.mkIf (config.resources.enable or false) (
+            {
+              "nix-daemon.service".tier = lib.mkDefault "background";
+              "nix-gc.service" = {
+                tier = lib.mkDefault "background";
+                deferOnBattery = lib.mkDefault true;
+              };
+              "nix-optimise.service" = {
+                tier = lib.mkDefault "background";
+                deferOnBattery = lib.mkDefault true;
+              };
+            }
+            // lib.optionalAttrs config.nix.cachixWatchStore {
+              "cachix-watch-store-agent.service".tier = lib.mkDefault "background";
+            }
+          );
         };
       };
     };

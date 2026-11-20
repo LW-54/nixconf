@@ -8,7 +8,7 @@
   container = config.internal.graph.core.container;
   source = config.internal.graph.extractors.source;
   ontoMeta = config.internal.graph.extractors.ontoMetadata;
-  inherit (source) relativeSource referenceConfiguration instanceDefinitions resolveFile instanceSourceText attrSourceCode;
+  inherit (source) relativeSource referenceConfiguration instanceDefinitions resolveFile resolveFiles instanceSourceText attrSourceCode;
 
   /**
   Extracts the Ontological Intent Stratum (primitives, instances, contracts, implementations).
@@ -145,6 +145,6 @@
 in {
   internal.graph.extractors.onto = {
     extract = extractOnto;
-    inherit relativeSource instanceDefinitions resolveFile instanceSourceText attrSourceCode referenceConfiguration;
+    inherit relativeSource instanceDefinitions resolveFile resolveFiles instanceSourceText attrSourceCode referenceConfiguration;
   };
 }

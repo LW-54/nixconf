@@ -231,6 +231,13 @@
           default = [];
           description = "Explicit replacement list of collectors enabled on the host OS exporter.";
         };
+
+        textfileDirectory = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "/var/lib/alloy/textfile";
+          description = "Optional directory of Prometheus `.prom` textfiles scraped by the host OS exporter `textfile` collector.";
+        };
       };
 
       cadvisor = {

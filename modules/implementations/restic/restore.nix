@@ -1,5 +1,6 @@
 {
   internal.restic.mkRestore = {
+    config,
     lib,
     pkgs,
     resolvedUnits,
@@ -11,9 +12,22 @@
       )
       resolvedUnits;
 
+    mountedVolumes =
+      if (config.resources.enable or false)
+      then
+        lib.filterAttrs (_: v: (v.enable or true) && (v.mountPoint or null) != null)
+        (config.resources.volumes or {})
+      else {};
+
     mkUnitRestore = uName: u: let
       uCfg = u.unit;
       destRepos = map (d: d.repository) u.destinations;
+      matchingVols = builtins.attrNames (
+        lib.filterAttrs (
+          _: v: lib.any (p: p == v.mountPoint || lib.hasPrefix "${v.mountPoint}/" p) uCfg.paths
+        )
+        mountedVolumes
+      );
 
       script = pkgs.writeShellApplication {
         name = "nixconf-restic-restore-${uName}";
@@ -59,7 +73,7 @@
               elif [ ! -e "$p" ]; then
                 missing_paths+=("$p")
               elif [ -d "$p" ]; then
-                if [ -z "$(find "$p" -mindepth 1 -maxdepth 1 -print -quit 2>/dev/null)" ]; then
+                if [ -z "$(find "$p" -mindepth 1 -maxdepth 1 ! -name 'lost+found' -print -quit 2>/dev/null)" ]; then
                   missing_paths+=("$p")
                 fi
               fi
@@ -164,23 +178,31 @@
     in {
       package = script;
       serviceName = "restic-restore-${uName}";
-      service = {
-        description = "Boot-time restic auto-restore for backup unit '${uName}'";
-        after = [
-          "rclone-config.service"
-          "sops-install-secrets.service"
-          "network-online.target"
-        ];
-        wants = ["network-online.target"];
-        requires = ["rclone-config.service"];
-        before = uCfg.beforeUnits;
-        wantedBy = lib.unique (["multi-user.target"] ++ uCfg.beforeUnits);
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = lib.getExe script;
+      service =
+        {
+          description = "Boot-time restic auto-restore for backup unit '${uName}'";
+          after =
+            [
+              "rclone-config.service"
+              "sops-install-secrets.service"
+              "network-online.target"
+            ]
+            ++ map (vName: "resources-volume-${vName}-perms.service") matchingVols;
+          wants = ["network-online.target"];
+          requires =
+            ["rclone-config.service"]
+            ++ map (vName: "resources-volume-${vName}-perms.service") matchingVols;
+          before = uCfg.beforeUnits;
+          wantedBy = lib.unique (["multi-user.target"] ++ uCfg.beforeUnits);
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = lib.getExe script;
+          };
+        }
+        // lib.optionalAttrs (matchingVols != []) {
+          unitConfig.RequiresMountsFor = map (vName: mountedVolumes.${vName}.mountPoint) matchingVols;
         };
-      };
     };
 
     builtUnits = lib.mapAttrs mkUnitRestore restorableUnits;

@@ -22,6 +22,9 @@
           else config.virtualisation.podman.package;
 
         domain = config.reverse-proxy.domain or null;
+        cgroupParentOpts = lib.optionals ((config.resources.enable or false) && cfg.resources.enable) [
+          "--cgroup-parent=${self.lib.resources.sliceName cfg.resources.tier}"
+        ];
       in {
         options.services.uchiyomi-server =
           {
@@ -112,6 +115,9 @@
           }
           // self.lib.monitoring.mkOption {
             units = map (c: "${backend}-${c}.service") containers;
+          }
+          // self.lib.resources.mkOption {
+            tier = "standard";
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -136,10 +142,12 @@
                 environment = {
                   LOG_LEVEL = "warning";
                 };
-                extraOptions = [
-                  "--shm-size=1g"
-                  "--memory=2g"
-                ];
+                extraOptions =
+                  [
+                    "--shm-size=1g"
+                    "--memory=2g"
+                  ]
+                  ++ cgroupParentOpts;
               };
 
               ${suwayomiHost} = {
@@ -158,9 +166,11 @@
                 volumes = [
                   "${cfg.dataDir}/suwayomi:/home/suwayomi/.local/share/Tachidesk"
                 ];
-                extraOptions = [
-                  "--memory=2048m"
-                ];
+                extraOptions =
+                  [
+                    "--memory=2048m"
+                  ]
+                  ++ cgroupParentOpts;
               };
 
               uchiyomi = {
@@ -196,9 +206,11 @@
                   "${cfg.libraryPath}:/library"
                   "${cfg.cacheDir}:/cache"
                 ];
-                extraOptions = [
-                  "--stop-timeout=40"
-                ];
+                extraOptions =
+                  [
+                    "--stop-timeout=40"
+                  ]
+                  ++ cgroupParentOpts;
               };
             };
 
@@ -269,6 +281,9 @@
                   unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
                 });
           }
+          (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
+            persistence.directories = ["/var/lib/containers"];
+          })
           (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
           (self.lib.persistence.mkConfig {inherit config cfg;})
           (self.lib.backup.mkConfig {inherit config cfg;})
@@ -277,6 +292,7 @@
             inherit config cfg;
             name = "uchiyomi";
           })
+          (self.lib.resources.mkConfig {inherit config cfg;})
           (lib.mkIf (config.monitoring.enable or false) {
             monitoring = {
               exporters.cadvisor.enable = true;

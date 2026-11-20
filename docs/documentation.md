@@ -5,7 +5,7 @@ How the documentation is generated from code, and where to declare the documenta
 [← Back to Main README](../README.md)
 
 > [!TIP]
-> **Documentation Health**: **100.0%** (192/192 items documented).
+> **Documentation Health**: **100.0%** (201/201 items documented).
 > See the full [Documentation Coverage & Quality Audit](coverage.md).
 
 ## Principles
@@ -61,6 +61,7 @@ Modules currently contributing pages or cross-primitive sections:
 - [`meta/ci/docs.nix`](../meta/ci/docs.nix)
 - [`modules/features/tack.nix`](../modules/features/tack.nix)
 - [`modules/features/disko.nix`](../modules/features/disko.nix)
+- [`modules/contracts/resources/default.nix`](../modules/contracts/resources/default.nix)
 - [`modules/contracts/persistence.nix`](../modules/contracts/persistence.nix)
 
 ## Writing Documentation

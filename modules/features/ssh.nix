@@ -229,6 +229,15 @@
               };
             };
           })
+          (lib.mkIf (config.resources.enable or false) {
+            resources.units."sshd.service" = {
+              tier = lib.mkDefault "critical";
+              memory = {
+                min = lib.mkDefault "16M";
+                low = lib.mkDefault "32M";
+              };
+            };
+          })
         ]);
       };
     };

@@ -32,7 +32,7 @@ in {
             w = 6;
             unit = "bytes";
             decimals = 1;
-            expr = ''sum(container_memory_working_set_bytes{host=~"$host",id=~"/system\\.slice/.*\\.service"})'';
+            expr = ''sum(container_memory_working_set_bytes{host=~"$host",unit=~".+\\.service"})'';
             legend = "Services";
           })
           (d.mkStat {
@@ -93,14 +93,14 @@ in {
                 w = 12;
                 unit = "bytes";
                 thresholds = d.thresholds.neutral;
-                expr = ''topk(12, label_replace(container_memory_working_set_bytes{host=~"$host",id=~"/system\\.slice/.*\\.service"}, "service", "$1", "id", "/system\\.slice/(.*)\\.service"))'';
-                legend = "{{host}} {{service}}";
+                expr = ''topk(12, container_memory_working_set_bytes{host=~"$host",unit=~".+\\.service"})'';
+                legend = "{{host}} {{unit}} ({{slice}})";
               })
               (d.mkTimeseries {
                 title = "Top 12 Services — CPU Usage (cores)";
                 w = 12;
-                expr = ''topk(12, label_replace(rate(container_cpu_usage_seconds_total{host=~"$host",id=~"/system\\.slice/.*\\.service"}[5m]), "service", "$1", "id", "/system\\.slice/(.*)\\.service"))'';
-                legend = "{{host}} {{service}}";
+                expr = ''topk(12, rate(container_cpu_usage_seconds_total{host=~"$host",unit=~".+\\.service"}[5m]))'';
+                legend = "{{host}} {{unit}} ({{slice}})";
               })
             ]
           ];

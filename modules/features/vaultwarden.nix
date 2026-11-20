@@ -28,6 +28,13 @@
           }
           // self.lib.monitoring.mkOption {
             units = ["vaultwarden.service"];
+          }
+          // self.lib.resources.mkOption {
+            tier = "critical";
+            memory = {
+              min = "32M";
+              low = "64M";
+            };
           };
 
         config = lib.mkIf cfg.enable (lib.mkMerge [
@@ -52,6 +59,7 @@
             inherit config cfg;
             name = "vaultwarden";
           })
+          (self.lib.resources.mkConfig {inherit config cfg;})
         ]);
       };
     };

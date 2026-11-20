@@ -135,7 +135,11 @@ in {
         }
       ];
 
-      auth.directory.adminEmail = lib.mkDefault "leonardwilsonb@gmail.com";
+      auth.directory.adminEmail = lib.mkDefault (
+        if (config.default-user.enable or false) && (config.default-user.email or null) != null
+        then config.default-user.email
+        else "admin@example.com"
+      );
 
       users.groups.lldap = lib.mkIf cfg.directory.enable {};
       users.users.lldap = lib.mkIf cfg.directory.enable {
@@ -455,6 +459,27 @@ in {
           json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
         };
       };
+
+      resources.units = lib.mkIf (config.resources.enable or false) (
+        {
+          "authelia-main.service" = {
+            tier = lib.mkDefault "critical";
+            memory = {
+              min = lib.mkDefault "32M";
+              low = lib.mkDefault "64M";
+            };
+          };
+        }
+        // lib.optionalAttrs cfg.directory.enable {
+          "lldap.service" = {
+            tier = lib.mkDefault "critical";
+            memory = {
+              min = lib.mkDefault "32M";
+              low = lib.mkDefault "64M";
+            };
+          };
+        }
+      );
 
       testing.authelia = {
         description = "Authelia SSO, forward-auth middleware, and LLDAP directory verification";
