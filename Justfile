@@ -13,13 +13,21 @@ ide path=".":
         nix run .#antigravity-ide -- {{path}}; \
     fi
 
-# Rebuild and switch NixOS configuration for local machine
-switch host="x240":
+# Rebuild and switch NixOS configuration for local or specified host
+switch host=`hostname`:
     sudo nixos-rebuild switch --flake .#{{host}}
 
 # Test NixOS configuration without creating a boot entry
-test host="x240":
+test host=`hostname`:
     sudo nixos-rebuild test --flake .#{{host}}
+
+# Install NixOS configuration to bootloader without switching running system
+boot host=`hostname`:
+    sudo nixos-rebuild boot --flake .#{{host}}
+
+# Build NixOS configuration into ./result using nix-output-monitor
+build host=`hostname`:
+    nom-build .#nixosConfigurations.{{host}}.config.system.build.toplevel
 
 # Run fast evaluation checks on hosts
 test-eval host="":
@@ -38,24 +46,16 @@ test-install host="":
     nix run .#test -- install {{host}}
 
 # Boot host as an interactive test VM with port forward (localhost:2222)
-test-run host="x240":
+test-run host=`hostname`:
     nix run .#test -- run {{host}}
 
 # Open the VM test driver Python REPL
-test-interactive host="x240":
+test-interactive host=`hostname`:
     nix run .#test -- interactive {{host}}
 
 # List available hosts, tiers, and their test checks
 test-list:
     nix run .#test -- list
-
-# Install NixOS configuration to bootloader without switching running system
-boot host="x240":
-    sudo nixos-rebuild boot --flake .#{{host}}
-
-# Build NixOS configuration into ./result using nix-output-monitor
-build host="x240":
-    nom-build .#nixosConfigurations.{{host}}.config.system.build.toplevel
 
 # Update repository documentation (README.md and docs/**)
 docs-write:
@@ -69,51 +69,41 @@ docs-check:
 docs-health:
     nix run .#docs -- --health
 
+# Synchronize compiled GitHub Actions workflows to .github/workflows/
+ci-write:
+    nix run .#ci -- --write
+
+# Verify GitHub Actions workflow synchronization
+ci-check:
+    nix run .#ci -- --check
+
 # View architecture LPG and CPG graph statistics
 graph-stats:
     nix run .#graph -- --stats
 
-# Enter an exported devshell (runs fzf picker if shell is not provided)
+# Enter an exported devshell (opens interactive menu picker if shell is omitted)
 devshell shell="":
     @if [ -z "{{shell}}" ]; then \
-        selected=$(nix eval --json .#devShells.x86_64-linux --apply builtins.attrNames | jq -r '.[]' | fzf --prompt="Select devshell > " --height=40% --reverse); \
-        [ -n "$selected" ] && nix develop ".#$selected"; \
+        menu --category devshell; \
     else \
         nix develop ".#{{shell}}"; \
     fi
 
-# Run an exported package (runs fzf picker if pkg is not provided)
+# Run an exported package (opens interactive menu picker if pkg is omitted)
 run-pkg pkg="":
     @if [ -z "{{pkg}}" ]; then \
-        selected=$(nix eval --json .#packages.x86_64-linux --apply builtins.attrNames | jq -r '.[]' | fzf --prompt="Select package > " --height=40% --reverse); \
-        [ -n "$selected" ] && nix run ".#$selected"; \
+        menu --category package; \
     else \
         nix run ".#{{pkg}}"; \
     fi
 
-# Edit encrypted user secrets with SOPS
-secrets-user:
-    sops secrets/users/default.yaml
-
-# Enter SOPS administrative shell with Bitwarden master key
-sops-admin:
-    nix develop .#sops-admin
-
-# Enter SOPS host inspection shell with host age key
-sops-host:
-    nix develop .#sops-host
-
-# Enter GitHub deploy key devshell
-github-ssh:
-    nix develop .#github-ssh
-
-# Enter GitHub CLI devshell with GH_TOKEN from Bitwarden
-github-cli:
-    nix develop .#github-cli
-
-# Enter master cluster SSH devshell
-master-ssh:
-    nix develop .#master-ssh
+# Edit a SOPS secret file (opens interactive menu picker if file is omitted)
+secrets file="":
+    @if [ -z "{{file}}" ]; then \
+        menu --category secrets; \
+    else \
+        sops "{{file}}"; \
+    fi
 
 # Inspect upstream pin drift in Tack without writing lock
 tack-look:

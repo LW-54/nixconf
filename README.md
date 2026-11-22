@@ -747,7 +747,7 @@ nix run github:LW-54/nixconf#git
 ```
 
 #### [`menu`](docs/packages.md#menu)
-Interactive fuzzy command palette and task runner for nixconf
+Interactive fuzzy command palette and task runner dynamically derived from nixconf flake outputs.
 
 ```bash
 nix run .#menu

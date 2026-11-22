@@ -664,10 +664,10 @@ config = {
 ```nix
 # modules/features/direnv.nix
 ...
-15: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-16: cache.directories = [".cache/direnv"];
-17: });
-18: };
+22: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+23: data.directories = [".local/share/direnv"];
+24: cache.directories = [".cache/direnv"];
+25: });
 ...
 ```
 

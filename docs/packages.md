@@ -247,7 +247,7 @@ Official Documentation: [https://git-scm.com/doc](https://git-scm.com/doc)
 <a id="menu"></a>
 ### `menu`
 
-Interactive fuzzy command palette and task runner for nixconf
+Interactive fuzzy command palette and task runner dynamically derived from nixconf flake outputs.
 
 ```bash
 nix run .#menu
