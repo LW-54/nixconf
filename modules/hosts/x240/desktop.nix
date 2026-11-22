@@ -14,11 +14,9 @@
         self.nixosModules.vivaldi
         self.nixosModules.vscode
         self.nixosModules.zed
-        self.nixosModules.antigravity-ide
       ];
 
       config = {
-        wayland.enable = true;
         environment.sessionVariables = {
           XKB_DEFAULT_LAYOUT = "fr";
           XKB_DEFAULT_VARIANT = "";

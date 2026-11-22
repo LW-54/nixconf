@@ -36,7 +36,6 @@
           echo ""
           echo -e "\033[1;34m✦ nixconf devenv active\033[0m"
           echo -e "  \033[0;32m>\033[0m Run \033[1;33mmenu\033[0m (or \033[1;33mjust\033[0m) to fuzzy find commands, packages & devshells"
-          echo -e "  \033[0;32m>\033[0m Run \033[1;33mide\033[0m to open repository in Antigravity IDE"
           echo -e "  \033[0;32m>\033[0m Run \033[1;33mjust --list\033[0m to view all recipes"
           echo ""
         ''

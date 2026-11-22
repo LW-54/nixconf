@@ -31,7 +31,7 @@ jobs:
           - checks-inspect-x240
           - checks-schemas
           - devShells-default
-          - devShells-gemini
+          - devShells-gemini-api
           - devShells-github-cli
           - devShells-github-ssh
           - devShells-master-ssh
@@ -41,8 +41,9 @@ jobs:
           - formatter
           - host-astrolabe
           - host-x240
+          - packages-agy
+          - packages-agy-api
           - packages-antigravity
-          - packages-antigravity-cli
           - packages-antigravity-ide
           - packages-bw
           - packages-ci
@@ -55,9 +56,11 @@ jobs:
           - packages-git
           - packages-graph
           - packages-menu
+          - packages-micro
           - packages-nixconf-json
           - packages-storage
           - packages-test
+          - packages-zed
   check:
     name: Flake Checks
     runs-on: ubuntu-latest

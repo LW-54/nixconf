@@ -1,5 +1,5 @@
 {
-  internal.victoria.mkServer = {
+  internal.grafana.mkServer = {
     config,
     lib,
     pkgs,

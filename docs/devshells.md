@@ -17,26 +17,26 @@ nix develop .#default
 nix develop github:LW-54/nixconf#default
 ```
 
-<a id="gemini"></a>
-### `gemini`
+<a id="gemini-api"></a>
+### `gemini-api`
 
-Development shell with the Antigravity CLI and SOPS-encrypted GEMINI_API_KEY.
+Development shell exporting SOPS-encrypted GEMINI_API_KEY with API-key-wrapped agy-api.
 
 Provided by feature [`antigravity`](features/antigravity.md).
 
 ```bash
-nix develop .#gemini
+nix develop .#gemini-api
 ```
 
 ```bash
-nix develop github:LW-54/nixconf#gemini
+nix develop github:LW-54/nixconf#gemini-api
 ```
 
 #### Usage
 
-Development shell with the Antigravity CLI and a SOPS-backed `GEMINI_API_KEY`.
+Development shell exporting `GEMINI_API_KEY` / `GOOGLE_API_KEY` from SOPS (`secrets/admin/gemini.yaml`) and providing `agy-api` (configured with `modelProvider = "gemini"`).
 
-Unlocks the master SOPS age key via Bitwarden (item `c2352759-f5e3-40af-a797-89bd86e230d2`) if `SOPS_AGE_KEY` is not already set, decrypts `api_key` from `secrets/admin/gemini.yaml`, and exports `GEMINI_API_KEY` and `GOOGLE_API_KEY`.
+Unlocks the master SOPS age key via Bitwarden (item `c2352759-f5e3-40af-a797-89bd86e230d2`) if `SOPS_AGE_KEY` is not already set.
 
 <a id="github-cli"></a>
 ### `github-cli`

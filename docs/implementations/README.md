@@ -8,7 +8,7 @@ Concrete capability providers satisfying contract interfaces by translating abst
 
 - **Declared as**: `implementation.<name>` in any flake-parts module under `modules/implementations/`
 - **Primitive definition**: [`primitives/implementation/default.nix`](../../primitives/implementation/default.nix)
-- **Instances**: 11
+- **Instances**: 12
 
 ## Option Schema (`implementation.<name>`)
 
@@ -55,9 +55,11 @@ Smallest declaration in the repository, [`modules/implementations/uwsm.nix`](../
 
 | Implementation | Contract | Description | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
+| [`alloy`](alloy.md) | [`monitoring`](../contracts/monitoring.md) | Telemetry collection agent implementation using Grafana Alloy for metrics scraping, log shipping, and blackbox probing. | [`modules/implementations/grafana/default.nix`](../../modules/implementations/grafana/default.nix) | [More →](alloy.md) |
 | [`authelia`](authelia.md) | [`auth`](../contracts/auth.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [`modules/implementations/authelia/default.nix`](../../modules/implementations/authelia/default.nix) | [More →](authelia.md) |
 | [`caddy`](caddy.md) | [`reverse-proxy`](../contracts/reverse-proxy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`modules/implementations/caddy/default.nix`](../../modules/implementations/caddy/default.nix) | [More →](caddy.md) |
 | [`cgroups`](cgroups.md) | [`resources`](../contracts/resources.md) | Systemd control groups v2 tiering, OOM ordering, power policy, local disk volumes, and remote storage budget implementation. | [`modules/implementations/cgroups/default.nix`](../../modules/implementations/cgroups/default.nix) | [More →](cgroups.md) |
+| [`grafana`](grafana.md) | [`monitoring`](../contracts/monitoring.md) | Full observability stack implementation using Grafana, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana Alloy. | [`modules/implementations/grafana/default.nix`](../../modules/implementations/grafana/default.nix) | [More →](grafana.md) |
 | [`hjem`](hjem.md) | [`home`](../contracts/home.md) | Lightweight declarative home directory files and XDG environment manager. | [`modules/implementations/hjem.nix`](../../modules/implementations/hjem.nix) | [More →](hjem.md) |
 | [`impermanence`](impermanence.md) | [`persistence`](../contracts/persistence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`modules/implementations/impermanence.nix`](../../modules/implementations/impermanence.nix) | [More →](impermanence.md) |
 | [`lw`](lw.md) | [`default-user`](../contracts/default-user.md) | Primary human user account orchestration and identity provisioning. | [`modules/implementations/lw.nix`](../../modules/implementations/lw.nix) | [More →](lw.md) |
@@ -65,4 +67,3 @@ Smallest declaration in the repository, [`modules/implementations/uwsm.nix`](../
 | [`restic`](restic.md) | [`backup`](../contracts/backup.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [`modules/implementations/restic/default.nix`](../../modules/implementations/restic/default.nix) | [More →](restic.md) |
 | [`sops`](sops.md) | [`secrets`](../contracts/secrets.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`modules/implementations/sops.nix`](../../modules/implementations/sops.nix) | [More →](sops.md) |
 | [`uwsm`](uwsm.md) | [`wayland`](../contracts/wayland.md) | Universal Wayland Session Manager integration for desktop environments. | [`modules/implementations/uwsm.nix`](../../modules/implementations/uwsm.nix) | [More →](uwsm.md) |
-| [`victoria`](victoria.md) | [`monitoring`](../contracts/monitoring.md) | Observability stack implementation using Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana. | [`modules/implementations/victoria/default.nix`](../../modules/implementations/victoria/default.nix) | [More →](victoria.md) |

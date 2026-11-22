@@ -1,5 +1,5 @@
 {
-  internal.victoria.mkDashboard = d:
+  internal.grafana.mkDashboard = d:
     d.mkDashboard {
       uid = "nixconf-observability-health";
       title = "Observability Health";

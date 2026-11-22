@@ -12,9 +12,11 @@ Declarative state preservation across ephemeral reboots for system and user dire
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__antigravity["nixosModule/antigravity"]:::defaultNode
-    urn__nixconf__ast__module__antigravity_cli["nixosModule/antigravity-cli"]:::defaultNode
-    urn__nixconf__ast__module__antigravity_ide["nixosModule/antigravity-ide"]:::defaultNode
+  urn__nixconf__ast__module__agy["nixosModule/agy"]:::defaultNode
+    urn__nixconf__ast__module__agy_config["nixosModule/agy-config"]:::defaultNode
+    urn__nixconf__ast__module__agy_hub["nixosModule/agy-hub"]:::defaultNode
+    urn__nixconf__ast__module__agy_remote_control["nixosModule/agy-remote-control"]:::defaultNode
+    urn__nixconf__ast__module__alloy["nixosModule/alloy"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__bitwarden_desktop["nixosModule/bitwarden-desktop"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
@@ -24,6 +26,7 @@ flowchart LR
     urn__nixconf__ast__module__docker["nixosModule/docker"]:::defaultNode
     urn__nixconf__ast__module__dolphin["nixosModule/dolphin"]:::defaultNode
     urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
+    urn__nixconf__ast__module__grafana["nixosModule/grafana"]:::defaultNode
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__labwc["nixosModule/labwc"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
@@ -36,7 +39,6 @@ flowchart LR
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
-    urn__nixconf__ast__module__victoria["nixosModule/victoria"]:::defaultNode
     urn__nixconf__ast__module__vivaldi["nixosModule/vivaldi"]:::defaultNode
     urn__nixconf__ast__module__vscode["nixosModule/vscode"]:::defaultNode
     urn__nixconf__ast__module__zed["nixosModule/zed"]:::defaultNode
@@ -46,14 +48,16 @@ flowchart LR
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
-    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
+    urn__nixconf__drv__devShell__gemini_api["devShell/gemini-api"]:::devShellNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
+    urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
+    urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
-    urn__nixconf__drv__package__antigravity_cli[("package/antigravity-cli")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__drv__package__dolphin[("package/dolphin")]:::pkgNode
     urn__nixconf__drv__package__foot[("package/foot")]:::pkgNode
+    urn__nixconf__drv__package__zed[("package/zed")]:::pkgNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
@@ -85,48 +89,64 @@ flowchart LR
     urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
+    urn__nixconf__onto__implementation__alloy["alloy"]:::implNode
     urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
+    urn__nixconf__onto__implementation__grafana["grafana"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
     urn__nixconf__onto__implementation__rclone["rclone"]:::implNode
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
-    urn__nixconf__onto__implementation__victoria["victoria"]:::implNode
 
-    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__agy_hub -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__bitwarden_desktop -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__ast__module__bw -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__ast__module__bw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__bw -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__direnv -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__direnv -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__docker -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__dolphin -->|dependsOn| urn__nixconf__drv__package__dolphin
     urn__nixconf__ast__module__dolphin -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -134,7 +154,13 @@ flowchart LR
     urn__nixconf__ast__module__foot -->|dependsOn| urn__nixconf__drv__package__foot
     urn__nixconf__ast__module__foot -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__persistence_users
-    urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__victoria
+    urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__authelia
+    urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
@@ -142,60 +168,60 @@ flowchart LR
     urn__nixconf__ast__module__labwc -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__nix -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__nix -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__noctalia -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__noctalia -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__ntfy -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__ntfy -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__ntfy -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__ntfy -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
-    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
-    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__persistence_files
-    urn__nixconf__ast__module__victoria -.->|flowsTo| urn__nixconf__ast__module__authelia
-    urn__nixconf__ast__module__victoria -.->|flowsTo| urn__nixconf__ast__module__caddy
-    urn__nixconf__ast__module__victoria -.->|flowsTo| urn__nixconf__ast__module__impermanence
-    urn__nixconf__ast__module__victoria -.->|flowsTo| urn__nixconf__ast__module__restic
-    urn__nixconf__ast__module__victoria -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__vivaldi -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__vivaldi -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__vscode -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__vscode -.->|writes| urn__nixconf__ast__option__persistence_users
+    urn__nixconf__ast__module__zed -->|dependsOn| urn__nixconf__drv__package__zed
     urn__nixconf__ast__module__zed -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
-    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_enable
@@ -203,15 +229,21 @@ flowchart LR
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_user
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_config
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bitwarden_desktop
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bw
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
@@ -283,10 +315,13 @@ flowchart LR
     urn__nixconf__onto__feature__vscode -->|outputs| urn__nixconf__ast__module__vscode
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__zed -->|outputs| urn__nixconf__ast__module__zed
+    urn__nixconf__onto__feature__zed -->|outputs| urn__nixconf__drv__package__zed
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
@@ -296,16 +331,15 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__grafana
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__victoria
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__direnv
@@ -319,11 +353,17 @@ flowchart LR
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vivaldi
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__alloy
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
-    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__victoria
+    urn__nixconf__onto__implementation__alloy -->|outputs| urn__nixconf__ast__module__alloy
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__alloy ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -->|outputs| urn__nixconf__ast__module__authelia
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
@@ -339,6 +379,15 @@ flowchart LR
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__caddy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__implementation__caddy ==>|implements| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__grafana -->|outputs| urn__nixconf__ast__module__grafana
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__grafana ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence -->|outputs| urn__nixconf__ast__module__impermanence
     urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
@@ -362,20 +411,13 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__victoria -->|outputs| urn__nixconf__ast__module__victoria
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__auth
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__victoria ==>|implements| urn__nixconf__onto__contract__monitoring
 
 
-    click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
-    click urn__nixconf__ast__module__antigravity_cli href "../modules/antigravity-cli.md" "antigravity-cli"
-    click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
+    click urn__nixconf__ast__module__agy href "../modules/agy.md" "agy"
+    click urn__nixconf__ast__module__agy_config href "../modules/agy-config.md" "agy-config"
+    click urn__nixconf__ast__module__agy_hub href "../modules/agy-hub.md" "agy-hub"
+    click urn__nixconf__ast__module__agy_remote_control href "../modules/agy-remote-control.md" "agy-remote-control"
+    click urn__nixconf__ast__module__alloy href "../modules/alloy.md" "alloy"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__bitwarden_desktop href "../modules/bitwarden-desktop.md" "bitwarden-desktop"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
@@ -385,6 +427,7 @@ flowchart LR
     click urn__nixconf__ast__module__docker href "../modules/docker.md" "docker"
     click urn__nixconf__ast__module__dolphin href "../modules/dolphin.md" "dolphin"
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
+    click urn__nixconf__ast__module__grafana href "../modules/grafana.md" "grafana"
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__labwc href "../modules/labwc.md" "labwc"
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
@@ -397,7 +440,6 @@ flowchart LR
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
-    click urn__nixconf__ast__module__victoria href "../modules/victoria.md" "victoria"
     click urn__nixconf__ast__module__vivaldi href "../modules/vivaldi.md" "vivaldi"
     click urn__nixconf__ast__module__vscode href "../modules/vscode.md" "vscode"
     click urn__nixconf__ast__module__zed href "../modules/zed.md" "zed"
@@ -407,14 +449,16 @@ flowchart LR
     click urn__nixconf__ast__option__persistence_users href "persistence.md" "persistence.users"
     click urn__nixconf__ast__type__persistence_entries href "persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "persistence.md" "persistence.user"
-    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
+    click urn__nixconf__drv__devShell__gemini_api href "../devshells.md#gemini-api" "gemini-api"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
+    click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
+    click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
-    click urn__nixconf__drv__package__antigravity_cli href "../packages.md#antigravity-cli" "antigravity-cli"
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__drv__package__dolphin href "../packages.md#dolphin" "dolphin"
     click urn__nixconf__drv__package__foot href "../packages.md#foot" "foot"
+    click urn__nixconf__drv__package__zed href "../packages.md#zed" "zed"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
@@ -446,13 +490,14 @@ flowchart LR
     click urn__nixconf__onto__feature__zed href "../features/zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__alloy href "../implementations/alloy.md" "alloy"
     click urn__nixconf__onto__implementation__authelia href "../implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "../implementations/caddy.md" "caddy"
+    click urn__nixconf__onto__implementation__grafana href "../implementations/grafana.md" "grafana"
     click urn__nixconf__onto__implementation__impermanence href "../implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "../implementations/lw.md" "lw"
     click urn__nixconf__onto__implementation__rclone href "../implementations/rclone.md" "rclone"
     click urn__nixconf__onto__implementation__restic href "../implementations/restic.md" "restic"
-    click urn__nixconf__onto__implementation__victoria href "../implementations/victoria.md" "victoria"
 
   %% Semantic Visual Classes
   classDef hostNode fill:#1e293b,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
@@ -516,6 +561,20 @@ Modules and instances configuring options under the `persistence` contract capab
 ### Implementations
 
 <details>
+<summary><code><a href="../implementations/alloy.md">alloy</a></code></summary>
+
+**Configures options**: `persistence.directories`
+
+```nix
+config = {
+  persistence.directories = ...;
+};
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../implementations/authelia.md">authelia</a></code></summary>
 
 **Configures options**: `persistence.directories`
@@ -540,6 +599,20 @@ Modules and instances configuring options under the `persistence` contract capab
 ...
 188: persistence.directories = lib.mkIf (config.persistence.enable or false) [
 ...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/grafana.md">grafana</a></code></summary>
+
+**Configures options**: `persistence.directories`
+
+```nix
+config = {
+  persistence.directories = ...;
+};
 ```
 
 </details>
@@ -593,20 +666,6 @@ Modules and instances configuring options under the `persistence` contract capab
 </details>
 
 
-<details>
-<summary><code><a href="../implementations/victoria.md">victoria</a></code></summary>
-
-**Configures options**: `persistence.directories`
-
-```nix
-config = {
-  persistence.directories = ...;
-};
-```
-
-</details>
-
-
 
 ### Features
 
@@ -616,17 +675,12 @@ config = {
 **Configures options**: `persistence.users`
 
 ```nix
-# modules/features/antigravity.nix
+# modules/features/antigravity/default.nix
 ...
-42: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-43: data.directories = [
-44: ".gemini"
-45: ];
-...
-64: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-65: data.directories = [
-66: ".antigravity-ide"
-67: ];
+52: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+53: data.directories = [".gemini"];
+54: });
+55: }
 ...
 ```
 
@@ -768,10 +822,10 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-76: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-77: cache.directories = [
-78: ".cache/nix"
-79: ".cache/nix-index"
+85: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+86: cache.directories = [
+87: ".cache/nix"
+88: ".cache/nix-index"
 ...
 ```
 
@@ -924,12 +978,10 @@ config = {
 ```nix
 # modules/features/zed.nix
 ...
-3: description = "Zed editor environment and persistence.";
-...
-18: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-19: data.directories = [".config/zed" ".local/share/zed"];
-20: });
-21: };
+163: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+164: data.directories = [".config/zed" ".local/share/zed"];
+165: });
+166: };
 ...
 ```
 

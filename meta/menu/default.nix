@@ -117,16 +117,6 @@ in {
       lib.filter (n: !builtins.elem n ignoredPackages)
       (builtins.attrNames (config.packages or {}));
 
-    ideEntries = [
-      (mkEntryLine {
-        category = "ide";
-        title = "open Antigravity IDE (antigravity-ide .)";
-        command = "if command -v antigravity-ide >/dev/null 2>&1; then antigravity-ide .; else nix run .#antigravity-ide -- .; fi";
-        description = "Open workspace in Antigravity IDE (uses installed binary or falls back to nix run).";
-        origin = formatOrigin "feature" "antigravity";
-      })
-    ];
-
     systemEntries =
       lib.concatMap (
         hostName: let
@@ -480,8 +470,7 @@ in {
 
     staticCatalogFile = pkgs.writeText "nixconf-menu-catalog.tsv" (
       lib.concatStringsSep "\n" (
-        ideEntries
-        ++ systemEntries
+        systemEntries
         ++ devShellEntries
         ++ packageEntries
         ++ docsEntries
@@ -688,7 +677,6 @@ in {
               notes = $6
 
               color = "\033[1;34m"
-              if (cat == "ide")      color = "\033[1;36m"
               if (cat == "system")   color = "\033[1;31m"
               if (cat == "devshell") color = "\033[1;35m"
               if (cat == "package")  color = "\033[1;32m"

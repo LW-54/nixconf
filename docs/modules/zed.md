@@ -1,6 +1,6 @@
 # Module: `zed`
 
-Zed editor environment and persistence.
+Zed editor environment, declarative settings/keymaps, SSH remote presets, and wrapped CLI/LSP toolchain.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 

@@ -1,10 +1,10 @@
-# Module: `antigravity-cli`
+# Module: `agy-config`
 
 NixOS module exported by feature 'antigravity'.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-- **Attribute**: `flake.nixosModules.antigravity-cli`
+- **Attribute**: `flake.nixosModules.agy-config`
 - **Provided by**: feature [`antigravity`](../features/antigravity.md)
 
 ## Declared Options

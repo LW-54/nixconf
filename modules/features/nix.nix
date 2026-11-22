@@ -60,7 +60,16 @@
               options = "--delete-older-than 30d";
             };
           };
-          programs.nix-ld.enable = true;
+          programs.nix-ld = {
+            enable = true;
+            libraries = with pkgs; [
+              stdenv.cc.cc
+              zlib
+              openssl
+              curl
+              glib
+            ];
+          };
           services.cachix-watch-store = lib.mkIf config.nix.cachixWatchStore {
             enable = true;
             cacheName = "lw-54";

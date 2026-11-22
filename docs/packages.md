@@ -4,6 +4,56 @@ Executable packages exported on `flake.packages`.
 
 [← Back to Main README](../README.md)
 
+<a id="agy"></a>
+### `agy`
+
+Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
+
+Provided by feature [`antigravity`](features/antigravity.md).
+
+```bash
+nix run .#agy
+```
+
+```bash
+nix run github:LW-54/nixconf#agy
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+agy --help
+```
+
+Official Documentation: [https://github.com/jacopone/antigravity-nix](https://github.com/jacopone/antigravity-nix)
+
+<a id="agy-api"></a>
+### `agy-api`
+
+Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
+
+Provided by feature [`antigravity`](features/antigravity.md).
+
+```bash
+nix run .#agy-api
+```
+
+```bash
+nix run github:LW-54/nixconf#agy-api
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+agy-api --help
+```
+
+Official Documentation: [https://github.com/jacopone/antigravity-nix](https://github.com/jacopone/antigravity-nix)
+
 <a id="antigravity"></a>
 ### `antigravity`
 
@@ -17,31 +67,6 @@ nix run .#antigravity
 
 ```bash
 nix run github:LW-54/nixconf#antigravity
-```
-
-#### Help & Documentation
-
-Display command-line flags and subcommands:
-
-```bash
-antigravity --help
-```
-
-Official Documentation: [https://github.com/jacopone/antigravity-nix](https://github.com/jacopone/antigravity-nix)
-
-<a id="antigravity-cli"></a>
-### `antigravity-cli`
-
-Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
-
-Provided by feature [`antigravity`](features/antigravity.md).
-
-```bash
-nix run .#antigravity-cli
-```
-
-```bash
-nix run github:LW-54/nixconf#antigravity-cli
 ```
 
 #### Help & Documentation
@@ -265,6 +290,31 @@ Display command-line flags and subcommands:
 menu --help
 ```
 
+<a id="micro"></a>
+### `micro`
+
+Modern and intuitive terminal-based text editor
+
+Provided by feature [`micro`](features/micro.md).
+
+```bash
+nix run .#micro
+```
+
+```bash
+nix run github:LW-54/nixconf#micro
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+micro --help
+```
+
+Official Documentation: [https://micro-editor.github.io](https://micro-editor.github.io)
+
 <a id="storage"></a>
 ### `storage`
 
@@ -315,3 +365,28 @@ Display command-line flags and subcommands:
 ```bash
 nixconf-test --help
 ```
+
+<a id="zed"></a>
+### `zed`
+
+High-performance, multiplayer code editor from the creators of Atom and Tree-sitter
+
+Provided by feature [`zed`](features/zed.md).
+
+```bash
+nix run .#zed
+```
+
+```bash
+nix run github:LW-54/nixconf#zed
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+zeditor --help
+```
+
+Official Documentation: [https://zed.dev](https://zed.dev)

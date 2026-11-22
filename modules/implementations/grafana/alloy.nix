@@ -1,5 +1,5 @@
 {
-  internal.victoria.mkAlloy = {
+  internal.grafana.mkAlloy = {
     config,
     lib,
     pkgs,

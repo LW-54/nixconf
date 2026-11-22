@@ -6,16 +6,17 @@
         self.nixosModules.cgroups
         self.nixosModules.rclone
         self.nixosModules.lw
+        self.nixosModules.hjem
         self.nixosModules.nix
         self.nixosModules.locale
         self.nixosModules.ssh
         self.nixosModules.git
+        self.nixosModules.micro
       ];
 
       config = {
         networking.hostName = "astrolabe";
         environment.systemPackages = with pkgs; [
-          nano
           rsync
           btop
         ];

@@ -1,11 +1,11 @@
-# Module: `antigravity`
+# Module: `alloy`
 
-Google Antigravity IDE, agentic workflow tools, and CLI runtime.
+Telemetry collection agent implementation using Grafana Alloy for metrics scraping, log shipping, and blackbox probing.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-- **Attribute**: `flake.nixosModules.antigravity`
-- **Provided by**: feature [`antigravity`](../features/antigravity.md)
+- **Attribute**: `flake.nixosModules.alloy`
+- **Provided by**: implementation [`alloy`](../implementations/alloy.md)
 
 ## Importing Hosts
 

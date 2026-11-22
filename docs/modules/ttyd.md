@@ -1,6 +1,6 @@
 # Module: `ttyd`
 
-Web terminal server bridging browser sessions to system shells via ttyd.
+Web terminal server bridging browser sessions to persistent tmux-backed system shells via ttyd.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 

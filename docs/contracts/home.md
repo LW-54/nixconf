@@ -12,15 +12,17 @@ Declarative user home dotfile tree, XDG directory specifications, and session en
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__antigravity["nixosModule/antigravity"]:::defaultNode
-    urn__nixconf__ast__module__antigravity_cli["nixosModule/antigravity-cli"]:::defaultNode
-    urn__nixconf__ast__module__antigravity_ide["nixosModule/antigravity-ide"]:::defaultNode
+  urn__nixconf__ast__module__agy["nixosModule/agy"]:::defaultNode
+    urn__nixconf__ast__module__agy_config["nixosModule/agy-config"]:::defaultNode
+    urn__nixconf__ast__module__agy_hub["nixosModule/agy-hub"]:::defaultNode
+    urn__nixconf__ast__module__agy_remote_control["nixosModule/agy-remote-control"]:::defaultNode
     urn__nixconf__ast__module__foot["nixosModule/foot"]:::defaultNode
     urn__nixconf__ast__module__git["nixosModule/git"]:::defaultNode
     urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
     urn__nixconf__ast__module__labwc["nixosModule/labwc"]:::defaultNode
     urn__nixconf__ast__module__locale["nixosModule/locale"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
+    urn__nixconf__ast__module__zed["nixosModule/zed"]:::defaultNode
     urn__nixconf__ast__option__home_enable[/"home.enable"/]:::optNode
     urn__nixconf__ast__option__home_shared[/"home.shared"/]:::optNode
     urn__nixconf__ast__option__home_users[/"home.users"/]:::optNode
@@ -29,17 +31,23 @@ flowchart LR
     urn__nixconf__ast__type__home_relativeHomePath[["home.relativeHomePath"]]:::typeNode
     urn__nixconf__ast__type__home_userHome[["home.userHome"]]:::typeNode
     urn__nixconf__ast__type__home_xdg[["home.xdg"]]:::typeNode
-    urn__nixconf__drv__devShell__gemini["devShell/gemini"]:::devShellNode
+    urn__nixconf__drv__devShell__gemini_api["devShell/gemini-api"]:::devShellNode
     urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
     urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
+    urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
+    urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
-    urn__nixconf__drv__package__antigravity_cli[("package/antigravity-cli")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
     urn__nixconf__drv__package__foot[("package/foot")]:::pkgNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
+    urn__nixconf__drv__package__zed[("package/zed")]:::pkgNode
+    urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
     urn__nixconf__onto__contract__default_user{{"default-user"}}:::contractNode
     urn__nixconf__onto__contract__home{{"home"}}:::contractNode
+    urn__nixconf__onto__contract__monitoring{{"monitoring"}}:::contractNode
     urn__nixconf__onto__contract__persistence{{"persistence"}}:::contractNode
+    urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
+    urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
@@ -47,22 +55,31 @@ flowchart LR
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__labwc("labwc"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
+    urn__nixconf__onto__feature__zed("zed"):::featureNode
     urn__nixconf__onto__host__astrolabe(["astrolabe"]):::hostNode
     urn__nixconf__onto__host__x240(["x240"]):::hostNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
 
-    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity_cli -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity
-    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__ast__module__antigravity_ide -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
-    urn__nixconf__ast__module__antigravity_ide -.->|flowsTo| urn__nixconf__ast__module__hjem
-    urn__nixconf__ast__module__antigravity_ide -.->|writes| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
     urn__nixconf__ast__module__foot -->|dependsOn| urn__nixconf__drv__package__foot
     urn__nixconf__ast__module__foot -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__foot -.->|writes| urn__nixconf__ast__option__home_shared
@@ -80,12 +97,15 @@ flowchart LR
     urn__nixconf__ast__module__locale -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__lw -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__lw -.->|writes| urn__nixconf__ast__option__home_users
+    urn__nixconf__ast__module__zed -->|dependsOn| urn__nixconf__drv__package__zed
+    urn__nixconf__ast__module__zed -.->|flowsTo| urn__nixconf__ast__module__hjem
+    urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__home_shared
+    urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_shared -.->|typedBy| urn__nixconf__ast__type__home_xdg
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_userHome
     urn__nixconf__ast__option__home_users -.->|typedBy| urn__nixconf__ast__type__home_xdg
-    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__antigravity_cli
-    urn__nixconf__drv__devShell__gemini -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_enable
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__option__home_shared
@@ -95,15 +115,21 @@ flowchart LR
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_relativeHomePath
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_userHome
     urn__nixconf__onto__contract__home -->|declares| urn__nixconf__ast__type__home_xdg
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_cli
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__antigravity_ide
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_config
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
-    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_cli
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__ast__module__foot
     urn__nixconf__onto__feature__foot -->|outputs| urn__nixconf__drv__package__foot
     urn__nixconf__onto__feature__foot -.->|consumes| urn__nixconf__onto__contract__home
@@ -119,16 +145,28 @@ flowchart LR
     urn__nixconf__onto__feature__labwc -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
     urn__nixconf__onto__feature__locale -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__zed -->|outputs| urn__nixconf__ast__module__zed
+    urn__nixconf__onto__feature__zed -->|outputs| urn__nixconf__drv__package__zed
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__foot
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__implementation__hjem -->|outputs| urn__nixconf__ast__module__hjem
@@ -141,15 +179,17 @@ flowchart LR
     urn__nixconf__onto__implementation__lw ==>|implements| urn__nixconf__onto__contract__default_user
 
 
-    click urn__nixconf__ast__module__antigravity href "../modules/antigravity.md" "antigravity"
-    click urn__nixconf__ast__module__antigravity_cli href "../modules/antigravity-cli.md" "antigravity-cli"
-    click urn__nixconf__ast__module__antigravity_ide href "../modules/antigravity-ide.md" "antigravity-ide"
+    click urn__nixconf__ast__module__agy href "../modules/agy.md" "agy"
+    click urn__nixconf__ast__module__agy_config href "../modules/agy-config.md" "agy-config"
+    click urn__nixconf__ast__module__agy_hub href "../modules/agy-hub.md" "agy-hub"
+    click urn__nixconf__ast__module__agy_remote_control href "../modules/agy-remote-control.md" "agy-remote-control"
     click urn__nixconf__ast__module__foot href "../modules/foot.md" "foot"
     click urn__nixconf__ast__module__git href "../modules/git.md" "git"
     click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"
     click urn__nixconf__ast__module__labwc href "../modules/labwc.md" "labwc"
     click urn__nixconf__ast__module__locale href "../modules/locale.md" "locale"
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
+    click urn__nixconf__ast__module__zed href "../modules/zed.md" "zed"
     click urn__nixconf__ast__option__home_enable href "home.md" "home.enable"
     click urn__nixconf__ast__option__home_shared href "home.md" "home.shared"
     click urn__nixconf__ast__option__home_users href "home.md" "home.users"
@@ -158,17 +198,23 @@ flowchart LR
     click urn__nixconf__ast__type__home_relativeHomePath href "home.md" "home.relativeHomePath"
     click urn__nixconf__ast__type__home_userHome href "home.md" "home.userHome"
     click urn__nixconf__ast__type__home_xdg href "home.md" "home.xdg"
-    click urn__nixconf__drv__devShell__gemini href "../devshells.md#gemini" "gemini"
+    click urn__nixconf__drv__devShell__gemini_api href "../devshells.md#gemini-api" "gemini-api"
     click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
     click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
+    click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
+    click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
-    click urn__nixconf__drv__package__antigravity_cli href "../packages.md#antigravity-cli" "antigravity-cli"
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
     click urn__nixconf__drv__package__foot href "../packages.md#foot" "foot"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
+    click urn__nixconf__drv__package__zed href "../packages.md#zed" "zed"
+    click urn__nixconf__onto__contract__backup href "backup.md" "backup"
     click urn__nixconf__onto__contract__default_user href "default-user.md" "default-user"
     click urn__nixconf__onto__contract__home href "home.md" "home"
+    click urn__nixconf__onto__contract__monitoring href "monitoring.md" "monitoring"
     click urn__nixconf__onto__contract__persistence href "persistence.md" "persistence"
+    click urn__nixconf__onto__contract__resources href "resources.md" "resources"
+    click urn__nixconf__onto__contract__reverse_proxy href "reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__wayland href "wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
@@ -176,6 +222,7 @@ flowchart LR
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__labwc href "../features/labwc.md" "labwc"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
+    click urn__nixconf__onto__feature__zed href "../features/zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__implementation__hjem href "../implementations/hjem.md" "hjem"
@@ -264,16 +311,13 @@ Modules and instances configuring options under the `home` contract capability:
 <details>
 <summary><code><a href="../features/antigravity.md">antigravity</a></code></summary>
 
-**Configures options**: `home.shared`
+**Configures options**: `home.shared`, `home.users`
 
 ```nix
-# modules/features/antigravity.nix
-...
-38: home.shared.files = {
-39: ".gemini/GEMINI.md".text = globalRules;
-40: ".gemini/config/GEMINI.md".text = globalRules;
-41: };
-...
+config = {
+  home.shared = ...;
+  home.users = ...;
+};
 ```
 
 </details>
@@ -354,6 +398,26 @@ Modules and instances configuring options under the `home` contract capability:
 49: {
 50: LANG = cfg.defaultLocale;
 51: }
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/zed.md">zed</a></code></summary>
+
+**Configures options**: `home.shared`, `home.users`
+
+```nix
+# modules/features/zed.nix
+...
+131: home.shared.xdg.config =
+132: {
+133: "zed/settings.json" = {
+134: generator = builtins.toJSON;
+...
+145: home.users = lib.mapAttrs (_: uCfg:
 ...
 ```
 

@@ -1,15 +1,15 @@
-# Module: `antigravity-ide`
+# Module: `agy-hub`
 
 NixOS module exported by feature 'antigravity'.
 
 [← Back to Modules Documentation](README.md) | [← Back to Main README](../../README.md)
 
-- **Attribute**: `flake.nixosModules.antigravity-ide`
+- **Attribute**: `flake.nixosModules.agy-hub`
 - **Provided by**: feature [`antigravity`](../features/antigravity.md)
 
 ## Importing Hosts
 
-- [`x240`](../hosts/x240.md): ThinkPad Laptop Workstation (Desktop graphical workstation).
+- [`astrolabe`](../hosts/astrolabe.md): Headless VPS Server (adje.app public edge and core services).
 
 ## Declared Options
 

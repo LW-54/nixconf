@@ -84,6 +84,7 @@ end
     urn__nixconf__onto__feature__helium("helium"):::featureNode
     urn__nixconf__onto__feature__labwc("labwc"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
+    urn__nixconf__onto__feature__micro("micro"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
@@ -106,9 +107,11 @@ end
 end
 
   subgraph cluster_implementation ["implementation"]
-  urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
+  urn__nixconf__onto__implementation__alloy["alloy"]:::implNode
+    urn__nixconf__onto__implementation__authelia["authelia"]:::implNode
     urn__nixconf__onto__implementation__caddy["caddy"]:::implNode
     urn__nixconf__onto__implementation__cgroups["cgroups"]:::implNode
+    urn__nixconf__onto__implementation__grafana["grafana"]:::implNode
     urn__nixconf__onto__implementation__hjem["hjem"]:::implNode
     urn__nixconf__onto__implementation__impermanence["impermanence"]:::implNode
     urn__nixconf__onto__implementation__lw["lw"]:::implNode
@@ -116,7 +119,6 @@ end
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
-    urn__nixconf__onto__implementation__victoria["victoria"]:::implNode
 end
 
   subgraph cluster_lib ["lib"]
@@ -142,8 +144,12 @@ end
     urn__nixconf__onto__lib__wayland["wayland"]:::defaultNode
 end
 
-  urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
+  urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -200,14 +206,17 @@ end
     urn__nixconf__onto__feature__vivaldi -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__vscode -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__wifi_eduroam -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__zed -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__micro
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
@@ -218,17 +227,17 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__authelia
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__caddy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__cgroups
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__grafana
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__impermanence
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__lw
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__rclone
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__sops
-    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__implementation__victoria
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__host__x240 -.->|consumes| urn__nixconf__onto__contract__wayland
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__antigravity
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__audio
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__bitwarden
@@ -243,6 +252,7 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__greetd
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__labwc
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__locale
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__micro
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__noctalia
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__ssh
@@ -251,6 +261,7 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__vscode
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__wifi_eduroam
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__feature__zed
+    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__alloy
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__cgroups
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__hjem
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__impermanence
@@ -259,7 +270,11 @@ end
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__restic
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__sops
     urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__uwsm
-    urn__nixconf__onto__host__x240 -->|imports| urn__nixconf__onto__implementation__victoria
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__alloy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__alloy ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__auth
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__authelia -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -278,6 +293,14 @@ end
     urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__cgroups -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__cgroups ==>|implements| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__auth
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__implementation__grafana -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__grafana ==>|implements| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__hjem ==>|implements| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__impermanence -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__impermanence ==>|implements| urn__nixconf__onto__contract__persistence
@@ -301,14 +324,6 @@ end
     urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__uwsm ==>|implements| urn__nixconf__onto__contract__wayland
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__auth
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__backup
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__monitoring
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__persistence
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__resources
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
-    urn__nixconf__onto__implementation__victoria -.->|consumes| urn__nixconf__onto__contract__secrets
-    urn__nixconf__onto__implementation__victoria ==>|implements| urn__nixconf__onto__contract__monitoring
 
     click urn__nixconf__onto__contract__auth href "docs/contracts/auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "docs/contracts/backup.md" "backup"
@@ -338,6 +353,7 @@ end
     click urn__nixconf__onto__feature__helium href "docs/features/helium.md" "helium"
     click urn__nixconf__onto__feature__labwc href "docs/features/labwc.md" "labwc"
     click urn__nixconf__onto__feature__locale href "docs/features/locale.md" "locale"
+    click urn__nixconf__onto__feature__micro href "docs/features/micro.md" "micro"
     click urn__nixconf__onto__feature__nix href "docs/features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "docs/features/noctalia.md" "noctalia"
     click urn__nixconf__onto__feature__ntfy href "docs/features/ntfy.md" "ntfy"
@@ -354,9 +370,11 @@ end
     click urn__nixconf__onto__feature__zed href "docs/features/zed.md" "zed"
     click urn__nixconf__onto__host__astrolabe href "docs/hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__host__x240 href "docs/hosts/x240.md" "x240"
+    click urn__nixconf__onto__implementation__alloy href "docs/implementations/alloy.md" "alloy"
     click urn__nixconf__onto__implementation__authelia href "docs/implementations/authelia.md" "authelia"
     click urn__nixconf__onto__implementation__caddy href "docs/implementations/caddy.md" "caddy"
     click urn__nixconf__onto__implementation__cgroups href "docs/implementations/cgroups.md" "cgroups"
+    click urn__nixconf__onto__implementation__grafana href "docs/implementations/grafana.md" "grafana"
     click urn__nixconf__onto__implementation__hjem href "docs/implementations/hjem.md" "hjem"
     click urn__nixconf__onto__implementation__impermanence href "docs/implementations/impermanence.md" "impermanence"
     click urn__nixconf__onto__implementation__lw href "docs/implementations/lw.md" "lw"
@@ -364,7 +382,6 @@ end
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
-    click urn__nixconf__onto__implementation__victoria href "docs/implementations/victoria.md" "victoria"
     click urn__nixconf__onto__lib__auth href "docs/lib/auth.md" "auth"
     click urn__nixconf__onto__lib__backup href "docs/lib/backup.md" "backup"
     click urn__nixconf__onto__lib__bitwarden href "docs/lib/bitwarden.md" "bitwarden"
@@ -436,9 +453,9 @@ Foundational structural primitives governing repository architecture, typing, an
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
 | [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 11 | [More →](docs/contracts/README.md) |
-| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 31 | [More →](docs/features/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 32 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
-| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 11 | [More →](docs/implementations/README.md) |
+| [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 12 | [More →](docs/implementations/README.md) |
 | [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 20 | [More →](docs/lib/README.md) |
 
 </details>
@@ -530,7 +547,7 @@ Pure contract interfaces defining shared option schemas decoupled from backends.
 | [`backup`](docs/contracts/backup.md) | Declarative multi-provider backup contract separating per-provider schedules/retention, host vs shared repository scopes, per-service units, and boot-time most-recent auto-restore. | [`restic`](docs/implementations/restic.md) | [More →](docs/contracts/backup.md) |
 | [`default-user`](docs/contracts/default-user.md) | Default primary user account identification, credentials, and configuration injection. | [`lw`](docs/implementations/lw.md) | [More →](docs/contracts/default-user.md) |
 | [`home`](docs/contracts/home.md) | Declarative user home dotfile tree, XDG directory specifications, and session environment. | [`hjem`](docs/implementations/hjem.md) | [More →](docs/contracts/home.md) |
-| [`monitoring`](docs/contracts/monitoring.md) | Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provisioning contract. | [`victoria`](docs/implementations/victoria.md) | [More →](docs/contracts/monitoring.md) |
+| [`monitoring`](docs/contracts/monitoring.md) | Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provisioning contract. | [`alloy`](docs/implementations/alloy.md), [`grafana`](docs/implementations/grafana.md) | [More →](docs/contracts/monitoring.md) |
 | [`persistence`](docs/contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [`impermanence`](docs/implementations/impermanence.md) | [More →](docs/contracts/persistence.md) |
 | [`resources`](docs/contracts/resources.md) | Declarative compute tiering, cgroups v2 limits, OOM ordering, power-aware throttling, local disk volumes, and remote storage budgets. | [`cgroups`](docs/implementations/cgroups.md) | [More →](docs/contracts/resources.md) |
 | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | Declarative HTTP/TLS reverse proxy virtual host ingress and routing management. | [`caddy`](docs/implementations/caddy.md) | [More →](docs/contracts/reverse-proxy.md) |
@@ -547,9 +564,11 @@ Concrete capability providers satisfying contract interfaces with services and p
 
 | Implementation | Description | Contract | Docs |
 | :--- | :--- | :--- | :--- |
+| [`alloy`](docs/implementations/alloy.md) | Telemetry collection agent implementation using Grafana Alloy for metrics scraping, log shipping, and blackbox probing. | [`monitoring`](docs/contracts/monitoring.md) | [More →](docs/implementations/alloy.md) |
 | [`authelia`](docs/implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [`auth`](docs/contracts/auth.md) | [More →](docs/implementations/authelia.md) |
 | [`caddy`](docs/implementations/caddy.md) | Automated TLS virtual host reverse proxy implementation using Caddy. | [`reverse-proxy`](docs/contracts/reverse-proxy.md) | [More →](docs/implementations/caddy.md) |
 | [`cgroups`](docs/implementations/cgroups.md) | Systemd control groups v2 tiering, OOM ordering, power policy, local disk volumes, and remote storage budget implementation. | [`resources`](docs/contracts/resources.md) | [More →](docs/implementations/cgroups.md) |
+| [`grafana`](docs/implementations/grafana.md) | Full observability stack implementation using Grafana, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana Alloy. | [`monitoring`](docs/contracts/monitoring.md) | [More →](docs/implementations/grafana.md) |
 | [`hjem`](docs/implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [`home`](docs/contracts/home.md) | [More →](docs/implementations/hjem.md) |
 | [`impermanence`](docs/implementations/impermanence.md) | Ephemeral root filesystem with persistent state bind-mounts via Impermanence. | [`persistence`](docs/contracts/persistence.md) | [More →](docs/implementations/impermanence.md) |
 | [`lw`](docs/implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [`default-user`](docs/contracts/default-user.md) | [More →](docs/implementations/lw.md) |
@@ -557,7 +576,6 @@ Concrete capability providers satisfying contract interfaces with services and p
 | [`restic`](docs/implementations/restic.md) | Multi-provider restic backup implementation backed by rclone storage slices, per-provider schedules/retention, and boot-time most-recent auto-restore. | [`backup`](docs/contracts/backup.md) | [More →](docs/implementations/restic.md) |
 | [`sops`](docs/implementations/sops.md) | Declarative encrypted secrets provisioning using SOPS and age keys. | [`secrets`](docs/contracts/secrets.md) | [More →](docs/implementations/sops.md) |
 | [`uwsm`](docs/implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [`wayland`](docs/contracts/wayland.md) | [More →](docs/implementations/uwsm.md) |
-| [`victoria`](docs/implementations/victoria.md) | Observability stack implementation using Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana. | [`monitoring`](docs/contracts/monitoring.md) | [More →](docs/implementations/victoria.md) |
 
 </details>
 
@@ -568,7 +586,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 
 | Feature | Description | Docs |
 | :--- | :--- | :--- |
-| [`antigravity`](docs/features/antigravity.md) | Google Antigravity IDE, agentic workflow tools, and CLI runtime. | [More →](docs/features/antigravity.md) |
+| [`antigravity`](docs/features/antigravity.md) | Modular Google Antigravity CLI (agy), declarative config/rules, remote-control daemon, Rust hub, desktop/IDE packages, and Gemini API shell. | [More →](docs/features/antigravity.md) |
 | [`audio`](docs/features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](docs/features/audio.md) |
 | [`bitwarden`](docs/features/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/features/bitwarden.md) |
 | [`copyparty`](docs/features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [More →](docs/features/copyparty.md) |
@@ -585,20 +603,21 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | [`helium`](docs/features/helium.md) | Helium web browser with custom runtime flags and enterprise policy management. | [More →](docs/features/helium.md) |
 | [`labwc`](docs/features/labwc.md) | Labwc stacking Wayland compositor with window manager keybindings and XDG autostart. | [More →](docs/features/labwc.md) |
 | [`locale`](docs/features/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](docs/features/locale.md) |
+| [`micro`](docs/features/micro.md) | Modern and intuitive terminal-based text editor with wrapped declarative configuration. | [More →](docs/features/micro.md) |
 | [`nix`](docs/features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](docs/features/nix.md) |
 | [`noctalia`](docs/features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](docs/features/noctalia.md) |
 | [`ntfy`](docs/features/ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [More →](docs/features/ntfy.md) |
 | [`snapshot`](docs/features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [More →](docs/features/snapshot.md) |
 | [`ssh`](docs/features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](docs/features/ssh.md) |
 | [`tack`](docs/features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](docs/features/tack.md) |
-| [`ttyd`](docs/features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](docs/features/ttyd.md) |
+| [`ttyd`](docs/features/ttyd.md) | Web terminal server bridging browser sessions to persistent tmux-backed system shells via ttyd. | [More →](docs/features/ttyd.md) |
 | [`uchiyomi`](docs/features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](docs/features/uchiyomi.md) |
 | [`user`](docs/features/user.md) | Normal user account helper functions and querying utilities. | [More →](docs/features/user.md) |
 | [`vaultwarden`](docs/features/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](docs/features/vaultwarden.md) |
 | [`vivaldi`](docs/features/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](docs/features/vivaldi.md) |
 | [`vscode`](docs/features/vscode.md) | Visual Studio Code editor environment and persistence. | [More →](docs/features/vscode.md) |
 | [`wifi-eduroam`](docs/features/wifi-eduroam.md) | Eduroam WPA2-Enterprise 802.1X wireless networking integration via NetworkManager. | [More →](docs/features/wifi-eduroam.md) |
-| [`zed`](docs/features/zed.md) | Zed editor environment and persistence. | [More →](docs/features/zed.md) |
+| [`zed`](docs/features/zed.md) | Zed editor environment, declarative settings/keymaps, SSH remote presets, and wrapped CLI/LSP toolchain. | [More →](docs/features/zed.md) |
 
 </details>
 
@@ -637,6 +656,28 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 
 Executable packages exported across target platforms on `flake.packages`. See [Packages Documentation](docs/packages.md).
 
+#### [`agy`](docs/packages.md#agy)
+Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
+
+```bash
+nix run .#agy
+```
+
+```bash
+nix run github:LW-54/nixconf#agy
+```
+
+#### [`agy-api`](docs/packages.md#agy-api)
+Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
+
+```bash
+nix run .#agy-api
+```
+
+```bash
+nix run github:LW-54/nixconf#agy-api
+```
+
 #### [`antigravity`](docs/packages.md#antigravity)
 Google Antigravity
 
@@ -646,17 +687,6 @@ nix run .#antigravity
 
 ```bash
 nix run github:LW-54/nixconf#antigravity
-```
-
-#### [`antigravity-cli`](docs/packages.md#antigravity-cli)
-Google Antigravity CLI - Describe what you need, and Antigravity handles the rest
-
-```bash
-nix run .#antigravity-cli
-```
-
-```bash
-nix run github:LW-54/nixconf#antigravity-cli
 ```
 
 #### [`antigravity-ide`](docs/packages.md#antigravity-ide)
@@ -758,6 +788,17 @@ nix run .#menu
 nix run github:LW-54/nixconf#menu
 ```
 
+#### [`micro`](docs/packages.md#micro)
+Modern and intuitive terminal-based text editor
+
+```bash
+nix run .#micro
+```
+
+```bash
+nix run github:LW-54/nixconf#micro
+```
+
 #### [`storage`](docs/packages.md#storage)
 Declarative multi-provider storage reconciler and drift checker across all fleet hosts.
 
@@ -780,6 +821,17 @@ nix run .#test
 nix run github:LW-54/nixconf#test
 ```
 
+#### [`zed`](docs/packages.md#zed)
+High-performance, multiplayer code editor from the creators of Atom and Tree-sitter
+
+```bash
+nix run .#zed
+```
+
+```bash
+nix run github:LW-54/nixconf#zed
+```
+
 </details>
 
 <details>
@@ -798,15 +850,15 @@ nix develop .#default
 nix develop github:LW-54/nixconf#default
 ```
 
-#### [`gemini`](docs/devshells.md#gemini)
-Development shell with the Antigravity CLI and SOPS-encrypted GEMINI_API_KEY.
+#### [`gemini-api`](docs/devshells.md#gemini-api)
+Development shell exporting SOPS-encrypted GEMINI_API_KEY with API-key-wrapped agy-api.
 
 ```bash
-nix develop .#gemini
+nix develop .#gemini-api
 ```
 
 ```bash
-nix develop github:LW-54/nixconf#gemini
+nix develop github:LW-54/nixconf#gemini-api
 ```
 
 #### [`github-cli`](docs/devshells.md#github-cli)

@@ -10,7 +10,7 @@
         self.nixosModules.cgroups
         self.nixosModules.rclone
         self.nixosModules.restic
-        self.nixosModules.victoria
+        self.nixosModules.alloy
         self.nixosModules.lw
         self.nixosModules.hjem
         self.nixosModules.nix
@@ -22,6 +22,8 @@
         self.nixosModules.bw
         self.nixosModules.ssh
         self.nixosModules.docker
+        self.nixosModules.micro
+        self.nixosModules.agy
       ];
 
       config = {

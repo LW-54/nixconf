@@ -6,9 +6,11 @@ Every NixOS module exported on `flake.nixosModules`.
 
 | Module | Provided by | Description | Docs |
 | :--- | :--- | :--- | :--- |
-| [`antigravity`](antigravity.md) | feature [`antigravity`](../features/antigravity.md) | Google Antigravity IDE, agentic workflow tools, and CLI runtime. | [More →](antigravity.md) |
-| [`antigravity-cli`](antigravity-cli.md) | feature [`antigravity`](../features/antigravity.md) | NixOS module exported by feature 'antigravity'. | [More →](antigravity-cli.md) |
-| [`antigravity-ide`](antigravity-ide.md) | feature [`antigravity`](../features/antigravity.md) | NixOS module exported by feature 'antigravity'. | [More →](antigravity-ide.md) |
+| [`agy`](agy.md) | feature [`antigravity`](../features/antigravity.md) | NixOS module exported by feature 'antigravity'. | [More →](agy.md) |
+| [`agy-config`](agy-config.md) | feature [`antigravity`](../features/antigravity.md) | NixOS module exported by feature 'antigravity'. | [More →](agy-config.md) |
+| [`agy-hub`](agy-hub.md) | feature [`antigravity`](../features/antigravity.md) | NixOS module exported by feature 'antigravity'. | [More →](agy-hub.md) |
+| [`agy-remote-control`](agy-remote-control.md) | feature [`antigravity`](../features/antigravity.md) | NixOS module exported by feature 'antigravity'. | [More →](agy-remote-control.md) |
+| [`alloy`](alloy.md) | implementation [`alloy`](../implementations/alloy.md) | Telemetry collection agent implementation using Grafana Alloy for metrics scraping, log shipping, and blackbox probing. | [More →](alloy.md) |
 | [`astrolabe`](astrolabe.md) | host [`astrolabe`](../hosts/astrolabe.md) | Headless VPS Server (adje.app public edge and core services). | [More →](astrolabe.md) |
 | [`astrolabe-disk`](astrolabe-disk.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-disk.md) |
 | [`astrolabe-hardware`](astrolabe-hardware.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-hardware.md) |
@@ -35,6 +37,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`fonts`](fonts.md) | feature [`fonts`](../features/fonts.md) | System typography and developer monospace font packages. | [More →](fonts.md) |
 | [`foot`](foot.md) | feature [`foot`](../features/foot.md) | Fast, lightweight Wayland terminal emulator with server-client architecture. | [More →](foot.md) |
 | [`git`](git.md) | feature [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [More →](git.md) |
+| [`grafana`](grafana.md) | implementation [`grafana`](../implementations/grafana.md) | Full observability stack implementation using Grafana, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana Alloy. | [More →](grafana.md) |
 | [`greetd`](greetd.md) | feature [`greetd`](../features/greetd.md) | Lightweight console greeter and graphical session launcher via tuigreet. | [More →](greetd.md) |
 | [`helium`](helium.md) | feature [`helium`](../features/helium.md) | Helium web browser with custom runtime flags and enterprise policy management. | [More →](helium.md) |
 | [`hjem`](hjem.md) | implementation [`hjem`](../implementations/hjem.md) | Lightweight declarative home directory files and XDG environment manager. | [More →](hjem.md) |
@@ -43,6 +46,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`labwc`](labwc.md) | feature [`labwc`](../features/labwc.md) | Labwc stacking Wayland compositor with window manager keybindings and XDG autostart. | [More →](labwc.md) |
 | [`locale`](locale.md) | feature [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [More →](locale.md) |
 | [`lw`](lw.md) | implementation [`lw`](../implementations/lw.md) | Primary human user account orchestration and identity provisioning. | [More →](lw.md) |
+| [`micro`](micro.md) | feature [`micro`](../features/micro.md) | Modern and intuitive terminal-based text editor with wrapped declarative configuration. | [More →](micro.md) |
 | [`monitoring`](monitoring.md) | contract [`monitoring`](../contracts/monitoring.md) | Declarative metrics, logs, blackbox probing, alerting rules, and dashboard provisioning contract. | [More →](monitoring.md) |
 | [`nix`](nix.md) | feature [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](nix.md) |
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
@@ -59,11 +63,10 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`storage`](storage.md) | contract [`storage`](../contracts/storage.md) | Declarative multi-provider storage contract separating open driver definitions, logical providers, host/shared slices, and mount requests. | [More →](storage.md) |
 | [`tack`](tack.md) | feature [`tack`](../features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](tack.md) |
 | [`testing`](testing.md) | — | Exported NixOS module 'testing'. | [More →](testing.md) |
-| [`ttyd`](ttyd.md) | feature [`ttyd`](../features/ttyd.md) | Web terminal server bridging browser sessions to system shells via ttyd. | [More →](ttyd.md) |
+| [`ttyd`](ttyd.md) | feature [`ttyd`](../features/ttyd.md) | Web terminal server bridging browser sessions to persistent tmux-backed system shells via ttyd. | [More →](ttyd.md) |
 | [`uchiyomi`](uchiyomi.md) | feature [`uchiyomi`](../features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [More →](uchiyomi.md) |
 | [`uwsm`](uwsm.md) | implementation [`uwsm`](../implementations/uwsm.md) | Universal Wayland Session Manager integration for desktop environments. | [More →](uwsm.md) |
 | [`vaultwarden`](vaultwarden.md) | feature [`vaultwarden`](../features/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [More →](vaultwarden.md) |
-| [`victoria`](victoria.md) | implementation [`victoria`](../implementations/victoria.md) | Observability stack implementation using Grafana Alloy, VictoriaMetrics, VictoriaLogs, vmalert, Alertmanager, and Grafana. | [More →](victoria.md) |
 | [`vivaldi`](vivaldi.md) | feature [`vivaldi`](../features/vivaldi.md) | Vivaldi web browser with Widevine and proprietary media codecs. | [More →](vivaldi.md) |
 | [`vscode`](vscode.md) | feature [`vscode`](../features/vscode.md) | Visual Studio Code editor environment and persistence. | [More →](vscode.md) |
 | [`wayland`](wayland.md) | contract [`wayland`](../contracts/wayland.md) | Wayland compositor registration, session targets, and graphical environment management. | [More →](wayland.md) |
@@ -74,4 +77,4 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`x240-hardware`](x240-hardware.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-hardware.md) |
 | [`x240-resources`](x240-resources.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-resources.md) |
 | [`x240-system`](x240-system.md) | host [`x240`](../hosts/x240.md) | NixOS module exported by host 'x240'. | [More →](x240-system.md) |
-| [`zed`](zed.md) | feature [`zed`](../features/zed.md) | Zed editor environment and persistence. | [More →](zed.md) |
+| [`zed`](zed.md) | feature [`zed`](../features/zed.md) | Zed editor environment, declarative settings/keymaps, SSH remote presets, and wrapped CLI/LSP toolchain. | [More →](zed.md) |

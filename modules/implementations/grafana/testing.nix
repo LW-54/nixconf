@@ -1,5 +1,5 @@
 {
-  internal.victoria.mkTesting = {
+  internal.grafana.mkTesting = {
     self,
     config,
     lib,
