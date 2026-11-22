@@ -25,6 +25,7 @@ struct Config {
 
 struct LoginSession {
     child: Child,
+    output: Arc<Mutex<String>>,
 }
 
 struct AppState {
@@ -138,9 +139,9 @@ fn format_oauth_detail(expiry: Option<i64>, fallback: &str) -> String {
         if exp > 0 {
             let rem = exp - now_unix();
             if rem > 0 {
-                return format!("Access token valid · {} left (auto-refreshes)", format_duration(rem as u64));
+                return format!("access token {} left (auto-refresh)", format_duration(rem as u64));
             }
-            return "Refreshable OAuth session active".to_string();
+            return "refresh token active".to_string();
         }
     }
     fallback.to_string()
@@ -178,7 +179,7 @@ fn local_status(cfg: &Config) -> HostStatus {
     let tok_path = cli_dir.join("antigravity-oauth-token");
 
     let mut oauth_status = "missing".to_string();
-    let mut oauth_detail = "Not signed in yet".to_string();
+    let mut oauth_detail = "not signed in".to_string();
     let mut oauth_expiry = None;
     let mut email = String::new();
 
@@ -192,7 +193,7 @@ fn local_status(cfg: &Config) -> HostStatus {
             if let Some(exp_str) = extract_json_string(&raw, "expiry") {
                 oauth_expiry = parse_rfc3339_unix(&cfg.date_bin, &exp_str);
             }
-            oauth_detail = format_oauth_detail(oauth_expiry, "OAuth token present");
+            oauth_detail = format_oauth_detail(oauth_expiry, "token present");
         }
     }
 
@@ -323,13 +324,12 @@ fn collect_hosts(cfg: &Config) -> Vec<HostStatus> {
                 online: false,
                 daemon: "offline".to_string(),
                 oauth_status: "offline".to_string(),
-                oauth_detail: "Waiting for telemetry from host".to_string(),
+                oauth_detail: "no telemetry".to_string(),
                 ..Default::default()
             },
         );
     }
 
-    // 1) Check host liveness via node_systemd_unit_state or up in VictoriaMetrics (works even before agy-metrics timer runs)
     for s in query_vm(&cfg.vm_addr, "node_systemd_unit_state{name=\"agy-remote-control.service\",state=\"active\"}") {
         if s.host == cfg.local_host {
             continue;
@@ -343,14 +343,13 @@ fn collect_hosts(cfg: &Config) -> Vec<HostStatus> {
         if entry.oauth_status.is_empty() || entry.oauth_status == "offline" {
             entry.oauth_status = if s.value >= 0.5 { "authenticated".into() } else { "unknown".into() };
             entry.oauth_detail = if s.value >= 0.5 {
-                "Daemon active · telemetry via Alloy".into()
+                "daemon active via alloy".into()
             } else {
-                "Host online · awaiting agy metrics".into()
+                "awaiting agy metrics".into()
             };
         }
     }
 
-    // 2) Enrich with agy_* metrics pushed by Alloy textfile collector
     let now = now_unix();
     for s in query_vm(&cfg.vm_addr, "agy_metrics_updated_seconds") {
         if s.host == cfg.local_host {
@@ -394,7 +393,7 @@ fn collect_hosts(cfg: &Config) -> Vec<HostStatus> {
         if let Some(entry) = map.get_mut(&s.host) {
             if entry.online && s.value > 0.0 {
                 entry.oauth_expiry = Some(s.value as i64);
-                entry.oauth_detail = format_oauth_detail(Some(s.value as i64), "OAuth token present");
+                entry.oauth_detail = format_oauth_detail(Some(s.value as i64), "token present");
             }
         }
     }
@@ -428,7 +427,6 @@ fn collect_hosts(cfg: &Config) -> Vec<HostStatus> {
         }
     }
 
-    // Fallback online check via Alloy `up` metric if host is up even before agy switch
     for s in query_vm(&cfg.vm_addr, "max by (host) (node_boot_time_seconds)") {
         if s.host == cfg.local_host {
             continue;
@@ -441,7 +439,7 @@ fn collect_hosts(cfg: &Config) -> Vec<HostStatus> {
                 }
                 if entry.oauth_status == "offline" {
                     entry.oauth_status = "unknown".into();
-                    entry.oauth_detail = "Host online · switch host to publish agy metrics".into();
+                    entry.oauth_detail = "online · awaiting agy_metrics".into();
                 }
             }
         }
@@ -508,42 +506,69 @@ fn start_login(state: &AppState) -> (bool, String) {
         .env("SSH_CONNECTION", "1 2 3 4")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .stderr(Stdio::null())
+        .stderr(Stdio::piped())
         .spawn()
     {
         Ok(c) => c,
-        Err(e) => return (false, format!("Failed to start agy login: {}", e)),
+        Err(e) => return (false, format!("failed to spawn agy: {}", e)),
     };
 
     let stdout = match child.stdout.take() {
         Some(s) => s,
         None => {
             let _ = child.kill();
-            return (false, "Failed to capture agy login output".into());
+            return (false, "failed to capture stdout".into());
         }
     };
+    let stderr = child.stderr.take();
 
+    let output = Arc::new(Mutex::new(String::new()));
+    let out_stdout = Arc::clone(&output);
+    let out_stderr = Arc::clone(&output);
+
+    if let Some(err_stream) = stderr {
+        thread::spawn(move || {
+            let reader = BufReader::new(err_stream);
+            for line in reader.lines().flatten() {
+                let mut buf = out_stderr.lock().unwrap();
+                buf.push_str(&line);
+                buf.push('\n');
+            }
+        });
+    }
+
+    // IMPORTANT: Keep draining stdout until EOF so agy never receives SIGPIPE!
     let (tx, rx) = std::sync::mpsc::channel();
     thread::spawn(move || {
+        let mut sent = false;
         let reader = BufReader::new(stdout);
         for line in reader.lines().flatten() {
             let trimmed = line.trim();
-            if trimmed.starts_with("https://accounts.google.com/") {
+            if !sent && trimmed.starts_with("https://accounts.google.com/") {
                 let _ = tx.send(trimmed.to_string());
-                return;
+                sent = true;
             }
+            let mut buf = out_stdout.lock().unwrap();
+            buf.push_str(&line);
+            buf.push('\n');
         }
     });
 
     match rx.recv_timeout(Duration::from_secs(10)) {
         Ok(url) => {
-            *guard = Some(LoginSession { child });
+            *guard = Some(LoginSession { child, output });
             (true, url)
         }
         Err(_) => {
             let _ = child.kill();
             let _ = child.wait();
-            (false, "Timed out waiting for Google sign-in URL from agy".into())
+            let log = output.lock().unwrap().trim().to_string();
+            let msg = if log.is_empty() {
+                "timed out waiting for google sign-in url".into()
+            } else {
+                format!("login failed: {}", log)
+            };
+            (false, msg)
         }
     }
 }
@@ -551,41 +576,63 @@ fn start_login(state: &AppState) -> (bool, String) {
 fn complete_login(state: &AppState, code: &str) -> (bool, String) {
     let trimmed = code.trim();
     if trimmed.is_empty() {
-        return (false, "Please paste the authorization code or callback URL".into());
+        return (false, "empty authorization code".into());
     }
+
     let mut session = {
         let mut guard = state.login.lock().unwrap();
         match guard.take() {
             Some(s) => s,
-            None => return (false, "No active login session; click Sign in with Google again".into()),
+            None => return (false, "no active login session; click login again".into()),
         }
     };
+
+    if let Ok(Some(status)) = session.child.try_wait() {
+        let log = session.output.lock().unwrap().trim().to_string();
+        return (
+            false,
+            format!(
+                "login process exited early ({}): {}",
+                status,
+                if log.is_empty() { "click login again" } else { &log }
+            ),
+        );
+    }
 
     if let Some(mut stdin) = session.child.stdin.take() {
         if let Err(e) = writeln!(stdin, "{}", trimmed) {
             let _ = session.child.kill();
-            return (false, format!("Failed to send code to agy: {}", e));
+            let _ = session.child.wait();
+            return (false, format!("failed writing code to agy: {}", e));
         }
+        let _ = stdin.flush();
+    } else {
+        let _ = session.child.kill();
+        let _ = session.child.wait();
+        return (false, "login stdin already closed; click login again".into());
     }
 
-    for _ in 0..40 {
+    for _ in 0..60 {
         match session.child.try_wait() {
             Ok(Some(status)) => {
                 if status.success() {
                     let _ = Command::new(&state.cfg.sudo_bin)
                         .args(["-n", &state.cfg.systemctl_bin, "restart", "agy-remote-control.service"])
                         .output();
-                    return (true, "Authenticated and daemon started".into());
+                    return (true, "authenticated and daemon started".into());
                 }
-                return (false, "Google rejected the authorization code; please try again".into());
+                let log = session.output.lock().unwrap().trim().to_string();
+                let tail = log.lines().last().unwrap_or("token exchange failed");
+                return (false, format!("auth failed: {}", tail));
             }
             Ok(None) => thread::sleep(Duration::from_millis(250)),
-            Err(e) => return (false, format!("Login process error: {}", e)),
+            Err(e) => return (false, format!("login wait error: {}", e)),
         }
     }
+
     let _ = session.child.kill();
     let _ = session.child.wait();
-    (false, "Timed out completing token exchange".into())
+    (false, "timed out waiting for token exchange".into())
 }
 
 fn cancel_login(state: &AppState) {
@@ -598,7 +645,7 @@ fn cancel_login(state: &AppState) {
 
 fn control_local(cfg: &Config, action: &str) -> (bool, String) {
     if !matches!(action, "start" | "stop" | "restart") {
-        return (false, "Unsupported action".into());
+        return (false, "unsupported action".into());
     }
     match Command::new(&cfg.sudo_bin)
         .args(["-n", &cfg.systemctl_bin, action, "agy-remote-control.service"])
@@ -619,7 +666,7 @@ fn html_page(cfg: &Config) -> String {
         String::new()
     } else {
         format!(
-            "<a class=\"btn btn-ghost\" href=\"{}\" target=\"_blank\" rel=\"noopener\">Grafana ↗</a>",
+            "<a class=\"btn\" href=\"{}\" target=\"_blank\" rel=\"noopener\">Grafana ↗</a>",
             cfg.grafana_url
         )
     };
@@ -628,283 +675,371 @@ fn html_page(cfg: &Config) -> String {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Antigravity Hub</title>
+  <title>agy // control</title>
   <style>
     :root {
       color-scheme: dark;
-      --bg: #0b0d14;
-      --surface: rgba(22, 26, 39, 0.84);
-      --surface-hi: rgba(30, 36, 54, 0.92);
-      --border: rgba(148, 163, 184, 0.14);
-      --border-hi: rgba(129, 140, 248, 0.42);
-      --text: #eef2ff;
-      --muted: #94a3b8;
-      --green: #34d399;
-      --amber: #fbbf24;
-      --red: #fb7185;
-      --accent: #6366f1;
-      --accent2: #38bdf8;
+      --bg: #0c0e11;
+      --panel: #13161b;
+      --panel-alt: #181c23;
+      --border: #252b34;
+      --border-hi: #3c4655;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --err: #f85149;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
-      background:
-        radial-gradient(900px 500px at 15% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
-        radial-gradient(700px 420px at 88% 0%, rgba(56, 189, 248, 0.14), transparent 55%),
-        var(--bg);
+      background: var(--bg);
       color: var(--text);
-      padding: 28px 20px 48px;
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.45;
     }
-    .wrap { max-width: 980px; margin: 0 auto; }
-    header {
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-      gap: 16px; margin-bottom: 24px;
+    .topbar {
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
     }
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .logo {
-      width: 42px; height: 42px; border-radius: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: grid; place-items: center; font-weight: 800; font-size: 1.05rem; color: #fff;
-      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+    .topbar-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
     }
-    h1 { margin: 0; font-size: 1.4rem; letter-spacing: -0.02em; }
-    .sub { color: var(--muted); font-size: 0.88rem; margin-top: 3px; }
-    .hdr-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+    .title {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+    .summary {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      padding: 9px 15px; border-radius: 10px; border: 1px solid var(--border);
-      background: var(--surface-hi); color: var(--text); text-decoration: none;
-      font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 3px;
+      border: 1px solid var(--border-hi);
+      background: var(--panel-alt);
+      color: var(--text);
+      text-decoration: none;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
     }
-    .btn:hover { border-color: var(--border-hi); transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn:hover { background: #212731; border-color: #586477; }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-color: transparent; color: #fff;
-      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.32);
+      background: var(--text);
+      color: var(--bg);
+      border-color: var(--text);
+      font-weight: 600;
     }
-    .btn-ghost { background: transparent; }
-    .btn-google {
-      background: #fff; color: #111827; border-color: transparent;
-      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.12);
+    .btn-primary:hover { background: #cfd8e3; border-color: #cfd8e3; }
+    .btn-warn {
+      border-color: var(--warn);
+      color: var(--warn);
     }
-    .btn-google:hover { background: #f8fafc; border-color: transparent; }
-    .btn-sm { padding: 7px 11px; font-size: 0.82rem; border-radius: 8px; }
-    .kpis {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-      gap: 12px; margin-bottom: 22px;
+    .btn-warn:hover { background: rgba(210, 153, 34, 0.12); }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 20px;
+      display: grid;
+      gap: 16px;
     }
-    .kpi {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-      padding: 14px 16px; backdrop-filter: blur(12px);
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
     }
-    .kpi-label { font-size: 0.76rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-    .kpi-val { font-size: 1.45rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
-    .card {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
-      padding: 20px; display: flex; flex-direction: column; gap: 16px;
-      backdrop-filter: blur(14px); transition: border-color 0.15s ease;
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
     }
-    .card:hover { border-color: rgba(148, 163, 184, 0.28); }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .host-title { display: flex; align-items: center; gap: 10px; font-size: 1.08rem; font-weight: 700; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-    .dot-on { background: var(--green); box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.18); }
-    .dot-off { background: #64748b; }
-    .pill {
-      padding: 4px 10px; border-radius: 999px; font-size: 0.74rem; font-weight: 700;
-      letter-spacing: 0.03em; text-transform: uppercase;
+    th {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      background: var(--panel-alt);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
     }
-    .ok { background: rgba(52, 211, 153, 0.14); color: var(--green); }
-    .warn { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
-    .err { background: rgba(251, 113, 133, 0.15); color: var(--red); }
-    .muted { background: rgba(148, 163, 184, 0.14); color: var(--muted); }
-    .email { font-size: 0.82rem; color: var(--muted); margin-top: -10px; }
-    .rows {
-      display: grid; gap: 10px; padding: 12px 14px; border-radius: 12px;
-      background: rgba(11, 13, 20, 0.55); border: 1px solid rgba(148, 163, 184, 0.08);
-      font-size: 0.86rem;
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
     }
-    .label { color: var(--muted); }
-    .detail { font-size: 0.8rem; color: var(--muted); }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
-    .toast {
-      position: fixed; bottom: 20px; right: 20px; padding: 10px 16px; border-radius: 10px;
-      background: var(--surface-hi); border: 1px solid var(--border-hi); font-size: 0.86rem;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    tr:last-child td { border-bottom: none; }
+    .mono { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+    .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
     }
-    .toast.show { opacity: 1; }
-    .modal-bg {
-      position: fixed; inset: 0; background: rgba(6, 8, 14, 0.76); backdrop-filter: blur(6px);
-      display: none; align-items: center; justify-content: center; padding: 20px; z-index: 50;
+    .dot { width: 7px; height: 7px; border-radius: 1px; display: inline-block; }
+    .c-ok { color: var(--ok); }
+    .c-warn { color: var(--warn); }
+    .c-err { color: var(--err); }
+    .c-muted { color: var(--muted); }
+    .b-ok { background: var(--ok); }
+    .b-warn { background: var(--warn); }
+    .b-err { background: var(--err); }
+    .b-muted { background: #484f58; }
+    .login-drawer {
+      display: none;
+      padding: 16px 18px;
+      background: var(--panel);
+      border: 1px solid var(--border-hi);
+      border-radius: 3px;
+      gap: 12px;
     }
-    .modal-bg.open { display: flex; }
-    .modal {
-      width: 100%; max-width: 480px; background: #141826; border: 1px solid var(--border-hi);
-      border-radius: 18px; padding: 24px; display: flex; flex-direction: column; gap: 16px;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    .login-drawer.open { display: grid; }
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
     }
-    .modal h2 { margin: 0; font-size: 1.18rem; }
-    .step { font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
-    .step strong { color: var(--text); }
+    .drawer-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
     input[type="text"] {
-      width: 100%; padding: 11px 13px; border-radius: 10px; border: 1px solid var(--border);
-      background: #0b0d14; color: var(--text); font-size: 0.9rem; outline: none;
+      flex: 1;
+      min-width: 240px;
+      padding: 7px 10px;
+      border-radius: 3px;
+      border: 1px solid var(--border-hi);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12.5px;
+      outline: none;
     }
-    input[type="text"]:focus { border-color: var(--accent2); }
-    .modal-err { color: var(--red); font-size: 0.84rem; min-height: 1.1em; }
+    input[type="text"]:focus { border-color: var(--text); }
+    .status-bar {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 1.4em;
+    }
+    .status-bar.err { color: var(--err); }
+    .status-bar.ok { color: var(--ok); }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">AGY</div>
-        <div>
-          <h1>Antigravity Control Hub</h1>
-          <div class="sub">Remote-control daemons, OAuth health &amp; host telemetry</div>
-        </div>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="title">
+        <span>AGY // HUB</span>
+        <span id="summary" class="summary">loading…</span>
       </div>
-      <div class="hdr-actions">
+      <div class="actions">
         __GRAFANA_BTN__
         <a class="btn btn-primary" href="__REMOTE_URL__" target="_blank" rel="noopener">Open Remote Control ↗</a>
       </div>
-    </header>
-    <div id="kpis" class="kpis"></div>
-    <div id="grid" class="grid"></div>
-  </div>
-
-  <div id="toast" class="toast"></div>
-
-  <div id="loginModal" class="modal-bg">
-    <div class="modal">
-      <div class="row">
-        <h2>Sign in with Google</h2>
-        <button class="btn btn-sm btn-ghost" onclick="closeLogin()">Close</button>
-      </div>
-      <div class="step">
-        <strong>1.</strong> Click below to open Google Sign-In in a new tab (this hub stays open).
-      </div>
-      <a id="googleLink" class="btn btn-google" href="#" target="_blank" rel="noopener">Continue with Google ↗</a>
-      <div class="step">
-        <strong>2.</strong> Google will display an authorization code on <code>antigravity.google/oauth-callback</code>. Paste the code (or full URL) below:
-      </div>
-      <input id="codeInput" type="text" placeholder="Paste authorization code or callback URL…" autocomplete="off" />
-      <div id="modalErr" class="modal-err"></div>
-      <div class="row">
-        <button class="btn btn-ghost btn-sm" onclick="closeLogin()">Cancel</button>
-        <button id="completeBtn" class="btn btn-primary" onclick="submitCode()">Complete Sign-In</button>
-      </div>
     </div>
   </div>
+
+  <main>
+    <section id="loginDrawer" class="login-drawer">
+      <div class="drawer-head">
+        <span>OAUTH LOGIN // LOCAL HOST</span>
+        <button class="btn" onclick="closeLogin()">Cancel</button>
+      </div>
+      <div class="sub">
+        1. Complete Google sign-in in the opened tab (or click <strong>Open Google Sign-In</strong>).
+        2. Copy the code from <code>antigravity.google/oauth-callback</code> and paste below — submits automatically on paste.
+      </div>
+      <div class="drawer-row">
+        <a id="googleLink" class="btn btn-primary" href="#" target="_blank" rel="noopener">Open Google Sign-In ↗</a>
+        <input id="codeInput" type="text" placeholder="Paste authorization code or callback URL…" autocomplete="off" />
+        <button id="pasteBtn" class="btn" onclick="pasteAndSubmit()">Paste &amp; Sign In</button>
+        <button id="completeBtn" class="btn btn-primary" onclick="submitCode()">Submit</button>
+      </div>
+      <div id="loginMsg" class="status-bar"></div>
+    </section>
+
+    <section class="panel">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Host</th>
+              <th>Daemon</th>
+              <th>OAuth</th>
+              <th>Usage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="5" class="mono c-muted">loading hosts…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="statusBar" class="status-bar"></div>
+  </main>
 
   <script>
     function esc(s) {
       return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
-    function pill(cls, text) {
-      return '<span class="pill ' + cls + '">' + esc(text) + '</span>';
+    function tag(cls, text) {
+      return '<span class="tag c-' + cls + '"><span class="dot b-' + cls + '"></span>' + esc(text) + '</span>';
     }
-    var toastTimer = null;
-    function notify(msg) {
-      var el = document.getElementById("toast");
-      el.textContent = msg;
-      el.classList.add("show");
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(function() { el.classList.remove("show"); }, 3500);
+    function setStatus(msg, cls) {
+      var el = document.getElementById("statusBar");
+      el.textContent = msg || "";
+      el.className = "status-bar" + (cls ? (" " + cls) : "");
     }
     async function act(host, action) {
-      notify("Running " + action + " on " + host + "…");
+      setStatus(host + ": running " + action + "…");
       var res = await fetch("/api/host/" + encodeURIComponent(host) + "/" + action, { method: "POST" });
       var data = await res.json();
-      notify(data.ok ? (host + ": " + action + " succeeded") : (host + ": " + data.message));
+      setStatus(host + ": " + (data.ok ? (action + " ok") : data.message), data.ok ? "ok" : "err");
       await refresh();
     }
     async function openLogin() {
-      document.getElementById("modalErr").textContent = "";
+      var msg = document.getElementById("loginMsg");
+      msg.textContent = "starting oauth flow…";
+      msg.className = "status-bar";
       document.getElementById("codeInput").value = "";
-      notify("Starting Google sign-in…");
       var res = await fetch("/api/login/start", { method: "POST" });
       var data = await res.json();
       if (!data.ok) {
-        notify("Login error: " + data.message);
+        setStatus("login start failed: " + data.message, "err");
         return;
       }
-      document.getElementById("googleLink").href = data.url;
-      document.getElementById("loginModal").classList.add("open");
+      var link = document.getElementById("googleLink");
+      link.href = data.url;
+      document.getElementById("loginDrawer").classList.add("open");
+      msg.textContent = "ready — waiting for authorization code";
+      window.open(data.url, "_blank", "noopener");
       document.getElementById("codeInput").focus();
     }
     async function closeLogin() {
-      document.getElementById("loginModal").classList.remove("open");
+      document.getElementById("loginDrawer").classList.remove("open");
       await fetch("/api/login/cancel", { method: "POST" });
+    }
+    async function pasteAndSubmit() {
+      try {
+        var text = await navigator.clipboard.readText();
+        if (text && text.trim()) {
+          document.getElementById("codeInput").value = text.trim();
+          await submitCode();
+          return;
+        }
+      } catch (e) {}
+      document.getElementById("codeInput").focus();
+      document.getElementById("loginMsg").textContent = "press Ctrl+V in the input field";
     }
     async function submitCode() {
       var btn = document.getElementById("completeBtn");
-      var err = document.getElementById("modalErr");
+      var msg = document.getElementById("loginMsg");
       var code = document.getElementById("codeInput").value.trim();
-      if (!code) { err.textContent = "Please paste the code or callback URL."; return; }
+      if (!code) {
+        msg.textContent = "paste the authorization code or callback url";
+        msg.className = "status-bar err";
+        return;
+      }
       btn.disabled = true;
-      err.textContent = "";
-      var res = await fetch("/api/login/complete", { method: "POST", body: code });
+      msg.textContent = "exchanging token…";
+      msg.className = "status-bar";
+      var res = await fetch("/api/login/complete", {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: code
+      });
       var data = await res.json();
       btn.disabled = false;
       if (!data.ok) {
-        err.textContent = data.message;
+        msg.textContent = data.message;
+        msg.className = "status-bar err";
         return;
       }
-      document.getElementById("loginModal").classList.remove("open");
-      notify("Signed in! Remote-control daemon is active.");
+      document.getElementById("loginDrawer").classList.remove("open");
+      setStatus("authenticated — remote-control daemon active", "ok");
       await refresh();
     }
     document.getElementById("codeInput").addEventListener("keydown", function(e) {
       if (e.key === "Enter") submitCode();
     });
+    document.getElementById("codeInput").addEventListener("paste", function() {
+      setTimeout(function() {
+        if (document.getElementById("codeInput").value.trim().length > 10) {
+          submitCode();
+        }
+      }, 30);
+    });
     async function refresh() {
       var res = await fetch("/api/status");
       var data = await res.json();
       var hosts = data.hosts || [];
-      var onlineCount = hosts.filter(function(h) { return h.online; }).length;
-      var activeCount = hosts.filter(function(h) { return h.daemon === "active"; }).length;
-      var authCount = hosts.filter(function(h) { return h.oauth.status === "authenticated"; }).length;
-      var totalSessions = hosts.reduce(function(acc, h) { return acc + (h.usage && h.usage.conversations ? h.usage.conversations : 0); }, 0);
+      var online = hosts.filter(function(h) { return h.online; }).length;
+      var active = hosts.filter(function(h) { return h.daemon === "active"; }).length;
+      var sessions = hosts.reduce(function(a, h) { return a + (h.usage && h.usage.conversations ? h.usage.conversations : 0); }, 0);
+      document.getElementById("summary").textContent =
+        online + "/" + hosts.length + " online · " + active + "/" + hosts.length + " active · " + sessions + " sessions";
 
-      document.getElementById("kpis").innerHTML =
-        '<div class="kpi"><div class="kpi-label">Hosts Online</div><div class="kpi-val">' + onlineCount + ' / ' + hosts.length + '</div></div>'
-        + '<div class="kpi"><div class="kpi-label">Active Daemons</div><div class="kpi-val">' + activeCount + ' / ' + hosts.length + '</div></div>'
-        + '<div class="kpi"><div class="kpi-label">OAuth Healthy</div><div class="kpi-val">' + authCount + ' / ' + hosts.length + '</div></div>'
-        + '<div class="kpi"><div class="kpi-label">Stored Sessions</div><div class="kpi-val">' + totalSessions + '</div></div>';
-
-      document.getElementById("grid").innerHTML = hosts.map(function(h) {
-        var dot = '<span class="dot ' + (h.online ? 'dot-on' : 'dot-off') + '"></span>';
-        var onlinePill = h.online ? pill("ok", "Online") : pill("muted", "Offline");
+      document.getElementById("tbody").innerHTML = hosts.map(function(h) {
+        var hostCls = h.online ? "ok" : "muted";
         var daemonCls = h.daemon === "active" ? "ok" : (h.daemon === "offline" ? "muted" : "err");
         var authCls = h.oauth.status === "authenticated" ? "ok" : (h.oauth.status === "offline" ? "muted" : "warn");
-        var usageText = h.usage && h.usage.conversations !== null
-          ? (h.usage.conversations + " sessions" + (h.usage.sizeMb !== null ? (" · " + h.usage.sizeMb + " MB") : ""))
-          : "No usage metrics yet";
-        var emailHtml = h.email ? ('<div class="email">' + esc(h.email) + '</div>') : "";
-        var actionsHtml = h.local
-          ? ('<button class="btn btn-sm ' + (h.oauth.status !== "authenticated" ? "btn-google" : "") + '" onclick="openLogin()">'
-              + (h.oauth.status === "authenticated" ? "Re-authenticate" : "Sign in with Google")
-            + '</button>'
-            + '<button class="btn btn-sm" onclick="act(\'' + esc(h.name) + '\',\'start\')">Start</button>'
-            + '<button class="btn btn-sm" onclick="act(\'' + esc(h.name) + '\',\'restart\')">Restart</button>'
-            + '<button class="btn btn-sm" onclick="act(\'' + esc(h.name) + '\',\'stop\')">Stop</button>')
-          : '<span class="detail">Live telemetry pushed via Grafana Alloy</span>';
-        return '<div class="card">'
-          + '<div class="row"><div class="host-title">' + dot + esc(h.name) + '</div>' + onlinePill + '</div>'
-          + emailHtml
-          + '<div class="rows">'
-            + '<div class="row"><span class="label">Daemon</span>' + pill(daemonCls, h.daemon + (h.uptime ? (" · " + h.uptime) : "")) + '</div>'
-            + '<div class="row"><span class="label">OAuth</span>' + pill(authCls, h.oauth.status) + '</div>'
-            + '<div class="detail">' + esc(h.oauth.detail || "") + '</div>'
-            + '<div class="row"><span class="label">Usage</span><span>' + esc(usageText) + '</span></div>'
-          + '</div>'
-          + '<div class="actions">' + actionsHtml + '</div>'
-        + '</div>';
+        var daemonLabel = h.daemon + (h.uptime ? (" (" + h.uptime + ")") : "");
+        var usageMain = (h.usage && h.usage.conversations !== null) ? (h.usage.conversations + " sessions") : "—";
+        var usageSub = (h.usage && h.usage.sizeMb !== null) ? (h.usage.sizeMb + " MB") : "";
+        var actions = h.local
+          ? ('<div class="actions">'
+              + '<button class="btn ' + (h.oauth.status !== "authenticated" ? "btn-warn" : "") + '" onclick="openLogin()">'
+                + (h.oauth.status === "authenticated" ? "Re-login" : "Login")
+              + '</button>'
+              + '<button class="btn" onclick="act(\'' + esc(h.name) + '\',\'start\')">Start</button>'
+              + '<button class="btn" onclick="act(\'' + esc(h.name) + '\',\'restart\')">Restart</button>'
+              + '<button class="btn" onclick="act(\'' + esc(h.name) + '\',\'stop\')">Stop</button>'
+            + '</div>')
+          : '<span class="mono c-muted">telemetry via alloy</span>';
+        return '<tr>'
+          + '<td>' + tag(hostCls, h.name) + (h.email ? ('<div class="sub mono">' + esc(h.email) + '</div>') : "") + '</td>'
+          + '<td>' + tag(daemonCls, daemonLabel) + '</td>'
+          + '<td>' + tag(authCls, h.oauth.status) + '<div class="sub mono">' + esc(h.oauth.detail || "") + '</div></td>'
+          + '<td class="mono">' + esc(usageMain) + (usageSub ? ('<div class="sub">' + esc(usageSub) + '</div>') : "") + '</td>'
+          + '<td>' + actions + '</td>'
+        + '</tr>';
       }).join("");
     }
     refresh();
@@ -926,6 +1061,26 @@ fn write_response(stream: &mut TcpStream, status: &str, content_type: &str, body
         body
     );
     let _ = stream.write_all(resp.as_bytes());
+}
+
+fn decode_chunked(raw: &[u8]) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < raw.len() {
+        let rel = raw[i..].windows(2).position(|w| w == b"\r\n")?;
+        let size_str = std::str::from_utf8(&raw[i..i + rel]).ok()?.split(';').next()?.trim();
+        let size = usize::from_str_radix(size_str, 16).ok()?;
+        i += rel + 2;
+        if size == 0 {
+            return Some(out);
+        }
+        if i + size + 2 > raw.len() {
+            return None;
+        }
+        out.extend_from_slice(&raw[i..i + size]);
+        i += size + 2;
+    }
+    None
 }
 
 fn read_http_request(stream: &mut TcpStream) -> Option<(String, String, String)> {
@@ -950,24 +1105,45 @@ fn read_http_request(stream: &mut TcpStream) -> Option<(String, String, String)>
     let method = first.next()?.to_string();
     let path = first.next()?.split('?').next().unwrap_or("/").to_string();
 
-    let mut content_len: usize = 0;
+    let mut content_len: Option<usize> = None;
+    let mut chunked = false;
     for line in lines {
         if let Some((k, v)) = line.split_once(':') {
             if k.eq_ignore_ascii_case("content-length") {
-                content_len = v.trim().parse().unwrap_or(0).min(16384);
+                content_len = Some(v.trim().parse().unwrap_or(0).min(16384));
+            } else if k.eq_ignore_ascii_case("transfer-encoding") && v.to_ascii_lowercase().contains("chunked") {
+                chunked = true;
             }
         }
     }
 
     let mut body_bytes = buf[hend + 4..].to_vec();
-    while body_bytes.len() < content_len {
+    if chunked {
+        loop {
+            if let Some(decoded) = decode_chunked(&body_bytes) {
+                return Some((method, path, String::from_utf8_lossy(&decoded).to_string()));
+            }
+            if body_bytes.len() >= 16384 {
+                break;
+            }
+            let n = stream.read(&mut tmp).ok()?;
+            if n == 0 {
+                break;
+            }
+            body_bytes.extend_from_slice(&tmp[..n]);
+        }
+        return Some((method, path, String::new()));
+    }
+
+    let target = content_len.unwrap_or(0);
+    while body_bytes.len() < target {
         let n = stream.read(&mut tmp).ok()?;
         if n == 0 {
             break;
         }
         body_bytes.extend_from_slice(&tmp[..n]);
     }
-    body_bytes.truncate(content_len);
+    body_bytes.truncate(target);
     Some((method, path, String::from_utf8_lossy(&body_bytes).to_string()))
 }
 
@@ -1012,7 +1188,7 @@ fn handle_client(mut stream: TcpStream, state: Arc<AppState>) {
                 let out = format!("{{\"ok\":{},\"message\":\"{}\"}}", ok, json_escape(&msg));
                 write_response(&mut stream, if ok { "200 OK" } else { "400 Bad Request" }, "application/json", &out);
             } else {
-                write_response(&mut stream, "400 Bad Request", "application/json", "{\"ok\":false,\"message\":\"Only local host can be controlled directly\"}");
+                write_response(&mut stream, "400 Bad Request", "application/json", "{\"ok\":false,\"message\":\"only local host can be controlled directly\"}");
             }
         }
         _ => write_response(&mut stream, "404 Not Found", "text/plain; charset=utf-8", "Not found\n"),
