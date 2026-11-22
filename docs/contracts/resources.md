@@ -850,25 +850,25 @@ config = {
 ...
 31: resHelpers = self.lib.resources;
 ...
-126: resources = {
-127: tiers = mkDefaultLeaves (profiles.${cfg.profile} or {});
-128: power.enable = lib.mkDefault (cfg.profile == "workstation");
-129: disk = {
+130: resources = {
+131: tiers = mkDefaultLeaves (profiles.${cfg.profile} or {});
+132: power.enable = lib.mkDefault (cfg.profile == "workstation");
+133: disk = {
 ...
-246: lib.nameValuePair "${uName}.d/50-resources.conf" {
-247: text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
-248: })
-249: otherUnits;
+250: lib.nameValuePair "${uName}.d/50-resources.conf" {
+251: text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
+252: })
+253: otherUnits;
 ...
-274: resources = {
-275: backend = "metrics";
-276: interval = "1m";
-277: rules = [
+278: resources = {
+279: backend = "metrics";
+280: interval = "1m";
+281: rules = [
 ...
-389: dashboards.resources = {
-390: title = "Resources & Allocation";
-391: folder = "02 · Infrastructure";
-392: json = helpers.mkDashboard self.lib.monitoring.dashboard;
+393: dashboards.resources = {
+394: title = "Resources & Allocation";
+395: folder = "02 · Infrastructure";
+396: json = helpers.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 

@@ -290,7 +290,7 @@ Modules and instances configuring options under the `storage` contract capabilit
 ```nix
 # modules/implementations/cgroups/default.nix
 ...
-271: ++ lib.optional (hasStorageBudgets && (config.storage.enable or false)) "resources-storage-budgets.timer";
+275: ++ lib.optional (hasStorageBudgets && (config.storage.enable or false)) "resources-storage-budgets.timer";
 ...
 ```
 

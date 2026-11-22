@@ -1384,6 +1384,26 @@ config = {
           url = "/d/nixconf-time-machine";
         }
         {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -2526,6 +2546,26 @@ config = {
           url = "/d/nixconf-time-machine";
         }
         {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -3539,6 +3579,3072 @@ config = {
     };
     title = "Storage & Backups";
   };
+  capacity-analytics = {
+    enable = true;
+    folder = "02 · Infrastructure";
+    json = {
+      annotations = {
+        list = [
+          {
+            builtIn = 1;
+            datasource = {
+              type = "grafana";
+              uid = "-- Grafana --";
+            };
+            enable = true;
+            hide = true;
+            iconColor = "rgba(0, 211, 255, 1)";
+            name = "Annotations & Alerts";
+            type = "dashboard";
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(node_boot_time_seconds{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "orange";
+            name = "Reboots";
+            step = "60s";
+            tagKeys = "host";
+            textFormat = "{{host}} booted";
+            titleFormat = "Host Reboot";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(nixconf_deployment_timestamp_seconds{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "blue";
+            name = "NixOS Deployments";
+            step = "60s";
+            tagKeys = "host,rev";
+            textFormat = "{{host}} deployed {{rev}}";
+            titleFormat = "NixOS Deploy";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "increase(container_oom_events_total{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "red";
+            name = "OOM Kills";
+            step = "60s";
+            tagKeys = "host,unit";
+            textFormat = "OOM in {{unit}} on {{host}}";
+            titleFormat = "OOM Event";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(node_systemd_unit_state{host=~\"$host\",state=\"failed\"}[2m]) > 0 and node_systemd_unit_state{host=~\"$host\",state=\"failed\"} == 1";
+            hide = false;
+            iconColor = "purple";
+            name = "Unit Failures";
+            step = "60s";
+            tagKeys = "host,name";
+            textFormat = "{{name}} failed on {{host}}";
+            titleFormat = "Unit Failed";
+            useValueForTime = false;
+          }
+        ];
+      };
+      description = "Long-running statistical baselines (min, avg, p50, p95, p99, max, variance, growth rate) compared directly against declared allocations, plus systemd operation and cumulative process cost rankings.";
+      editable = false;
+      fiscalYearStartMonth = 0;
+      graphTooltip = 2;
+      links = [
+        {
+          asDropdown = true;
+          icon = "external link";
+          includeVars = true;
+          keepTime = true;
+          tags = [
+            "nixconf"
+          ];
+          targetBlank = false;
+          title = "Dashboards";
+          tooltip = "Switch to another nixconf dashboard";
+          type = "dashboards";
+        }
+        {
+          icon = "home";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Fleet Home";
+          tooltip = "Open Fleet Command Center";
+          type = "link";
+          url = "/d/nixconf-fleet-overview";
+        }
+        {
+          icon = "bolt";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Task Manager";
+          tooltip = "Open per-host process & hardware Task Manager";
+          type = "link";
+          url = "/d/nixconf-task-manager";
+        }
+        {
+          icon = "clock";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Time Machine";
+          tooltip = "Investigate host state at a point in time";
+          type = "link";
+          url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "apps";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Services";
+          tooltip = "Browse all monitored services and jump to Service Inspector";
+          type = "link";
+          url = "/d/nixconf-services-catalog";
+        }
+        {
+          icon = "doc";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Logs";
+          tooltip = "Search centralized journald logs in VictoriaLogs";
+          type = "link";
+          url = "/d/nixconf-logs-explorer";
+        }
+      ];
+      liveNow = false;
+      panels = [
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 0;
+            y = 0;
+          };
+          id = 1;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(quantile_over_time(0.95, (node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"})[$window:]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "RAM P95";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Host RAM P95 ($window)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          description = "Estimated daily RAM usage slope (bytes/day) over $window via linear derivative.";
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 4;
+            y = 0;
+          };
+          id = 2;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(deriv((node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"})[$window:])) * 86400";
+              format = "time_series";
+              instant = true;
+              legendFormat = "B / day";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Host RAM Growth ($window)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "green";
+                    value = null;
+                  }
+                  {
+                    color = "yellow";
+                    value = 75;
+                  }
+                  {
+                    color = "red";
+                    value = 90;
+                  }
+                ];
+              };
+              unit = "percent";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 8;
+            y = 0;
+          };
+          id = 3;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg(quantile_over_time(0.95, nixconf:host_cpu_utilization_percent:rate5m{host=~\"$host\"}[$window:]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "CPU P95";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Host CPU P95 ($window)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          description = "Estimated daily /persist disk growth (bytes/day) over $window.";
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 12;
+            y = 0;
+          };
+          id = 4;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(deriv((node_filesystem_size_bytes{host=~\"$host\",mountpoint=\"/persist\"} - node_filesystem_avail_bytes{host=~\"$host\",mountpoint=\"/persist\"})[$window:])) * 86400";
+              format = "time_series";
+              instant = true;
+              legendFormat = "B / day";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "/persist Growth ($window)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              noValue = "—";
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "s";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 16;
+            y = 0;
+          };
+          id = 5;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(sum by (host, op_unit) (sum_over_time(nixconf_operation_cpu_seconds_5m{host=~\"$host\"}[$__range])))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Top Op CPU";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Top Op CPU ($__range)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              noValue = "—";
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 20;
+            y = 0;
+          };
+          id = 6;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(sum by (host, op_unit) (sum_over_time((nixconf_operation_io_read_bytes_5m{host=~\"$host\"} + nixconf_operation_io_write_bytes_5m{host=~\"$host\"})[$__range])))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Top Op I/O";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Top Op Disk I/O ($__range)";
+          type = "stat";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 4;
+          };
+          id = 7;
+          panels = [ ];
+          title = "Slice Baselines vs Declared Allocations ($window)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "Explore Trends & Cycles";
+                  url = "/d/nixconf-trends-explorer?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Current";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM Min";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM Avg";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM P95";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "StdDev";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Burst (Max/Avg)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc High";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 / High %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max / Max %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU Avg";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU P95";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 24;
+            x = 0;
+            y = 5;
+          };
+          id = 8;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "RAM P95";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum by (host, slice) (container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "min by (host, slice) (min_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, slice) (avg_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (max_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (stddev_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (max_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window])) / clamp_min(avg by (host, slice) (avg_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window])), 1)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum by (host, slice) (deriv(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (nixconf:slice_memory_high_bytes{host=~\"$host\",slice=~\"$slice\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "(max by (host, slice) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window])) / clamp_min(max by (host, slice) (nixconf:slice_memory_high_bytes{host=~\"$host\",slice=~\"$slice\"}), 1)) * 100";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "J";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (nixconf:slice_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "K";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "(max by (host, slice) (max_over_time(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$slice\"}[$window])) / clamp_min(max by (host, slice) (nixconf:slice_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"}), 1)) * 100";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "L";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, slice) (avg_over_time(nixconf:slice_cpu_cores:rate5m{host=~\"$host\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "M";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (quantile_over_time(0.95, nixconf:slice_cpu_cores:rate5m{host=~\"$host\",slice=~\"$slice\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "N";
+            }
+          ];
+          title = "Workload Slices — Statistical Profile vs Declared Limits ($window)";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 2;
+                  "Value #B" = 3;
+                  "Value #C" = 4;
+                  "Value #D" = 5;
+                  "Value #E" = 6;
+                  "Value #F" = 7;
+                  "Value #G" = 8;
+                  "Value #H" = 9;
+                  "Value #I" = 10;
+                  "Value #J" = 11;
+                  "Value #K" = 12;
+                  "Value #L" = 13;
+                  "Value #M" = 14;
+                  "Value #N" = 15;
+                  host = 0;
+                  slice = 1;
+                };
+                renameByName = {
+                  "Value #A" = "Current";
+                  "Value #B" = "RAM Min";
+                  "Value #C" = "RAM Avg";
+                  "Value #D" = "RAM P95";
+                  "Value #E" = "RAM Max";
+                  "Value #F" = "StdDev";
+                  "Value #G" = "Burst (Max/Avg)";
+                  "Value #H" = "Growth / Day";
+                  "Value #I" = "Alloc High";
+                  "Value #J" = "P95 / High %";
+                  "Value #K" = "Alloc Max";
+                  "Value #L" = "Max / Max %";
+                  "Value #M" = "CPU Avg";
+                  "Value #N" = "CPU P95";
+                  host = "Host";
+                  slice = "Slice";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 14;
+          };
+          id = 9;
+          panels = [ ];
+          title = "Service, Mount & Container Right-Sizing ($window vs Declared Allocations)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "View Unit Logs";
+                  url = "/d/nixconf-logs-explorer?var-host=\${__data.fields.Host}&var-unit=\${__data.fields.Unit}&\${__url_time_range}";
+                }
+                {
+                  title = "Explore Trends & Cycles";
+                  url = "/d/nixconf-trends-explorer?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Current";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Min";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P50";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM P95";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P99";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "StdDev";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc High";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 / High %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max / Max %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU Avg";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU P95";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 13;
+            w = 24;
+            x = 0;
+            y = 15;
+          };
+          id = 10;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "RAM P95";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "min by (host, slice, unit) (min_over_time(container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, slice, unit) (avg_over_time(container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (quantile_over_time(0.50, container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (quantile_over_time(0.99, container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (max_over_time(container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (stddev_over_time(container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (deriv(container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~\"$host\",slice=~\"$slice\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "J";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (nixconf:unit_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "K";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "(max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window])) / clamp_min(max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~\"$host\",slice=~\"$slice\"}), 1)) * 100";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "L";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "(max by (host, slice, unit) (max_over_time(container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window])) / clamp_min(max by (host, slice, unit) (nixconf:unit_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"}), 1)) * 100";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "M";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, slice, unit) (avg_over_time(nixconf:unit_cpu_cores:rate5m{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "N";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (quantile_over_time(0.95, nixconf:unit_cpu_cores:rate5m{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "O";
+            }
+          ];
+          title = "All Managed Units & Containers — Statistical Distribution vs Limits ($window)";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 3;
+                  "Value #B" = 4;
+                  "Value #C" = 5;
+                  "Value #D" = 6;
+                  "Value #E" = 7;
+                  "Value #F" = 8;
+                  "Value #G" = 9;
+                  "Value #H" = 10;
+                  "Value #I" = 11;
+                  "Value #J" = 12;
+                  "Value #K" = 13;
+                  "Value #L" = 14;
+                  "Value #M" = 15;
+                  "Value #N" = 16;
+                  "Value #O" = 17;
+                  host = 0;
+                  slice = 1;
+                  unit = 2;
+                };
+                renameByName = {
+                  "Value #A" = "Current";
+                  "Value #B" = "Min";
+                  "Value #C" = "Avg";
+                  "Value #D" = "P50";
+                  "Value #E" = "RAM P95";
+                  "Value #F" = "P99";
+                  "Value #G" = "Max";
+                  "Value #H" = "StdDev";
+                  "Value #I" = "Growth / Day";
+                  "Value #J" = "Alloc High";
+                  "Value #K" = "Alloc Max";
+                  "Value #L" = "P95 / High %";
+                  "Value #M" = "Max / Max %";
+                  "Value #N" = "CPU Avg";
+                  "Value #O" = "CPU P95";
+                  host = "Host";
+                  slice = "Slice";
+                  unit = "Unit";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 28;
+          };
+          id = 11;
+          panels = [ ];
+          title = "Operations & Background Jobs Profiler (Optimization Targets)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "victoriametrics-logs-datasource";
+            uid = "victorialogs";
+          };
+          description = "Parsed directly from systemd cgroups v2 accounting logs (Consumed CPU/wall/peak-RAM/disk-I/O) over the selected time range. Sort by Total CPU, Disk Read, Disk Write, or Runs to surface background optimization targets.";
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              noValue = "No completed systemd operation accounting logs in selected range";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Runs";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 0;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max RAM Peak";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total Disk Read";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total Disk Write";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 11;
+            w = 24;
+            x = 0;
+            y = 29;
+          };
+          id = 12;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Total CPU (s)";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "victoriametrics-logs-datasource";
+                uid = "victorialogs";
+              };
+              editorMode = "code";
+              expr = "job:=\"systemd-journal\" host:in($host) \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) count() as runs, sum(cpu_s) as total_cpu_s, avg(wall_s) as avg_wall_s, quantile(0.95, wall_s) as p95_wall_s, max(mem_peak_bytes) as max_mem_bytes, sum(io_read_bytes) as total_io_read_bytes, sum(io_write_bytes) as total_io_write_bytes | sort by (total_cpu_s) desc | limit 50";
+              legendFormat = "";
+              queryType = "stats";
+              refId = "A";
+            }
+          ];
+          title = "Systemd Operations, Timers & Jobs — Cumulative Cost & Latency ($__range)";
+          transformations = [
+            {
+              id = "organize";
+              options = {
+                excludeByName = { };
+                indexByName = {
+                  avg_wall_s = 4;
+                  host = 0;
+                  max_mem_bytes = 6;
+                  op_unit = 1;
+                  p95_wall_s = 5;
+                  runs = 2;
+                  total_cpu_s = 3;
+                  total_io_read_bytes = 7;
+                  total_io_write_bytes = 8;
+                };
+                renameByName = {
+                  avg_wall_s = "Avg Wall (s)";
+                  host = "Host";
+                  max_mem_bytes = "Max RAM Peak";
+                  op_unit = "Operation";
+                  p95_wall_s = "P95 Wall (s)";
+                  runs = "Runs";
+                  total_cpu_s = "Total CPU (s)";
+                  total_io_read_bytes = "Total Disk Read";
+                  total_io_write_bytes = "Total Disk Write";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "bars";
+                fillOpacity = 80;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "normal";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              noValue = "Waiting for recorded systemd operation metrics";
+              unit = "s";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 7;
+            w = 12;
+            x = 0;
+            y = 40;
+          };
+          id = 13;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(12, sum by (host, op_unit) (nixconf_operation_cpu_seconds_5m{host=~\"$host\"} > 0))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "{{host}} {{op_unit}}";
+              range = true;
+              refId = "A";
+            }
+          ];
+          title = "Top Operations — CPU Time Trend (5m buckets)";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "bars";
+                fillOpacity = 80;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "normal";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              noValue = "Waiting for recorded systemd operation metrics";
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 7;
+            w = 12;
+            x = 12;
+            y = 40;
+          };
+          id = 14;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(12, sum by (host, op_unit) ((nixconf_operation_io_read_bytes_5m{host=~\"$host\"} + nixconf_operation_io_write_bytes_5m{host=~\"$host\"}) > 0))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "{{host}} {{op_unit}}";
+              range = true;
+              refId = "A";
+            }
+          ];
+          title = "Top Operations — Disk I/O Trend (5m buckets)";
+          type = "timeseries";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 47;
+          };
+          id = 15;
+          panels = [ ];
+          title = "Cumulative Process Executable Cost Rankings ($window)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "Open Task Manager";
+                  url = "/d/nixconf-task-manager?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU Avg";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU P95";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM Avg";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM P95";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM StdDev";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "RAM Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total Disk Read";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total Disk Write";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 11;
+            w = 24;
+            x = 0;
+            y = 48;
+          };
+          id = 16;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Total CPU (s)";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(35, sum by (host, groupname) (increase(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\"}[$window])))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, groupname) (avg_over_time(nixconf:process_cpu_cores:rate5m{host=~\"$host\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, groupname) (quantile_over_time(0.95, nixconf:process_cpu_cores:rate5m{host=~\"$host\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, groupname) (avg_over_time(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, groupname) (quantile_over_time(0.95, namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, groupname) (max_over_time(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, groupname) (stddev_over_time(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum by (host, groupname) (deriv(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\"}[$window])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum by (host, groupname) (increase(namedprocess_namegroup_read_bytes_total{host=~\"$host\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum by (host, groupname) (increase(namedprocess_namegroup_write_bytes_total{host=~\"$host\"}[$window]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "J";
+            }
+          ];
+          title = "Executables Ranked by Cumulative CPU, RAM & Disk I/O ($window)";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 2;
+                  "Value #B" = 3;
+                  "Value #C" = 4;
+                  "Value #D" = 5;
+                  "Value #E" = 6;
+                  "Value #F" = 7;
+                  "Value #G" = 8;
+                  "Value #H" = 9;
+                  "Value #I" = 10;
+                  "Value #J" = 11;
+                  groupname = 1;
+                  host = 0;
+                };
+                renameByName = {
+                  "Value #A" = "Total CPU (s)";
+                  "Value #B" = "CPU Avg";
+                  "Value #C" = "CPU P95";
+                  "Value #D" = "RAM Avg";
+                  "Value #E" = "RAM P95";
+                  "Value #F" = "RAM Max";
+                  "Value #G" = "RAM StdDev";
+                  "Value #H" = "RAM Growth / Day";
+                  "Value #I" = "Total Disk Read";
+                  "Value #J" = "Total Disk Write";
+                  groupname = "Process";
+                  host = "Host";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 59;
+          };
+          id = 17;
+          panels = [ ];
+          title = "Disk, Local Volumes & Remote Storage Growth Forecasts ($window)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Used";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Usage %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Days to 90%";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 13;
+            x = 0;
+            y = 60;
+          };
+          id = 18;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Usage %";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"}) / clamp_min(node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"}, 1)) * 100)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (deriv((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (clamp_min((0.90 * node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"}) - (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"}), 0)) / (max by (host, mountpoint) (deriv((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})[$window:]) * 86400) > 1048576)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+          ];
+          title = "Local Filesystems & Dedicated Volumes — Growth Rate & Days to 90% ($window)";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 2;
+                  "Value #B" = 3;
+                  "Value #C" = 4;
+                  "Value #D" = 5;
+                  "Value #E" = 6;
+                  host = 0;
+                  mountpoint = 1;
+                };
+                renameByName = {
+                  "Value #A" = "Used";
+                  "Value #B" = "Total";
+                  "Value #C" = "Usage %";
+                  "Value #D" = "Growth / Day";
+                  "Value #E" = "Days to 90%";
+                  host = "Host";
+                  mountpoint = "Mountpoint";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              noValue = "No remote storage budgets configured";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Used";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Limit";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Usage %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Days to Limit";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 11;
+            x = 13;
+            y = 60;
+          };
+          id = 19;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Usage %";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (nixconf_storage_budget_used_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (nixconf_storage_budget_limit_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) ((nixconf_storage_budget_used_bytes{host=~\"$host\"} / clamp_min(nixconf_storage_budget_limit_bytes{host=~\"$host\"}, 1)) * 100)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$window])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (clamp_min(nixconf_storage_budget_limit_bytes{host=~\"$host\"} - nixconf_storage_budget_used_bytes{host=~\"$host\"}, 0)) / (max by (host, slice) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$window]) * 86400) > 1048576)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+          ];
+          title = "Remote Storage Budgets — Growth Rate & Days to Limit ($window)";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 2;
+                  "Value #B" = 3;
+                  "Value #C" = 4;
+                  "Value #D" = 5;
+                  "Value #E" = 6;
+                  host = 0;
+                  slice = 1;
+                };
+                renameByName = {
+                  "Value #A" = "Used";
+                  "Value #B" = "Limit";
+                  "Value #C" = "Usage %";
+                  "Value #D" = "Growth / Day";
+                  "Value #E" = "Days to Limit";
+                  host = "Host";
+                  slice = "Slice";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+      ];
+      refresh = "1m";
+      schemaVersion = 39;
+      tags = [
+        "nixconf"
+        "capacity"
+        "right-sizing"
+        "statistics"
+        "operations"
+        "resources"
+      ];
+      templating = {
+        list = [
+          {
+            allValue = ".*";
+            current = {
+              selected = true;
+              text = "All";
+              value = "$__all";
+            };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(node_uname_info, host)";
+            hide = 0;
+            includeAll = true;
+            label = "Host";
+            multi = true;
+            name = "host";
+            query = {
+              qryType = 1;
+              query = "label_values(node_uname_info, host)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+          {
+            allValue = ".*";
+            current = {
+              selected = true;
+              text = "All";
+              value = "$__all";
+            };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(container_memory_working_set_bytes{host=~\"$host\",slice!=\"\"}, slice)";
+            hide = 0;
+            includeAll = true;
+            label = "Slice";
+            multi = true;
+            name = "slice";
+            query = {
+              qryType = 1;
+              query = "label_values(container_memory_working_set_bytes{host=~\"$host\",slice!=\"\"}, slice)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+          {
+            current = {
+              selected = true;
+              text = "7d";
+              value = "7d";
+            };
+            hide = 0;
+            includeAll = false;
+            label = "Stats Window";
+            multi = false;
+            name = "window";
+            options = [
+              {
+                selected = false;
+                text = "6h";
+                value = "6h";
+              }
+              {
+                selected = false;
+                text = "24h";
+                value = "24h";
+              }
+              {
+                selected = true;
+                text = "7d";
+                value = "7d";
+              }
+              {
+                selected = false;
+                text = "30d";
+                value = "30d";
+              }
+              {
+                selected = false;
+                text = "90d";
+                value = "90d";
+              }
+            ];
+            query = "6h,24h,7d,30d,90d";
+            type = "custom";
+          }
+        ];
+      };
+      time = {
+        from = "now-7d";
+        to = "now";
+      };
+      timezone = "browser";
+      title = "Capacity, Right-Sizing & Operations";
+      uid = "nixconf-capacity-analytics";
+    };
+    title = "Capacity, Right-Sizing & Operations";
+  };
   containers = {
     enable = true;
     folder = "03 · Services";
@@ -3670,6 +6776,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -4384,6 +7510,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -6601,6 +9747,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -9205,6 +12371,485 @@ config = {
           };
           id = 21;
           panels = [ ];
+          title = "Long-Term Baselines, Growth & Top Background Operations ($__range)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "green";
+                    value = null;
+                  }
+                  {
+                    color = "yellow";
+                    value = 75;
+                  }
+                  {
+                    color = "red";
+                    value = 90;
+                  }
+                ];
+              };
+              unit = "percent";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 8;
+            x = 0;
+            y = 61;
+          };
+          id = 22;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "value_and_name";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg(avg_over_time(nixconf:host_cpu_utilization_percent:rate5m{host=\"$host\"}[$__range]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Avg";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg(quantile_over_time(0.95, nixconf:host_cpu_utilization_percent:rate5m{host=\"$host\"}[$__range]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "P95";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(max_over_time(nixconf:host_cpu_utilization_percent:rate5m{host=\"$host\"}[$__range]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Max";
+              range = false;
+              refId = "C";
+            }
+          ];
+          title = "CPU Avg / P95 / Max ($__range)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 8;
+            x = 8;
+            y = 61;
+          };
+          id = 23;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "value_and_name";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg(avg_over_time((node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"})[$__range:]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Avg";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(quantile_over_time(0.95, (node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"})[$__range:]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "P95";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(max_over_time((node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"})[$__range:]))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Max";
+              range = false;
+              refId = "C";
+            }
+          ];
+          title = "RAM Avg / P95 / Max ($__range)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 8;
+            x = 16;
+            y = 61;
+          };
+          id = 24;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "value_and_name";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(deriv((node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"})[$__range:])) * 86400";
+              format = "time_series";
+              instant = true;
+              legendFormat = "RAM / day";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(deriv((node_filesystem_size_bytes{host=\"$host\",mountpoint=\"/persist\"} - node_filesystem_avail_bytes{host=\"$host\",mountpoint=\"/persist\"})[$__range:])) * 86400";
+              format = "time_series";
+              instant = true;
+              legendFormat = "/persist / day";
+              range = false;
+              refId = "B";
+            }
+          ];
+          title = "Daily Growth Rates ($__range)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "victoriametrics-logs-datasource";
+            uid = "victorialogs";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              noValue = "No completed systemd operation logs in selected range";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Runs";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 0;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max RAM Peak";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Disk Read";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Disk Write";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 24;
+            x = 0;
+            y = 65;
+          };
+          id = 25;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Total CPU (s)";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "victoriametrics-logs-datasource";
+                uid = "victorialogs";
+              };
+              editorMode = "code";
+              expr = "job:=\"systemd-journal\" host:=\"$host\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (op_unit) count() as runs, sum(cpu_s) as total_cpu_s, avg(wall_s) as avg_wall_s, quantile(0.95, wall_s) as p95_wall_s, max(mem_peak_bytes) as max_mem_bytes, sum(io_read_bytes) as total_io_read_bytes, sum(io_write_bytes) as total_io_write_bytes | sort by (total_cpu_s) desc | limit 12";
+              legendFormat = "";
+              queryType = "stats";
+              refId = "A";
+            }
+          ];
+          title = "Top 12 Background Operations on $host ($__range)";
+          transformations = [
+            {
+              id = "organize";
+              options = {
+                excludeByName = { };
+                indexByName = {
+                  avg_wall_s = 3;
+                  max_mem_bytes = 5;
+                  op_unit = 0;
+                  p95_wall_s = 4;
+                  runs = 1;
+                  total_cpu_s = 2;
+                  total_io_read_bytes = 6;
+                  total_io_write_bytes = 7;
+                };
+                renameByName = {
+                  avg_wall_s = "Avg Wall (s)";
+                  max_mem_bytes = "Max RAM Peak";
+                  op_unit = "Operation";
+                  p95_wall_s = "P95 Wall (s)";
+                  runs = "Runs";
+                  total_cpu_s = "Total CPU (s)";
+                  total_io_read_bytes = "Disk Read";
+                  total_io_write_bytes = "Disk Write";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 73;
+          };
+          id = 26;
+          panels = [ ];
           title = "Systemd Services (Click Row for Unit Logs)";
           type = "row";
         }
@@ -9282,9 +12927,9 @@ config = {
             h = 8;
             w = 12;
             x = 0;
-            y = 61;
+            y = 74;
           };
-          id = 22;
+          id = 27;
           options = {
             cellHeight = "sm";
             footer = {
@@ -9417,9 +13062,9 @@ config = {
             h = 8;
             w = 12;
             x = 12;
-            y = 61;
+            y = 74;
           };
-          id = 23;
+          id = 28;
           options = {
             cellHeight = "sm";
             footer = {
@@ -9652,6 +13297,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -11361,6 +15026,26 @@ config = {
           url = "/d/nixconf-time-machine";
         }
         {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -12223,6 +15908,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -13757,6 +17462,26 @@ config = {
           url = "/d/nixconf-time-machine";
         }
         {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -14767,6 +18492,14 @@ config = {
                   title = "View Unit Logs";
                   url = "/d/nixconf-logs-explorer?var-host=\${__data.fields.Host}&var-unit=\${__data.fields.Unit}&\${__url_time_range}";
                 }
+                {
+                  title = "Explore Trends & Cycles";
+                  url = "/d/nixconf-trends-explorer?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+                {
+                  title = "Open Capacity & Right-Sizing";
+                  url = "/d/nixconf-capacity-analytics?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
               ];
             };
             overrides = [
@@ -14785,7 +18518,31 @@ config = {
               {
                 matcher = {
                   id = "byName";
-                  options = "Mem Limit";
+                  options = "P95 ($__range)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc High";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc Max";
                 };
                 properties = [
                   {
@@ -14921,7 +18678,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, slice, unit) (container_spec_memory_limit_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"} > 0)";
+              expr = "max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$__range]))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -14933,7 +18690,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, slice, unit) (clamp_min((container_spec_memory_limit_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"} > 0) - container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}, 0))";
+              expr = "max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~\"$host\",slice=~\"$slice\"})";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -14945,7 +18702,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, slice, unit) ((container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"} / (container_spec_memory_limit_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"} > 0)) * 100)";
+              expr = "max by (host, slice, unit) (nixconf:unit_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"})";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -14957,15 +18714,39 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$__rate_interval]))";
+              expr = "max by (host, slice, unit) (clamp_min(nixconf:unit_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"} - container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}, 0))";
               format = "table";
               instant = true;
               legendFormat = "";
               range = false;
               refId = "E";
             }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) ((container_memory_working_set_bytes{host=~\"$host\",slice=~\"$slice\",unit!=\"\"} / clamp_min(nixconf:unit_memory_max_bytes{host=~\"$host\",slice=~\"$slice\"}, 1)) * 100)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~\"$host\",slice=~\"$slice\",unit!=\"\"}[$__rate_interval]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
           ];
-          title = "Managed Services — Memory, Limits & CPU";
+          title = "Managed Services, Mounts & Containers — Memory, P95, Limits & CPU";
           transformations = [
             {
               id = "merge";
@@ -14983,16 +18764,20 @@ config = {
                   "Value #C" = 5;
                   "Value #D" = 6;
                   "Value #E" = 7;
+                  "Value #F" = 8;
+                  "Value #G" = 9;
                   host = 0;
                   slice = 1;
                   unit = 2;
                 };
                 renameByName = {
                   "Value #A" = "Memory";
-                  "Value #B" = "Mem Limit";
-                  "Value #C" = "Headroom";
-                  "Value #D" = "Limit %";
-                  "Value #E" = "CPU (cores)";
+                  "Value #B" = "P95 ($__range)";
+                  "Value #C" = "Alloc High";
+                  "Value #D" = "Alloc Max";
+                  "Value #E" = "Headroom";
+                  "Value #F" = "Limit %";
+                  "Value #G" = "CPU (cores)";
                   host = "Host";
                   slice = "Slice";
                   unit = "Unit";
@@ -15744,6 +19529,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -16710,7 +20515,43 @@ config = {
               {
                 matcher = {
                   id = "byRegexp";
-                  options = "/limit/";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.stacking";
+                    value = {
+                      group = "A";
+                      mode = "none";
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max|limit/";
                 };
                 properties = [
                   {
@@ -16786,15 +20627,27 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "container_spec_memory_limit_bytes{host=~\"$host\",service=\"$service\"} > 0";
+              expr = "nixconf:unit_memory_high_bytes{host=~\"$host\"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"} * 0 + 1)";
               format = "time_series";
               instant = false;
-              legendFormat = "{{host}} {{unit}} limit";
+              legendFormat = "{{host}} {{unit}} Alloc High";
               range = true;
               refId = "B";
             }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "nixconf:unit_memory_max_bytes{host=~\"$host\"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"} * 0 + 1)";
+              format = "time_series";
+              instant = false;
+              legendFormat = "{{host}} {{unit}} Alloc Max";
+              range = true;
+              refId = "C";
+            }
           ];
-          title = "Memory Working Set";
+          title = "Memory Working Set vs Declared Allocations";
           type = "timeseries";
         }
         {
@@ -16951,6 +20804,390 @@ config = {
               };
               links = [
                 {
+                  title = "Explore Trends & Cycles";
+                  url = "/d/nixconf-trends-explorer?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+                {
+                  title = "Open Capacity & Right-Sizing";
+                  url = "/d/nixconf-capacity-analytics?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Current";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Min";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "StdDev";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc High";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc Max";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "P95 / High %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 6;
+            w = 24;
+            x = 0;
+            y = 26;
+          };
+          id = 15;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [ ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "min by (host, slice, unit) (min_over_time(container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "avg by (host, slice, unit) (avg_over_time(container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (max_over_time(container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (stddev_over_time(container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (deriv(container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~\"$host\"} * on (host, slice, unit) group_left () (container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"} * 0 + 1))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (nixconf:unit_memory_max_bytes{host=~\"$host\"} * on (host, slice, unit) group_left () (container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"} * 0 + 1))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "(max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"}[$__range])) / clamp_min(max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~\"$host\"} * on (host, slice, unit) group_left () (container_memory_working_set_bytes{host=~\"$host\",service=\"$service\"} * 0 + 1)), 1)) * 100";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "J";
+            }
+          ];
+          title = "Long-Term Allocation & Statistical Profile ($__range)";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 3;
+                  "Value #B" = 4;
+                  "Value #C" = 5;
+                  "Value #D" = 6;
+                  "Value #E" = 7;
+                  "Value #F" = 8;
+                  "Value #G" = 9;
+                  "Value #H" = 10;
+                  "Value #I" = 11;
+                  "Value #J" = 12;
+                  host = 0;
+                  slice = 1;
+                  unit = 2;
+                };
+                renameByName = {
+                  "Value #A" = "Current";
+                  "Value #B" = "Min";
+                  "Value #C" = "Avg";
+                  "Value #D" = "P95";
+                  "Value #E" = "Max";
+                  "Value #F" = "StdDev";
+                  "Value #G" = "Growth / Day";
+                  "Value #H" = "Alloc High";
+                  "Value #I" = "Alloc Max";
+                  "Value #J" = "P95 / High %";
+                  host = "Host";
+                  slice = "Slice";
+                  unit = "Unit";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
                   title = "View Unit Logs";
                   url = "/d/nixconf-logs-explorer?var-host=\${__data.fields.Host}&var-unit=\${__data.fields.Unit}&\${__url_time_range}";
                 }
@@ -17008,9 +21245,9 @@ config = {
             h = 6;
             w = 10;
             x = 0;
-            y = 26;
+            y = 32;
           };
-          id = 15;
+          id = 16;
           options = {
             cellHeight = "sm";
             footer = {
@@ -17186,9 +21423,9 @@ config = {
             h = 6;
             w = 14;
             x = 10;
-            y = 26;
+            y = 32;
           };
-          id = 16;
+          id = 17;
           options = {
             cellHeight = "sm";
             footer = {
@@ -17296,9 +21533,9 @@ config = {
             h = 1;
             w = 24;
             x = 0;
-            y = 32;
+            y = 38;
           };
-          id = 17;
+          id = 18;
           panels = [ ];
           title = "Service Logs";
           type = "row";
@@ -17430,9 +21667,9 @@ config = {
             h = 6;
             w = 24;
             x = 0;
-            y = 33;
+            y = 39;
           };
-          id = 18;
+          id = 19;
           options = {
             legend = {
               calcs = [
@@ -17474,9 +21711,9 @@ config = {
             h = 14;
             w = 24;
             x = 0;
-            y = 39;
+            y = 45;
           };
-          id = 19;
+          id = 20;
           options = {
             dedupStrategy = "none";
             enableLogDetails = true;
@@ -17789,6 +22026,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "doc";
@@ -18302,7 +22559,31 @@ config = {
               {
                 matcher = {
                   id = "byName";
-                  options = "RAM Limit";
+                  options = "RAM P95 ($__range)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc High";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Alloc Max";
                 };
                 properties = [
                   {
@@ -18474,7 +22755,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "sum by (service) (container_spec_memory_limit_bytes{host=~\"$host\",service!=\"\"} > 0)";
+              expr = "sum by (service) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~\"$host\",service!=\"\"}[$__range]))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -18486,7 +22767,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(sum by (service) (container_memory_working_set_bytes{host=~\"$host\",service!=\"\"}) / (sum by (service) (container_spec_memory_limit_bytes{host=~\"$host\",service!=\"\"} > 0))) * 100";
+              expr = "sum by (service) (nixconf:unit_memory_high_bytes{host=~\"$host\"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~\"$host\",service!=\"\"} * 0 + 1))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -18498,12 +22779,36 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "sum by (service) (rate(container_cpu_usage_seconds_total{host=~\"$host\",service!=\"\"}[$__rate_interval]))";
+              expr = "sum by (service) (nixconf:unit_memory_max_bytes{host=~\"$host\"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~\"$host\",service!=\"\"} * 0 + 1))";
               format = "table";
               instant = true;
               legendFormat = "";
               range = false;
               refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "(sum by (service) (container_memory_working_set_bytes{host=~\"$host\",service!=\"\"}) / clamp_min(sum by (service) (nixconf:unit_memory_max_bytes{host=~\"$host\"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~\"$host\",service!=\"\"} * 0 + 1)), 1)) * 100";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum by (service) (rate(container_cpu_usage_seconds_total{host=~\"$host\",service!=\"\"}[$__rate_interval]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "J";
             }
           ];
           title = "Services Overview";
@@ -18527,6 +22832,8 @@ config = {
                   "Value #F" = 6;
                   "Value #G" = 7;
                   "Value #H" = 8;
+                  "Value #I" = 9;
+                  "Value #J" = 10;
                   service = 0;
                 };
                 renameByName = {
@@ -18535,9 +22842,11 @@ config = {
                   "Value #C" = "Probe";
                   "Value #D" = "HTTP RPS";
                   "Value #E" = "RAM Working Set";
-                  "Value #F" = "RAM Limit";
-                  "Value #G" = "Limit %";
-                  "Value #H" = "CPU (cores)";
+                  "Value #F" = "RAM P95 ($__range)";
+                  "Value #G" = "Alloc High";
+                  "Value #H" = "Alloc Max";
+                  "Value #I" = "Limit %";
+                  "Value #J" = "CPU (cores)";
                   service = "Service";
                 };
               };
@@ -18803,6 +23112,26 @@ config = {
           tooltip = "Investigate host state at a point in time";
           type = "link";
           url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
         }
         {
           icon = "apps";
@@ -21267,6 +25596,26 @@ config = {
           url = "/d/nixconf-task-manager";
         }
         {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -23696,6 +28045,4314 @@ config = {
     };
     title = "Incident Time Machine";
   };
+  trends-explorer = {
+    enable = true;
+    folder = "01 · Investigate";
+    json = {
+      annotations = {
+        list = [
+          {
+            builtIn = 1;
+            datasource = {
+              type = "grafana";
+              uid = "-- Grafana --";
+            };
+            enable = true;
+            hide = true;
+            iconColor = "rgba(0, 211, 255, 1)";
+            name = "Annotations & Alerts";
+            type = "dashboard";
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(node_boot_time_seconds{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "orange";
+            name = "Reboots";
+            step = "60s";
+            tagKeys = "host";
+            textFormat = "{{host}} booted";
+            titleFormat = "Host Reboot";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(nixconf_deployment_timestamp_seconds{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "blue";
+            name = "NixOS Deployments";
+            step = "60s";
+            tagKeys = "host,rev";
+            textFormat = "{{host}} deployed {{rev}}";
+            titleFormat = "NixOS Deploy";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "increase(container_oom_events_total{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "red";
+            name = "OOM Kills";
+            step = "60s";
+            tagKeys = "host,unit";
+            textFormat = "OOM in {{unit}} on {{host}}";
+            titleFormat = "OOM Event";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(node_systemd_unit_state{host=~\"$host\",state=\"failed\"}[2m]) > 0 and node_systemd_unit_state{host=~\"$host\",state=\"failed\"} == 1";
+            hide = false;
+            iconColor = "purple";
+            name = "Unit Failures";
+            step = "60s";
+            tagKeys = "host,name";
+            textFormat = "{{name}} failed on {{host}}";
+            titleFormat = "Unit Failed";
+            useValueForTime = false;
+          }
+        ];
+      };
+      description = "Time-based trend and cycle explorer with toggleable statistical overlays (Current, Rolling Avg/Min/P95/Max, ±1σ variance bands, previous-cycle offset, and declared allocations) across arbitrary time frames.";
+      editable = false;
+      fiscalYearStartMonth = 0;
+      graphTooltip = 2;
+      links = [
+        {
+          asDropdown = true;
+          icon = "external link";
+          includeVars = true;
+          keepTime = true;
+          tags = [
+            "nixconf"
+          ];
+          targetBlank = false;
+          title = "Dashboards";
+          tooltip = "Switch to another nixconf dashboard";
+          type = "dashboards";
+        }
+        {
+          icon = "home";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Fleet Home";
+          tooltip = "Open Fleet Command Center";
+          type = "link";
+          url = "/d/nixconf-fleet-overview";
+        }
+        {
+          icon = "bolt";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Task Manager";
+          tooltip = "Open per-host process & hardware Task Manager";
+          type = "link";
+          url = "/d/nixconf-task-manager";
+        }
+        {
+          icon = "clock";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Time Machine";
+          tooltip = "Investigate host state at a point in time";
+          type = "link";
+          url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "apps";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Services";
+          tooltip = "Browse all monitored services and jump to Service Inspector";
+          type = "link";
+          url = "/d/nixconf-services-catalog";
+        }
+        {
+          icon = "doc";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Logs";
+          tooltip = "Search centralized journald logs in VictoriaLogs";
+          type = "link";
+          url = "/d/nixconf-logs-explorer";
+        }
+      ];
+      liveNow = false;
+      panels = [
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 0;
+          };
+          id = 1;
+          panels = [ ];
+          title = "Host Global Cycles & Statistical Envelopes ($host)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              max = 100;
+              min = 0;
+              unit = "percent";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 12;
+            x = 0;
+            y = 1;
+          };
+          id = 2;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]) + stddev_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]) - stddev_over_time((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((100 - (avg(rate(node_cpu_seconds_total{host=\"$host\",mode=\"idle\"}[$__rate_interval])) * 100)) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+          ];
+          title = "Host CPU Utilization (%) — Current, Rolling Stats & Cycle Comparison";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "bytes";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 12;
+            x = 12;
+            y = 1;
+          };
+          id = 3;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]) + stddev_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]) - stddev_over_time((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"}))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((max(node_memory_MemTotal_bytes{host=\"$host\"} - node_memory_MemAvailable_bytes{host=\"$host\"})) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(node_memory_MemTotal_bytes{host=\"$host\"}), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc Max";
+              range = true;
+              refId = "J";
+            }
+          ];
+          title = "Host Memory Used — Current, Rolling Stats & Cycle Comparison";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "percent";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 7;
+            w = 12;
+            x = 0;
+            y = 10;
+          };
+          id = 4;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "rate(node_pressure_cpu_waiting_seconds_total{host=\"$host\"}[$__rate_interval]) * 100";
+              format = "time_series";
+              instant = false;
+              legendFormat = "CPU PSI %";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "rate(node_pressure_memory_stalled_seconds_total{host=\"$host\"}[$__rate_interval]) * 100";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Mem PSI %";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "rate(node_pressure_io_stalled_seconds_total{host=\"$host\"}[$__rate_interval]) * 100";
+              format = "time_series";
+              instant = false;
+              legendFormat = "I/O PSI %";
+              range = true;
+              refId = "C";
+            }
+          ];
+          title = "Host Contention Cycles (CPU / Memory / I/O PSI %)";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              unit = "Bps";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Write|TX/";
+                };
+                properties = [
+                  {
+                    id = "custom.transform";
+                    value = "negative-Y";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 7;
+            w = 12;
+            x = 12;
+            y = 10;
+          };
+          id = 5;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(rate(node_disk_read_bytes_total{host=\"$host\",device!~\"dm-.*|loop.*\"}[$__rate_interval]))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Disk Read";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(rate(node_disk_written_bytes_total{host=\"$host\",device!~\"dm-.*|loop.*\"}[$__rate_interval]))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Disk Write";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(rate(node_network_receive_bytes_total{host=\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}[$__rate_interval]))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Net RX";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(rate(node_network_transmit_bytes_total{host=\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}[$__rate_interval]))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Net TX";
+              range = true;
+              refId = "D";
+            }
+          ];
+          title = "Host Disk & Network Activity Cycles (Quiet-Window Finder)";
+          type = "timeseries";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 17;
+          };
+          id = 6;
+          panels = [ ];
+          title = "Slice Trends vs Declared Allocations ($slice.slice)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "bytes";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 12;
+            x = 0;
+            y = 18;
+          };
+          id = 7;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]) + stddev_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]) - stddev_over_time((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((sum(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"})) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(nixconf:slice_memory_high_bytes{host=\"$host\",slice=\"$slice\"}), \"stat\", \"alloc_high\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc High";
+              range = true;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(nixconf:slice_memory_max_bytes{host=\"$host\",slice=\"$slice\"}), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc Max";
+              range = true;
+              refId = "J";
+            }
+          ];
+          title = "$slice.slice Memory Working Set vs Allocations";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "short";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 12;
+            x = 12;
+            y = 18;
+          };
+          id = 8;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]) + stddev_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]) - stddev_over_time((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval])))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((sum(rate(container_cpu_usage_seconds_total{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice=\"$slice\"}[$__rate_interval]))) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(nixconf_resource_slice_cpu_quota_cores{host=\"$host\",slice=\"$slice\"}), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc Max";
+              range = true;
+              refId = "J";
+            }
+          ];
+          title = "$slice.slice CPU Usage (cores) — Trends & Cycles";
+          type = "timeseries";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 27;
+          };
+          id = 9;
+          panels = [ ];
+          title = "Unit / Service / Container Trends vs Allocations ($unit)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "bytes";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 12;
+            x = 0;
+            y = 28;
+          };
+          id = 10;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]) + stddev_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]) - stddev_over_time((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"}))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((max(container_memory_working_set_bytes{host=\"$host\",unit=\"$unit\"})) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(nixconf:unit_memory_high_bytes{host=\"$host\",unit=\"$unit\"}), \"stat\", \"alloc_high\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc High";
+              range = true;
+              refId = "I";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(nixconf:unit_memory_max_bytes{host=\"$host\",unit=\"$unit\"}), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc Max";
+              range = true;
+              refId = "J";
+            }
+          ];
+          title = "$unit Memory Working Set vs Allocations";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "short";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 9;
+            w = 12;
+            x = 12;
+            y = 28;
+          };
+          id = 11;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]) + stddev_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]) - stddev_over_time((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval])))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((max(rate(container_cpu_usage_seconds_total{host=\"$host\",unit=\"$unit\"}[$__rate_interval]))) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max(nixconf_resource_unit_cpu_quota_cores{host=\"$host\",unit=\"$unit\"}), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Alloc Max";
+              range = true;
+              refId = "J";
+            }
+          ];
+          title = "$unit CPU Usage (cores) — Trends & Cycles";
+          type = "timeseries";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 37;
+          };
+          id = 12;
+          panels = [ ];
+          title = "Process Executable Trends ($proc)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "bytes";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 12;
+            x = 0;
+            y = 38;
+          };
+          id = 13;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]) + stddev_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]) - stddev_over_time((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"}))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((sum(namedprocess_namegroup_memory_bytes{host=\"$host\",groupname=\"$proc\",memtype=\"resident\"})) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+          ];
+          title = "$proc Resident Memory (RSS) — Trends & Cycles";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              min = 0;
+              unit = "short";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Alloc High/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        6
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 2;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "orange";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling P95/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        4
+                        3
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "yellow";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Max/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "semi-dark-red";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling Min/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "green";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Rolling [+-]1σ/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        0
+                        4
+                      ];
+                      fill = "dot";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "purple";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Prev Cycle/";
+                };
+                properties = [
+                  {
+                    id = "custom.lineStyle";
+                    value = {
+                      dash = [
+                        3
+                        4
+                      ];
+                      fill = "dash";
+                    };
+                  }
+                  {
+                    id = "custom.fillOpacity";
+                    value = 0;
+                  }
+                  {
+                    id = "custom.lineWidth";
+                    value = 1;
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      fixedColor = "light-blue";
+                      mode = "fixed";
+                    };
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 12;
+            x = 12;
+            y = 38;
+          };
+          id = 14;
+          options = {
+            legend = {
+              calcs = [
+                "min"
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Current";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Avg ($rolling)";
+              range = true;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(quantile_over_time(0.95, (sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling P95 ($rolling)";
+              range = true;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(min_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Min ($rolling)";
+              range = true;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(max_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling Max ($rolling)";
+              range = true;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(avg_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]) + stddev_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling +1σ ($rolling)";
+              range = true;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set(clamp_min(avg_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]) - stddev_over_time((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval])))[$rolling:]), 0), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Rolling -1σ ($rolling)";
+              range = true;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "label_match(label_set((sum(rate(namedprocess_namegroup_cpu_seconds_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval]))) offset $compare, \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Prev Cycle (-$compare)";
+              range = true;
+              refId = "H";
+            }
+          ];
+          title = "$proc CPU Usage (cores) — Trends & Cycles";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "line";
+                fillOpacity = 15;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "none";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              unit = "Bps";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byRegexp";
+                  options = "/Write/";
+                };
+                properties = [
+                  {
+                    id = "custom.transform";
+                    value = "negative-Y";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 6;
+            w = 24;
+            x = 0;
+            y = 46;
+          };
+          id = 15;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(rate(namedprocess_namegroup_read_bytes_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval]))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Read";
+              range = true;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(rate(namedprocess_namegroup_write_bytes_total{host=\"$host\",groupname=\"$proc\"}[$__rate_interval]))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "Write";
+              range = true;
+              refId = "B";
+            }
+          ];
+          title = "$proc Disk I/O (Read / -Write)";
+          type = "timeseries";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 52;
+          };
+          id = 16;
+          panels = [ ];
+          title = "Background Operation Schedule & Overlap Distribution ($host)";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "bars";
+                fillOpacity = 80;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "normal";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              noValue = "Waiting for recorded systemd operation accounting samples";
+              unit = "s";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 8;
+            w = 12;
+            x = 0;
+            y = 53;
+          };
+          id = 17;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(15, sum by (op_unit) (nixconf_operation_cpu_seconds_5m{host=\"$host\"} > 0))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "{{op_unit}}";
+              range = true;
+              refId = "A";
+            }
+          ];
+          title = "Background Operations — CPU Time per 5m Window (Schedule Overlap View)";
+          type = "timeseries";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "palette-classic";
+              };
+              custom = {
+                axisBorderShow = false;
+                axisCenteredZero = false;
+                axisColorMode = "text";
+                axisPlacement = "auto";
+                barAlignment = 0;
+                drawStyle = "bars";
+                fillOpacity = 80;
+                gradientMode = "opacity";
+                hideFrom = {
+                  legend = false;
+                  tooltip = false;
+                  viz = false;
+                };
+                lineInterpolation = "smooth";
+                lineStyle = {
+                  fill = "solid";
+                };
+                lineWidth = 2;
+                pointSize = 5;
+                scaleDistribution = {
+                  type = "linear";
+                };
+                showPoints = "never";
+                spanNulls = false;
+                stacking = {
+                  group = "A";
+                  mode = "normal";
+                };
+                thresholdsStyle = {
+                  mode = "off";
+                };
+              };
+              noValue = "Waiting for recorded systemd operation accounting samples";
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 8;
+            w = 12;
+            x = 12;
+            y = 53;
+          };
+          id = 18;
+          options = {
+            legend = {
+              calcs = [
+                "mean"
+                "max"
+                "lastNotNull"
+              ];
+              displayMode = "table";
+              placement = "bottom";
+              showLegend = true;
+            };
+            tooltip = {
+              mode = "multi";
+              sort = "desc";
+            };
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(15, sum by (op_unit) ((nixconf_operation_io_read_bytes_5m{host=\"$host\"} + nixconf_operation_io_write_bytes_5m{host=\"$host\"}) > 0))";
+              format = "time_series";
+              instant = false;
+              legendFormat = "{{op_unit}}";
+              range = true;
+              refId = "A";
+            }
+          ];
+          title = "Background Operations — Disk Read + Write per 5m Window";
+          type = "timeseries";
+        }
+      ];
+      refresh = "1m";
+      schemaVersion = 39;
+      tags = [
+        "nixconf"
+        "trends"
+        "cycles"
+        "statistics"
+        "explorer"
+        "resources"
+      ];
+      templating = {
+        list = [
+          {
+            current = { };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(node_uname_info, host)";
+            hide = 0;
+            includeAll = false;
+            label = "Host";
+            multi = false;
+            name = "host";
+            query = {
+              qryType = 1;
+              query = "label_values(node_uname_info, host)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+          {
+            current = {
+              selected = true;
+              text = "1h";
+              value = "1h";
+            };
+            hide = 0;
+            includeAll = false;
+            label = "Rolling Window";
+            multi = false;
+            name = "rolling";
+            options = [
+              {
+                selected = false;
+                text = "15m";
+                value = "15m";
+              }
+              {
+                selected = true;
+                text = "1h";
+                value = "1h";
+              }
+              {
+                selected = false;
+                text = "6h";
+                value = "6h";
+              }
+              {
+                selected = false;
+                text = "24h";
+                value = "24h";
+              }
+              {
+                selected = false;
+                text = "7d";
+                value = "7d";
+              }
+            ];
+            query = "15m,1h,6h,24h,7d";
+            type = "custom";
+          }
+          {
+            current = {
+              selected = true;
+              text = "1d";
+              value = "1d";
+            };
+            hide = 0;
+            includeAll = false;
+            label = "Cycle Offset";
+            multi = false;
+            name = "compare";
+            options = [
+              {
+                selected = true;
+                text = "1d (Yesterday)";
+                value = "1d";
+              }
+              {
+                selected = false;
+                text = "7d (Last Week)";
+                value = "7d";
+              }
+              {
+                selected = false;
+                text = "30d (Last Month)";
+                value = "30d";
+              }
+            ];
+            query = "1d (Yesterday) : 1d,7d (Last Week) : 7d,30d (Last Month) : 30d";
+            type = "custom";
+          }
+          {
+            allValue = ".*";
+            current = {
+              selected = true;
+              text = "All";
+              value = "$__all";
+            };
+            hide = 0;
+            includeAll = true;
+            label = "Stat Overlays";
+            multi = true;
+            name = "stats";
+            options = [
+              {
+                selected = true;
+                text = "All";
+                value = "$__all";
+              }
+              {
+                selected = false;
+                text = "Current";
+                value = "current";
+              }
+              {
+                selected = false;
+                text = "Rolling Avg";
+                value = "avg";
+              }
+              {
+                selected = false;
+                text = "Rolling P95";
+                value = "p95";
+              }
+              {
+                selected = false;
+                text = "Rolling Min";
+                value = "min";
+              }
+              {
+                selected = false;
+                text = "Rolling Max";
+                value = "max";
+              }
+              {
+                selected = false;
+                text = "Rolling +1σ";
+                value = "upper_1sigma";
+              }
+              {
+                selected = false;
+                text = "Rolling -1σ";
+                value = "lower_1sigma";
+              }
+              {
+                selected = false;
+                text = "Prev Cycle";
+                value = "prev_cycle";
+              }
+              {
+                selected = false;
+                text = "Alloc High";
+                value = "alloc_high";
+              }
+              {
+                selected = false;
+                text = "Alloc Max";
+                value = "alloc_max";
+              }
+            ];
+            query = "Current : current,Rolling Avg : avg,Rolling P95 : p95,Rolling Min : min,Rolling Max : max,Rolling +1σ : upper_1sigma,Rolling -1σ : lower_1sigma,Prev Cycle : prev_cycle,Alloc High : alloc_high,Alloc Max : alloc_max";
+            type = "custom";
+          }
+          {
+            current = { };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice!=\"\"}, slice)";
+            hide = 0;
+            includeAll = false;
+            label = "Slice";
+            multi = false;
+            name = "slice";
+            query = {
+              qryType = 1;
+              query = "label_values(container_memory_working_set_bytes{host=\"$host\",id=~\"/[^/]+\\\\.slice\",slice!=\"\"}, slice)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+          {
+            current = { };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(container_memory_working_set_bytes{host=\"$host\",unit!=\"\"}, unit)";
+            hide = 0;
+            includeAll = false;
+            label = "Unit";
+            multi = false;
+            name = "unit";
+            query = {
+              qryType = 1;
+              query = "label_values(container_memory_working_set_bytes{host=\"$host\",unit!=\"\"}, unit)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+          {
+            current = { };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(namedprocess_namegroup_num_procs{host=\"$host\"}, groupname)";
+            hide = 0;
+            includeAll = false;
+            label = "Process";
+            multi = false;
+            name = "proc";
+            query = {
+              qryType = 1;
+              query = "label_values(namedprocess_namegroup_num_procs{host=\"$host\"}, groupname)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+        ];
+      };
+      time = {
+        from = "now-24h";
+        to = "now";
+      };
+      timezone = "browser";
+      title = "Trends, Cycles & Metric Explorer";
+      uid = "nixconf-trends-explorer";
+    };
+    title = "Trends, Cycles & Metric Explorer";
+  };
 };
   monitoring.exporters = {
   blackbox = {
@@ -23954,6 +32611,61 @@ config = {
       }
     ];
   };
+  operations-recording = {
+    backend = "logs";
+    enable = true;
+    interval = "5m";
+    rules = [
+      {
+        alert = null;
+        annotations = { };
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) count()";
+        for = "5m";
+        labels = { };
+        record = "nixconf_operation_runs_5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(cpu_s)";
+        for = "5m";
+        labels = { };
+        record = "nixconf_operation_cpu_seconds_5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(wall_s)";
+        for = "5m";
+        labels = { };
+        record = "nixconf_operation_wall_seconds_5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) max(mem_peak_bytes)";
+        for = "5m";
+        labels = { };
+        record = "nixconf_operation_memory_peak_bytes_5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(io_read_bytes)";
+        for = "5m";
+        labels = { };
+        record = "nixconf_operation_io_read_bytes_5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(io_write_bytes)";
+        for = "5m";
+        labels = { };
+        record = "nixconf_operation_io_write_bytes_5m";
+      }
+    ];
+  };
   persistence = {
     backend = "metrics";
     enable = true;
@@ -24115,6 +32827,85 @@ config = {
           severity = "critical";
         };
         record = null;
+      }
+    ];
+  };
+  resources-recording = {
+    backend = "metrics";
+    enable = true;
+    interval = "5m";
+    rules = [
+      {
+        alert = null;
+        annotations = { };
+        expr = "max by (host, slice) (nixconf_resource_slice_memory_high_bytes or (nixconf_resource_slice_memory_high_ratio * on (host) group_left () node_memory_MemTotal_bytes))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:slice_memory_high_bytes";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "max by (host, slice) (nixconf_resource_slice_memory_max_bytes or (nixconf_resource_slice_memory_max_ratio * on (host) group_left () node_memory_MemTotal_bytes) or (container_spec_memory_limit_bytes{id=~\"/[^/]+\\\\.slice\",slice!=\"\"} > 0))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:slice_memory_max_bytes";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "max by (host, slice, unit) (nixconf_resource_unit_memory_high_bytes or (nixconf_resource_unit_memory_high_ratio * on (host) group_left () node_memory_MemTotal_bytes))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:unit_memory_high_bytes";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "max by (host, slice, unit) (nixconf_resource_unit_memory_max_bytes or (nixconf_resource_unit_memory_max_ratio * on (host) group_left () node_memory_MemTotal_bytes) or (container_spec_memory_limit_bytes{unit!=\"\"} > 0))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:unit_memory_max_bytes";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "100 - (avg by (host) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)";
+        for = "5m";
+        labels = { };
+        record = "nixconf:host_cpu_utilization_percent:rate5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "max by (host) (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)";
+        for = "5m";
+        labels = { };
+        record = "nixconf:host_memory_used_bytes";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "sum by (host, slice) (rate(container_cpu_usage_seconds_total{id=~\"/[^/]+\\\\.slice\",slice!=\"\"}[5m]))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:slice_cpu_cores:rate5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{unit!=\"\"}[5m]))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:unit_cpu_cores:rate5m";
+      }
+      {
+        alert = null;
+        annotations = { };
+        expr = "sum by (host, groupname) (rate(namedprocess_namegroup_cpu_seconds_total[5m]))";
+        for = "5m";
+        labels = { };
+        record = "nixconf:process_cpu_cores:rate5m";
       }
     ];
   };

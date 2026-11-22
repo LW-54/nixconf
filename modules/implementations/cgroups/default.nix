@@ -112,6 +112,10 @@ in {
         inherit self config cfg lib pkgs options utils toBytes filterNulls;
       };
 
+      allocationsCfg = helpers.mkAllocations {
+        inherit config cfg lib pkgs toBytes;
+      };
+
       testingSuite = helpers.mkTesting {
         inherit self config cfg lib utils;
         inherit (profiles.${cfg.profile}) background;
@@ -397,6 +401,7 @@ in {
         }
         powerCfg
         volumesCfg
+        allocationsCfg
       ];
   };
 }

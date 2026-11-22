@@ -22,11 +22,12 @@
       - `ds`: Provisioned metrics and logs datasource descriptor references (`metrics`, `prometheus`, `logs`).
       - `promTarget`, `logsTarget`: Construct metrics (`PromQL`/`MetricsQL`) or logs (`LogsQL`) target objects (`expr`, `legend`, `queryType`).
       - `thresholds`, `mappings`: Standard threshold presets and Grafana value mappings.
-      - `links`: Click-to-drilldown Grafana data links (`toTaskManager`, `toTimeMachine`, `toHostHardware`, `toService`, `toUnitLogs`).
+      - `links`: Click-to-drilldown Grafana data links (`toTaskManager`, `toTimeMachine`, `toHostHardware`, `toService`, `toUnitLogs`, `toCapacityAnalytics`, `toTrendsExplorer`).
       - `vars`: Template variable constructors (`host`, `promQuery`, `logsField`, `custom`, `textbox`).
+      - `statToggleExpr`, `statBandOverrides`, `systemdOpsParsePipe`: Statistical envelope toggles, overlay styling, and systemd accounting LogsQL parser.
       - `mkStat`, `mkRatioStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkStorageTable`, `mkSystemdUnitsTable`, `mkLogs`: Pre-styled Grafana v39 panel builders.
       - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine with automatic host event annotations (`Reboots`, `NixOS Deployments`, `OOM Kills`, `Unit Failures`) and top navigation bar.
-      - `mkFleetOverviewDashboard`, `mkTaskManagerDashboard`, `mkTimeMachineDashboard`, `mkLogsExplorerDashboard`, `mkHostHardwareDashboard`, `mkServicesCatalogDashboard`, `mkServiceInspectorDashboard`, `mkContainersDashboard`: 4-layer core infrastructure and investigation dashboards.
+      - `mkFleetOverviewDashboard`, `mkTaskManagerDashboard`, `mkTimeMachineDashboard`, `mkTrendsExplorerDashboard`, `mkLogsExplorerDashboard`, `mkHostHardwareDashboard`, `mkCapacityAnalyticsDashboard`, `mkServicesCatalogDashboard`, `mkServiceInspectorDashboard`, `mkContainersDashboard`: Core infrastructure, statistical capacity, trend exploration, and investigation dashboards.
 
       # Examples
       ```nix

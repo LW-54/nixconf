@@ -187,10 +187,14 @@
           rows = [
             [
               (d.mkTable {
-                title = "Managed Services — Memory, Limits & CPU";
+                title = "Managed Services, Mounts & Containers — Memory, P95, Limits & CPU";
                 w = 24;
                 h = 10;
-                links = [d.links.toUnitLogs];
+                links = [
+                  d.links.toUnitLogs
+                  d.links.toTrendsExplorer
+                  d.links.toCapacityAnalytics
+                ];
                 sortBy = [
                   {
                     desc = true;
@@ -206,10 +210,12 @@
                       slice = "Slice";
                       unit = "Unit";
                       "Value #A" = "Memory";
-                      "Value #B" = "Mem Limit";
-                      "Value #C" = "Headroom";
-                      "Value #D" = "Limit %";
-                      "Value #E" = "CPU (cores)";
+                      "Value #B" = "P95 ($__range)";
+                      "Value #C" = "Alloc High";
+                      "Value #D" = "Alloc Max";
+                      "Value #E" = "Headroom";
+                      "Value #F" = "Limit %";
+                      "Value #G" = "CPU (cores)";
                     };
                     index = {
                       host = 0;
@@ -220,12 +226,16 @@
                       "Value #C" = 5;
                       "Value #D" = 6;
                       "Value #E" = 7;
+                      "Value #F" = 8;
+                      "Value #G" = 9;
                     };
                   })
                 ];
                 overrides = [
                   (d.unitOverride "Memory" "bytes")
-                  (d.unitOverride "Mem Limit" "bytes")
+                  (d.unitOverride "P95 ($__range)" "bytes")
+                  (d.unitOverride "Alloc High" "bytes")
+                  (d.unitOverride "Alloc Max" "bytes")
                   (d.unitOverride "Headroom" "bytes")
                   (d.cellGaugeOverride {
                     colName = "Limit %";
@@ -242,24 +252,36 @@
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''max by (host, slice, unit) (container_spec_memory_limit_bytes{host=~"$host",slice=~"$slice",unit!=""} > 0)'';
+                    expr = ''max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""}[$__range]))'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''max by (host, slice, unit) (clamp_min((container_spec_memory_limit_bytes{host=~"$host",slice=~"$slice",unit!=""} > 0) - container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""}, 0))'';
+                    expr = ''max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~"$host",slice=~"$slice"})'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "D";
-                    expr = ''max by (host, slice, unit) ((container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""} / (container_spec_memory_limit_bytes{host=~"$host",slice=~"$slice",unit!=""} > 0)) * 100)'';
+                    expr = ''max by (host, slice, unit) (nixconf:unit_memory_max_bytes{host=~"$host",slice=~"$slice"})'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "E";
+                    expr = ''max by (host, slice, unit) (clamp_min(nixconf:unit_memory_max_bytes{host=~"$host",slice=~"$slice"} - container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""}, 0))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "F";
+                    expr = ''max by (host, slice, unit) ((container_memory_working_set_bytes{host=~"$host",slice=~"$slice",unit!=""} / clamp_min(nixconf:unit_memory_max_bytes{host=~"$host",slice=~"$slice"}, 1)) * 100)'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "G";
                     expr = ''max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~"$host",slice=~"$slice",unit!=""}[$__rate_interval]))'';
                     instant = true;
                     format = "table";

@@ -159,12 +159,15 @@ in {
           rows = [
             [
               (d.mkTimeseries {
-                title = "Memory Working Set";
+                title = "Memory Working Set vs Declared Allocations";
                 w = 12;
                 h = 7;
                 unit = "bytes";
                 noValue = "No systemd cgroup metrics";
-                overrides = [(d.dashedLineOverride "/limit/" "red")];
+                overrides = [
+                  (d.dashedLineOverride "/Alloc High/" "orange")
+                  (d.dashedLineOverride "/Alloc Max|limit/" "red")
+                ];
                 targets = [
                   (d.promTarget {
                     refId = "A";
@@ -173,8 +176,13 @@ in {
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''container_spec_memory_limit_bytes{host=~"$host",service="$service"} > 0'';
-                    legend = "{{host}} {{unit}} limit";
+                    expr = ''nixconf:unit_memory_high_bytes{host=~"$host"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~"$host",service="$service"} * 0 + 1)'';
+                    legend = "{{host}} {{unit}} Alloc High";
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''nixconf:unit_memory_max_bytes{host=~"$host"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~"$host",service="$service"} * 0 + 1)'';
+                    legend = "{{host}} {{unit}} Alloc Max";
                   })
                 ];
               })
@@ -194,6 +202,127 @@ in {
                     refId = "B";
                     expr = ''rate(container_cpu_cfs_throttled_seconds_total{host=~"$host",service="$service"}[$__rate_interval]) > 0'';
                     legend = "{{host}} {{unit}} throttled";
+                  })
+                ];
+              })
+            ]
+            [
+              (d.mkTable {
+                title = "Long-Term Allocation & Statistical Profile ($__range)";
+                w = 24;
+                h = 6;
+                links = [d.links.toTrendsExplorer d.links.toCapacityAnalytics];
+                transformations = [
+                  (d.mergeTransform {})
+                  (d.organizeTransform {
+                    exclude = ["Time"];
+                    rename = {
+                      host = "Host";
+                      slice = "Slice";
+                      unit = "Unit";
+                      "Value #A" = "Current";
+                      "Value #B" = "Min";
+                      "Value #C" = "Avg";
+                      "Value #D" = "P95";
+                      "Value #E" = "Max";
+                      "Value #F" = "StdDev";
+                      "Value #G" = "Growth / Day";
+                      "Value #H" = "Alloc High";
+                      "Value #I" = "Alloc Max";
+                      "Value #J" = "P95 / High %";
+                    };
+                    index = {
+                      host = 0;
+                      slice = 1;
+                      unit = 2;
+                      "Value #A" = 3;
+                      "Value #B" = 4;
+                      "Value #C" = 5;
+                      "Value #D" = 6;
+                      "Value #E" = 7;
+                      "Value #F" = 8;
+                      "Value #G" = 9;
+                      "Value #H" = 10;
+                      "Value #I" = 11;
+                      "Value #J" = 12;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.unitOverride "Current" "bytes")
+                  (d.unitOverride "Min" "bytes")
+                  (d.unitOverride "Avg" "bytes")
+                  (d.unitOverride "P95" "bytes")
+                  (d.unitOverride "Max" "bytes")
+                  (d.unitOverride "StdDev" "bytes")
+                  (d.unitOverride "Growth / Day" "bytes")
+                  (d.unitOverride "Alloc High" "bytes")
+                  (d.unitOverride "Alloc Max" "bytes")
+                  (d.cellGaugeOverride {
+                    colName = "P95 / High %";
+                    thresholds = d.thresholds.percentHigh;
+                  })
+                ];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''max by (host, slice, unit) (container_memory_working_set_bytes{host=~"$host",service="$service"})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''min by (host, slice, unit) (min_over_time(container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''avg by (host, slice, unit) (avg_over_time(container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "D";
+                    expr = ''max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "E";
+                    expr = ''max by (host, slice, unit) (max_over_time(container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "F";
+                    expr = ''max by (host, slice, unit) (stddev_over_time(container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "G";
+                    expr = ''max by (host, slice, unit) (deriv(container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range])) * 86400'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "H";
+                    expr = ''max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~"$host"} * on (host, slice, unit) group_left () (container_memory_working_set_bytes{host=~"$host",service="$service"} * 0 + 1))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "I";
+                    expr = ''max by (host, slice, unit) (nixconf:unit_memory_max_bytes{host=~"$host"} * on (host, slice, unit) group_left () (container_memory_working_set_bytes{host=~"$host",service="$service"} * 0 + 1))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "J";
+                    expr = ''(max by (host, slice, unit) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~"$host",service="$service"}[$__range])) / clamp_min(max by (host, slice, unit) (nixconf:unit_memory_high_bytes{host=~"$host"} * on (host, slice, unit) group_left () (container_memory_working_set_bytes{host=~"$host",service="$service"} * 0 + 1)), 1)) * 100'';
+                    instant = true;
+                    format = "table";
                   })
                 ];
               })

@@ -369,6 +369,141 @@ in {
           ];
         })
         (d.mkSection {
+          title = "Long-Term Baselines, Growth & Top Background Operations ($__range)";
+          rows = [
+            [
+              (d.mkStat {
+                title = "CPU Avg / P95 / Max ($__range)";
+                w = 8;
+                unit = "percent";
+                decimals = 1;
+                textMode = "value_and_name";
+                thresholds = d.thresholds.percent;
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''avg(avg_over_time(nixconf:host_cpu_utilization_percent:rate5m{host="$host"}[$__range]))'';
+                    legend = "Avg";
+                    instant = true;
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''avg(quantile_over_time(0.95, nixconf:host_cpu_utilization_percent:rate5m{host="$host"}[$__range]))'';
+                    legend = "P95";
+                    instant = true;
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''max(max_over_time(nixconf:host_cpu_utilization_percent:rate5m{host="$host"}[$__range]))'';
+                    legend = "Max";
+                    instant = true;
+                  })
+                ];
+              })
+              (d.mkStat {
+                title = "RAM Avg / P95 / Max ($__range)";
+                w = 8;
+                unit = "bytes";
+                decimals = 1;
+                textMode = "value_and_name";
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''avg(avg_over_time((node_memory_MemTotal_bytes{host="$host"} - node_memory_MemAvailable_bytes{host="$host"})[$__range:]))'';
+                    legend = "Avg";
+                    instant = true;
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''max(quantile_over_time(0.95, (node_memory_MemTotal_bytes{host="$host"} - node_memory_MemAvailable_bytes{host="$host"})[$__range:]))'';
+                    legend = "P95";
+                    instant = true;
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''max(max_over_time((node_memory_MemTotal_bytes{host="$host"} - node_memory_MemAvailable_bytes{host="$host"})[$__range:]))'';
+                    legend = "Max";
+                    instant = true;
+                  })
+                ];
+              })
+              (d.mkStat {
+                title = "Daily Growth Rates ($__range)";
+                w = 8;
+                unit = "bytes";
+                decimals = 1;
+                textMode = "value_and_name";
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''max(deriv((node_memory_MemTotal_bytes{host="$host"} - node_memory_MemAvailable_bytes{host="$host"})[$__range:])) * 86400'';
+                    legend = "RAM / day";
+                    instant = true;
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''max(deriv((node_filesystem_size_bytes{host="$host",mountpoint="/persist"} - node_filesystem_avail_bytes{host="$host",mountpoint="/persist"})[$__range:])) * 86400'';
+                    legend = "/persist / day";
+                    instant = true;
+                  })
+                ];
+              })
+            ]
+            [
+              (d.mkTable {
+                title = "Top 12 Background Operations on $host ($__range)";
+                w = 24;
+                h = 8;
+                logs = true;
+                noValue = "No completed systemd operation logs in selected range";
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Total CPU (s)";
+                  }
+                ];
+                transformations = [
+                  (d.organizeTransform {
+                    rename = {
+                      op_unit = "Operation";
+                      runs = "Runs";
+                      total_cpu_s = "Total CPU (s)";
+                      avg_wall_s = "Avg Wall (s)";
+                      p95_wall_s = "P95 Wall (s)";
+                      max_mem_bytes = "Max RAM Peak";
+                      total_io_read_bytes = "Disk Read";
+                      total_io_write_bytes = "Disk Write";
+                    };
+                    index = {
+                      op_unit = 0;
+                      runs = 1;
+                      total_cpu_s = 2;
+                      avg_wall_s = 3;
+                      p95_wall_s = 4;
+                      max_mem_bytes = 5;
+                      total_io_read_bytes = 6;
+                      total_io_write_bytes = 7;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.decimalsOverride "Runs" 0)
+                  (d.unitOverride "Total CPU (s)" "s")
+                  (d.decimalsOverride "Total CPU (s)" 2)
+                  (d.unitOverride "Avg Wall (s)" "s")
+                  (d.decimalsOverride "Avg Wall (s)" 2)
+                  (d.unitOverride "P95 Wall (s)" "s")
+                  (d.decimalsOverride "P95 Wall (s)" 2)
+                  (d.unitOverride "Max RAM Peak" "bytes")
+                  (d.unitOverride "Disk Read" "bytes")
+                  (d.unitOverride "Disk Write" "bytes")
+                ];
+                expr = ''job:="systemd-journal" host:="$host" "Consumed" "CPU time" | ${d.systemdOpsParsePipe} | stats by (op_unit) count() as runs, sum(cpu_s) as total_cpu_s, avg(wall_s) as avg_wall_s, quantile(0.95, wall_s) as p95_wall_s, max(mem_peak_bytes) as max_mem_bytes, sum(io_read_bytes) as total_io_read_bytes, sum(io_write_bytes) as total_io_write_bytes | sort by (total_cpu_s) desc | limit 12'';
+              })
+            ]
+          ];
+        })
+        (d.mkSection {
           title = "Systemd Services (Click Row for Unit Logs)";
           rows = [
             [

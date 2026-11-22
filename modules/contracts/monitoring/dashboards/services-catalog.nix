@@ -78,9 +78,11 @@ in {
                       "Value #C" = "Probe";
                       "Value #D" = "HTTP RPS";
                       "Value #E" = "RAM Working Set";
-                      "Value #F" = "RAM Limit";
-                      "Value #G" = "Limit %";
-                      "Value #H" = "CPU (cores)";
+                      "Value #F" = "RAM P95 ($__range)";
+                      "Value #G" = "Alloc High";
+                      "Value #H" = "Alloc Max";
+                      "Value #I" = "Limit %";
+                      "Value #J" = "CPU (cores)";
                     };
                     index = {
                       service = 0;
@@ -92,6 +94,8 @@ in {
                       "Value #F" = 6;
                       "Value #G" = 7;
                       "Value #H" = 8;
+                      "Value #I" = 9;
+                      "Value #J" = 10;
                     };
                   })
                 ];
@@ -102,7 +106,9 @@ in {
                   (d.unitOverride "HTTP RPS" "reqps")
                   (d.decimalsOverride "HTTP RPS" 2)
                   (d.unitOverride "RAM Working Set" "bytes")
-                  (d.unitOverride "RAM Limit" "bytes")
+                  (d.unitOverride "RAM P95 ($__range)" "bytes")
+                  (d.unitOverride "Alloc High" "bytes")
+                  (d.unitOverride "Alloc Max" "bytes")
                   (d.cellGaugeOverride {
                     colName = "Limit %";
                     thresholds = d.thresholds.percentHigh;
@@ -142,18 +148,30 @@ in {
                   })
                   (d.promTarget {
                     refId = "F";
-                    expr = ''sum by (service) (container_spec_memory_limit_bytes{host=~"$host",service!=""} > 0)'';
+                    expr = ''sum by (service) (quantile_over_time(0.95, container_memory_working_set_bytes{host=~"$host",service!=""}[$__range]))'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "G";
-                    expr = ''(sum by (service) (container_memory_working_set_bytes{host=~"$host",service!=""}) / (sum by (service) (container_spec_memory_limit_bytes{host=~"$host",service!=""} > 0))) * 100'';
+                    expr = ''sum by (service) (nixconf:unit_memory_high_bytes{host=~"$host"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~"$host",service!=""} * 0 + 1))'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "H";
+                    expr = ''sum by (service) (nixconf:unit_memory_max_bytes{host=~"$host"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~"$host",service!=""} * 0 + 1))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "I";
+                    expr = ''(sum by (service) (container_memory_working_set_bytes{host=~"$host",service!=""}) / clamp_min(sum by (service) (nixconf:unit_memory_max_bytes{host=~"$host"} * on (host, unit) group_left (service) (container_memory_working_set_bytes{host=~"$host",service!=""} * 0 + 1)), 1)) * 100'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "J";
                     expr = ''sum by (service) (rate(container_cpu_usage_seconds_total{host=~"$host",service!=""}[$__rate_interval]))'';
                     instant = true;
                     format = "table";

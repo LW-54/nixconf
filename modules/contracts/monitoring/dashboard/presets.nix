@@ -63,6 +63,14 @@
       title = "View Unit Logs";
       url = ''/d/nixconf-logs-explorer?var-host=''${__data.fields.Host}&var-unit=''${__data.fields.Unit}&''${__url_time_range}'';
     };
+    toCapacityAnalytics = {
+      title = "Open Capacity & Right-Sizing";
+      url = ''/d/nixconf-capacity-analytics?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
+    toTrendsExplorer = {
+      title = "Explore Trends & Cycles";
+      url = ''/d/nixconf-trends-explorer?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
   };
 
   mkEventAnnotations = hasHostVar: let
@@ -526,6 +534,136 @@
     id = "merge";
     options = {};
   };
+
+  statToggleExpr = statKey: expr: ''label_match(label_set(${expr}, "stat", "${statKey}"), "stat", "$stats")'';
+
+  statBandOverrides = _: [
+    (overrideByRegexp "/Alloc Max/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dash";
+          dash = [6 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 2;
+      }
+      (colorFixed "red")
+    ])
+    (overrideByRegexp "/Alloc High/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dash";
+          dash = [6 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 2;
+      }
+      (colorFixed "orange")
+    ])
+    (overrideByRegexp "/Rolling P95/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dash";
+          dash = [4 3];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      (colorFixed "yellow")
+    ])
+    (overrideByRegexp "/Rolling Max/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dot";
+          dash = [0 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 1;
+      }
+      (colorFixed "semi-dark-red")
+    ])
+    (overrideByRegexp "/Rolling Min/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dot";
+          dash = [0 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 1;
+      }
+      (colorFixed "green")
+    ])
+    (overrideByRegexp "/Rolling [+-]1σ/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dot";
+          dash = [0 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 1;
+      }
+      (colorFixed "purple")
+    ])
+    (overrideByRegexp "/Prev Cycle/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dash";
+          dash = [3 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 1;
+      }
+      (colorFixed "light-blue")
+    ])
+  ];
+
+  # Shared LogsQL pipeline parsing systemd cgroups v2 accounting lines into numeric fields.
+  systemdOpsParsePipe = ''extract_regexp "^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?" | filter op_unit:!~".*\\.slice$" | replace_regexp ("^session-[0-9]+\\.scope$", "session.scope") at op_unit | replace_regexp ("^(app-[^@]+)@[0-9a-f]+\\.service$", "''${1}.service") at op_unit | replace_regexp ("^(app-.+)-[0-9]+\\.scope$", "''${1}.scope") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace ("B","1") at mu | replace ("K","1024") at mu | replace ("M","1048576") at mu | replace ("G","1073741824") at mu | replace ("T","1099511627776") at mu | replace ("B","1") at ru | replace ("K","1024") at ru | replace ("M","1048576") at ru | replace ("G","1073741824") at ru | replace ("T","1099511627776") at ru | replace ("B","1") at wu | replace ("K","1024") at wu | replace ("M","1048576") at wu | replace ("G","1073741824") at wu | replace ("T","1099511627776") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes'';
 in {
   internal.monitoring.dashboard = {
     inherit
@@ -551,6 +689,9 @@ in {
       cpuModeColorOverrides
       organizeTransform
       mergeTransform
+      statToggleExpr
+      statBandOverrides
+      systemdOpsParsePipe
       ;
   };
 }

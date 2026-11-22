@@ -217,6 +217,26 @@
         type = "link";
         url = "/d/nixconf-time-machine";
       }
+      ++ lib.optional (uid != "nixconf-trends-explorer") {
+        icon = "graph";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Trends";
+        tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+        type = "link";
+        url = "/d/nixconf-trends-explorer";
+      }
+      ++ lib.optional (uid != "nixconf-capacity-analytics") {
+        icon = "dashboard";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Capacity";
+        tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+        type = "link";
+        url = "/d/nixconf-capacity-analytics";
+      }
       ++ lib.optional (uid != "nixconf-services-catalog") {
         icon = "apps";
         includeVars = true;
