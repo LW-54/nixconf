@@ -331,6 +331,7 @@ in {
 
         environment.systemPackages = [snapshotScript];
 
+        persistence.directories = map (tName: "/var/cache/host-snapshot-${tName}") (builtins.attrNames enabledTargets);
         systemd.services = builtins.listToAttrs (lib.mapAttrsToList (tName: _: {
             name = "host-snapshot-${tName}";
             value = {
@@ -345,9 +346,11 @@ in {
               environment = {
                 RCLONE_CONFIG = "/run/rclone/rclone.conf";
                 RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
+                RESTIC_CACHE_DIR = "/var/cache/host-snapshot-${tName}";
               };
               serviceConfig = {
                 Type = "oneshot";
+                CacheDirectory = "host-snapshot-${tName}";
                 ExecStart = "${lib.getExe snapshotScript} ${lib.escapeShellArg tName}";
               };
             };

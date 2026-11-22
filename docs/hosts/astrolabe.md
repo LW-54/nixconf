@@ -348,12 +348,14 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__storage_activeSlices
@@ -977,6 +979,8 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  /etc/nixos/
 ├── [dir]  /tmp/
 ├── [dir]  /var/cache/copyparty/
+├── [dir]  /var/cache/host-snapshot-gdrive/
+├── [dir]  /var/cache/host-snapshot-hbox/
 ├── [dir]  /var/cache/restic-backups-authelia-gdrive-host/
 ├── [dir]  /var/cache/restic-backups-authelia-hbox-host/
 ├── [dir]  /var/cache/restic-backups-copyparty-gdrive-host/

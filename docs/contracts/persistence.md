@@ -32,6 +32,7 @@ flowchart LR
     urn__nixconf__ast__module__ntfy["nixosModule/ntfy"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
+    urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
@@ -75,6 +76,7 @@ flowchart LR
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
+    urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
@@ -158,6 +160,10 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__victoria
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__victoria
     urn__nixconf__ast__module__ssh -.->|writes| urn__nixconf__ast__option__persistence_files
@@ -247,6 +253,12 @@ flowchart LR
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -278,6 +290,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
@@ -380,6 +393,7 @@ flowchart LR
     click urn__nixconf__ast__module__ntfy href "../modules/ntfy.md" "ntfy"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
+    click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
@@ -423,6 +437,7 @@ flowchart LR
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
     click urn__nixconf__onto__feature__ntfy href "../features/ntfy.md" "ntfy"
+    click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
@@ -790,6 +805,21 @@ config = {
 # modules/features/ntfy.nix
 ...
 176: (self.lib.persistence.mkConfig {inherit config cfg;})
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/snapshot.md">snapshot</a></code></summary>
+
+**Configures options**: `persistence.directories`
+
+```nix
+# modules/features/snapshot.nix
+...
+334: persistence.directories = map (tName: "/var/cache/host-snapshot-${tName}") (builtins.attrNames enabledTargets);
 ...
 ```
 

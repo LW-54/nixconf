@@ -186,6 +186,7 @@ flowchart LR
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__storage
@@ -721,9 +722,9 @@ config = {
 326: key = "password";
 327: testValue = "test-restic-password";
 ...
-340: "sops-install-secrets.service"
+341: "sops-install-secrets.service"
 ...
-347: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
+348: RESTIC_PASSWORD_FILE = config.secrets.files.restic-password.path;
 ...
 ```
 
