@@ -589,10 +589,10 @@ config = {
 ```nix
 # modules/implementations/authelia/default.nix
 ...
-376: backup = lib.mkIf (config.backup.enable or false) {
-377: paths =
-378: ["/var/lib/authelia-main"]
-379: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+382: backup = lib.mkIf (config.backup.enable or false) {
+383: paths =
+384: ["/var/lib/authelia-main"]
+385: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
 ...
 ```
 

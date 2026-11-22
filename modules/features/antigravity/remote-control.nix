@@ -118,8 +118,8 @@ in {
       // self.lib.resources.mkOption {
         tier = "background";
         memory = {
-          high = "25%";
-          max = "40%";
+          high = "45%";
+          max = "65%";
         };
       };
 

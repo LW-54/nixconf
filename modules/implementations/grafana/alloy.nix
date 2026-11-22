@@ -572,11 +572,17 @@
             lib.optional hasAuthFile "sops-install-secrets.service"
             ++ lib.optionals cfg.server.enable ["victoriametrics.service" "victorialogs.service"];
           wants = lib.optional hasAuthFile "sops-install-secrets.service";
-          serviceConfig = {
-            DynamicUser = lib.mkForce false;
-            User = "alloy";
-            Group = "alloy";
-          };
+          serviceConfig =
+            {
+              DynamicUser = lib.mkForce false;
+              User = "alloy";
+              Group = "alloy";
+            }
+            // lib.optionalAttrs cfg.exporters.process.enable {
+              # Allow process-exporter to read /proc/<pid>/io for all system processes without running as root.
+              AmbientCapabilities = ["CAP_DAC_READ_SEARCH" "CAP_SYS_PTRACE"];
+              CapabilityBoundingSet = ["CAP_DAC_READ_SEARCH" "CAP_SYS_PTRACE"];
+            };
         };
 
         resources.units = lib.mkIf (config.resources.enable or false) {

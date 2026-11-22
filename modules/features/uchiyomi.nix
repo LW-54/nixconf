@@ -156,7 +156,7 @@
                 dependsOn = [flaresolverrHost];
                 environment = {
                   TZ = config.time.timeZone or "UTC";
-                  JAVA_TOOL_OPTIONS = "-Xmx768m -XX:+UseSerialGC";
+                  JAVA_TOOL_OPTIONS = "-Xmx1536m -XX:+UseG1GC";
                   MALLOC_ARENA_MAX = "2";
                   AUTO_DOWNLOAD_CHAPTERS = "false";
                   DOWNLOAD_AS_CBZ = "true";
@@ -168,7 +168,7 @@
                 ];
                 extraOptions =
                   [
-                    "--memory=2048m"
+                    "--memory=3g"
                   ]
                   ++ cgroupParentOpts;
               };

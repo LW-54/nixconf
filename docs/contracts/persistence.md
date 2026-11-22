@@ -585,7 +585,7 @@ config = {
 ```nix
 # modules/implementations/authelia/default.nix
 ...
-371: persistence.directories = lib.mkIf (config.persistence.enable or false) (
+377: persistence.directories = lib.mkIf (config.persistence.enable or false) (
 ...
 ```
 

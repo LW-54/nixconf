@@ -573,6 +573,31 @@
       }
       // lib.optionalAttrs (description != null) {inherit description;};
   };
+
+  mkText = {
+    title,
+    content,
+    mode ? "markdown",
+    description ? null,
+    h ? 6,
+    w ? 24,
+  }: {
+    inherit h w;
+    panel =
+      {
+        type = "text";
+        inherit title;
+        options = {
+          inherit mode content;
+          code = {
+            language = "plaintext";
+            showLineNumbers = false;
+            showMiniMap = false;
+          };
+        };
+      }
+      // lib.optionalAttrs (description != null) {inherit description;};
+  };
 in {
   internal.monitoring.dashboard = {
     inherit
@@ -584,6 +609,7 @@ in {
       mkStorageTable
       mkSystemdUnitsTable
       mkLogs
+      mkText
       ;
   };
 }

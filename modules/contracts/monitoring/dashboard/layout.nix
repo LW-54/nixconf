@@ -168,6 +168,8 @@
     variables ? [],
     sections ? [],
     links ? null,
+    extraLinks ? [],
+    editable ? false,
     graphTooltip ? 1,
     eventAnnotations ? true,
   }: let
@@ -226,6 +228,16 @@
         tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
         type = "link";
         url = "/d/nixconf-trends-explorer";
+      }
+      ++ lib.optional (uid != "nixconf-metric-workbench") {
+        icon = "sliders";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Workbench";
+        tooltip = "Flexible custom-query workbench to compare any stats, metrics, and subjects on one graph (editable)";
+        type = "link";
+        url = "/d/nixconf-metric-workbench";
       }
       ++ lib.optional (uid != "nixconf-capacity-analytics") {
         icon = "dashboard";
@@ -332,12 +344,15 @@
           }
         ]
         ++ lib.optionals eventAnnotations (d.mkEventAnnotations hasHostVar);
-      editable = false;
+      inherit editable;
       fiscalYearStartMonth = 0;
       links =
-        if links != null
-        then links
-        else defaultLinks;
+        (
+          if links != null
+          then links
+          else defaultLinks
+        )
+        ++ extraLinks;
       liveNow = false;
       inherit (assembled) panels;
       schemaVersion = 39;

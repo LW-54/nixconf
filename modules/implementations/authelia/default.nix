@@ -244,12 +244,18 @@ in {
           };
           authentication_backend = {
             password_reset.disable = false;
-            refresh_interval = "1m";
+            refresh_interval = "5m";
             ldap = lib.mkIf cfg.directory.enable {
               implementation = "lldap";
               address = "ldap://${ldapConnectHost}:${toString cfg.directory.ldapPort}";
               timeout = "5s";
               start_tls = false;
+              pooling = {
+                enable = true;
+                count = 5;
+                retries = 2;
+                timeout = "10s";
+              };
               base_dn = baseDn;
               user = "uid=${cfg.directory.adminUser},ou=people,${baseDn}";
             };

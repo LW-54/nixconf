@@ -13,6 +13,9 @@
       includeAll ? true,
       multi ? true,
       allValue ? ".*",
+      qryType ? 1,
+      regex ? "",
+      current ? null,
     }:
       {
         inherit name label includeAll multi;
@@ -20,14 +23,18 @@
         datasource = d.ds.metrics;
         definition = query;
         query = {
-          qryType = 1;
-          inherit query;
+          inherit qryType query;
         };
         refresh = 2;
         sort = 1;
         hide = 0;
         current =
-          if includeAll
+          if current != null
+          then {
+            selected = true;
+            inherit (current) text value;
+          }
+          else if includeAll
           then {
             selected = true;
             text = "All";
@@ -35,7 +42,8 @@
           }
           else {};
       }
-      // lib.optionalAttrs includeAll {inherit allValue;};
+      // lib.optionalAttrs includeAll {inherit allValue;}
+      // lib.optionalAttrs (regex != "") {inherit regex;};
 
     host = {
       label ? "Host",

@@ -152,6 +152,11 @@
               folder = "01 · Investigate";
               json = d.mkTrendsExplorerDashboard {};
             };
+            metric-workbench = {
+              title = "Metric Workbench";
+              folder = "01 · Investigate";
+              json = d.mkMetricWorkbenchDashboard {};
+            };
             logs-explorer = {
               title = "Logs Explorer";
               folder = "01 · Investigate";

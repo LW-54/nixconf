@@ -954,12 +954,12 @@ Capability contracts configured by this implementation:
 ...
 231: endpoints.authz.forward-auth.implementation = "ForwardAuth";
 ...
-532: caddy-forward-auth = {
-533: description = "Verify Caddyfile enforces forward_auth on protected services";
-534: script = lib.optionalString (config.reverse-proxy.enable or false) (
-535: self.lib.testing.mkInspectFile {
+538: caddy-forward-auth = {
+539: description = "Verify Caddyfile enforces forward_auth on protected services";
+540: script = lib.optionalString (config.reverse-proxy.enable or false) (
+541: self.lib.testing.mkInspectFile {
 ...
-561: _unauth = machine.succeed(
+567: _unauth = machine.succeed(
 ...
 ```
 
@@ -974,10 +974,10 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/authelia/default.nix
 ...
-376: backup = lib.mkIf (config.backup.enable or false) {
-377: paths =
-378: ["/var/lib/authelia-main"]
-379: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
+382: backup = lib.mkIf (config.backup.enable or false) {
+383: paths =
+384: ["/var/lib/authelia-main"]
+385: ++ lib.optional cfg.directory.enable "/var/lib/lldap";
 ...
 ```
 
@@ -994,12 +994,12 @@ Capability contracts configured by this implementation:
 ...
 28: monEnabled = config.monitoring.enable or false;
 ...
-395: monitoring = lib.mkIf monEnabled {
-396: watchedUnits =
-397: ["authelia-main.service"]
-398: ++ lib.optional cfg.directory.enable "lldap.service";
+401: monitoring = lib.mkIf monEnabled {
+402: watchedUnits =
+403: ["authelia-main.service"]
+404: ++ lib.optional cfg.directory.enable "lldap.service";
 ...
-459: json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
+465: json = internalAuthelia.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -1014,7 +1014,7 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/authelia/default.nix
 ...
-371: persistence.directories = lib.mkIf (config.persistence.enable or false) (
+377: persistence.directories = lib.mkIf (config.persistence.enable or false) (
 ...
 ```
 
@@ -1031,7 +1031,7 @@ Capability contracts configured by this implementation:
 ...
 84: resources = map globToRegex hostCfg.bypassPaths;
 ...
-463: resources.units = lib.mkIf (config.resources.enable or false) (
+469: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 
@@ -1052,24 +1052,24 @@ Capability contracts configured by this implementation:
 ...
 78: (config.reverse-proxy.hosts or {});
 ...
-315: reverse-proxy = {
-316: forwardAuth = {
-317: enable = true;
-318: upstream = "${authConnectHost}:${toString cfg.port}";
+321: reverse-proxy = {
+322: forwardAuth = {
+323: enable = true;
+324: upstream = "${authConnectHost}:${toString cfg.port}";
 ...
-355: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
+361: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
 ...
-490: (config.reverse-proxy.forwardAuth.enable or false)
+496: (config.reverse-proxy.forwardAuth.enable or false)
 ...
-491: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
+497: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
 ...
-492: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
+498: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
 ...
-497: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
+503: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
 ...
-498: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
+504: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
 ...
-534: script = lib.optionalString (config.reverse-proxy.enable or false) (
+540: script = lib.optionalString (config.reverse-proxy.enable or false) (
 ...
 ```
 
@@ -1106,15 +1106,15 @@ Capability contracts configured by this implementation:
 ...
 221: storageEncryptionKeyFile = config.secrets.files.authelia-storage-encryption-key.path;
 ...
-296: after = ["sops-install-secrets.service"];
+302: after = ["sops-install-secrets.service"];
 ...
-297: wants = ["sops-install-secrets.service"];
+303: wants = ["sops-install-secrets.service"];
 ...
-306: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
+312: after = ["sops-install-secrets.service"] ++ lib.optional cfg.directory.enable "lldap.service";
 ...
-307: wants = ["sops-install-secrets.service"];
+313: wants = ["sops-install-secrets.service"];
 ...
-310: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
+316: LoadCredential = ["ldapPasswordFile:${config.secrets.files.lldap-admin-password.path}"];
 ...
 ```
 

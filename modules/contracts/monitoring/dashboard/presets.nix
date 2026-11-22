@@ -71,6 +71,10 @@
       title = "Explore Trends & Cycles";
       url = ''/d/nixconf-trends-explorer?var-host=''${__data.fields.Host}&''${__url_time_range}'';
     };
+    toMetricWorkbench = {
+      title = "Open in Metric Workbench";
+      url = ''/d/nixconf-metric-workbench?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
   };
 
   mkEventAnnotations = hasHostVar: let
@@ -587,6 +591,51 @@
         value = 0;
       }
       (colorFixed "yellow")
+    ])
+    (overrideByRegexp "/Rolling P99/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dash";
+          dash = [5 2];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      (colorFixed "dark-orange")
+    ])
+    (overrideByRegexp "/Rolling P50/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dash";
+          dash = [3 3];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      (colorFixed "super-light-green")
+    ])
+    (overrideByRegexp "/Rolling StdDev/" [
+      {
+        id = "custom.lineStyle";
+        value = {
+          fill = "dot";
+          dash = [0 4];
+        };
+      }
+      {
+        id = "custom.fillOpacity";
+        value = 0;
+      }
+      {
+        id = "custom.lineWidth";
+        value = 1;
+      }
     ])
     (overrideByRegexp "/Rolling Max/" [
       {

@@ -543,24 +543,24 @@ config = {
 ...
 78: (config.reverse-proxy.hosts or {});
 ...
-315: reverse-proxy = {
-316: forwardAuth = {
-317: enable = true;
-318: upstream = "${authConnectHost}:${toString cfg.port}";
+321: reverse-proxy = {
+322: forwardAuth = {
+323: enable = true;
+324: upstream = "${authConnectHost}:${toString cfg.port}";
 ...
-355: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
+361: hosts = lib.mkIf ((config.reverse-proxy.enable or false) && domain != null) (
 ...
-490: (config.reverse-proxy.forwardAuth.enable or false)
+496: (config.reverse-proxy.forwardAuth.enable or false)
 ...
-491: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
+497: && (config.reverse-proxy.forwardAuth.upstream or null) == "${authConnectHost}:${toString cfg.port}";
 ...
-492: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
+498: message = "`reverse-proxy.forwardAuth` must be enabled and point to Authelia's listener.";
 ...
-497: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
+503: (authFqdn == null || !(config.reverse-proxy.hosts.${authFqdn}.forwardAuth or false))
 ...
-498: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
+504: && (lldapFqdn == null || !(config.reverse-proxy.hosts.${lldapFqdn}.forwardAuth or false));
 ...
-534: script = lib.optionalString (config.reverse-proxy.enable or false) (
+540: script = lib.optionalString (config.reverse-proxy.enable or false) (
 ...
 ```
 

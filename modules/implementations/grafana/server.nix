@@ -312,6 +312,7 @@
                     name = "nixconf";
                     type = "file";
                     disableDeletion = false;
+                    allowUiUpdates = true;
                     updateIntervalSeconds = 30;
                     options = {
                       path = dashboardsDir;

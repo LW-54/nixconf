@@ -697,34 +697,38 @@ in {
                   (d.unitOverride "Growth / Day" "bytes")
                   (d.decimalsOverride "Days to 90%" 1)
                 ];
-                targets = [
+                targets = let
+                  fsSize = ''(node_filesystem_size_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} or node_filesystem_size_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"})'';
+                  fsAvail = ''(node_filesystem_avail_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} or node_filesystem_avail_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"})'';
+                  fsUsed = ''(${fsSize} - ${fsAvail})'';
+                in [
                   (d.promTarget {
                     refId = "A";
-                    expr = ''max by (host, mountpoint) (node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} - node_filesystem_avail_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"})'';
+                    expr = ''max by (host, mountpoint) (${fsUsed})'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "B";
-                    expr = ''max by (host, mountpoint) (node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"})'';
+                    expr = ''max by (host, mountpoint) (${fsSize})'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "C";
-                    expr = ''max by (host, mountpoint) (((node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} - node_filesystem_avail_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"}) / clamp_min(node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"}, 1)) * 100)'';
+                    expr = ''max by (host, mountpoint) ((${fsUsed} / clamp_min(${fsSize}, 1)) * 100)'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "D";
-                    expr = ''max by (host, mountpoint) (deriv((node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} - node_filesystem_avail_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"})[$window:])) * 86400'';
+                    expr = ''max by (host, mountpoint) (deriv(${fsUsed}[$window:])) * 86400'';
                     instant = true;
                     format = "table";
                   })
                   (d.promTarget {
                     refId = "E";
-                    expr = ''max by (host, mountpoint) (clamp_min((0.90 * node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"}) - (node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} - node_filesystem_avail_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"}), 0)) / (max by (host, mountpoint) (deriv((node_filesystem_size_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"} - node_filesystem_avail_bytes{host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"})[$window:]) * 86400) > 1048576)'';
+                    expr = ''max by (host, mountpoint) (clamp_min((0.90 * ${fsSize}) - ${fsUsed}, 0)) / (max by (host, mountpoint) (deriv(${fsUsed}[$window:]) * 86400) > 1048576)'';
                     instant = true;
                     format = "table";
                   })
