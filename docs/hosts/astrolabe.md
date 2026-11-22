@@ -26,6 +26,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
+    urn__nixconf__ast__module__bitwarden_desktop["nixosModule/bitwarden-desktop"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
@@ -51,6 +52,7 @@ flowchart LR
     urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
+    urn__nixconf__ast__module__tack["nixosModule/tack"]:::defaultNode
     urn__nixconf__ast__module__ttyd["nixosModule/ttyd"]:::defaultNode
     urn__nixconf__ast__module__uchiyomi["nixosModule/uchiyomi"]:::defaultNode
     urn__nixconf__ast__module__vaultwarden["nixosModule/vaultwarden"]:::defaultNode
@@ -103,11 +105,17 @@ flowchart LR
     urn__nixconf__ast__option__storage_enable[/"storage.enable"/]:::optNode
     urn__nixconf__ast__option__storage_mounts[/"storage.mounts"/]:::optNode
     urn__nixconf__drv__devShell__default["devShell/default"]:::devShellNode
+    urn__nixconf__drv__devShell__gemini_api["devShell/gemini-api"]:::devShellNode
     urn__nixconf__drv__devShell__github_cli["devShell/github-cli"]:::devShellNode
+    urn__nixconf__drv__devShell__github_ssh["devShell/github-ssh"]:::devShellNode
+    urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
+    urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
+    urn__nixconf__drv__devShell__storage_admin["devShell/storage-admin"]:::devShellNode
     urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
     urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
+    urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__drv__package__git[("package/git")]:::pkgNode
     urn__nixconf__drv__package__micro[("package/micro")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
@@ -116,7 +124,9 @@ flowchart LR
     urn__nixconf__onto__contract__resources{{"resources"}}:::contractNode
     urn__nixconf__onto__contract__reverse_proxy{{"reverse-proxy"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
+    urn__nixconf__onto__feature__direnv("direnv"):::featureNode
     urn__nixconf__onto__feature__disko("disko"):::featureNode
     urn__nixconf__onto__feature__git("git"):::featureNode
     urn__nixconf__onto__feature__locale("locale"):::featureNode
@@ -125,6 +135,7 @@ flowchart LR
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
+    urn__nixconf__onto__feature__tack("tack"):::featureNode
     urn__nixconf__onto__feature__ttyd("ttyd"):::featureNode
     urn__nixconf__onto__feature__uchiyomi("uchiyomi"):::featureNode
     urn__nixconf__onto__feature__vaultwarden("vaultwarden"):::featureNode
@@ -236,6 +247,8 @@ flowchart LR
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__bitwarden_desktop -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__ast__module__bw -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__ast__module__bw -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__bw -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__caddy -.->|flowsTo| urn__nixconf__ast__module__cgroups
@@ -556,8 +569,16 @@ flowchart LR
     urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__zed -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__drv__devShell__default -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__drv__devShell__github_cli -->|dependsOn| urn__nixconf__drv__package__git
+    urn__nixconf__drv__devShell__github_ssh -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__master_ssh -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__sops_admin -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__drv__devShell__storage_admin -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__micro
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__agy
@@ -568,9 +589,11 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__authelia
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__bw
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__cgroups
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__copyparty
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__direnv
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__disko
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__git
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__grafana
@@ -586,10 +609,12 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__snapshot
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__tack
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ttyd
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__uchiyomi
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__vaultwarden
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__git
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__micro
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__agy
@@ -614,6 +639,7 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__ssh
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__tack
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vivaldi
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__vscode
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__wifi_eduroam
@@ -646,6 +672,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_config
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
@@ -653,14 +680,19 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bitwarden_desktop
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bw
+    urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__direnv -->|outputs| urn__nixconf__ast__module__direnv
     urn__nixconf__onto__feature__disko -->|outputs| urn__nixconf__ast__module__disko
     urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__ast__module__git
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_cli
+    urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__devShell__github_ssh
     urn__nixconf__onto__feature__git -->|outputs| urn__nixconf__drv__package__git
     urn__nixconf__onto__feature__locale -->|outputs| urn__nixconf__ast__module__locale
     urn__nixconf__onto__feature__micro -->|outputs| urn__nixconf__ast__module__micro
@@ -676,8 +708,10 @@ flowchart LR
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__ast__module__ssh
+    urn__nixconf__onto__feature__ssh -->|outputs| urn__nixconf__drv__devShell__master_ssh
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ssh -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__tack -->|outputs| urn__nixconf__ast__module__tack
     urn__nixconf__onto__feature__ttyd -->|outputs| urn__nixconf__ast__module__ttyd
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ttyd -.->|consumes| urn__nixconf__onto__contract__resources
@@ -701,7 +735,9 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__git
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__locale
@@ -710,6 +746,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__tack
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ttyd
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__uchiyomi
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__vaultwarden
@@ -751,6 +788,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
+    urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__drv__devShell__sops_admin
 
 
     click urn__nixconf__ast__module__agy href "../modules/agy.md" "agy"
@@ -765,6 +803,7 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
+    click urn__nixconf__ast__module__bitwarden_desktop href "../modules/bitwarden-desktop.md" "bitwarden-desktop"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
     click urn__nixconf__ast__module__cgroups href "../modules/cgroups.md" "cgroups"
@@ -790,6 +829,7 @@ flowchart LR
     click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
     click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
+    click urn__nixconf__ast__module__tack href "../modules/tack.md" "tack"
     click urn__nixconf__ast__module__ttyd href "../modules/ttyd.md" "ttyd"
     click urn__nixconf__ast__module__uchiyomi href "../modules/uchiyomi.md" "uchiyomi"
     click urn__nixconf__ast__module__vaultwarden href "../modules/vaultwarden.md" "vaultwarden"
@@ -842,11 +882,17 @@ flowchart LR
     click urn__nixconf__ast__option__storage_enable href "../contracts/storage.md" "storage.enable"
     click urn__nixconf__ast__option__storage_mounts href "../contracts/storage.md" "storage.mounts"
     click urn__nixconf__drv__devShell__default href "../devshells.md#default" "default"
+    click urn__nixconf__drv__devShell__gemini_api href "../devshells.md#gemini-api" "gemini-api"
     click urn__nixconf__drv__devShell__github_cli href "../devshells.md#github-cli" "github-cli"
+    click urn__nixconf__drv__devShell__github_ssh href "../devshells.md#github-ssh" "github-ssh"
+    click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
+    click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
+    click urn__nixconf__drv__devShell__storage_admin href "../devshells.md#storage-admin" "storage-admin"
     click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
     click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
+    click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__drv__package__git href "../packages.md#git" "git"
     click urn__nixconf__drv__package__micro href "../packages.md#micro" "micro"
     click urn__nixconf__eval__configuration__astrolabe href "astrolabe.md" "astrolabe"
@@ -855,7 +901,9 @@ flowchart LR
     click urn__nixconf__onto__contract__resources href "../contracts/resources.md" "resources"
     click urn__nixconf__onto__contract__reverse_proxy href "../contracts/reverse-proxy.md" "reverse-proxy"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
+    click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
     click urn__nixconf__onto__feature__disko href "../features/disko.md" "disko"
     click urn__nixconf__onto__feature__git href "../features/git.md" "git"
     click urn__nixconf__onto__feature__locale href "../features/locale.md" "locale"
@@ -864,6 +912,7 @@ flowchart LR
     click urn__nixconf__onto__feature__ntfy href "../features/ntfy.md" "ntfy"
     click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
+    click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
     click urn__nixconf__onto__feature__ttyd href "../features/ttyd.md" "ttyd"
     click urn__nixconf__onto__feature__uchiyomi href "../features/uchiyomi.md" "uchiyomi"
     click urn__nixconf__onto__feature__vaultwarden href "../features/vaultwarden.md" "vaultwarden"
@@ -918,7 +967,9 @@ The following system and desktop features are imported by `astrolabe`:
 | Feature | Description | Outputs Used | Docs |
 | :--- | :--- | :--- | :--- |
 | [`antigravity`](../features/antigravity.md) | Modular Google Antigravity CLI (agy), declarative config/rules, remote-control daemon, Rust hub, desktop/IDE packages, and Gemini API shell. | [`agy`](../modules/agy.md) (module), [`agy-config`](../modules/agy-config.md) (module), [`agy-hub`](../modules/agy-hub.md) (module), [`agy-remote-control`](../modules/agy-remote-control.md) (module), [`agy`](../packages.md#agy) (package), [`agy-api`](../packages.md#agy-api) (package), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package) | [More →](../features/antigravity.md) |
+| [`bitwarden`](../features/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`bitwarden-desktop`](../modules/bitwarden-desktop.md) (module), [`bw`](../modules/bw.md) (module), [`bw`](../packages.md#bw) (package) | [More →](../features/bitwarden.md) |
 | [`copyparty`](../features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [`copyparty`](../modules/copyparty.md) (module) | [More →](../features/copyparty.md) |
+| [`direnv`](../features/direnv.md) | Per-directory declarative shell environment integration via nix-direnv. | [`direnv`](../modules/direnv.md) (module) | [More →](../features/direnv.md) |
 | [`disko`](../features/disko.md) | Declarative disk partitioning and filesystem layouts via Disko. | [`disko`](../modules/disko.md) (module) | [More →](../features/disko.md) |
 | [`git`](../features/git.md) | Git version control system, global/per-user configuration, and Bitwarden GitHub SSH/CLI shells. | [`git`](../modules/git.md) (module), [`git`](../packages.md#git) (package) | [More →](../features/git.md) |
 | [`locale`](../features/locale.md) | System internationalization, time zone, and language locale configuration. | [`locale`](../modules/locale.md) (module) | [More →](../features/locale.md) |
@@ -927,6 +978,7 @@ The following system and desktop features are imported by `astrolabe`:
 | [`ntfy`](../features/ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [`ntfy`](../modules/ntfy.md) (module) | [More →](../features/ntfy.md) |
 | [`snapshot`](../features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [`snapshot`](../modules/snapshot.md) (module) | [More →](../features/snapshot.md) |
 | [`ssh`](../features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [`ssh`](../modules/ssh.md) (module) | [More →](../features/ssh.md) |
+| [`tack`](../features/tack.md) | Flake input pinning and lockfile orchestration tool. | [`tack`](../modules/tack.md) (module) | [More →](../features/tack.md) |
 | [`ttyd`](../features/ttyd.md) | Web terminal server bridging browser sessions to persistent tmux-backed system shells via ttyd. | [`ttyd`](../modules/ttyd.md) (module) | [More →](../features/ttyd.md) |
 | [`uchiyomi`](../features/uchiyomi.md) | Self-hosted manga, manhwa, and webtoon server, reader, and downloader stack. | [`uchiyomi`](../modules/uchiyomi.md) (module) | [More →](../features/uchiyomi.md) |
 | [`vaultwarden`](../features/vaultwarden.md) | Self-hosted Bitwarden compatible password manager server. | [`vaultwarden`](../modules/vaultwarden.md) (module) | [More →](../features/vaultwarden.md) |
@@ -1037,8 +1089,11 @@ astrolabe-system = {pkgs, ...}: {
     self.nixosModules.hjem
     self.nixosModules.nix
     self.nixosModules.locale
+    self.nixosModules.direnv
     self.nixosModules.ssh
     self.nixosModules.git
+    self.nixosModules.tack
+    self.nixosModules.bw
     self.nixosModules.micro
   ];
 
@@ -1121,11 +1176,14 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 └── [file] /etc/ssh/ssh_host_rsa_key.pub
 
 /persist/users/lw/cache
+├── [dir]  ~lw/.cache/direnv/
 ├── [dir]  ~lw/.cache/nix-index/
 └── [dir]  ~lw/.cache/nix/
 
 /persist/users/lw/data
+├── [dir]  ~lw/.config/Bitwarden CLI/
 ├── [dir]  ~lw/.gemini/
+├── [dir]  ~lw/.local/share/direnv/
 ├── [dir]  ~lw/.ssh/
 ├── [dir]  ~lw/Documents/
 ├── [dir]  ~lw/Downloads/

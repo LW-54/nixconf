@@ -9,8 +9,11 @@
         self.nixosModules.hjem
         self.nixosModules.nix
         self.nixosModules.locale
+        self.nixosModules.direnv
         self.nixosModules.ssh
         self.nixosModules.git
+        self.nixosModules.tack
+        self.nixosModules.bw
         self.nixosModules.micro
       ];
 
