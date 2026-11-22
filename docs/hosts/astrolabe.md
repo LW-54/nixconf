@@ -154,6 +154,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_services
@@ -175,7 +176,6 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_rules
-    urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__resources_units
@@ -1148,7 +1148,7 @@ Workload tiering, OOM protection, and capacity policies enforced via [`resources
 | `critical.slice` | CPU:500, IO:500, MemMin:5%, MemLow:15%, OOM:avoid, Score:-500 | — | `authelia-main.service`, `caddy.service`, `lldap.service`, `sshd.service`, `vaultwarden.service` |
 | `system.slice` | CPU:300, IO:300, MemLow:5%, OOM:avoid | — | — |
 | `machine.slice` | CPU:100, IO:100, OOMKill:80% | — | — |
-| `standard.slice` | CPU:100, IO:100, MemHigh:75%, OOMKill:80%, Score:0 | — | `agy-hub.service`, `agy-login-tty.service`, `alertmanager.service`, `alloy.service`, `copyparty.service`, `grafana.service`, `ntfy-sh.service`, `ttyd-web.service`, `victorialogs.service`, `victoriametrics.service`, `vmalert-logs.service`, `vmalert-metrics.service` |
+| `standard.slice` | CPU:100, IO:100, MemHigh:75%, OOMKill:80%, Score:0 | — | `agy-hub.service`, `alertmanager.service`, `alloy.service`, `copyparty.service`, `grafana.service`, `ntfy-sh.service`, `ttyd-web.service`, `victorialogs.service`, `victoriametrics.service`, `vmalert-logs.service`, `vmalert-metrics.service` |
 | `user.slice` | CPU:100, IO:100 | — | — |
 | `media.slice` | CPU:60, IO:60, MemHigh:50%, MemMax:65%, OOMKill:70%, Score:200 | — | `podman-uchiyomi-flaresolverr.service`, `podman-uchiyomi-suwayomi.service`, `podman-uchiyomi.service` |
 | `background.slice` | CPU:20, IO:20, MemHigh:80%, OOMKill:60%, Score:500 | — | `agy-remote-control.service`, `cachix-watch-store-agent.service`, `host-snapshot-gdrive.service`, `host-snapshot-hbox.service`, `nix-daemon.service`, `nix-gc.service`, `nix-optimise.service`, `resources-storage-budgets.service`, `restic-backups-agy-gdrive-host.service`, `restic-backups-agy-hbox-host.service`, `restic-backups-authelia-gdrive-host.service`, `restic-backups-authelia-hbox-host.service`, `restic-backups-copyparty-gdrive-host.service`, `restic-backups-copyparty-hbox-host.service`, `restic-backups-grafana-gdrive-host.service`, `restic-backups-grafana-hbox-host.service`, `restic-backups-lldap-gdrive-host.service`, `restic-backups-lldap-hbox-host.service`, `restic-backups-telemetry-gdrive-host.service`, `restic-backups-telemetry-hbox-host.service`, `restic-backups-uchiyomi-gdrive-host.service`, `restic-backups-uchiyomi-hbox-host.service`, `restic-backups-vaultwarden-b2-shared.service`, `restic-backups-vaultwarden-gdrive-shared.service`, `restic-backups-vaultwarden-hbox-shared.service` |
@@ -23694,7 +23694,6 @@ config = {
       "podman-uchiyomi-flaresolverr.service"
       "podman-uchiyomi-suwayomi.service"
       "agy-hub.service"
-      "agy-login-tty.service"
       "ttyd-web.service"
       "vaultwarden.service"
       "host-snapshot-gdrive.service"

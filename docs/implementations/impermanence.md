@@ -143,6 +143,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_services

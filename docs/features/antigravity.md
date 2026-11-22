@@ -195,6 +195,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_services
@@ -216,7 +217,6 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_rules
-    urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__resources_units
@@ -1094,15 +1094,15 @@ config = {
 <details>
 <summary><code><a href="../contracts/monitoring.md">monitoring</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.services`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 config = {
   monitoring.dashboards = ...;
+  monitoring.exporters = ...;
   monitoring.logs = ...;
   monitoring.probes = ...;
   monitoring.rules = ...;
-  monitoring.scrapes = ...;
   monitoring.services = ...;
   monitoring.watchedUnits = ...;
 };

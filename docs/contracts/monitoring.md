@@ -146,6 +146,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_services
@@ -165,7 +166,6 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_probes
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_rules
-    urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_scrapes
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
@@ -23492,7 +23492,6 @@ config = {
       "podman-uchiyomi-flaresolverr.service"
       "podman-uchiyomi-suwayomi.service"
       "agy-hub.service"
-      "agy-login-tty.service"
       "ttyd-web.service"
       "vaultwarden.service"
       "host-snapshot-gdrive.service"
@@ -24072,15 +24071,15 @@ config = {
 <details>
 <summary><code><a href="../features/antigravity.md">antigravity</a></code></summary>
 
-**Configures options**: `monitoring.dashboards`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.scrapes`, `monitoring.services`, `monitoring.watchedUnits`
+**Configures options**: `monitoring.dashboards`, `monitoring.exporters`, `monitoring.logs`, `monitoring.probes`, `monitoring.rules`, `monitoring.services`, `monitoring.watchedUnits`
 
 ```nix
 config = {
   monitoring.dashboards = ...;
+  monitoring.exporters = ...;
   monitoring.logs = ...;
   monitoring.probes = ...;
   monitoring.rules = ...;
-  monitoring.scrapes = ...;
   monitoring.services = ...;
   monitoring.watchedUnits = ...;
 };
