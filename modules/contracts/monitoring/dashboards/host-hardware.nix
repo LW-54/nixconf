@@ -302,9 +302,43 @@ in {
             [
               (d.mkStorageTable {
                 title = "Local Filesystems (Usage & Capacity)";
-                w = 24;
-                h = 7;
+                w = 13;
+                h = 8;
                 selector = ''host="$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var|tmp|run|sys|proc|dev).*"'';
+              })
+              (d.mkTable {
+                title = "Top Local Directories & Service Storage";
+                w = 11;
+                h = 8;
+                links = [d.links.toStorageAtlas];
+                noValue = "Awaiting first nixconf-storage-scan run";
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Size";
+                  }
+                ];
+                transformations = [
+                  (d.organizeTransform {
+                    exclude = ["Time" "__name__" "host" "instance" "job" "parent" "depth"];
+                    rename = {
+                      category = "Category";
+                      service = "Service";
+                      path = "Path";
+                      Value = "Size";
+                    };
+                    index = {
+                      category = 0;
+                      service = 1;
+                      path = 2;
+                      Value = 3;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.unitOverride "Size" "bytes")
+                ];
+                expr = ''topk(15, max by (category, service, path) (nixconf_storage_dir_bytes{host="$host",depth="1"}))'';
               })
             ]
             [

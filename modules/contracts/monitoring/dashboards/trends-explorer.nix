@@ -428,7 +428,7 @@ in {
                 drawStyle = "bars";
                 stacked = true;
                 noValue = "Waiting for recorded systemd operation accounting samples";
-                expr = ''topk(15, sum by (op_unit) ((nixconf_operation_io_read_bytes_5m{host="$host"} + nixconf_operation_io_write_bytes_5m{host="$host"}) > 0))'';
+                expr = ''topk(15, ((sum by (op_unit) (nixconf_operation_io_read_bytes_5m{host="$host"}) + sum by (op_unit) (nixconf_operation_io_write_bytes_5m{host="$host"})) or sum by (op_unit) (nixconf_operation_io_read_bytes_5m{host="$host"}) or sum by (op_unit) (nixconf_operation_io_write_bytes_5m{host="$host"})) > 0)'';
                 legend = "{{op_unit}}";
               })
             ]

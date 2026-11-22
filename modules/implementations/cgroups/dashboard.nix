@@ -295,11 +295,79 @@
           title = "Local Volumes & Remote Storage Budgets";
           rows = [
             [
-              (d.mkStorageTable {
+              (d.mkTable {
                 title = "Local Filesystems & Dedicated Volumes";
                 w = 24;
                 h = 8;
-                selector = ''host=~"$host",fstype!~"ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"'';
+                links = [d.links.toStorageAtlas];
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Usage %";
+                  }
+                ];
+                transformations = [
+                  (d.mergeTransform {})
+                  (d.organizeTransform {
+                    exclude = ["Time"];
+                    rename = {
+                      host = "Host";
+                      mountpoint = "Mountpoint";
+                      fstype = "FS";
+                      "Value #A" = "Used";
+                      "Value #B" = "Available";
+                      "Value #C" = "Total";
+                      "Value #D" = "Usage %";
+                    };
+                    index = {
+                      host = 0;
+                      mountpoint = 1;
+                      fstype = 2;
+                      "Value #A" = 3;
+                      "Value #B" = 4;
+                      "Value #C" = 5;
+                      "Value #D" = 6;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.unitOverride "Used" "bytes")
+                  (d.unitOverride "Available" "bytes")
+                  (d.unitOverride "Total" "bytes")
+                  (d.cellGaugeOverride {
+                    colName = "Usage %";
+                    thresholds = d.thresholds.percentHigh;
+                  })
+                ];
+                targets = let
+                  fsSize = ''(node_filesystem_size_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*"} or node_filesystem_size_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"})'';
+                  fsAvail = ''(node_filesystem_avail_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*"} or node_filesystem_avail_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"})'';
+                in [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''max by (host, mountpoint, fstype) (${fsSize} - ${fsAvail})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''max by (host, mountpoint, fstype) (${fsAvail})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''max by (host, mountpoint, fstype) (${fsSize})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "D";
+                    expr = ''max by (host, mountpoint, fstype) (((${fsSize} - ${fsAvail}) / clamp_min(${fsSize}, 1)) * 100)'';
+                    instant = true;
+                    format = "table";
+                  })
+                ];
               })
             ]
             [
@@ -307,6 +375,7 @@
                 title = "Remote Storage Budgets";
                 w = 24;
                 h = 6;
+                links = [d.links.toStorageAtlas];
                 noValue = "No remote storage budgets configured";
                 sortBy = [
                   {

@@ -1370,7 +1370,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -1380,20 +1380,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -2529,7 +2519,7 @@ config = {
           }
         ];
       };
-      description = "Restic backup jobs (including telemetry archives on hbox and gdrive), Btrfs host snapshot timers, rclone FUSE mounts, and storage journal logs.";
+      description = "Restic backup jobs (including telemetry archives on hbox and gdrive), Btrfs host snapshot timers, rclone FUSE mounts, backup operation costs, and storage journal logs.";
       editable = false;
       fiscalYearStartMonth = 0;
       graphTooltip = 1;
@@ -2552,7 +2542,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -2562,20 +2552,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -3304,7 +3284,7 @@ config = {
           };
           id = 8;
           panels = [ ];
-          title = "Rclone Remote Storage";
+          title = "Rclone Remote Storage & Backup Operation Costs";
           type = "row";
         }
         {
@@ -3422,7 +3402,7 @@ config = {
           };
           gridPos = {
             h = 7;
-            w = 24;
+            w = 12;
             x = 0;
             y = 13;
           };
@@ -3531,14 +3511,427 @@ config = {
           type = "table";
         }
         {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+              noValue = "No remote storage budgets configured";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Used";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Limit";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Usage %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 7;
+            w = 12;
+            x = 12;
+            y = 13;
+          };
+          id = 10;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Usage %";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (nixconf_storage_budget_used_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (nixconf_storage_budget_limit_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) ((nixconf_storage_budget_used_bytes{host=~\"$host\"} / clamp_min(nixconf_storage_budget_limit_bytes{host=~\"$host\"}, 1)) * 100)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$__range:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+          ];
+          title = "Remote Storage Budgets by Slice";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 2;
+                  "Value #B" = 3;
+                  "Value #C" = 4;
+                  "Value #D" = 5;
+                  host = 0;
+                  slice = 1;
+                };
+                renameByName = {
+                  "Value #A" = "Used";
+                  "Value #B" = "Limit";
+                  "Value #C" = "Usage %";
+                  "Value #D" = "Growth / Day";
+                  host = "Host";
+                  slice = "Slice";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          datasource = {
+            type = "victoriametrics-logs-datasource";
+            uid = "victorialogs";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              noValue = "No completed backup or snapshot runs in this time range";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Runs";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 0;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Total CPU (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 2;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "s";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Avg Wall (s)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Max RAM Peak";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Disk Read";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Disk Write";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 24;
+            x = 0;
+            y = 20;
+          };
+          id = 11;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Total CPU (s)";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "victoriametrics-logs-datasource";
+                uid = "victorialogs";
+              };
+              editorMode = "code";
+              expr = "job:=\"systemd-journal\" host:in($host) \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | filter op_unit:~\"^(restic-.*|host-snapshot-.*|resources-storage-budgets)\\\\.service$\" | stats by (host, op_unit) count() as runs, sum(cpu_s) as total_cpu_s, avg(wall_s) as avg_wall_s, max(mem_peak_bytes) as max_mem_bytes, sum(io_read_bytes) as total_io_read_bytes, sum(io_write_bytes) as total_io_write_bytes | sort by (total_cpu_s) desc";
+              legendFormat = "";
+              queryType = "stats";
+              refId = "A";
+            }
+          ];
+          title = "Backup & Snapshot Operation Costs ($__range)";
+          transformations = [
+            {
+              id = "organize";
+              options = {
+                excludeByName = { };
+                indexByName = {
+                  avg_wall_s = 4;
+                  host = 0;
+                  max_mem_bytes = 5;
+                  op_unit = 1;
+                  runs = 2;
+                  total_cpu_s = 3;
+                  total_io_read_bytes = 6;
+                  total_io_write_bytes = 7;
+                };
+                renameByName = {
+                  avg_wall_s = "Avg Wall (s)";
+                  host = "Host";
+                  max_mem_bytes = "Max RAM Peak";
+                  op_unit = "Job";
+                  runs = "Runs";
+                  total_cpu_s = "Total CPU (s)";
+                  total_io_read_bytes = "Disk Read";
+                  total_io_write_bytes = "Disk Write";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
           collapsed = false;
           gridPos = {
             h = 1;
             w = 24;
             x = 0;
-            y = 20;
+            y = 28;
           };
-          id = 10;
+          id = 12;
           panels = [ ];
           title = "Backup & Storage Logs";
           type = "row";
@@ -3552,9 +3945,9 @@ config = {
             h = 12;
             w = 24;
             x = 0;
-            y = 21;
+            y = 29;
           };
-          id = 11;
+          id = 13;
           options = {
             dedupStrategy = "none";
             enableLogDetails = true;
@@ -3626,10 +4019,10 @@ config = {
         to = "now";
       };
       timezone = "browser";
-      title = "Storage & Backups";
+      title = "Backups & Snapshots";
       uid = "nixconf-backups-storage";
     };
-    title = "Storage & Backups";
+    title = "Backups & Snapshots";
   };
   capacity-analytics = {
     enable = true;
@@ -3738,7 +4131,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -3748,20 +4141,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -4195,7 +4578,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max(sum by (host, op_unit) (sum_over_time((nixconf_operation_io_read_bytes_5m{host=~\"$host\"} + nixconf_operation_io_write_bytes_5m{host=~\"$host\"})[$__range])))";
+              expr = "max((sum by (host, op_unit) (sum_over_time(nixconf_operation_io_read_bytes_5m{host=~\"$host\"}[$__range])) + sum by (host, op_unit) (sum_over_time(nixconf_operation_io_write_bytes_5m{host=~\"$host\"}[$__range]))) or sum by (host, op_unit) (sum_over_time(nixconf_operation_io_read_bytes_5m{host=~\"$host\"}[$__range])) or sum by (host, op_unit) (sum_over_time(nixconf_operation_io_write_bytes_5m{host=~\"$host\"}[$__range])))";
               format = "time_series";
               instant = true;
               legendFormat = "Top Op I/O";
@@ -5720,7 +6103,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "topk(12, sum by (host, op_unit) ((nixconf_operation_io_read_bytes_5m{host=~\"$host\"} + nixconf_operation_io_write_bytes_5m{host=~\"$host\"}) > 0))";
+              expr = "topk(12, ((sum by (host, op_unit) (nixconf_operation_io_read_bytes_5m{host=~\"$host\"}) + sum by (host, op_unit) (nixconf_operation_io_write_bytes_5m{host=~\"$host\"})) or sum by (host, op_unit) (nixconf_operation_io_read_bytes_5m{host=~\"$host\"}) or sum by (host, op_unit) (nixconf_operation_io_write_bytes_5m{host=~\"$host\"})) > 0)";
               format = "time_series";
               instant = false;
               legendFormat = "{{host}} {{op_unit}}";
@@ -6121,6 +6504,12 @@ config = {
                 filterable = true;
                 inspect = false;
               };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
             };
             overrides = [
               {
@@ -6368,6 +6757,12 @@ config = {
                 filterable = true;
                 inspect = false;
               };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
               noValue = "No remote storage budgets configured";
             };
             overrides = [
@@ -6824,7 +7219,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -6834,20 +7229,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -7187,6 +7572,288 @@ config = {
           };
           fieldConfig = {
             defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "Explore Trends & Cycles";
+                  url = "/d/nixconf-trends-explorer?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+              noValue = "No active OCI containers";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Memory";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Mem Cap";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Cap %";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "percent";
+                  }
+                  {
+                    id = "decimals";
+                    value = 1;
+                  }
+                  {
+                    id = "min";
+                    value = 0;
+                  }
+                  {
+                    id = "max";
+                    value = 100;
+                  }
+                  {
+                    id = "thresholds";
+                    value = {
+                      mode = "absolute";
+                      steps = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "orange";
+                          value = 80;
+                        }
+                        {
+                          color = "red";
+                          value = 90;
+                        }
+                      ];
+                    };
+                  }
+                  {
+                    id = "color";
+                    value = {
+                      mode = "thresholds";
+                    };
+                  }
+                  {
+                    id = "custom.cellOptions";
+                    value = {
+                      mode = "gradient";
+                      type = "gauge";
+                      valueDisplayMode = "color";
+                    };
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "CPU (cores)";
+                };
+                properties = [
+                  {
+                    id = "decimals";
+                    value = 3;
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Disk Read/s";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "Bps";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Disk Write/s";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "Bps";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 7;
+            w = 24;
+            x = 0;
+            y = 5;
+          };
+          id = 6;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Memory";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (container_memory_working_set_bytes{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (container_spec_memory_limit_bytes{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"} > 0)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) ((container_memory_working_set_bytes{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"} / clamp_min(container_spec_memory_limit_bytes{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"} > 0, 1)) * 100)";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"}[$__rate_interval]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (rate(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"}[$__rate_interval]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, slice, unit) (rate(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"podman-.*\\\\.scope\"}[$__rate_interval]))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+          ];
+          title = "Container Memory vs Caps, CPU & Disk I/O";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 3;
+                  "Value #B" = 4;
+                  "Value #C" = 5;
+                  "Value #D" = 6;
+                  "Value #E" = 7;
+                  "Value #F" = 8;
+                  host = 0;
+                  slice = 1;
+                  unit = 2;
+                };
+                renameByName = {
+                  "Value #A" = "Memory";
+                  "Value #B" = "Mem Cap";
+                  "Value #C" = "Cap %";
+                  "Value #D" = "CPU (cores)";
+                  "Value #E" = "Disk Read/s";
+                  "Value #F" = "Disk Write/s";
+                  host = "Host";
+                  slice = "Slice";
+                  unit = "Container Scope";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
               color = {
                 mode = "palette-classic";
               };
@@ -7232,9 +7899,9 @@ config = {
             h = 8;
             w = 12;
             x = 0;
-            y = 5;
+            y = 12;
           };
-          id = 6;
+          id = 7;
           options = {
             legend = {
               calcs = [
@@ -7332,9 +7999,9 @@ config = {
             h = 8;
             w = 12;
             x = 12;
-            y = 5;
+            y = 12;
           };
-          id = 7;
+          id = 8;
           options = {
             legend = {
               calcs = [
@@ -7386,9 +8053,9 @@ config = {
             h = 1;
             w = 24;
             x = 0;
-            y = 13;
+            y = 20;
           };
-          id = 8;
+          id = 9;
           panels = [ ];
           title = "Container Runtime Logs";
           type = "row";
@@ -7402,9 +8069,9 @@ config = {
             h = 10;
             w = 24;
             x = 0;
-            y = 14;
+            y = 21;
           };
-          id = 9;
+          id = 10;
           options = {
             dedupStrategy = "none";
             enableLogDetails = true;
@@ -7588,20 +8255,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -8551,6 +9208,14 @@ config = {
                   title = "Open Host & Hardware";
                   url = "/d/nixconf-host-hardware?var-host=\${__data.fields.Host}&\${__url_time_range}";
                 }
+                {
+                  title = "Open Capacity & Right-Sizing";
+                  url = "/d/nixconf-capacity-analytics?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
               ];
             };
             overrides = [
@@ -9312,6 +9977,12 @@ config = {
                 filterable = true;
                 inspect = false;
               };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
               noValue = "No remote storage budgets configured";
             };
             overrides = [
@@ -9835,7 +10506,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -9845,20 +10516,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -12060,8 +12721,8 @@ config = {
             ];
           };
           gridPos = {
-            h = 7;
-            w = 24;
+            h = 8;
+            w = 13;
             x = 0;
             y = 38;
           };
@@ -12176,6 +12837,114 @@ config = {
           };
           fieldConfig = {
             defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+              noValue = "Awaiting first nixconf-storage-scan run";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Size";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 8;
+            w = 11;
+            x = 13;
+            y = 38;
+          };
+          id = 18;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Size";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(15, max by (category, service, path) (nixconf_storage_dir_bytes{host=\"$host\",depth=\"1\"}))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Top Local Directories & Service Storage";
+          transformations = [
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                  __name__ = true;
+                  depth = true;
+                  host = true;
+                  instance = true;
+                  job = true;
+                  parent = true;
+                };
+                indexByName = {
+                  Value = 3;
+                  category = 0;
+                  path = 2;
+                  service = 1;
+                };
+                renameByName = {
+                  Value = "Size";
+                  category = "Category";
+                  path = "Path";
+                  service = "Service";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
               color = {
                 mode = "palette-classic";
               };
@@ -12233,9 +13002,9 @@ config = {
             h = 7;
             w = 24;
             x = 0;
-            y = 45;
+            y = 46;
           };
-          id = 18;
+          id = 19;
           options = {
             legend = {
               calcs = [
@@ -12345,9 +13114,9 @@ config = {
             h = 8;
             w = 14;
             x = 0;
-            y = 52;
+            y = 53;
           };
-          id = 19;
+          id = 20;
           options = {
             legend = {
               calcs = [
@@ -12445,9 +13214,9 @@ config = {
             h = 8;
             w = 10;
             x = 14;
-            y = 52;
+            y = 53;
           };
-          id = 20;
+          id = 21;
           options = {
             legend = {
               calcs = [
@@ -12499,9 +13268,9 @@ config = {
             h = 1;
             w = 24;
             x = 0;
-            y = 60;
+            y = 61;
           };
-          id = 21;
+          id = 22;
           panels = [ ];
           title = "Long-Term Baselines, Growth & Top Background Operations ($__range)";
           type = "row";
@@ -12543,9 +13312,9 @@ config = {
             h = 4;
             w = 8;
             x = 0;
-            y = 61;
+            y = 62;
           };
-          id = 22;
+          id = 23;
           options = {
             colorMode = "value";
             graphMode = "none";
@@ -12630,9 +13399,9 @@ config = {
             h = 4;
             w = 8;
             x = 8;
-            y = 61;
+            y = 62;
           };
-          id = 23;
+          id = 24;
           options = {
             colorMode = "value";
             graphMode = "none";
@@ -12717,9 +13486,9 @@ config = {
             h = 4;
             w = 8;
             x = 16;
-            y = 61;
+            y = 62;
           };
-          id = 24;
+          id = 25;
           options = {
             colorMode = "value";
             graphMode = "none";
@@ -12907,9 +13676,9 @@ config = {
             h = 8;
             w = 24;
             x = 0;
-            y = 65;
+            y = 66;
           };
-          id = 25;
+          id = 26;
           options = {
             cellHeight = "sm";
             footer = {
@@ -12978,9 +13747,9 @@ config = {
             h = 1;
             w = 24;
             x = 0;
-            y = 73;
+            y = 74;
           };
-          id = 26;
+          id = 27;
           panels = [ ];
           title = "Systemd Services (Click Row for Unit Logs)";
           type = "row";
@@ -13059,9 +13828,9 @@ config = {
             h = 8;
             w = 12;
             x = 0;
-            y = 74;
+            y = 75;
           };
-          id = 27;
+          id = 28;
           options = {
             cellHeight = "sm";
             footer = {
@@ -13194,9 +13963,9 @@ config = {
             h = 8;
             w = 12;
             x = 12;
-            y = 74;
+            y = 75;
           };
-          id = 28;
+          id = 29;
           options = {
             cellHeight = "sm";
             footer = {
@@ -13405,7 +14174,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -13415,20 +14184,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -15152,7 +15911,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -15162,20 +15921,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -16056,7 +16805,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -16066,20 +16815,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -17511,7 +18250,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -17521,20 +18260,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -19083,7 +19812,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -19093,20 +19822,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -20482,6 +21201,12 @@ config = {
                 filterable = true;
                 inspect = false;
               };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
             };
             overrides = [
               {
@@ -20611,7 +21336,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint, fstype) (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})";
+              expr = "max by (host, mountpoint, fstype) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -20623,7 +21348,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint, fstype) (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})";
+              expr = "max by (host, mountpoint, fstype) ((node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -20635,7 +21360,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint, fstype) (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"})";
+              expr = "max by (host, mountpoint, fstype) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -20647,7 +21372,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint, fstype) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} - node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"}) / clamp_min(node_filesystem_size_bytes{host=~\"$host\",fstype!~\"ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"}, 1)) * 100)";
+              expr = "max by (host, mountpoint, fstype) ((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), 1)) * 100)";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -20705,6 +21430,12 @@ config = {
                 filterable = true;
                 inspect = false;
               };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
               noValue = "No remote storage budgets configured";
             };
             overrides = [
@@ -21172,7 +21903,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -21182,20 +21913,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -22930,7 +23651,7 @@ config = {
           };
           gridPos = {
             h = 6;
-            w = 10;
+            w = 8;
             x = 0;
             y = 32;
           };
@@ -23108,8 +23829,8 @@ config = {
           };
           gridPos = {
             h = 6;
-            w = 14;
-            x = 10;
+            w = 8;
+            x = 8;
             y = 32;
           };
           id = 17;
@@ -23215,6 +23936,138 @@ config = {
           type = "table";
         }
         {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              custom = {
+                align = "auto";
+                cellOptions = {
+                  type = "auto";
+                };
+                filterable = true;
+                inspect = false;
+              };
+              links = [
+                {
+                  title = "Open Storage Atlas (Treemap)";
+                  url = "/d/nixconf-storage-atlas?var-host=\${__data.fields.Host}&\${__url_time_range}";
+                }
+              ];
+              noValue = "No scanned directories (>= 1 MiB) matched";
+            };
+            overrides = [
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Size";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+              {
+                matcher = {
+                  id = "byName";
+                  options = "Growth / Day";
+                };
+                properties = [
+                  {
+                    id = "unit";
+                    value = "bytes";
+                  }
+                ];
+              }
+            ];
+          };
+          gridPos = {
+            h = 6;
+            w = 8;
+            x = 16;
+            y = 32;
+          };
+          id = 18;
+          options = {
+            cellHeight = "sm";
+            footer = {
+              countRows = false;
+              fields = "";
+              reducer = [
+                "sum"
+              ];
+              show = false;
+            };
+            showHeader = true;
+            sortBy = [
+              {
+                desc = true;
+                displayName = "Size";
+              }
+            ];
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "topk(20, max by (host, category, path) (nixconf_storage_dir_bytes{host=~\"$host\",service=~\"$service|$service-.*\"}))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, category, path) (deriv(nixconf_storage_dir_bytes{host=~\"$host\",service=~\"$service|$service-.*\"}[$__range:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+          ];
+          title = "Service Local Directories & Cache";
+          transformations = [
+            {
+              id = "merge";
+              options = { };
+            }
+            {
+              id = "organize";
+              options = {
+                excludeByName = {
+                  Time = true;
+                };
+                indexByName = {
+                  "Value #A" = 3;
+                  "Value #B" = 4;
+                  category = 1;
+                  host = 0;
+                  path = 2;
+                };
+                renameByName = {
+                  "Value #A" = "Size";
+                  "Value #B" = "Growth / Day";
+                  category = "Category";
+                  host = "Host";
+                  path = "Path";
+                };
+              };
+            }
+          ];
+          type = "table";
+        }
+        {
           collapsed = false;
           gridPos = {
             h = 1;
@@ -23222,7 +24075,7 @@ config = {
             x = 0;
             y = 38;
           };
-          id = 18;
+          id = 19;
           panels = [ ];
           title = "Service Logs";
           type = "row";
@@ -23356,7 +24209,7 @@ config = {
             x = 0;
             y = 39;
           };
-          id = 19;
+          id = 20;
           options = {
             legend = {
               calcs = [
@@ -23400,7 +24253,7 @@ config = {
             x = 0;
             y = 45;
           };
-          id = 20;
+          id = 21;
           options = {
             dedupStrategy = "none";
             enableLogDetails = true;
@@ -23689,7 +24542,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -23699,20 +24552,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -24805,7 +25648,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -24815,20 +25658,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -27977,20 +28810,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "graph";
@@ -30479,7 +31302,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -30489,7 +31312,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
@@ -33071,7 +33894,7 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Fleet Home";
+          title = "Fleet";
           tooltip = "Open Fleet Command Center";
           type = "link";
           url = "/d/nixconf-fleet-overview";
@@ -33081,20 +33904,10 @@ config = {
           includeVars = true;
           keepTime = true;
           targetBlank = false;
-          title = "Task Manager";
+          title = "Tasks";
           tooltip = "Open per-host process & hardware Task Manager";
           type = "link";
           url = "/d/nixconf-task-manager";
-        }
-        {
-          icon = "clock";
-          includeVars = true;
-          keepTime = true;
-          targetBlank = false;
-          title = "Time Machine";
-          tooltip = "Investigate host state at a point in time";
-          type = "link";
-          url = "/d/nixconf-time-machine";
         }
         {
           icon = "sliders";
@@ -37704,7 +38517,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "topk(15, sum by (op_unit) ((nixconf_operation_io_read_bytes_5m{host=\"$host\"} + nixconf_operation_io_write_bytes_5m{host=\"$host\"}) > 0))";
+              expr = "topk(15, ((sum by (op_unit) (nixconf_operation_io_read_bytes_5m{host=\"$host\"}) + sum by (op_unit) (nixconf_operation_io_write_bytes_5m{host=\"$host\"})) or sum by (op_unit) (nixconf_operation_io_read_bytes_5m{host=\"$host\"}) or sum by (op_unit) (nixconf_operation_io_write_bytes_5m{host=\"$host\"})) > 0)";
               format = "time_series";
               instant = false;
               legendFormat = "{{op_unit}}";
@@ -38230,7 +39043,7 @@ config = {
       {
         alert = null;
         annotations = { };
-        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) count()";
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) count() as value";
         for = "5m";
         labels = { };
         record = "nixconf_operation_runs_5m";
@@ -38238,7 +39051,7 @@ config = {
       {
         alert = null;
         annotations = { };
-        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(cpu_s)";
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(cpu_s) as value";
         for = "5m";
         labels = { };
         record = "nixconf_operation_cpu_seconds_5m";
@@ -38246,7 +39059,7 @@ config = {
       {
         alert = null;
         annotations = { };
-        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(wall_s)";
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(wall_s) as value";
         for = "5m";
         labels = { };
         record = "nixconf_operation_wall_seconds_5m";
@@ -38254,7 +39067,7 @@ config = {
       {
         alert = null;
         annotations = { };
-        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) max(mem_peak_bytes)";
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) max(mem_peak_bytes) as value";
         for = "5m";
         labels = { };
         record = "nixconf_operation_memory_peak_bytes_5m";
@@ -38262,7 +39075,7 @@ config = {
       {
         alert = null;
         annotations = { };
-        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(io_read_bytes)";
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(io_read_bytes) as value";
         for = "5m";
         labels = { };
         record = "nixconf_operation_io_read_bytes_5m";
@@ -38270,7 +39083,7 @@ config = {
       {
         alert = null;
         annotations = { };
-        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(io_write_bytes)";
+        expr = "_time:5m job:=\"systemd-journal\" \"Consumed\" \"CPU time\" | extract_regexp \"^(?P<op_unit>[^:]+): Consumed (?:(?P<cd>[0-9]+)d )?(?:(?P<ch>[0-9]+)h )?(?:(?P<cm>[0-9]+)min )?(?:(?P<cs>[0-9.]+)s|(?P<cms>[0-9.]+)ms) CPU time(?: over (?:(?P<wd>[0-9]+)d )?(?:(?P<wh>[0-9]+)h )?(?:(?P<wm>[0-9]+)min )?(?:(?P<ws>[0-9.]+)s|(?P<wms>[0-9.]+)ms) wall clock time)?(?:, (?P<mn>[0-9.]+)(?P<mu>[BKMGTP]) memory peak)?(?:.*?(?P<rn>[0-9.]+)(?P<ru>[BKMGTP]) read from disk)?(?:.*?(?P<wn>[0-9.]+)(?P<wu>[BKMGTP]) written to disk)?\" | filter op_unit:!~\".*\\\\.slice$\" | replace_regexp (\"^session-[0-9]+\\\\.scope$\", \"session.scope\") at op_unit | replace_regexp (\"^(app-[^@]+)@[0-9a-f]+\\\\.service$\", \"\${1}.service\") at op_unit | replace_regexp (\"^(app-.+)-[0-9]+\\\\.scope$\", \"\${1}.scope\") at op_unit | math (cd default 0)*86400 + (ch default 0)*3600 + (cm default 0)*60 + (cs default 0) + (cms default 0)/1000 as cpu_s, (wd default 0)*86400 + (wh default 0)*3600 + (wm default 0)*60 + (ws default 0) + (wms default 0)/1000 as wall_s | replace (\"B\",\"1\") at mu | replace (\"K\",\"1024\") at mu | replace (\"M\",\"1048576\") at mu | replace (\"G\",\"1073741824\") at mu | replace (\"T\",\"1099511627776\") at mu | replace (\"B\",\"1\") at ru | replace (\"K\",\"1024\") at ru | replace (\"M\",\"1048576\") at ru | replace (\"G\",\"1073741824\") at ru | replace (\"T\",\"1099511627776\") at ru | replace (\"B\",\"1\") at wu | replace (\"K\",\"1024\") at wu | replace (\"M\",\"1048576\") at wu | replace (\"G\",\"1073741824\") at wu | replace (\"T\",\"1099511627776\") at wu | math (mn default 0)*(mu default 1) as mem_peak_bytes, (rn default 0)*(ru default 1) as io_read_bytes, (wn default 0)*(wu default 1) as io_write_bytes | stats by (host, op_unit) sum(io_write_bytes) as value";
         for = "5m";
         labels = { };
         record = "nixconf_operation_io_write_bytes_5m";
@@ -38444,7 +39257,7 @@ config = {
   resources-recording = {
     backend = "metrics";
     enable = true;
-    interval = "5m";
+    interval = "1m";
     rules = [
       {
         alert = null;

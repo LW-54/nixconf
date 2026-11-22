@@ -330,13 +330,13 @@ in {
             [
               (d.mkSystemdUnitsTable {
                 title = "Service & Backup Units Health";
-                w = 10;
+                w = 8;
                 h = 6;
                 expr = ''node_systemd_unit_state{host=~"$host",service="$service"} == 1'';
               })
               (d.mkStorageTable {
                 title = "Service Storage Mounts";
-                w = 14;
+                w = 8;
                 h = 6;
                 selector = ''host=~"$host",service="$service"'';
                 groupBy = ["host" "mountpoint"];
@@ -346,6 +346,57 @@ in {
                 };
                 columnOrder = ["host" "mountpoint"];
                 noValue = "No dedicated storage mounts";
+              })
+              (d.mkTable {
+                title = "Service Local Directories & Cache";
+                w = 8;
+                h = 6;
+                links = [d.links.toStorageAtlas];
+                noValue = "No scanned directories (>= 1 MiB) matched";
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Size";
+                  }
+                ];
+                transformations = [
+                  (d.mergeTransform {})
+                  (d.organizeTransform {
+                    exclude = ["Time"];
+                    rename = {
+                      host = "Host";
+                      category = "Category";
+                      path = "Path";
+                      "Value #A" = "Size";
+                      "Value #B" = "Growth / Day";
+                    };
+                    index = {
+                      host = 0;
+                      category = 1;
+                      path = 2;
+                      "Value #A" = 3;
+                      "Value #B" = 4;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.unitOverride "Size" "bytes")
+                  (d.unitOverride "Growth / Day" "bytes")
+                ];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''topk(20, max by (host, category, path) (nixconf_storage_dir_bytes{host=~"$host",service=~"$service|$service-.*"}))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''max by (host, category, path) (deriv(nixconf_storage_dir_bytes{host=~"$host",service=~"$service|$service-.*"}[$__range:])) * 86400'';
+                    instant = true;
+                    format = "table";
+                  })
+                ];
               })
             ]
           ];

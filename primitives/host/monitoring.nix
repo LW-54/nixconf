@@ -66,8 +66,10 @@
               fi
               local svc="''${svc_prefix}''${name}"
               emit_row "$bytes" "$cat" "$svc" "$d1" "$base_dir" "1"
-              # Scan depth-2 subdirectories for sufficiently large directories.
+              # Scan depth-2 subdirectories for sufficiently large directories, capped at top 10 per parent so one cache tree never crowds out other services.
               if [ "$bytes" -ge "$child_min" ]; then
+                local sub_tmp
+                sub_tmp="$(mktemp)"
                 for d2 in "$d1"/*; do
                   [ -d "$d2" ] || continue
                   [ -L "$d2" ] && continue
@@ -75,9 +77,15 @@
                   b2="$(du -B1 -s -x "$d2" 2>/dev/null | cut -f1 || echo 0)"
                   [ -n "$b2" ] || b2=0
                   if [ "$b2" -ge "$child_min" ]; then
-                    emit_row "$b2" "$cat" "$svc" "$d2" "$d1" "2"
+                    printf '%s\t%s\n' "$b2" "$d2" >> "$sub_tmp"
                   fi
                 done
+                if [ -s "$sub_tmp" ]; then
+                  sort -t $'\t' -k1,1nr "$sub_tmp" | head -n 10 | while IFS=$'\t' read -r sb sp; do
+                    emit_row "$sb" "$cat" "$svc" "$sp" "$d1" "2"
+                  done
+                fi
+                rm -f "$sub_tmp"
               fi
             done
           }
@@ -238,27 +246,27 @@
               in [
                 {
                   record = "nixconf_operation_runs_5m";
-                  expr = ''${opsBase} | stats by (host, op_unit) count()'';
+                  expr = ''${opsBase} | stats by (host, op_unit) count() as value'';
                 }
                 {
                   record = "nixconf_operation_cpu_seconds_5m";
-                  expr = ''${opsBase} | stats by (host, op_unit) sum(cpu_s)'';
+                  expr = ''${opsBase} | stats by (host, op_unit) sum(cpu_s) as value'';
                 }
                 {
                   record = "nixconf_operation_wall_seconds_5m";
-                  expr = ''${opsBase} | stats by (host, op_unit) sum(wall_s)'';
+                  expr = ''${opsBase} | stats by (host, op_unit) sum(wall_s) as value'';
                 }
                 {
                   record = "nixconf_operation_memory_peak_bytes_5m";
-                  expr = ''${opsBase} | stats by (host, op_unit) max(mem_peak_bytes)'';
+                  expr = ''${opsBase} | stats by (host, op_unit) max(mem_peak_bytes) as value'';
                 }
                 {
                   record = "nixconf_operation_io_read_bytes_5m";
-                  expr = ''${opsBase} | stats by (host, op_unit) sum(io_read_bytes)'';
+                  expr = ''${opsBase} | stats by (host, op_unit) sum(io_read_bytes) as value'';
                 }
                 {
                   record = "nixconf_operation_io_write_bytes_5m";
-                  expr = ''${opsBase} | stats by (host, op_unit) sum(io_write_bytes)'';
+                  expr = ''${opsBase} | stats by (host, op_unit) sum(io_write_bytes) as value'';
                 }
               ];
             };

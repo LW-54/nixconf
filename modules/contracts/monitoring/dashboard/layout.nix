@@ -194,7 +194,7 @@
         includeVars = true;
         keepTime = true;
         targetBlank = false;
-        title = "Fleet Home";
+        title = "Fleet";
         tooltip = "Open Fleet Command Center";
         type = "link";
         url = "/d/nixconf-fleet-overview";
@@ -204,20 +204,10 @@
         includeVars = true;
         keepTime = true;
         targetBlank = false;
-        title = "Task Manager";
+        title = "Tasks";
         tooltip = "Open per-host process & hardware Task Manager";
         type = "link";
         url = "/d/nixconf-task-manager";
-      }
-      ++ lib.optional (uid != "nixconf-time-machine") {
-        icon = "clock";
-        includeVars = true;
-        keepTime = true;
-        targetBlank = false;
-        title = "Time Machine";
-        tooltip = "Investigate host state at a point in time";
-        type = "link";
-        url = "/d/nixconf-time-machine";
       }
       ++ lib.optional (uid != "nixconf-trends-explorer") {
         icon = "graph";

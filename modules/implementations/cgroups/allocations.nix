@@ -95,7 +95,7 @@
 
       monitoring.rules.resources-recording = {
         backend = "metrics";
-        interval = "5m";
+        interval = "1m";
         rules = [
           {
             record = "nixconf:slice_memory_high_bytes";

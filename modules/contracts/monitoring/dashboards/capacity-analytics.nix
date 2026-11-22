@@ -81,7 +81,7 @@ in {
             unit = "bytes";
             decimals = 1;
             noValue = "—";
-            expr = ''max(sum by (host, op_unit) (sum_over_time((nixconf_operation_io_read_bytes_5m{host=~"$host"} + nixconf_operation_io_write_bytes_5m{host=~"$host"})[$__range])))'';
+            expr = ''max((sum by (host, op_unit) (sum_over_time(nixconf_operation_io_read_bytes_5m{host=~"$host"}[$__range])) + sum by (host, op_unit) (sum_over_time(nixconf_operation_io_write_bytes_5m{host=~"$host"}[$__range]))) or sum by (host, op_unit) (sum_over_time(nixconf_operation_io_read_bytes_5m{host=~"$host"}[$__range])) or sum by (host, op_unit) (sum_over_time(nixconf_operation_io_write_bytes_5m{host=~"$host"}[$__range])))'';
             legend = "Top Op I/O";
           })
         ])
@@ -515,7 +515,7 @@ in {
                 drawStyle = "bars";
                 stacked = true;
                 noValue = "Waiting for recorded systemd operation metrics";
-                expr = ''topk(12, sum by (host, op_unit) ((nixconf_operation_io_read_bytes_5m{host=~"$host"} + nixconf_operation_io_write_bytes_5m{host=~"$host"}) > 0))'';
+                expr = ''topk(12, ((sum by (host, op_unit) (nixconf_operation_io_read_bytes_5m{host=~"$host"}) + sum by (host, op_unit) (nixconf_operation_io_write_bytes_5m{host=~"$host"})) or sum by (host, op_unit) (nixconf_operation_io_read_bytes_5m{host=~"$host"}) or sum by (host, op_unit) (nixconf_operation_io_write_bytes_5m{host=~"$host"})) > 0)'';
                 legend = "{{host}} {{op_unit}}";
               })
             ]
@@ -657,6 +657,7 @@ in {
                 title = "Local Filesystems & Dedicated Volumes — Growth Rate & Days to 90% ($window)";
                 w = 13;
                 h = 8;
+                links = [d.links.toStorageAtlas];
                 sortBy = [
                   {
                     desc = true;
@@ -738,6 +739,7 @@ in {
                 title = "Remote Storage Budgets — Growth Rate & Days to Limit ($window)";
                 w = 11;
                 h = 8;
+                links = [d.links.toStorageAtlas];
                 noValue = "No remote storage budgets configured";
                 sortBy = [
                   {

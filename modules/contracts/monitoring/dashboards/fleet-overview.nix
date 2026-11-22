@@ -95,6 +95,8 @@ in {
                   d.links.toTaskManager
                   d.links.toTimeMachine
                   d.links.toHostHardware
+                  d.links.toCapacityAnalytics
+                  d.links.toStorageAtlas
                 ];
                 transformations = [
                   (d.mergeTransform {})
@@ -284,6 +286,7 @@ in {
                 title = "Remote Storage Budgets";
                 w = 14;
                 h = 6;
+                links = [d.links.toStorageAtlas];
                 noValue = "No remote storage budgets configured";
                 sortBy = [
                   {

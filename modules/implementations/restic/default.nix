@@ -93,7 +93,7 @@ in {
               ];
             };
             dashboards.backups = {
-              title = "Storage & Backups";
+              title = "Backups & Snapshots";
               folder = "02 · Infrastructure";
               json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
             };

@@ -48,6 +48,98 @@ in {
           title = "OCI Containers (Podman / Docker)";
           rows = [
             [
+              (d.mkTable {
+                title = "Container Memory vs Caps, CPU & Disk I/O";
+                w = 24;
+                h = 7;
+                links = [d.links.toTrendsExplorer];
+                noValue = "No active OCI containers";
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Memory";
+                  }
+                ];
+                transformations = [
+                  (d.mergeTransform {})
+                  (d.organizeTransform {
+                    exclude = ["Time"];
+                    rename = {
+                      host = "Host";
+                      slice = "Slice";
+                      unit = "Container Scope";
+                      "Value #A" = "Memory";
+                      "Value #B" = "Mem Cap";
+                      "Value #C" = "Cap %";
+                      "Value #D" = "CPU (cores)";
+                      "Value #E" = "Disk Read/s";
+                      "Value #F" = "Disk Write/s";
+                    };
+                    index = {
+                      host = 0;
+                      slice = 1;
+                      unit = 2;
+                      "Value #A" = 3;
+                      "Value #B" = 4;
+                      "Value #C" = 5;
+                      "Value #D" = 6;
+                      "Value #E" = 7;
+                      "Value #F" = 8;
+                    };
+                  })
+                ];
+                overrides = [
+                  (d.unitOverride "Memory" "bytes")
+                  (d.unitOverride "Mem Cap" "bytes")
+                  (d.cellGaugeOverride {
+                    colName = "Cap %";
+                    thresholds = d.thresholds.percentHigh;
+                  })
+                  (d.decimalsOverride "CPU (cores)" 3)
+                  (d.unitOverride "Disk Read/s" "Bps")
+                  (d.unitOverride "Disk Write/s" "Bps")
+                ];
+                targets = [
+                  (d.promTarget {
+                    refId = "A";
+                    expr = ''max by (host, slice, unit) (container_memory_working_set_bytes{host=~"$host",unit=~"podman-.*\\.scope"})'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "B";
+                    expr = ''max by (host, slice, unit) (container_spec_memory_limit_bytes{host=~"$host",unit=~"podman-.*\\.scope"} > 0)'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "C";
+                    expr = ''max by (host, slice, unit) ((container_memory_working_set_bytes{host=~"$host",unit=~"podman-.*\\.scope"} / clamp_min(container_spec_memory_limit_bytes{host=~"$host",unit=~"podman-.*\\.scope"} > 0, 1)) * 100)'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "D";
+                    expr = ''max by (host, slice, unit) (rate(container_cpu_usage_seconds_total{host=~"$host",unit=~"podman-.*\\.scope"}[$__rate_interval]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "E";
+                    expr = ''max by (host, slice, unit) (rate(container_fs_reads_bytes_total{host=~"$host",unit=~"podman-.*\\.scope"}[$__rate_interval]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                  (d.promTarget {
+                    refId = "F";
+                    expr = ''max by (host, slice, unit) (rate(container_fs_writes_bytes_total{host=~"$host",unit=~"podman-.*\\.scope"}[$__rate_interval]))'';
+                    instant = true;
+                    format = "table";
+                  })
+                ];
+              })
+            ]
+            [
               (d.mkTimeseries {
                 title = "Container Memory Working Set";
                 w = 12;
