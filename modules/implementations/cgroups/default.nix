@@ -227,6 +227,26 @@ in {
                 }
               ))
             serviceUnits;
+
+            units = lib.mapAttrs' (uName: u: let
+              sectionName =
+                if lib.hasSuffix ".mount" uName
+                then "Mount"
+                else if lib.hasSuffix ".socket" uName
+                then "Socket"
+                else if lib.hasSuffix ".scope" uName
+                then "Scope"
+                else "Service";
+              unitBlock =
+                if cfg.power.enable && u.deferOnBattery
+                then renderIniSection "Unit" {ConditionACPower = true;}
+                else "";
+              bodyBlock = renderIniSection sectionName (mkUnitDirectives u);
+            in
+              lib.nameValuePair "${uName}.d/50-resources.conf" {
+                text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
+              })
+            otherUnits;
           };
 
           boot.kernelModules = lib.mkIf usesIoWeights ["bfq"];
@@ -234,26 +254,6 @@ in {
           services.udev.extraRules = lib.mkIf usesIoWeights ''
             ACTION=="add|change", SUBSYSTEM=="block", ENV{DEVTYPE}=="disk", KERNEL=="sd[a-z]*|vd[a-z]*|nvme[0-9]n[0-9]*", TEST=="queue/scheduler", ATTR{queue/scheduler}="bfq"
           '';
-
-          environment.etc = lib.mapAttrs' (uName: u: let
-            sectionName =
-              if lib.hasSuffix ".mount" uName
-              then "Mount"
-              else if lib.hasSuffix ".socket" uName
-              then "Socket"
-              else if lib.hasSuffix ".scope" uName
-              then "Scope"
-              else "Service";
-            unitBlock =
-              if cfg.power.enable && u.deferOnBattery
-              then renderIniSection "Unit" {ConditionACPower = true;}
-              else "";
-            bodyBlock = renderIniSection sectionName (mkUnitDirectives u);
-          in
-            lib.nameValuePair "systemd/system/${uName}.d/50-resources.conf" {
-              text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
-            })
-          otherUnits;
 
           monitoring = lib.mkIf monEnabled {
             exporters = {
@@ -313,6 +313,36 @@ in {
                     annotations = {
                       summary = "Cgroup OOM event in {{ $labels.unit }} on {{ $labels.host }}";
                       description = "Kernel or cgroup OOM kill recorded for {{ $labels.unit }} on {{ $labels.host }}.";
+                    };
+                  }
+                  {
+                    alert = "LocalVolumeSpaceWarning";
+                    expr = ''(((node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!="reserved-unmounted"} * 0 + 1)) < 20'';
+                    "for" = "10m";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "Local volume {{ $labels.volume }} low on free space on {{ $labels.host }}";
+                      description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}, {{ $labels.mode }}) has less than 20% free space remaining on {{ $labels.host }}.";
+                    };
+                  }
+                  {
+                    alert = "LocalVolumeSpaceCritical";
+                    expr = ''(((node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!="reserved-unmounted"} * 0 + 1)) < 10'';
+                    "for" = "5m";
+                    labels.severity = "critical";
+                    annotations = {
+                      summary = "Local volume {{ $labels.volume }} critically full on {{ $labels.host }}";
+                      description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}, {{ $labels.mode }}) has less than 10% free space remaining on {{ $labels.host }}.";
+                    };
+                  }
+                  {
+                    alert = "LocalVolumeInodesLow";
+                    expr = ''(((node_filesystem_files_free / clamp_min(node_filesystem_files, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!="reserved-unmounted"} * 0 + 1)) < 15'';
+                    "for" = "10m";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "Local volume {{ $labels.volume }} low on free inodes on {{ $labels.host }}";
+                      description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}) has less than 15% free inodes remaining on {{ $labels.host }}.";
                     };
                   }
                   {

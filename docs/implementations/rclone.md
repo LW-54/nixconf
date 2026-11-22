@@ -59,6 +59,15 @@ flowchart LR
     urn__nixconf__ast__option__persistence_enable[/"persistence.enable"/]:::optNode
     urn__nixconf__ast__option__persistence_files[/"persistence.files"/]:::optNode
     urn__nixconf__ast__option__persistence_users[/"persistence.users"/]:::optNode
+    urn__nixconf__ast__option__resources_disk[/"resources.disk"/]:::optNode
+    urn__nixconf__ast__option__resources_enable[/"resources.enable"/]:::optNode
+    urn__nixconf__ast__option__resources_oom[/"resources.oom"/]:::optNode
+    urn__nixconf__ast__option__resources_power[/"resources.power"/]:::optNode
+    urn__nixconf__ast__option__resources_profile[/"resources.profile"/]:::optNode
+    urn__nixconf__ast__option__resources_storageBudgets[/"resources.storageBudgets"/]:::optNode
+    urn__nixconf__ast__option__resources_tiers[/"resources.tiers"/]:::optNode
+    urn__nixconf__ast__option__resources_units[/"resources.units"/]:::optNode
+    urn__nixconf__ast__option__resources_volumes[/"resources.volumes"/]:::optNode
     urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
     urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
     urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
@@ -93,6 +102,22 @@ flowchart LR
     urn__nixconf__ast__type__monitoring_service[["monitoring.service"]]:::typeNode
     urn__nixconf__ast__type__persistence_entries[["persistence.entries"]]:::typeNode
     urn__nixconf__ast__type__persistence_user[["persistence.user"]]:::typeNode
+    urn__nixconf__ast__type__resources_byteSize[["resources.byteSize"]]:::typeNode
+    urn__nixconf__ast__type__resources_cgroupWeight[["resources.cgroupWeight"]]:::typeNode
+    urn__nixconf__ast__type__resources_cpuQuota[["resources.cpuQuota"]]:::typeNode
+    urn__nixconf__ast__type__resources_disk[["resources.disk"]]:::typeNode
+    urn__nixconf__ast__type__resources_onBattery[["resources.onBattery"]]:::typeNode
+    urn__nixconf__ast__type__resources_oom[["resources.oom"]]:::typeNode
+    urn__nixconf__ast__type__resources_oomPreference[["resources.oomPreference"]]:::typeNode
+    urn__nixconf__ast__type__resources_oomScore[["resources.oomScore"]]:::typeNode
+    urn__nixconf__ast__type__resources_percentage[["resources.percentage"]]:::typeNode
+    urn__nixconf__ast__type__resources_power[["resources.power"]]:::typeNode
+    urn__nixconf__ast__type__resources_profile[["resources.profile"]]:::typeNode
+    urn__nixconf__ast__type__resources_resourceSize[["resources.resourceSize"]]:::typeNode
+    urn__nixconf__ast__type__resources_storageBudget[["resources.storageBudget"]]:::typeNode
+    urn__nixconf__ast__type__resources_tier[["resources.tier"]]:::typeNode
+    urn__nixconf__ast__type__resources_unit[["resources.unit"]]:::typeNode
+    urn__nixconf__ast__type__resources_volume[["resources.volume"]]:::typeNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
     urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__ast__type__storage_driver[["storage.driver"]]:::typeNode
@@ -167,6 +192,7 @@ flowchart LR
     urn__nixconf__ast__module__alloy -.->|reads| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
@@ -174,15 +200,32 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__astrolabe_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_oom
+    urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_storageBudgets
+    urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_volumes
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_oom
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_power
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_storageBudgets
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_volumes
     urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_power
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__cgroups -.->|writes| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__grafana
@@ -201,6 +244,7 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_enable
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__cgroups
@@ -227,6 +271,7 @@ flowchart LR
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__grafana
@@ -235,6 +280,7 @@ flowchart LR
     urn__nixconf__ast__module__impermanence -.->|reads| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__impermanence -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -246,6 +292,7 @@ flowchart LR
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__alloy
@@ -264,6 +311,7 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__cgroups
@@ -275,6 +323,7 @@ flowchart LR
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__storage_activeSlices
     urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
@@ -299,6 +348,7 @@ flowchart LR
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__persistence_files
+    urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_enable
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__alloy
@@ -308,6 +358,10 @@ flowchart LR
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__x240_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_volumes
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -454,6 +508,14 @@ flowchart LR
     urn__nixconf__ast__option__persistence_directories -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_files -.->|typedBy| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__ast__option__persistence_users -.->|typedBy| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__ast__option__resources_disk -.->|typedBy| urn__nixconf__ast__type__resources_disk
+    urn__nixconf__ast__option__resources_oom -.->|typedBy| urn__nixconf__ast__type__resources_oom
+    urn__nixconf__ast__option__resources_power -.->|typedBy| urn__nixconf__ast__type__resources_power
+    urn__nixconf__ast__option__resources_profile -.->|typedBy| urn__nixconf__ast__type__resources_profile
+    urn__nixconf__ast__option__resources_storageBudgets -.->|typedBy| urn__nixconf__ast__type__resources_storageBudget
+    urn__nixconf__ast__option__resources_tiers -.->|typedBy| urn__nixconf__ast__type__resources_tier
+    urn__nixconf__ast__option__resources_units -.->|typedBy| urn__nixconf__ast__type__resources_unit
+    urn__nixconf__ast__option__resources_volumes -.->|typedBy| urn__nixconf__ast__type__resources_volume
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
@@ -545,6 +607,31 @@ flowchart LR
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__option__persistence_users
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_entries
     urn__nixconf__onto__contract__persistence -->|declares| urn__nixconf__ast__type__persistence_user
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_disk
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_enable
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_oom
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_power
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_profile
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_storageBudgets
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_tiers
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_units
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__option__resources_volumes
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_byteSize
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_cgroupWeight
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_cpuQuota
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_disk
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_onBattery
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_oom
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_oomPreference
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_oomScore
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_percentage
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_power
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_profile
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_resourceSize
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_storageBudget
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_tier
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_unit
+    urn__nixconf__onto__contract__resources -->|declares| urn__nixconf__ast__type__resources_volume
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
@@ -745,6 +832,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
@@ -806,6 +894,15 @@ flowchart LR
     click urn__nixconf__ast__option__persistence_enable href "../contracts/persistence.md" "persistence.enable"
     click urn__nixconf__ast__option__persistence_files href "../contracts/persistence.md" "persistence.files"
     click urn__nixconf__ast__option__persistence_users href "../contracts/persistence.md" "persistence.users"
+    click urn__nixconf__ast__option__resources_disk href "../contracts/resources.md" "resources.disk"
+    click urn__nixconf__ast__option__resources_enable href "../contracts/resources.md" "resources.enable"
+    click urn__nixconf__ast__option__resources_oom href "../contracts/resources.md" "resources.oom"
+    click urn__nixconf__ast__option__resources_power href "../contracts/resources.md" "resources.power"
+    click urn__nixconf__ast__option__resources_profile href "../contracts/resources.md" "resources.profile"
+    click urn__nixconf__ast__option__resources_storageBudgets href "../contracts/resources.md" "resources.storageBudgets"
+    click urn__nixconf__ast__option__resources_tiers href "../contracts/resources.md" "resources.tiers"
+    click urn__nixconf__ast__option__resources_units href "../contracts/resources.md" "resources.units"
+    click urn__nixconf__ast__option__resources_volumes href "../contracts/resources.md" "resources.volumes"
     click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
     click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
     click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
@@ -840,6 +937,22 @@ flowchart LR
     click urn__nixconf__ast__type__monitoring_service href "../contracts/monitoring.md" "monitoring.service"
     click urn__nixconf__ast__type__persistence_entries href "../contracts/persistence.md" "persistence.entries"
     click urn__nixconf__ast__type__persistence_user href "../contracts/persistence.md" "persistence.user"
+    click urn__nixconf__ast__type__resources_byteSize href "../contracts/resources.md" "resources.byteSize"
+    click urn__nixconf__ast__type__resources_cgroupWeight href "../contracts/resources.md" "resources.cgroupWeight"
+    click urn__nixconf__ast__type__resources_cpuQuota href "../contracts/resources.md" "resources.cpuQuota"
+    click urn__nixconf__ast__type__resources_disk href "../contracts/resources.md" "resources.disk"
+    click urn__nixconf__ast__type__resources_onBattery href "../contracts/resources.md" "resources.onBattery"
+    click urn__nixconf__ast__type__resources_oom href "../contracts/resources.md" "resources.oom"
+    click urn__nixconf__ast__type__resources_oomPreference href "../contracts/resources.md" "resources.oomPreference"
+    click urn__nixconf__ast__type__resources_oomScore href "../contracts/resources.md" "resources.oomScore"
+    click urn__nixconf__ast__type__resources_percentage href "../contracts/resources.md" "resources.percentage"
+    click urn__nixconf__ast__type__resources_power href "../contracts/resources.md" "resources.power"
+    click urn__nixconf__ast__type__resources_profile href "../contracts/resources.md" "resources.profile"
+    click urn__nixconf__ast__type__resources_resourceSize href "../contracts/resources.md" "resources.resourceSize"
+    click urn__nixconf__ast__type__resources_storageBudget href "../contracts/resources.md" "resources.storageBudget"
+    click urn__nixconf__ast__type__resources_tier href "../contracts/resources.md" "resources.tier"
+    click urn__nixconf__ast__type__resources_unit href "../contracts/resources.md" "resources.unit"
+    click urn__nixconf__ast__type__resources_volume href "../contracts/resources.md" "resources.volume"
     click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
     click urn__nixconf__ast__type__secrets_template href "../contracts/secrets.md" "secrets.template"
     click urn__nixconf__ast__type__storage_driver href "../contracts/storage.md" "storage.driver"
@@ -975,6 +1088,21 @@ Capability contracts configured by this implementation:
 # modules/implementations/rclone/default.nix
 ...
 60: persistence.directories = ["/var/cache/rclone"];
+...
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/resources.md">resources</a></code></summary>
+
+**Configures options**: `resources.units`
+
+```nix
+# modules/implementations/rclone/default.nix
+...
+79: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 

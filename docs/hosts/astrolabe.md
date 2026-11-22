@@ -429,6 +429,7 @@ flowchart LR
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -440,6 +441,7 @@ flowchart LR
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__alloy
@@ -784,6 +786,7 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -->|outputs| urn__nixconf__ast__module__lw
     urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
@@ -1206,7 +1209,7 @@ Workload tiering, OOM protection, and capacity policies enforced via [`resources
 | `critical.slice` | CPU:500, IO:500, MemMin:5%, MemLow:15%, OOM:avoid, Score:-500 | — | `authelia-main.service`, `caddy.service`, `lldap.service`, `sshd.service`, `vaultwarden.service` |
 | `system.slice` | CPU:300, IO:300, MemLow:5%, OOM:avoid | — | — |
 | `machine.slice` | CPU:100, IO:100, OOMKill:80% | — | — |
-| `standard.slice` | CPU:100, IO:100, MemHigh:75%, OOMKill:80%, Score:0 | — | `agy-hub.service`, `alertmanager.service`, `alloy.service`, `copyparty.service`, `grafana.service`, `ntfy-sh.service`, `ttyd-web.service`, `victorialogs.service`, `victoriametrics.service`, `vmalert-logs.service`, `vmalert-metrics.service` |
+| `standard.slice` | CPU:100, IO:100, MemHigh:75%, OOMKill:80%, Score:0 | — | `agy-hub.service`, `alertmanager.service`, `alloy.service`, `copyparty.service`, `grafana.service`, `mnt-storage-copyparty.mount`, `mnt-storage-gdrive.mount`, `mnt-storage-uchiyomi.mount`, `ntfy-sh.service`, `ttyd-web.service`, `victorialogs.service`, `victoriametrics.service`, `vmalert-logs.service`, `vmalert-metrics.service` |
 | `user.slice` | CPU:100, IO:100 | — | — |
 | `media.slice` | CPU:60, IO:60, MemHigh:50%, MemMax:65%, OOMKill:70%, Score:200 | — | `podman-uchiyomi-flaresolverr.service`, `podman-uchiyomi-suwayomi.service`, `podman-uchiyomi.service` |
 | `background.slice` | CPU:20, IO:20, MemHigh:80%, OOMKill:60%, Score:500 | — | `agy-remote-control.service`, `cachix-watch-store-agent.service`, `host-snapshot-gdrive.service`, `host-snapshot-hbox.service`, `nix-daemon.service`, `nix-gc.service`, `nix-optimise.service`, `resources-storage-budgets.service`, `restic-backups-agy-gdrive-host.service`, `restic-backups-agy-hbox-host.service`, `restic-backups-authelia-gdrive-host.service`, `restic-backups-authelia-hbox-host.service`, `restic-backups-copyparty-gdrive-host.service`, `restic-backups-copyparty-hbox-host.service`, `restic-backups-grafana-gdrive-host.service`, `restic-backups-grafana-hbox-host.service`, `restic-backups-lldap-gdrive-host.service`, `restic-backups-lldap-hbox-host.service`, `restic-backups-telemetry-gdrive-host.service`, `restic-backups-telemetry-hbox-host.service`, `restic-backups-uchiyomi-gdrive-host.service`, `restic-backups-uchiyomi-hbox-host.service`, `restic-backups-vaultwarden-b2-shared.service`, `restic-backups-vaultwarden-gdrive-shared.service`, `restic-backups-vaultwarden-hbox-shared.service` |
@@ -24025,6 +24028,45 @@ config = {
         for = null;
         labels = {
           severity = "critical";
+        };
+        record = null;
+      }
+      {
+        alert = "LocalVolumeSpaceWarning";
+        annotations = {
+          description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}, {{ $labels.mode }}) has less than 20% free space remaining on {{ $labels.host }}.";
+          summary = "Local volume {{ $labels.volume }} low on free space on {{ $labels.host }}";
+        };
+        expr = "(((node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!=\"reserved-unmounted\"} * 0 + 1)) < 20";
+        for = "10m";
+        labels = {
+          severity = "warning";
+        };
+        record = null;
+      }
+      {
+        alert = "LocalVolumeSpaceCritical";
+        annotations = {
+          description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}, {{ $labels.mode }}) has less than 10% free space remaining on {{ $labels.host }}.";
+          summary = "Local volume {{ $labels.volume }} critically full on {{ $labels.host }}";
+        };
+        expr = "(((node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!=\"reserved-unmounted\"} * 0 + 1)) < 10";
+        for = "5m";
+        labels = {
+          severity = "critical";
+        };
+        record = null;
+      }
+      {
+        alert = "LocalVolumeInodesLow";
+        annotations = {
+          description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}) has less than 15% free inodes remaining on {{ $labels.host }}.";
+          summary = "Local volume {{ $labels.volume }} low on free inodes on {{ $labels.host }}";
+        };
+        expr = "(((node_filesystem_files_free / clamp_min(node_filesystem_files, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!=\"reserved-unmounted\"} * 0 + 1)) < 15";
+        for = "10m";
+        labels = {
+          severity = "warning";
         };
         record = null;
       }

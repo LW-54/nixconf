@@ -76,12 +76,21 @@ in {
           logs.journal.units = rcloneServiceUnits;
         };
 
-        resources.units = lib.mkIf ((config.resources.enable or false) && state.cfg.driftCheck.enable) {
-          "storage-drift-check.service" = {
-            tier = lib.mkDefault "background";
-            deferOnBattery = lib.mkDefault true;
-          };
-        };
+        resources.units = lib.mkIf (config.resources.enable or false) (
+          (lib.optionalAttrs state.cfg.driftCheck.enable {
+            "storage-drift-check.service" = {
+              tier = lib.mkDefault "background";
+              deferOnBattery = lib.mkDefault true;
+            };
+          })
+          // lib.genAttrs units.nonAutomountUnits (_: {
+            tier = lib.mkDefault "standard";
+            memory = {
+              high = lib.mkDefault "10%";
+              max = lib.mkDefault "20%";
+            };
+          })
+        );
       };
     };
   };

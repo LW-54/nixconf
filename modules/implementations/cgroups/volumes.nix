@@ -118,8 +118,14 @@
               else
                 truncate -s "$target_bytes" "$img"
               fi
-              e2fsck -p -f "$img" || true
-              resize2fs "$img"
+              loop_dev="$(losetup -j "$img" -O NAME --noheadings | head -n 1 || true)"
+              if [ -n "$loop_dev" ]; then
+                losetup -c "$loop_dev"
+                resize2fs "$loop_dev"
+              else
+                e2fsck -p -f "$img" || true
+                resize2fs "$img"
+              fi
             elif [ "$target_bytes" -lt "$current_bytes" ]; then
               echo "Warning: volume '${vName}' target ($target_bytes B) < current ($current_bytes B); online shrinking skipped." >&2
             fi
@@ -277,6 +283,7 @@
         endpoint = rcloneTarget;
         limitBytes = toBytes b.maxSize;
         warnPct = b.warnPercent;
+        intervalSec = intervalToSec b.interval;
       })
       enabledBudgets;
 
@@ -287,9 +294,11 @@
       text = ''
         export RCLONE_CONFIG="''${RCLONE_CONFIG:-/run/rclone/rclone.conf}"
         textfile_dir=${lib.escapeShellArg textfileDir}
-        mkdir -p "$textfile_dir"
+        cache_dir="''${RUNTIME_DIRECTORY:-/run/nixconf-storage-budgets}"
+        mkdir -p "$textfile_dir" "$cache_dir"
         tmp_file="$(mktemp "$textfile_dir/.storage_budgets.XXXXXX")"
         trap 'rm -f "$tmp_file"' EXIT
+        now="$(date +%s)"
 
         cat > "$tmp_file" <<'EOF'
         # HELP nixconf_storage_budget_used_bytes Measured size in bytes of remote storage slice.
@@ -300,19 +309,61 @@
         # TYPE nixconf_storage_budget_limit_bytes gauge
         # HELP nixconf_storage_budget_warn_percent Configured warning percentage threshold for remote storage slice.
         # TYPE nixconf_storage_budget_warn_percent gauge
+        # HELP nixconf_storage_budget_last_measured_timestamp_seconds Unix timestamp of last successful remote storage slice measurement.
+        # TYPE nixconf_storage_budget_last_measured_timestamp_seconds gauge
         EOF
 
+        emit_slice_usage() {
+          local slice_json="$1"
+          local used="$2"
+          local objs="$3"
+          local ts="$4"
+          {
+            printf 'nixconf_storage_budget_used_bytes{slice=%s} %s\n' "$slice_json" "$used"
+            printf 'nixconf_storage_budget_objects{slice=%s} %s\n' "$slice_json" "$objs"
+            printf 'nixconf_storage_budget_last_measured_timestamp_seconds{slice=%s} %s\n' "$slice_json" "$ts"
+          } >> "$tmp_file"
+        }
+
         had_error=0
-        ${lib.concatMapStrings (t: ''
-            printf 'nixconf_storage_budget_limit_bytes{slice=%s} %s\n' ${lib.escapeShellArg (builtins.toJSON t.slice)} ${lib.escapeShellArg (toString t.limitBytes)} >> "$tmp_file"
-            printf 'nixconf_storage_budget_warn_percent{slice=%s} %s\n' ${lib.escapeShellArg (builtins.toJSON t.slice)} ${lib.escapeShellArg (toString t.warnPct)} >> "$tmp_file"
-            if json_out="$(rclone --config "$RCLONE_CONFIG" --contimeout=10s --timeout=120s size --json ${lib.escapeShellArg t.endpoint})"; then
+        ${lib.concatMapStrings (t: let
+            sliceJson = lib.escapeShellArg (builtins.toJSON t.slice);
+            minAge =
+              if t.intervalSec > 600
+              then t.intervalSec - 300
+              else 0;
+          in ''
+            {
+              printf 'nixconf_storage_budget_limit_bytes{slice=%s} %s\n' ${sliceJson} ${lib.escapeShellArg (toString t.limitBytes)}
+              printf 'nixconf_storage_budget_warn_percent{slice=%s} %s\n' ${sliceJson} ${lib.escapeShellArg (toString t.warnPct)}
+            } >> "$tmp_file"
+            cache_file="$cache_dir/"${lib.escapeShellArg "${t.slice}.json"}
+            use_cache=0
+            last_ts=0
+            if [ -s "$cache_file" ]; then
+              last_ts="$(jq -r '.timestamp // 0' "$cache_file" 2>/dev/null || echo 0)"
+              if [ "$((now - last_ts))" -lt ${toString minAge} ]; then
+                use_cache=1
+              fi
+            fi
+            if [ "$use_cache" -eq 1 ]; then
+              used_bytes="$(jq -r '.bytes // 0' "$cache_file")"
+              obj_count="$(jq -r '.count // 0' "$cache_file")"
+              emit_slice_usage ${sliceJson} "$used_bytes" "$obj_count" "$last_ts"
+            elif json_out="$(rclone --config "$RCLONE_CONFIG" --contimeout=10s --timeout=120s size --json ${lib.escapeShellArg t.endpoint})"; then
               used_bytes="$(printf '%s' "$json_out" | jq -r '.bytes // 0')"
               obj_count="$(printf '%s' "$json_out" | jq -r '.count // 0')"
-              printf 'nixconf_storage_budget_used_bytes{slice=%s} %s\n' ${lib.escapeShellArg (builtins.toJSON t.slice)} "$used_bytes" >> "$tmp_file"
-              printf 'nixconf_storage_budget_objects{slice=%s} %s\n' ${lib.escapeShellArg (builtins.toJSON t.slice)} "$obj_count" >> "$tmp_file"
+              jq -n --argjson ts "$now" --argjson bytes "$used_bytes" --argjson count "$obj_count" \
+                '{timestamp: $ts, bytes: $bytes, count: $count}' > "$cache_file.tmp"
+              mv -f "$cache_file.tmp" "$cache_file"
+              emit_slice_usage ${sliceJson} "$used_bytes" "$obj_count" "$now"
             else
               echo "Failed measuring remote storage slice '${t.slice}' (${t.endpoint})" >&2
+              if [ -s "$cache_file" ]; then
+                used_bytes="$(jq -r '.bytes // 0' "$cache_file")"
+                obj_count="$(jq -r '.count // 0' "$cache_file")"
+                emit_slice_usage ${sliceJson} "$used_bytes" "$obj_count" "$last_ts"
+              fi
               had_error=1
             fi
           '')
@@ -379,7 +430,7 @@
           ];
 
           tmpfiles.rules = lib.mkIf (monEnabled && enabledVolumes != {}) [
-            "C+ ${textfileDir}/volumes.prom 0644 root root - ${volumesPromFile}"
+            "L+ ${textfileDir}/volumes.prom - - - - ${volumesPromFile}"
           ];
         };
 
@@ -398,6 +449,8 @@
           requires = ["rclone-config.service"];
           serviceConfig = {
             Type = "oneshot";
+            RuntimeDirectory = "nixconf-storage-budgets";
+            RuntimeDirectoryPreserve = "yes";
             ExecStart = lib.getExe budgetMeasureScript;
           };
         };

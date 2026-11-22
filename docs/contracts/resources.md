@@ -31,6 +31,7 @@ flowchart LR
     urn__nixconf__ast__module__grafana["nixosModule/grafana"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__ntfy["nixosModule/ntfy"]:::defaultNode
+    urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
     urn__nixconf__ast__module__ssh["nixosModule/ssh"]:::defaultNode
@@ -175,6 +176,7 @@ flowchart LR
     urn__nixconf__ast__module__caddy -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__cgroups -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_disk
     urn__nixconf__ast__module__cgroups -.->|reads| urn__nixconf__ast__option__resources_oom
@@ -191,6 +193,7 @@ flowchart LR
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__copyparty -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__copyparty -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__docker -.->|flowsTo| urn__nixconf__ast__module__alloy
@@ -209,12 +212,19 @@ flowchart LR
     urn__nixconf__ast__module__ntfy -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__ntfy -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__snapshot -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__snapshot -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__ssh -.->|flowsTo| urn__nixconf__ast__module__cgroups
@@ -227,6 +237,7 @@ flowchart LR
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__rclone
     urn__nixconf__ast__module__uchiyomi -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__caddy
@@ -266,6 +277,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__grafana
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ntfy
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__snapshot
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
@@ -278,6 +290,7 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__cgroups
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__docker
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
@@ -513,9 +526,11 @@ flowchart LR
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__implementation__lw -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
@@ -549,6 +564,7 @@ flowchart LR
     click urn__nixconf__ast__module__grafana href "../modules/grafana.md" "grafana"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__ntfy href "../modules/ntfy.md" "ntfy"
+    click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
     click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
     click urn__nixconf__ast__module__ssh href "../modules/ssh.md" "ssh"
@@ -839,20 +855,20 @@ config = {
 128: power.enable = lib.mkDefault (cfg.profile == "workstation");
 129: disk = {
 ...
-253: lib.nameValuePair "systemd/system/${uName}.d/50-resources.conf" {
-254: text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
-255: })
-256: otherUnits;
+246: lib.nameValuePair "${uName}.d/50-resources.conf" {
+247: text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
+248: })
+249: otherUnits;
 ...
 274: resources = {
 275: backend = "metrics";
 276: interval = "1m";
 277: rules = [
 ...
-359: dashboards.resources = {
-360: title = "Resources & Allocation";
-361: folder = "02 · Infrastructure";
-362: json = helpers.mkDashboard self.lib.monitoring.dashboard;
+389: dashboards.resources = {
+390: title = "Resources & Allocation";
+391: folder = "02 · Infrastructure";
+392: json = helpers.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -868,6 +884,21 @@ config = {
 config = {
   resources.units = ...;
 };
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../implementations/rclone.md">rclone</a></code></summary>
+
+**Configures options**: `resources.units`
+
+```nix
+# modules/implementations/rclone/default.nix
+...
+79: resources.units = lib.mkIf (config.resources.enable or false) (
+...
 ```
 
 </details>

@@ -285,6 +285,7 @@ flowchart LR
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -762,6 +763,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
@@ -23772,6 +23774,45 @@ config = {
         record = null;
       }
       {
+        alert = "LocalVolumeSpaceWarning";
+        annotations = {
+          description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}, {{ $labels.mode }}) has less than 20% free space remaining on {{ $labels.host }}.";
+          summary = "Local volume {{ $labels.volume }} low on free space on {{ $labels.host }}";
+        };
+        expr = "(((node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!=\"reserved-unmounted\"} * 0 + 1)) < 20";
+        for = "10m";
+        labels = {
+          severity = "warning";
+        };
+        record = null;
+      }
+      {
+        alert = "LocalVolumeSpaceCritical";
+        annotations = {
+          description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}, {{ $labels.mode }}) has less than 10% free space remaining on {{ $labels.host }}.";
+          summary = "Local volume {{ $labels.volume }} critically full on {{ $labels.host }}";
+        };
+        expr = "(((node_filesystem_avail_bytes / clamp_min(node_filesystem_size_bytes, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!=\"reserved-unmounted\"} * 0 + 1)) < 10";
+        for = "5m";
+        labels = {
+          severity = "critical";
+        };
+        record = null;
+      }
+      {
+        alert = "LocalVolumeInodesLow";
+        annotations = {
+          description = "Declarative volume {{ $labels.volume }} ({{ $labels.mountpoint }}) has less than 15% free inodes remaining on {{ $labels.host }}.";
+          summary = "Local volume {{ $labels.volume }} low on free inodes on {{ $labels.host }}";
+        };
+        expr = "(((node_filesystem_files_free / clamp_min(node_filesystem_files, 1)) * 100) * on (host, mountpoint) group_left (volume, mode) (nixconf_disk_volume_size_bytes{mountpoint!=\"reserved-unmounted\"} * 0 + 1)) < 15";
+        for = "10m";
+        labels = {
+          severity = "warning";
+        };
+        record = null;
+      }
+      {
         alert = "RemoteStorageBudgetWarning";
         annotations = {
           description = "Storage slice {{ $labels.slice }} exceeded its warning percentage threshold.";
@@ -23990,7 +24031,7 @@ config = {
 260: cadvisor.enable = true;
 261: unix = {
 ...
-362: json = helpers.mkDashboard self.lib.monitoring.dashboard;
+392: json = helpers.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 

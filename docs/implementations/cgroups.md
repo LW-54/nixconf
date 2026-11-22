@@ -332,6 +332,7 @@ flowchart LR
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__rclone -.->|reads| urn__nixconf__ast__option__storage_activeSlices
@@ -340,6 +341,7 @@ flowchart LR
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__rclone -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__grafana
@@ -867,6 +869,7 @@ flowchart LR
     urn__nixconf__onto__implementation__rclone -->|outputs| urn__nixconf__ast__module__rclone
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__rclone -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__rclone ==>|implements| urn__nixconf__onto__contract__storage
     urn__nixconf__onto__implementation__restic -->|outputs| urn__nixconf__ast__module__restic
@@ -1101,7 +1104,7 @@ config = {
 260: cadvisor.enable = true;
 261: unix = {
 ...
-362: json = helpers.mkDashboard self.lib.monitoring.dashboard;
+392: json = helpers.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -1123,20 +1126,20 @@ config = {
 128: power.enable = lib.mkDefault (cfg.profile == "workstation");
 129: disk = {
 ...
-253: lib.nameValuePair "systemd/system/${uName}.d/50-resources.conf" {
-254: text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
-255: })
-256: otherUnits;
+246: lib.nameValuePair "${uName}.d/50-resources.conf" {
+247: text = lib.concatStringsSep "\n" (lib.filter (s: s != "") [unitBlock bodyBlock]);
+248: })
+249: otherUnits;
 ...
 274: resources = {
 275: backend = "metrics";
 276: interval = "1m";
 277: rules = [
 ...
-359: dashboards.resources = {
-360: title = "Resources & Allocation";
-361: folder = "02 · Infrastructure";
-362: json = helpers.mkDashboard self.lib.monitoring.dashboard;
+389: dashboards.resources = {
+390: title = "Resources & Allocation";
+391: folder = "02 · Infrastructure";
+392: json = helpers.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 

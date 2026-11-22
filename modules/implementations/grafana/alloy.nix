@@ -199,9 +199,15 @@
           })
           (mkRelabelRule {
             sourceLabels = ["id"];
-            regex = "/.+\\.slice/([^/]+\\.service)";
+            regex = "/.+\\.slice/([^/]+\\.(?:service|mount))";
             targetLabel = "unit";
             replacement = "$1";
+          })
+          (mkRelabelRule {
+            sourceLabels = ["id"];
+            regex = "/.+\\.slice/libpod-([0-9a-f]{12})[0-9a-f]*\\.scope";
+            targetLabel = "unit";
+            replacement = "podman-$1.scope";
           })
         ]
         ++ lib.concatMap (sName: let
