@@ -342,10 +342,20 @@ in {
               })
             ]
             [
+              (d.mkStorageTreemap {
+                title = "Local Directory WizTree ($host)";
+                description = "Interactive local directory treemap for $host (Category → Directory → Subdirectories). Click any tile to zoom in.";
+                hostSel = ''host="$host"'';
+                windowVar = "$__range";
+                view = "directory";
+                colorMode = "category";
+                w = 12;
+                h = 9;
+              })
               (d.mkTimeseries {
                 title = "Disk I/O Throughput (Read / -Write)";
-                w = 24;
-                h = 7;
+                w = 12;
+                h = 9;
                 unit = "Bps";
                 overrides = [(d.negativeYOverride "/Write/")];
                 targets = [

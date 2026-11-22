@@ -69,10 +69,20 @@
           title = "Rclone Remote Storage & Backup Operation Costs";
           rows = [
             [
+              (d.mkStorageTreemap {
+                title = "Remote Providers & Slices Treemap (Colored by Budget Usage %)";
+                description = "Interactive treemap of remote storage providers (hbox, gdrive, b2) and their slices colored by budget utilization %.";
+                hostSel = ''host=~"$host"'';
+                windowVar = "$__range";
+                view = "remote_provider";
+                colorMode = "usage";
+                w = 12;
+                h = 9;
+              })
               (d.mkStorageTable {
                 title = "Mounted Rclone Filesystems (Usage & Capacity)";
                 w = 12;
-                h = 7;
+                h = 9;
                 selector = ''host=~"$host",fstype="fuse.rclone"'';
                 groupBy = ["host" "mountpoint" "device"];
                 columns = {
@@ -82,10 +92,12 @@
                 };
                 columnOrder = ["host" "mountpoint" "device"];
               })
+            ]
+            [
               (d.mkTable {
                 title = "Remote Storage Budgets by Slice";
-                w = 12;
-                h = 7;
+                w = 11;
+                h = 8;
                 links = [d.links.toStorageAtlas];
                 noValue = "No remote storage budgets configured";
                 sortBy = [
@@ -152,11 +164,9 @@
                   })
                 ];
               })
-            ]
-            [
               (d.mkTable {
                 title = "Backup & Snapshot Operation Costs ($__range)";
-                w = 24;
+                w = 13;
                 h = 8;
                 logs = true;
                 noValue = "No completed backup or snapshot runs in this time range";

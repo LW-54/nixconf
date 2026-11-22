@@ -85,7 +85,7 @@ dashboard :: AttrSet
 - `links`: Click-to-drilldown Grafana data links (`toTaskManager`, `toTimeMachine`, `toHostHardware`, `toService`, `toUnitLogs`, `toCapacityAnalytics`, `toTrendsExplorer`, `toMetricWorkbench`, `toStorageAtlas`).
 - `vars`: Template variable constructors (`host`, `promQuery`, `logsField`, `custom`, `textbox`).
 - `statToggleExpr`, `statBandOverrides`, `systemdOpsParsePipe`: Statistical envelope toggles, overlay styling, and systemd accounting LogsQL parser.
-- `mkStat`, `mkRatioStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkStorageTable`, `mkSystemdUnitsTable`, `mkLogs`, `mkText`, `mkEcharts`: Pre-styled Grafana v39 panel builders.
+- `mkStat`, `mkRatioStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkStorageTable`, `mkSystemdUnitsTable`, `mkLogs`, `mkText`, `mkEcharts`, `mkStorageTreemap`, `mkMemoryHeatmapTreemap`: Pre-styled Grafana v39 panel and interactive ECharts treemap builders.
 - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine with automatic host event annotations (`Reboots`, `NixOS Deployments`, `OOM Kills`, `Unit Failures`) and top navigation bar.
 - `mkFleetOverviewDashboard`, `mkTaskManagerDashboard`, `mkTimeMachineDashboard`, `mkTrendsExplorerDashboard`, `mkMetricWorkbenchDashboard`, `mkStorageAtlasDashboard`, `mkLogsExplorerDashboard`, `mkHostHardwareDashboard`, `mkCapacityAnalyticsDashboard`, `mkServicesCatalogDashboard`, `mkServiceInspectorDashboard`, `mkContainersDashboard`: Core infrastructure, statistical capacity, trend exploration, custom metric workbench, storage treemap atlas, and investigation dashboards.
 ```

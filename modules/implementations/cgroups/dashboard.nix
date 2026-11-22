@@ -141,6 +141,13 @@
                 ];
               })
             ]
+            [
+              (d.mkMemoryHeatmapTreemap {
+                title = "Live Memory Footprint & Cap Pressure Heatmap (Slice → Unit)";
+                w = 24;
+                h = 11;
+              })
+            ]
           ];
         })
         (d.mkSection {
