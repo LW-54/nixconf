@@ -75,6 +75,10 @@
       title = "Open in Metric Workbench";
       url = ''/d/nixconf-metric-workbench?var-host=''${__data.fields.Host}&''${__url_time_range}'';
     };
+    toStorageAtlas = {
+      title = "Open Storage Atlas (Treemap)";
+      url = ''/d/nixconf-storage-atlas?var-host=''${__data.fields.Host}&''${__url_time_range}'';
+    };
   };
 
   mkEventAnnotations = hasHostVar: let

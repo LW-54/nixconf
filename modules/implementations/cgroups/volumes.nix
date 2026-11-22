@@ -267,19 +267,36 @@
 
     resolvedBudgetTargets =
       lib.mapAttrsToList (sName: b: let
-        rcloneTarget =
-          if (config.storage.slices or {}) ? ${sName}
+        hasSlice = (config.storage.slices or {}) ? ${sName};
+        resolved =
+          if hasSlice
           then
-            (self.lib.storage.resolveSlice {
+            self.lib.storage.resolveSlice {
               storageCfg = config.storage;
               sliceName = sName;
               hostName = config.networking.hostName;
-            })
-            .endpoints
-            .rclone
+            }
+          else null;
+        rcloneTarget =
+          if resolved != null
+          then resolved.endpoints.rclone
           else "${sName}:";
+        provider =
+          if resolved != null
+          then
+            resolved.providerName or (
+              if (resolved.kind or "") == "union"
+              then "union"
+              else "unknown"
+            )
+          else "unknown";
+        scope =
+          if resolved != null
+          then resolved.scope or "shared"
+          else "shared";
       in {
         slice = sName;
+        inherit provider scope;
         endpoint = rcloneTarget;
         limitBytes = toBytes b.maxSize;
         warnPct = b.warnPercent;
@@ -297,46 +314,42 @@
         cache_dir="''${RUNTIME_DIRECTORY:-/run/nixconf-storage-budgets}"
         mkdir -p "$textfile_dir" "$cache_dir"
         tmp_file="$(mktemp "$textfile_dir/.storage_budgets.XXXXXX")"
-        trap 'rm -f "$tmp_file"' EXIT
+        work_dir="$(mktemp -d)"
+        trap 'rm -rf "$tmp_file" "$work_dir"' EXIT
         now="$(date +%s)"
 
-        cat > "$tmp_file" <<'EOF'
-        # HELP nixconf_storage_budget_used_bytes Measured size in bytes of remote storage slice.
-        # TYPE nixconf_storage_budget_used_bytes gauge
-        # HELP nixconf_storage_budget_objects Measured object count of remote storage slice.
-        # TYPE nixconf_storage_budget_objects gauge
-        # HELP nixconf_storage_budget_limit_bytes Configured budget limit in bytes for remote storage slice.
-        # TYPE nixconf_storage_budget_limit_bytes gauge
-        # HELP nixconf_storage_budget_warn_percent Configured warning percentage threshold for remote storage slice.
-        # TYPE nixconf_storage_budget_warn_percent gauge
-        # HELP nixconf_storage_budget_last_measured_timestamp_seconds Unix timestamp of last successful remote storage slice measurement.
-        # TYPE nixconf_storage_budget_last_measured_timestamp_seconds gauge
-        EOF
+        used_buf="$work_dir/used"
+        objs_buf="$work_dir/objs"
+        limit_buf="$work_dir/limit"
+        warn_buf="$work_dir/warn"
+        ts_buf="$work_dir/ts"
+        : > "$used_buf"
+        : > "$objs_buf"
+        : > "$limit_buf"
+        : > "$warn_buf"
+        : > "$ts_buf"
 
         emit_slice_usage() {
-          local slice_json="$1"
+          local labels="$1"
           local used="$2"
           local objs="$3"
           local ts="$4"
-          {
-            printf 'nixconf_storage_budget_used_bytes{slice=%s} %s\n' "$slice_json" "$used"
-            printf 'nixconf_storage_budget_objects{slice=%s} %s\n' "$slice_json" "$objs"
-            printf 'nixconf_storage_budget_last_measured_timestamp_seconds{slice=%s} %s\n' "$slice_json" "$ts"
-          } >> "$tmp_file"
+          printf 'nixconf_storage_budget_used_bytes{%s} %s\n' "$labels" "$used" >> "$used_buf"
+          printf 'nixconf_storage_budget_objects{%s} %s\n' "$labels" "$objs" >> "$objs_buf"
+          printf 'nixconf_storage_budget_last_measured_timestamp_seconds{%s} %s\n' "$labels" "$ts" >> "$ts_buf"
         }
 
         had_error=0
         ${lib.concatMapStrings (t: let
-            sliceJson = lib.escapeShellArg (builtins.toJSON t.slice);
+            labelsStr = ''slice=${builtins.toJSON t.slice},provider=${builtins.toJSON t.provider},scope=${builtins.toJSON t.scope}'';
+            labelsArg = lib.escapeShellArg labelsStr;
             minAge =
               if t.intervalSec > 600
               then t.intervalSec - 300
               else 0;
           in ''
-            {
-              printf 'nixconf_storage_budget_limit_bytes{slice=%s} %s\n' ${sliceJson} ${lib.escapeShellArg (toString t.limitBytes)}
-              printf 'nixconf_storage_budget_warn_percent{slice=%s} %s\n' ${sliceJson} ${lib.escapeShellArg (toString t.warnPct)}
-            } >> "$tmp_file"
+            printf 'nixconf_storage_budget_limit_bytes{%s} %s\n' ${labelsArg} ${lib.escapeShellArg (toString t.limitBytes)} >> "$limit_buf"
+            printf 'nixconf_storage_budget_warn_percent{%s} %s\n' ${labelsArg} ${lib.escapeShellArg (toString t.warnPct)} >> "$warn_buf"
             cache_file="$cache_dir/"${lib.escapeShellArg "${t.slice}.json"}
             use_cache=0
             last_ts=0
@@ -349,28 +362,57 @@
             if [ "$use_cache" -eq 1 ]; then
               used_bytes="$(jq -r '.bytes // 0' "$cache_file")"
               obj_count="$(jq -r '.count // 0' "$cache_file")"
-              emit_slice_usage ${sliceJson} "$used_bytes" "$obj_count" "$last_ts"
+              emit_slice_usage ${labelsArg} "$used_bytes" "$obj_count" "$last_ts"
             elif json_out="$(rclone --config "$RCLONE_CONFIG" --contimeout=10s --timeout=120s size --json ${lib.escapeShellArg t.endpoint})"; then
               used_bytes="$(printf '%s' "$json_out" | jq -r '.bytes // 0')"
               obj_count="$(printf '%s' "$json_out" | jq -r '.count // 0')"
               jq -n --argjson ts "$now" --argjson bytes "$used_bytes" --argjson count "$obj_count" \
                 '{timestamp: $ts, bytes: $bytes, count: $count}' > "$cache_file.tmp"
               mv -f "$cache_file.tmp" "$cache_file"
-              emit_slice_usage ${sliceJson} "$used_bytes" "$obj_count" "$now"
+              emit_slice_usage ${labelsArg} "$used_bytes" "$obj_count" "$now"
             else
               echo "Failed measuring remote storage slice '${t.slice}' (${t.endpoint})" >&2
               if [ -s "$cache_file" ]; then
                 used_bytes="$(jq -r '.bytes // 0' "$cache_file")"
                 obj_count="$(jq -r '.count // 0' "$cache_file")"
-                emit_slice_usage ${sliceJson} "$used_bytes" "$obj_count" "$last_ts"
+                emit_slice_usage ${labelsArg} "$used_bytes" "$obj_count" "$last_ts"
               fi
               had_error=1
             fi
           '')
           resolvedBudgetTargets}
 
+        {
+          if [ -s "$used_buf" ]; then
+            printf '# HELP nixconf_storage_budget_used_bytes Measured size in bytes of remote storage slice.\n'
+            printf '# TYPE nixconf_storage_budget_used_bytes gauge\n'
+            cat "$used_buf"
+          fi
+          if [ -s "$objs_buf" ]; then
+            printf '# HELP nixconf_storage_budget_objects Measured object count of remote storage slice.\n'
+            printf '# TYPE nixconf_storage_budget_objects gauge\n'
+            cat "$objs_buf"
+          fi
+          if [ -s "$limit_buf" ]; then
+            printf '# HELP nixconf_storage_budget_limit_bytes Configured budget limit in bytes for remote storage slice.\n'
+            printf '# TYPE nixconf_storage_budget_limit_bytes gauge\n'
+            cat "$limit_buf"
+          fi
+          if [ -s "$warn_buf" ]; then
+            printf '# HELP nixconf_storage_budget_warn_percent Configured warning percentage threshold for remote storage slice.\n'
+            printf '# TYPE nixconf_storage_budget_warn_percent gauge\n'
+            cat "$warn_buf"
+          fi
+          if [ -s "$ts_buf" ]; then
+            printf '# HELP nixconf_storage_budget_last_measured_timestamp_seconds Unix timestamp of last successful remote storage slice measurement.\n'
+            printf '# TYPE nixconf_storage_budget_last_measured_timestamp_seconds gauge\n'
+            cat "$ts_buf"
+          fi
+        } > "$tmp_file"
+
         chmod 0644 "$tmp_file"
         mv -f "$tmp_file" "$textfile_dir/storage_budgets.prom"
+        rm -rf "$work_dir"
         trap - EXIT
         exit "$had_error"
       '';

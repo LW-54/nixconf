@@ -4,6 +4,7 @@
     hostMonitoringModule = {name}: {
       config,
       lib,
+      pkgs,
       self,
       ...
     }: let
@@ -19,6 +20,143 @@
         if rawRev == null || rawRev == ""
         then "unknown"
         else toString rawRev;
+
+      storageScanScript = pkgs.writeShellApplication {
+        name = "nixconf-storage-tree-scan";
+        runtimeInputs = [pkgs.coreutils pkgs.jq pkgs.util-linux];
+        meta.description = "Scan local service state, cache, home, and system directory sizes for the Storage Atlas treemap.";
+        text = ''
+          textfile_dir=${lib.escapeShellArg textfileDir}
+          mkdir -p "$textfile_dir"
+          tmp_file="$(mktemp "$textfile_dir/.storage_tree.XXXXXX")"
+          rows_file="$(mktemp)"
+          trap 'rm -f "$tmp_file" "$rows_file"' EXIT
+
+          # Minimum size threshold in bytes (1 MiB) to keep metric cardinality bounded.
+          min_bytes=1048576
+
+          emit_row() {
+            local bytes="$1"
+            local cat="$2"
+            local svc="$3"
+            local path="$4"
+            local parent="$5"
+            local depth="$6"
+            if [ "$bytes" -lt "$min_bytes" ]; then
+              return 0
+            fi
+            printf '%s\t%s\t%s\t%s\t%s\t%s\n' "$bytes" "$cat" "$svc" "$path" "$parent" "$depth" >> "$rows_file"
+          }
+
+          scan_root_children() {
+            local base_dir="$1"
+            local cat="$2"
+            local svc_prefix="$3"
+            local child_min="$4"
+            [ -d "$base_dir" ] || return 0
+            for d1 in "$base_dir"/*; do
+              [ -d "$d1" ] || continue
+              [ -L "$d1" ] && continue
+              local name bytes
+              name="$(basename "$d1")"
+              bytes="$(du -B1 -s -x "$d1" 2>/dev/null | cut -f1 || echo 0)"
+              [ -n "$bytes" ] || bytes=0
+              if [ "$bytes" -lt "$min_bytes" ]; then
+                continue
+              fi
+              local svc="''${svc_prefix}''${name}"
+              emit_row "$bytes" "$cat" "$svc" "$d1" "$base_dir" "1"
+              # Scan depth-2 subdirectories for sufficiently large directories.
+              if [ "$bytes" -ge "$child_min" ]; then
+                for d2 in "$d1"/*; do
+                  [ -d "$d2" ] || continue
+                  [ -L "$d2" ] && continue
+                  local b2
+                  b2="$(du -B1 -s -x "$d2" 2>/dev/null | cut -f1 || echo 0)"
+                  [ -n "$b2" ] || b2=0
+                  if [ "$b2" -ge "$child_min" ]; then
+                    emit_row "$b2" "$cat" "$svc" "$d2" "$d1" "2"
+                  fi
+                done
+              fi
+            done
+          }
+
+          scan_single() {
+            local target="$1"
+            local cat="$2"
+            local svc="$3"
+            local parent="$4"
+            [ -e "$target" ] || return 0
+            local bytes
+            bytes="$(du -B1 -s -x "$target" 2>/dev/null | cut -f1 || echo 0)"
+            [ -n "$bytes" ] || bytes=0
+            emit_row "$bytes" "$cat" "$svc" "$target" "$parent" "1"
+          }
+
+          scan_root_children "/var/lib" "service_state" "" 5242880
+          scan_root_children "/var/cache" "service_cache" "" 5242880
+          scan_root_children "/home" "home" "home:" 10485760
+
+          if [ -d "/var/log" ]; then
+            log_bytes="$(du -B1 -s -x /var/log 2>/dev/null | cut -f1 || echo 0)"
+            emit_row "''${log_bytes:-0}" "logs" "logs" "/var/log" "/var" "1"
+            for ld in /var/log/*; do
+              [ -d "$ld" ] || continue
+              [ -L "$ld" ] && continue
+              lb="$(du -B1 -s -x "$ld" 2>/dev/null | cut -f1 || echo 0)"
+              [ -n "$lb" ] || lb=0
+              if [ "$lb" -ge 5242880 ]; then
+                emit_row "$lb" "logs" "logs" "$ld" "/var/log" "2"
+              fi
+            done
+          fi
+
+          scan_single "/nix/store" "system" "nix-store" "/nix"
+          scan_single "/boot" "system" "boot" "/"
+          scan_single "/tmp" "system" "tmp" "/"
+          scan_single "/root" "system" "root" "/"
+
+          # Capture unmounted reserved volume files (e.g. emergency-headroom.img) without double-counting mounted loopbacks.
+          if [ -d "/persist/.volumes" ]; then
+            for img in /persist/.volumes/*.img; do
+              [ -f "$img" ] || continue
+              if losetup -j "$img" 2>/dev/null | grep -q .; then
+                continue
+              fi
+              img_bytes="$(du -B1 -s "$img" 2>/dev/null | cut -f1 || echo 0)"
+              img_name="$(basename "$img" .img)"
+              emit_row "''${img_bytes:-0}" "reserved" "$img_name" "$img" "/persist/.volumes" "1"
+            done
+          fi
+
+          now="$(date +%s)"
+          {
+            printf '# HELP nixconf_storage_dir_bytes Measured local directory size in bytes for Storage Atlas treemap.\n'
+            printf '# TYPE nixconf_storage_dir_bytes gauge\n'
+            if [ -s "$rows_file" ]; then
+              # Cap at top 140 paths by size to keep time-series cardinality small and predictable.
+              sort -t $'\t' -k1,1nr "$rows_file" | head -n 140 | while IFS=$'\t' read -r b cat svc path parent depth; do
+                printf 'nixconf_storage_dir_bytes{category=%s,service=%s,path=%s,parent=%s,depth=%s} %s\n' \
+                  "$(jq -Rn --arg v "$cat" '$v')" \
+                  "$(jq -Rn --arg v "$svc" '$v')" \
+                  "$(jq -Rn --arg v "$path" '$v')" \
+                  "$(jq -Rn --arg v "$parent" '$v')" \
+                  "$(jq -Rn --arg v "$depth" '$v')" \
+                  "$b"
+              done
+            fi
+            printf '# HELP nixconf_storage_scan_timestamp_seconds Unix epoch timestamp of the latest local storage directory scan.\n'
+            printf '# TYPE nixconf_storage_scan_timestamp_seconds gauge\n'
+            printf 'nixconf_storage_scan_timestamp_seconds %s\n' "$now"
+          } > "$tmp_file"
+
+          chmod 0644 "$tmp_file"
+          mv -f "$tmp_file" "$textfile_dir/storage_tree.prom"
+          rm -f "$rows_file"
+          trap - EXIT
+        '';
+      };
     in {
       _file = "modules/hosts/${name}.nix, via option host.${name}.configuration";
       key = "primitives-host-monitoring-${name}";
@@ -172,6 +310,11 @@
               folder = "02 · Infrastructure";
               json = d.mkCapacityAnalyticsDashboard {};
             };
+            storage-atlas = {
+              title = "Storage Atlas (Treemap)";
+              folder = "02 · Infrastructure";
+              json = d.mkStorageAtlasDashboard {};
+            };
             services-catalog = lib.mkIf (config.monitoring.services != {}) {
               title = "Services Catalog";
               folder = "03 · Services";
@@ -187,6 +330,36 @@
               folder = "03 · Services";
               json = d.mkContainersDashboard {};
             };
+          };
+        };
+
+        systemd.services.nixconf-storage-scan = {
+          description = "Periodic local directory and service storage scan for Storage Atlas";
+          after = ["local-fs.target" "systemd-tmpfiles-setup.service"];
+          serviceConfig = {
+            Type = "oneshot";
+            Nice = 19;
+            IOSchedulingClass = "idle";
+            CPUSchedulingPolicy = "idle";
+            ExecStart = lib.getExe storageScanScript;
+          };
+        };
+
+        systemd.timers.nixconf-storage-scan = {
+          description = "Hourly local storage tree scan timer";
+          wantedBy = ["timers.target"];
+          timerConfig = {
+            OnBootSec = "1m";
+            OnUnitActiveSec = "1h";
+            RandomizedDelaySec = "2m";
+            Persistent = true;
+          };
+        };
+
+        resources.units = lib.mkIf (config.resources.enable or false) {
+          "nixconf-storage-scan.service" = {
+            tier = "background";
+            deferOnBattery = true;
           };
         };
 

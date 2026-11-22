@@ -193,12 +193,14 @@ flowchart LR
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__astrolabe_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_oom
     urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_profile
@@ -352,11 +354,13 @@ flowchart LR
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_enable
     urn__nixconf__ast__module__uchiyomi -.->|writes| urn__nixconf__ast__option__storage_mounts
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_logs
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__x240_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_disk
     urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_profile

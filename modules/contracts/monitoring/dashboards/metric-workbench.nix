@@ -5,9 +5,9 @@
 }: let
   d = config.internal.monitoring.dashboard;
 
-  # Deduplicated local filesystems (excludes impermanence btrfs bind-mount duplicates while keeping / or /persist and loopback volumes).
-  fsSizeSel = extra: ''(node_filesystem_size_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"${extra}} or node_filesystem_size_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"${extra}})'';
-  fsAvailSel = extra: ''(node_filesystem_avail_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*"${extra}} or node_filesystem_avail_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"${extra}})'';
+  # Deduplicated local filesystems (excludes impermanence btrfs bind-mount duplicates and podman shm mounts while keeping / or /persist and loopback volumes).
+  fsSizeSel = extra: ''(node_filesystem_size_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*"${extra}} or node_filesystem_size_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"${extra}})'';
+  fsAvailSel = extra: ''(node_filesystem_avail_bytes{host=~"$host",fstype!~"btrfs|ramfs|squashfs|overlay|fuse\\..*",mountpoint!~"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*"${extra}} or node_filesystem_avail_bytes{host=~"$host",fstype="btrfs",mountpoint=~"/|/persist"${extra}})'';
 
   tag = stype: metric: expr: ''label_set(${expr}, "stype", "${stype}", "metric", "${metric}")'';
 

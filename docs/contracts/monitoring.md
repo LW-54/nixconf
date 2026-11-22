@@ -183,6 +183,7 @@ flowchart LR
     urn__nixconf__ast__module__alloy -.->|reads| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__alloy -.->|reads| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__alloy -.->|reads| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__monitoring_exporters
@@ -349,6 +350,7 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
@@ -929,7 +931,7 @@ flowchart LR
 
 | Symbol | Type | Description | Docs |
 | :--- | :--- | :--- | :--- |
-| [`dashboard`](../lib/monitoring.md#dashboard) | `dashboard :: AttrSet  # Values - `ds`: Provisioned metrics and logs datasource descriptor references (`metrics`, `prometheus`, `logs`). - `promTarget`, `logsTarget`: Construct metrics (`PromQL`/`MetricsQL`) or logs (`LogsQL`) target objects (`expr`, `legend`, `queryType`). - `thresholds`, `mappings`: Standard threshold presets and Grafana value mappings. - `links`: Click-to-drilldown Grafana data links (`toTaskManager`, `toTimeMachine`, `toHostHardware`, `toService`, `toUnitLogs`, `toCapacityAnalytics`, `toTrendsExplorer`, `toMetricWorkbench`). - `vars`: Template variable constructors (`host`, `promQuery`, `logsField`, `custom`, `textbox`). - `statToggleExpr`, `statBandOverrides`, `systemdOpsParsePipe`: Statistical envelope toggles, overlay styling, and systemd accounting LogsQL parser. - `mkStat`, `mkRatioStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkStorageTable`, `mkSystemdUnitsTable`, `mkLogs`, `mkText`: Pre-styled Grafana v39 panel builders. - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine with automatic host event annotations (`Reboots`, `NixOS Deployments`, `OOM Kills`, `Unit Failures`) and top navigation bar. - `mkFleetOverviewDashboard`, `mkTaskManagerDashboard`, `mkTimeMachineDashboard`, `mkTrendsExplorerDashboard`, `mkMetricWorkbenchDashboard`, `mkLogsExplorerDashboard`, `mkHostHardwareDashboard`, `mkCapacityAnalyticsDashboard`, `mkServicesCatalogDashboard`, `mkServiceInspectorDashboard`, `mkContainersDashboard`: Core infrastructure, statistical capacity, trend exploration, custom metric workbench, and investigation dashboards.` | Opinionated Grafana schema v39 dashboard, layout, panel, variable, annotation, and threshold builders shared across monitoring consumers. | [More →](../lib/monitoring.md#dashboard) |
+| [`dashboard`](../lib/monitoring.md#dashboard) | `dashboard :: AttrSet  # Values - `ds`: Provisioned metrics and logs datasource descriptor references (`metrics`, `prometheus`, `logs`). - `promTarget`, `logsTarget`: Construct metrics (`PromQL`/`MetricsQL`) or logs (`LogsQL`) target objects (`expr`, `legend`, `queryType`). - `thresholds`, `mappings`: Standard threshold presets and Grafana value mappings. - `links`: Click-to-drilldown Grafana data links (`toTaskManager`, `toTimeMachine`, `toHostHardware`, `toService`, `toUnitLogs`, `toCapacityAnalytics`, `toTrendsExplorer`, `toMetricWorkbench`, `toStorageAtlas`). - `vars`: Template variable constructors (`host`, `promQuery`, `logsField`, `custom`, `textbox`). - `statToggleExpr`, `statBandOverrides`, `systemdOpsParsePipe`: Statistical envelope toggles, overlay styling, and systemd accounting LogsQL parser. - `mkStat`, `mkRatioStat`, `mkBarGauge`, `mkTimeseries`, `mkTable`, `mkStorageTable`, `mkSystemdUnitsTable`, `mkLogs`, `mkText`, `mkEcharts`: Pre-styled Grafana v39 panel builders. - `mkRow`, `mkSection`, `mkDashboard`: Responsive 24-column grid layout engine with automatic host event annotations (`Reboots`, `NixOS Deployments`, `OOM Kills`, `Unit Failures`) and top navigation bar. - `mkFleetOverviewDashboard`, `mkTaskManagerDashboard`, `mkTimeMachineDashboard`, `mkTrendsExplorerDashboard`, `mkMetricWorkbenchDashboard`, `mkStorageAtlasDashboard`, `mkLogsExplorerDashboard`, `mkHostHardwareDashboard`, `mkCapacityAnalyticsDashboard`, `mkServicesCatalogDashboard`, `mkServiceInspectorDashboard`, `mkContainersDashboard`: Core infrastructure, statistical capacity, trend exploration, custom metric workbench, storage treemap atlas, and investigation dashboards.` | Opinionated Grafana schema v39 dashboard, layout, panel, variable, annotation, and threshold builders shared across monitoring consumers. | [More →](../lib/monitoring.md#dashboard) |
 | [`mkConfig`](../lib/monitoring.md#mkConfig) | `monitoring.mkConfig :: AttrSet -> AttrSet` | Auto-derived configuration binding helper for the 'monitoring' contract. | [More →](../lib/monitoring.md#mkConfig) |
 | [`mkOption`](../lib/monitoring.md#mkOption) | `monitoring.mkOption :: AttrSet -> AttrSet` | Auto-derived option constructor for the 'monitoring' contract. | [More →](../lib/monitoring.md#mkOption) |
 
@@ -1154,6 +1156,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -2328,6 +2340,16 @@ config = {
           url = "/d/nixconf-capacity-analytics";
         }
         {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -3492,6 +3514,16 @@ config = {
           tooltip = "Flexible custom-query workbench to compare any stats, metrics, and subjects on one graph (editable)";
           type = "link";
           url = "/d/nixconf-metric-workbench";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -5962,7 +5994,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})))";
+              expr = "max by (host, mountpoint) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -5974,7 +6006,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
+              expr = "max by (host, mountpoint) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -5986,7 +6018,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint) ((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), 1)) * 100)";
+              expr = "max by (host, mountpoint) ((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), 1)) * 100)";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -5998,7 +6030,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:])) * 86400";
+              expr = "max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:])) * 86400";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -6010,7 +6042,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max by (host, mountpoint) (clamp_min((0.90 * (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})) - ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})), 0)) / (max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:]) * 86400) > 1048576)";
+              expr = "max by (host, mountpoint) (clamp_min((0.90 * (node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})) - ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})), 0)) / (max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:]) * 86400) > 1048576)";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -6578,6 +6610,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -7322,6 +7364,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -9569,6 +9621,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -13131,6 +13193,16 @@ config = {
           url = "/d/nixconf-capacity-analytics";
         }
         {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -14868,6 +14940,16 @@ config = {
           url = "/d/nixconf-capacity-analytics";
         }
         {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -15752,6 +15834,16 @@ config = {
           url = "/d/nixconf-capacity-analytics";
         }
         {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
+        }
+        {
           icon = "apps";
           includeVars = true;
           keepTime = true;
@@ -16067,7 +16159,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) and on() label_match(label_set(vector(1), \"stat\", \"current\"), \"stat\", \"$stats\")";
+              expr = "(label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) and on() label_match(label_set(vector(1), \"stat\", \"current\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Current";
@@ -16079,7 +16171,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(avg_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"avg\"), \"stat\", \"$stats\")";
+              expr = "(avg_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"avg\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling Avg ($rolling)";
@@ -16091,7 +16183,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(quantile_over_time(0.50, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"p50\"), \"stat\", \"$stats\")";
+              expr = "(quantile_over_time(0.50, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"p50\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling P50 ($rolling)";
@@ -16103,7 +16195,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(quantile_over_time(0.95, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"p95\"), \"stat\", \"$stats\")";
+              expr = "(quantile_over_time(0.95, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"p95\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling P95 ($rolling)";
@@ -16115,7 +16207,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(quantile_over_time(0.99, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"p99\"), \"stat\", \"$stats\")";
+              expr = "(quantile_over_time(0.99, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"p99\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling P99 ($rolling)";
@@ -16127,7 +16219,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(min_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"min\"), \"stat\", \"$stats\")";
+              expr = "(min_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"min\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling Min ($rolling)";
@@ -16139,7 +16231,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(max_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"max\"), \"stat\", \"$stats\")";
+              expr = "(max_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"max\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling Max ($rolling)";
@@ -16151,7 +16243,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(stddev_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"stddev\"), \"stat\", \"$stats\")";
+              expr = "(stddev_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"stddev\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling StdDev ($rolling)";
@@ -16163,7 +16255,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "WITH (b = label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) (avg_over_time(b[$rolling:]) + stddev_over_time(b[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
+              expr = "WITH (b = label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) (avg_over_time(b[$rolling:]) + stddev_over_time(b[$rolling:])) and on() label_match(label_set(vector(1), \"stat\", \"upper_1sigma\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling +1σ ($rolling)";
@@ -16175,7 +16267,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "WITH (b = label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) (clamp_min(avg_over_time(b[$rolling:]) - stddev_over_time(b[$rolling:]), 0)) and on() label_match(label_set(vector(1), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
+              expr = "WITH (b = label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) (clamp_min(avg_over_time(b[$rolling:]) - stddev_over_time(b[$rolling:]), 0)) and on() label_match(label_set(vector(1), \"stat\", \"lower_1sigma\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Rolling -1σ ($rolling)";
@@ -16187,7 +16279,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(deriv((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:]) * 86400) and on() label_match(label_set(vector(1), \"stat\", \"growth_day\"), \"stat\", \"$stats\")";
+              expr = "(deriv((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:]) * 86400) and on() label_match(label_set(vector(1), \"stat\", \"growth_day\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Growth / Day ($rolling)";
@@ -16199,7 +16291,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) offset $compare) and on() label_match(label_set(vector(1), \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
+              expr = "((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) offset $compare) and on() label_match(label_set(vector(1), \"stat\", \"prev_cycle\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Prev Cycle (-$compare)";
@@ -16223,7 +16315,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "(label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:slice_memory_max_bytes{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:unit_memory_max_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf_resource_slice_cpu_quota_cores{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy(nixconf_resource_unit_cpu_quota_cores{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) and on() label_match(label_set(vector(1), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
+              expr = "(label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:slice_memory_max_bytes{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:unit_memory_max_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf_resource_slice_cpu_quota_cores{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy(nixconf_resource_unit_cpu_quota_cores{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")) and on() label_match(label_set(vector(1), \"stat\", \"alloc_max\"), \"stat\", \"$stats\")";
               format = "time_series";
               instant = false;
               legendFormat = "{{subject}} · {{metric}} · Alloc Max";
@@ -16430,7 +16522,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")";
+              expr = "label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16442,7 +16534,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "min_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "min_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16454,7 +16546,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "avg_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "avg_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16466,7 +16558,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "quantile_over_time(0.50, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "quantile_over_time(0.50, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16478,7 +16570,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "quantile_over_time(0.95, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "quantile_over_time(0.95, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16490,7 +16582,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "quantile_over_time(0.99, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "quantile_over_time(0.99, (label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16502,7 +16594,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "max_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "max_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16514,7 +16606,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "stddev_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
+              expr = "stddev_over_time((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:])";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16526,7 +16618,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "deriv((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:]) * 86400";
+              expr = "deriv((label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"} - node_memory_MemAvailable_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(container_memory_working_set_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(sum by (host, subject) (label_copy(namedprocess_namegroup_memory_bytes{host=~\"$host\",memtype=\"resident\",groupname=~\"$subject\"}, \"groupname\", \"subject\")), \"stype\", \"process\", \"metric\", \"memory\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode!=\"idle\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"cpu\") or label_set(label_match(100 - (avg by (host, subject) (rate(label_copy(node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"}, \"host\", \"subject\")[$__rate_interval])) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"slice\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(container_cpu_usage_seconds_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"unit\", \"metric\", \"cpu_pct\") or label_set((sum by (host, subject) (rate(label_copy(namedprocess_namegroup_cpu_seconds_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])) / on(host) group_left count by (host) (node_cpu_seconds_total{host=~\"$host\",mode=\"idle\"})) * 100, \"stype\", \"process\", \"metric\", \"cpu_pct\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_read_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_reads_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_read\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_read_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_read\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_disk_written_bytes_total{host=~\"$host\",device!~\"dm-.*|loop.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice=~\"$subject\"}, \"slice\", \"subject\")[$__rate_interval])), \"stype\", \"slice\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(container_fs_writes_bytes_total{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")[$__rate_interval])), \"stype\", \"unit\", \"metric\", \"io_write\") or label_set(sum by (host, subject) (rate(label_copy(namedprocess_namegroup_write_bytes_total{host=~\"$host\",groupname=~\"$subject\"}, \"groupname\", \"subject\")[$__rate_interval])), \"stype\", \"process\", \"metric\", \"io_write\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\") or label_set(max by (host, subject) (label_copy((((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"})) / clamp_min((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), 1)) * 100, \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_pct\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_cpu_waiting_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_cpu\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_memory_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_mem\") or label_set(label_match(max by (host, subject) (rate(label_copy(node_pressure_io_stalled_seconds_total{host=~\"$host\"}, \"host\", \"subject\")[$__rate_interval]) * 100), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"psi_io\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_receive_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_rx\") or label_set(label_match(sum by (host, subject) (rate(label_copy(node_network_transmit_bytes_total{host=~\"$host\",device!~\"lo|veth.*|docker.*|br-.*|podman.*\"}, \"host\", \"subject\")[$__rate_interval])), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"net_tx\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\"))[$rolling:]) * 86400";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16550,7 +16642,7 @@ config = {
                 type = "prometheus";
                 uid = "prometheus";
               };
-              expr = "label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:slice_memory_max_bytes{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:unit_memory_max_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf_resource_slice_cpu_quota_cores{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy(nixconf_resource_unit_cpu_quota_cores{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")";
+              expr = "label_match(label_match(label_set(label_match(max by (host, subject) (label_copy(node_memory_MemTotal_bytes{host=~\"$host\"}, \"host\", \"subject\")), \"subject\", \"$subject\"), \"stype\", \"host\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:slice_memory_max_bytes{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf:unit_memory_max_bytes{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"memory\") or label_set(max by (host, subject) (label_copy(nixconf_resource_slice_cpu_quota_cores{host=~\"$host\",slice=~\"$subject\"}, \"slice\", \"subject\")), \"stype\", \"slice\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy(nixconf_resource_unit_cpu_quota_cores{host=~\"$host\",unit=~\"$subject\"}, \"unit\", \"subject\")), \"stype\", \"unit\", \"metric\", \"cpu\") or label_set(max by (host, subject) (label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\",mountpoint=~\"$subject\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\",mountpoint=~\"$subject\"}), \"mountpoint\", \"subject\")), \"stype\", \"filesystem\", \"metric\", \"fs_used\"), \"stype\", \"$subject_type\"), \"metric\", \"$metric\")";
               format = "table";
               instant = true;
               legendFormat = "";
@@ -16756,7 +16848,7 @@ config = {
               type = "prometheus";
               uid = "prometheus";
             };
-            definition = "query_result(count by (subject) (label_match(label_set(label_copy(node_uname_info{host=~\"$host\"}, \"host\", \"subject\"), \"stype\", \"host\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice!=\"\"}, \"slice\", \"subject\"), \"stype\", \"slice\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",unit!=\"\"}, \"unit\", \"subject\"), \"stype\", \"unit\") or label_set(label_copy(namedprocess_namegroup_num_procs{host=~\"$host\"}, \"groupname\", \"subject\"), \"stype\", \"process\") or label_set(label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), \"mountpoint\", \"subject\"), \"stype\", \"filesystem\"), \"stype\", \"$subject_type\")))";
+            definition = "query_result(count by (subject) (label_match(label_set(label_copy(node_uname_info{host=~\"$host\"}, \"host\", \"subject\"), \"stype\", \"host\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice!=\"\"}, \"slice\", \"subject\"), \"stype\", \"slice\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",unit!=\"\"}, \"unit\", \"subject\"), \"stype\", \"unit\") or label_set(label_copy(namedprocess_namegroup_num_procs{host=~\"$host\"}, \"groupname\", \"subject\"), \"stype\", \"process\") or label_set(label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), \"mountpoint\", \"subject\"), \"stype\", \"filesystem\"), \"stype\", \"$subject_type\")))";
             hide = 0;
             includeAll = true;
             label = "Subjects";
@@ -16764,7 +16856,7 @@ config = {
             name = "subject";
             query = {
               qryType = 3;
-              query = "query_result(count by (subject) (label_match(label_set(label_copy(node_uname_info{host=~\"$host\"}, \"host\", \"subject\"), \"stype\", \"host\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice!=\"\"}, \"slice\", \"subject\"), \"stype\", \"slice\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",unit!=\"\"}, \"unit\", \"subject\"), \"stype\", \"unit\") or label_set(label_copy(namedprocess_namegroup_num_procs{host=~\"$host\"}, \"groupname\", \"subject\"), \"stype\", \"process\") or label_set(label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), \"mountpoint\", \"subject\"), \"stype\", \"filesystem\"), \"stype\", \"$subject_type\")))";
+              query = "query_result(count by (subject) (label_match(label_set(label_copy(node_uname_info{host=~\"$host\"}, \"host\", \"subject\"), \"stype\", \"host\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",id=~\"/[^/]+\\\\.slice\",slice!=\"\"}, \"slice\", \"subject\"), \"stype\", \"slice\") or label_set(label_copy(container_memory_working_set_bytes{host=~\"$host\",unit!=\"\"}, \"unit\", \"subject\"), \"stype\", \"unit\") or label_set(label_copy(namedprocess_namegroup_num_procs{host=~\"$host\"}, \"groupname\", \"subject\"), \"stype\", \"process\") or label_set(label_copy((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}), \"mountpoint\", \"subject\"), \"stype\", \"filesystem\"), \"stype\", \"$subject_type\")))";
             };
             refresh = 2;
             regex = "/subject=\"([^\"]+)\"/";
@@ -17205,6 +17297,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -18767,6 +18869,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -20846,6 +20958,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -23355,6 +23477,16 @@ config = {
           url = "/d/nixconf-capacity-analytics";
         }
         {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
+        }
+        {
           icon = "doc";
           includeVars = true;
           keepTime = true;
@@ -24298,6 +24430,3178 @@ config = {
     };
     title = "Services Catalog";
   };
+  storage-atlas = {
+    enable = true;
+    folder = "02 · Infrastructure";
+    json = {
+      annotations = {
+        list = [
+          {
+            builtIn = 1;
+            datasource = {
+              type = "grafana";
+              uid = "-- Grafana --";
+            };
+            enable = true;
+            hide = true;
+            iconColor = "rgba(0, 211, 255, 1)";
+            name = "Annotations & Alerts";
+            type = "dashboard";
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(node_boot_time_seconds{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "orange";
+            name = "Reboots";
+            step = "60s";
+            tagKeys = "host";
+            textFormat = "{{host}} booted";
+            titleFormat = "Host Reboot";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(nixconf_deployment_timestamp_seconds{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "blue";
+            name = "NixOS Deployments";
+            step = "60s";
+            tagKeys = "host,rev";
+            textFormat = "{{host}} deployed {{rev}}";
+            titleFormat = "NixOS Deploy";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "increase(container_oom_events_total{host=~\"$host\"}[2m]) > 0";
+            hide = false;
+            iconColor = "red";
+            name = "OOM Kills";
+            step = "60s";
+            tagKeys = "host,unit";
+            textFormat = "OOM in {{unit}} on {{host}}";
+            titleFormat = "OOM Event";
+            useValueForTime = false;
+          }
+          {
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            enable = true;
+            expr = "changes(node_systemd_unit_state{host=~\"$host\",state=\"failed\"}[2m]) > 0 and node_systemd_unit_state{host=~\"$host\",state=\"failed\"} == 1";
+            hide = false;
+            iconColor = "purple";
+            name = "Unit Failures";
+            step = "60s";
+            tagKeys = "host,name";
+            textFormat = "{{name}} failed on {{host}}";
+            titleFormat = "Unit Failed";
+            useValueForTime = false;
+          }
+        ];
+      };
+      description = "Interactive WizTree & stock-market heatmap visualization of storage across hosts, storage providers (local, hbox, gdrive, b2), services, and local directory trees. Click any rectangle to zoom in and use breadcrumbs to navigate back.";
+      editable = false;
+      fiscalYearStartMonth = 0;
+      graphTooltip = 0;
+      links = [
+        {
+          asDropdown = true;
+          icon = "external link";
+          includeVars = true;
+          keepTime = true;
+          tags = [
+            "nixconf"
+          ];
+          targetBlank = false;
+          title = "Dashboards";
+          tooltip = "Switch to another nixconf dashboard";
+          type = "dashboards";
+        }
+        {
+          icon = "home";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Fleet Home";
+          tooltip = "Open Fleet Command Center";
+          type = "link";
+          url = "/d/nixconf-fleet-overview";
+        }
+        {
+          icon = "bolt";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Task Manager";
+          tooltip = "Open per-host process & hardware Task Manager";
+          type = "link";
+          url = "/d/nixconf-task-manager";
+        }
+        {
+          icon = "clock";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Time Machine";
+          tooltip = "Investigate host state at a point in time";
+          type = "link";
+          url = "/d/nixconf-time-machine";
+        }
+        {
+          icon = "graph";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Trends";
+          tooltip = "Explore rolling statistics, cycles, peaks, and toggleable overlays over arbitrary time frames";
+          type = "link";
+          url = "/d/nixconf-trends-explorer";
+        }
+        {
+          icon = "sliders";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Workbench";
+          tooltip = "Flexible custom-query workbench to compare any stats, metrics, and subjects on one graph (editable)";
+          type = "link";
+          url = "/d/nixconf-metric-workbench";
+        }
+        {
+          icon = "dashboard";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Capacity";
+          tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
+          type = "link";
+          url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "apps";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Services";
+          tooltip = "Browse all monitored services and jump to Service Inspector";
+          type = "link";
+          url = "/d/nixconf-services-catalog";
+        }
+        {
+          icon = "doc";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Logs";
+          tooltip = "Search centralized journald logs in VictoriaLogs";
+          type = "link";
+          url = "/d/nixconf-logs-explorer";
+        }
+      ];
+      liveNow = false;
+      panels = [
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 5;
+            x = 0;
+            y = 0;
+          };
+          id = 1;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(max by (host, mountpoint) (node_filesystem_size_bytes{host=~\"$host\",mountpoint=~\"/|/persist\"} - node_filesystem_avail_bytes{host=~\"$host\",mountpoint=~\"/|/persist\"}))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Local Used";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Local /persist & Root Used";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              noValue = "0 B";
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 5;
+            x = 5;
+            y = 0;
+          };
+          id = 2;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(max by (slice) (nixconf_storage_budget_used_bytes{host=~\"$host\"}))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Remote Used";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Remote Storage Used";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              noValue = "—";
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 5;
+            x = 10;
+            y = 0;
+          };
+          id = 3;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(max by (slice) (clamp_min(nixconf_storage_budget_limit_bytes{host=~\"$host\"} - nixconf_storage_budget_used_bytes{host=~\"$host\"}, 0)))";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Free Budget";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Remote Budget Headroom";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              noValue = "Scanning…";
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 5;
+            x = 15;
+            y = 0;
+          };
+          id = 4;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max(nixconf_storage_dir_bytes{host=~\"$host\",depth=\"1\"})";
+              format = "time_series";
+              instant = true;
+              legendFormat = "Top Dir";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Largest Local Directory";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          description = "Combined daily local disk growth (bytes/day) over $window.";
+          fieldConfig = {
+            defaults = {
+              color = {
+                mode = "thresholds";
+              };
+              decimals = 1;
+              mappings = [ ];
+              thresholds = {
+                mode = "absolute";
+                steps = [
+                  {
+                    color = "blue";
+                    value = null;
+                  }
+                ];
+              };
+              unit = "bytes";
+            };
+            overrides = [ ];
+          };
+          gridPos = {
+            h = 4;
+            w = 4;
+            x = 20;
+            y = 0;
+          };
+          id = 5;
+          options = {
+            colorMode = "value";
+            graphMode = "none";
+            justifyMode = "auto";
+            orientation = "auto";
+            reduceOptions = {
+              calcs = [
+                "lastNotNull"
+              ];
+              fields = "";
+              values = false;
+            };
+            textMode = "auto";
+          };
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "sum(max by (host, mountpoint) (deriv((node_filesystem_size_bytes{host=~\"$host\",mountpoint=\"/persist\"} - node_filesystem_avail_bytes{host=~\"$host\",mountpoint=\"/persist\"})[$window:])) * 86400)";
+              format = "time_series";
+              instant = true;
+              legendFormat = "B / day";
+              range = false;
+              refId = "A";
+            }
+          ];
+          title = "Net Local Growth ($window)";
+          type = "stat";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          description = "Click any rectangle to zoom into nested providers, services, or subdirectories. Use the breadcrumb bar at the bottom to step back up. Switch Hierarchy and Color Mode in the top bar.";
+          gridPos = {
+            h = 16;
+            w = 24;
+            x = 0;
+            y = 4;
+          };
+          id = 6;
+          options = {
+            editorMode = "code";
+            getOption = ''
+              const viewMode = (context.grafana.replaceVariables('$view') || 'fleet');
+              const colorMode = context.grafana.replaceVariables('$color_mode') || 'growth';
+              const isDark = !context.grafana.theme || context.grafana.theme.isDark !== false;
+              const textColor = isDark ? '#e2e8f0' : '#0f172a';
+              const borderColor = isDark ? '#0f172a' : '#ffffff';
+              const headerBg = isDark ? '#1e293b' : '#e2e8f0';
+              
+              const colVals = (f) => {
+                if (!f || !f.values) return [];
+                if (Array.isArray(f.values)) return f.values;
+                if (typeof f.values.toArray === 'function') return f.values.toArray();
+                if (f.values.buffer) return Array.from(f.values.buffer);
+                const out = [];
+                for (let i = 0; i < (f.values.length || 0); i++) {
+                  out.push(typeof f.values.get === 'function' ? f.values.get(i) : f.values[i]);
+                }
+                return out;
+              };
+              
+              const readTable = (refId) => {
+                const frame = (context.panel.data.series || []).find((s) => s.refId === refId);
+                if (!frame || !frame.fields || frame.fields.length === 0) return [];
+                const cols = frame.fields.map((f) => ({ name: f.name, type: f.type, vals: colVals(f) }));
+                const numCol = cols.filter((c) => c.type === 'number' && c.name !== 'Time').slice(-1)[0];
+                if (!numCol) return [];
+                const rows = [];
+                for (let i = 0; i < numCol.vals.length; i++) {
+                  const v = Number(numCol.vals[i]);
+                  if (!Number.isFinite(v)) continue;
+                  const row = { value: v };
+                  for (const c of cols) {
+                    if (c.type === 'string') row[c.name] = String(c.vals[i] ?? "");
+                  }
+                  rows.push(row);
+                }
+                return rows;
+              };
+              
+              const fmtBytes = (b) => {
+                const sign = b < 0 ? '-' : "";
+                let n = Math.abs(Number(b) || 0);
+                const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+                let u = 0;
+                while (n >= 1024 && u < units.length - 1) { n /= 1024; u++; }
+                return sign + (n >= 100 || u === 0 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2)) + ' ' + units[u];
+              };
+              
+              const fmtSignedGrowth = (g) => {
+                if (!Number.isFinite(g) || Math.abs(g) < 1024) return '0 B/d';
+                return (g > 0 ? '+' : "") + fmtBytes(g) + '/d';
+              };
+              
+              const inferProvider = (row) => {
+                if (row.provider && row.provider !== "" && row.provider !== 'unknown') return row.provider;
+                const s = row.slice || "";
+                if (s.startsWith('hbox')) return 'hbox';
+                if (s.startsWith('gdrive')) return 'gdrive';
+                if (s.startsWith('b2')) return 'b2';
+                if (s === 'uchiyomi' || s === 'copyparty') return 'hbox';
+                return 'remote';
+              };
+              
+              const normalizeService = (raw) => {
+                const s = String(raw || 'other');
+                if (s === 'authelia-main') return 'authelia';
+                if (s === 'ntfy-sh') return 'ntfy';
+                if (s.startsWith('restic-backups-') || s.startsWith('host-snapshot-') || s === 'nixconf-backup' || s.includes('-backup-')) return 'backups';
+                return s;
+              };
+              
+              const fsUsedRows = readTable('A');
+              const fsSizeMap = new Map(readTable('B').map((r) => [r.host + '|' + r.mountpoint, r.value]));
+              const fsGrowthMap = new Map(readTable('C').map((r) => [r.host + '|' + r.mountpoint, r.value]));
+              
+              const remUsedRows = readTable('D');
+              const remLimitMap = new Map(readTable('E').map((r) => [r.host + '|' + inferProvider(r) + '|' + r.slice, r.value]));
+              const remGrowthMap = new Map(readTable('F').map((r) => [r.host + '|' + inferProvider(r) + '|' + r.slice, r.value]));
+              
+              const dirRows = readTable('G');
+              const dirGrowthMap = new Map(readTable('H').map((r) => [r.host + '|' + r.path, r.value]));
+              
+              // Palette for categorical WizTree mode
+              const catColors = {
+                local: '#2563eb',
+                hbox: '#7c3aed',
+                gdrive: '#059669',
+                b2: '#d97706',
+                remote: '#6366f1',
+                service_state: '#0891b2',
+                service_cache: '#ea580c',
+                system: '#4f46e5',
+                home: '#db2777',
+                logs: '#0d9488',
+                reserved: '#64748b',
+                backups: '#8b5cf6',
+                uchiyomi: '#e11d48',
+                victoriametrics: '#0284c7',
+                victorialogs: '#0369a1',
+                containers: '#2563eb',
+                grafana: '#f59e0b',
+                'nix-store': '#4f46e5',
+                copyparty: '#10b981',
+                alloy: '#14b8a6',
+              };
+              const fallbackPalette = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#0891b2', '#db2777', '#4f46e5', '#ea580c', '#0d9488', '#6366f1'];
+              const hashColor = (key) => {
+                if (catColors[key]) return catColors[key];
+                let h = 0;
+                for (let i = 0; i < key.length; i++) h = ((h << 5) - h + key.charCodeAt(i)) | 0;
+                return fallbackPalette[Math.abs(h) % fallbackPalette.length];
+              };
+              
+              const pickColor = (meta, groupKey) => {
+                if (colorMode === 'growth') {
+                  const g = meta.growthDay || 0;
+                  if (g < -10 * 1048576) return '#15803d';
+                  if (g < -1048576) return '#166534';
+                  if (g <= 1048576) return isDark ? '#334155' : '#64748b';
+                  if (g <= 25 * 1048576) return '#a16207';
+                  if (g <= 100 * 1048576) return '#c2410c';
+                  if (g <= 500 * 1048576) return '#dc2626';
+                  return '#991b1b';
+                }
+                if (colorMode === 'usage') {
+                  if (!Number.isFinite(meta.usagePct)) return isDark ? '#334155' : '#64748b';
+                  if (meta.usagePct >= 90) return '#b91c1c';
+                  if (meta.usagePct >= 80) return '#dc2626';
+                  if (meta.usagePct >= 65) return '#d97706';
+                  if (meta.usagePct >= 45) return '#0369a1';
+                  return '#0f766e';
+                }
+                return hashColor(groupKey || meta.groupKey || 'local');
+              };
+              
+              const mkLeaf = (name, bytes, meta, groupKey) => ({
+                name,
+                value: Math.max(bytes, 1),
+                rawBytes: bytes,
+                meta: { ...meta, groupKey: groupKey || meta.groupKey || name },
+                itemStyle: { color: pickColor(meta, groupKey) },
+              });
+              
+              // Compute per-host loopback ext4 volume sum so /persist isn't double-counted in fleet/provider views.
+              const loopVolSumByHost = new Map();
+              for (const r of fsUsedRows) {
+                if (r.fstype === 'ext4' && (r.mountpoint.startsWith('/var/') || r.mountpoint.startsWith('/persist/'))) {
+                  loopVolSumByHost.set(r.host, (loopVolSumByHost.get(r.host) || 0) + r.value);
+                }
+              }
+              
+              const pushGroup = (map, key, label) => {
+                if (!map.has(key)) map.set(key, { name: label || key, children: [] });
+                return map.get(key);
+              };
+              
+              // Build nested directory tree for a set of nixconf_storage_dir_bytes rows without double-counting parent vs children.
+              const buildDirSubtree = (rows, host) => {
+                const byCat = new Map();
+                const depth1 = rows.filter((r) => r.depth === '1');
+                const depth2ByParent = new Map();
+                for (const r of rows) {
+                  if (r.depth === '2') {
+                    const list = depth2ByParent.get(r.parent) || [];
+                    list.push(r);
+                    depth2ByParent.set(r.parent, list);
+                  }
+                }
+                for (const d1 of depth1) {
+                  if (d1.value <= 0) continue;
+                  const catGroup = pushGroup(byCat, d1.category || 'system', d1.category || 'system');
+                  const kids = (depth2ByParent.get(d1.path) || []).filter((k) => k.value > 0);
+                  const d1Growth = dirGrowthMap.get(host + '|' + d1.path) || 0;
+                  if (kids.length === 0) {
+                    catGroup.children.push(
+                      mkLeaf(d1.path, d1.value, {
+                        kind: 'Directory',
+                        host,
+                        provider: 'local',
+                        fullPath: d1.path,
+                        growthDay: d1Growth,
+                      }, d1.category)
+                    );
+                  } else {
+                    let kidSum = 0;
+                    const kidNodes = kids.map((k) => {
+                      kidSum += k.value;
+                      const kGrowth = dirGrowthMap.get(host + '|' + k.path) || 0;
+                      const shortName = k.path.replace(d1.path + '/', "");
+                      return mkLeaf(shortName, k.value, {
+                        kind: 'Directory',
+                        host,
+                        provider: 'local',
+                        fullPath: k.path,
+                        growthDay: kGrowth,
+                      }, d1.category);
+                    });
+                    const rem = d1.value - kidSum;
+                    if (rem > 1048576) {
+                      kidNodes.push(
+                        mkLeaf('(files & small dirs)', rem, {
+                          kind: 'Directory remainder',
+                          host,
+                          provider: 'local',
+                          fullPath: d1.path + '/*',
+                          growthDay: 0,
+                        }, d1.category)
+                      );
+                    }
+                    catGroup.children.push({
+                      name: d1.path,
+                      children: kidNodes,
+                    });
+                  }
+                }
+                return Array.from(byCat.values()).filter((g) => g.children.length > 0);
+              };
+              
+              let treeData = [];
+              
+              if (viewMode === 'fleet') {
+                const byHost = new Map();
+                for (const r of fsUsedRows) {
+                  if (r.value <= 0) continue;
+                  const hostNode = pushGroup(byHost, r.host, r.host);
+                  let localNode = hostNode.children.find((c) => c.name === 'local');
+                  if (!localNode) {
+                    localNode = { name: 'local', children: [] };
+                    hostNode.children.push(localNode);
+                  }
+                  const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                  const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                  let bytes = r.value;
+                  let label = r.mountpoint;
+                  if (r.mountpoint === '/persist') {
+                    const volSum = loopVolSumByHost.get(r.host) || 0;
+                    bytes = Math.max(r.value - volSum, 1);
+                    if (volSum > 0) label = '/persist (base)';
+                  }
+                  const usagePct = total > 0 ? (r.value / total) * 100 : NaN;
+                  localNode.children.push(
+                    mkLeaf(label, bytes, {
+                      kind: 'Local FS (' + r.fstype + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.mountpoint,
+                      limit: total,
+                      usagePct,
+                      growthDay: growth,
+                    }, 'local')
+                  );
+                }
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const hostNode = pushGroup(byHost, r.host, r.host);
+                  let provNode = hostNode.children.find((c) => c.name === prov);
+                  if (!provNode) {
+                    provNode = { name: prov, children: [] };
+                    hostNode.children.push(provNode);
+                  }
+                  const limit = remLimitMap.get(r.host + '|' + prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + prov + '|' + r.slice) || 0;
+                  const usagePct = limit > 0 ? (r.value / limit) * 100 : NaN;
+                  provNode.children.push(
+                    mkLeaf(r.slice, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: prov,
+                      fullPath: prov + ':' + r.slice,
+                      limit,
+                      usagePct,
+                      growthDay: growth,
+                    }, prov)
+                  );
+                }
+                treeData = Array.from(byHost.values());
+              } else if (viewMode === 'provider') {
+                const byProv = new Map();
+                // Local filesystems grouped under local -> host
+                for (const r of fsUsedRows) {
+                  if (r.value <= 0) continue;
+                  const provNode = pushGroup(byProv, 'local', 'local (disks & volumes)');
+                  let hostNode = provNode.children.find((c) => c.name === r.host);
+                  if (!hostNode) {
+                    hostNode = { name: r.host, children: [] };
+                    provNode.children.push(hostNode);
+                  }
+                  const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                  const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                  let bytes = r.value;
+                  let label = r.mountpoint;
+                  if (r.mountpoint === '/persist') {
+                    const volSum = loopVolSumByHost.get(r.host) || 0;
+                    bytes = Math.max(r.value - volSum, 1);
+                    if (volSum > 0) label = '/persist (base)';
+                  }
+                  const usagePct = total > 0 ? (r.value / total) * 100 : NaN;
+                  hostNode.children.push(
+                    mkLeaf(label, bytes, {
+                      kind: 'Local FS (' + r.fstype + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.mountpoint,
+                      limit: total,
+                      usagePct,
+                      growthDay: growth,
+                    }, 'local')
+                  );
+                }
+                // Deduplicate shared remote slices across hosts by taking max per (provider, slice)
+                const dedupRemote = new Map();
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const key = (r.scope === 'per-host') ? (prov + '|' + r.host + '|' + r.slice) : (prov + '|shared|' + r.slice);
+                  const prev = dedupRemote.get(key);
+                  if (!prev || r.value > prev.value) dedupRemote.set(key, { ...r, prov });
+                }
+                for (const r of dedupRemote.values()) {
+                  const provNode = pushGroup(byProv, r.prov, r.prov);
+                  const limit = remLimitMap.get(r.host + '|' + r.prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + r.prov + '|' + r.slice) || 0;
+                  const usagePct = limit > 0 ? (r.value / limit) * 100 : NaN;
+                  const label = r.scope === 'per-host' ? (r.slice + ' (' + r.host + ')') : r.slice;
+                  provNode.children.push(
+                    mkLeaf(label, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: r.prov,
+                      fullPath: r.prov + ':' + r.slice,
+                      limit,
+                      usagePct,
+                      growthDay: growth,
+                    }, r.prov)
+                  );
+                }
+                treeData = Array.from(byProv.values());
+              } else if (viewMode === 'service') {
+                const byService = new Map();
+                // Local service state/cache/system from directory scanner (depth=1 avoids double-counting)
+                for (const r of dirRows) {
+                  if (r.depth !== '1' || r.value <= 0) continue;
+                  const svc = normalizeService(r.service);
+                  const svcNode = pushGroup(byService, svc, svc);
+                  const growth = dirGrowthMap.get(r.host + '|' + r.path) || 0;
+                  svcNode.children.push(
+                    mkLeaf(r.host + ' · ' + r.path, r.value, {
+                      kind: 'Local (' + r.category + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.path,
+                      growthDay: growth,
+                    }, svc)
+                  );
+                }
+                // Fallback to loopback volumes if directory scanner has not run yet
+                if (dirRows.length === 0) {
+                  for (const r of fsUsedRows) {
+                    if (r.value <= 0) continue;
+                    const rawName = r.mountpoint.replace(/^\/var\/(lib|cache)\//, "").replace(/^\//, "") || 'root';
+                    const svc = normalizeService(rawName);
+                    const svcNode = pushGroup(byService, svc, svc);
+                    const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                    const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                    svcNode.children.push(
+                      mkLeaf(r.host + ' · ' + r.mountpoint, r.value, {
+                        kind: 'Local FS (' + r.fstype + ')',
+                        host: r.host,
+                        provider: 'local',
+                        fullPath: r.host + ':' + r.mountpoint,
+                        limit: total,
+                        usagePct: total > 0 ? (r.value / total) * 100 : NaN,
+                        growthDay: growth,
+                      }, svc)
+                    );
+                  }
+                }
+                // Remote storage slices mapped into their owning service
+                const seenRemote = new Set();
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const dedupKey = (r.scope === 'per-host') ? (r.host + '|' + prov + '|' + r.slice) : (prov + '|' + r.slice);
+                  if (seenRemote.has(dedupKey)) continue;
+                  seenRemote.add(dedupKey);
+                  const svc = normalizeService(r.slice);
+                  const svcNode = pushGroup(byService, svc, svc);
+                  const limit = remLimitMap.get(r.host + '|' + prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + prov + '|' + r.slice) || 0;
+                  svcNode.children.push(
+                    mkLeaf('remote · ' + prov + ':' + r.slice, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: prov,
+                      fullPath: prov + ':' + r.slice,
+                      limit,
+                      usagePct: limit > 0 ? (r.value / limit) * 100 : NaN,
+                      growthDay: growth,
+                    }, svc)
+                  );
+                }
+                treeData = Array.from(byService.values());
+              } else {
+                // WizTree Directory breakdown: Host -> Category -> Top Dir -> Subdirs
+                const hosts = Array.from(new Set(dirRows.map((r) => r.host)));
+                if (hosts.length > 0) {
+                  treeData = hosts.map((h) => ({
+                    name: h,
+                    children: buildDirSubtree(dirRows.filter((r) => r.host === h), h),
+                  }));
+                } else {
+                  // Graceful fallback before first scan runs: show local filesystems
+                  const byHost = new Map();
+                  for (const r of fsUsedRows) {
+                    if (r.value <= 0) continue;
+                    const hostNode = pushGroup(byHost, r.host, r.host);
+                    const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                    const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                    hostNode.children.push(
+                      mkLeaf(r.mountpoint, r.value, {
+                        kind: 'Local FS (awaiting first directory scan)',
+                        host: r.host,
+                        provider: 'local',
+                        fullPath: r.host + ':' + r.mountpoint,
+                        limit: total,
+                        usagePct: total > 0 ? (r.value / total) * 100 : NaN,
+                        growthDay: growth,
+                      }, 'local')
+                    );
+                  }
+                  treeData = Array.from(byHost.values());
+                }
+              }
+              
+              // Recursively roll up totals & growth so parent tooltips and percentage shares are exact.
+              const finalizeNode = (node) => {
+                if (!node.children || node.children.length === 0) {
+                  return {
+                    bytes: node.rawBytes ?? node.value ?? 0,
+                    growth: (node.meta && Number.isFinite(node.meta.growthDay)) ? node.meta.growthDay : 0,
+                  };
+                }
+                let sumB = 0;
+                let sumG = 0;
+                for (const c of node.children) {
+                  const res = finalizeNode(c);
+                  sumB += res.bytes;
+                  sumG += res.growth;
+                }
+                node.rawBytes = sumB;
+                node.meta = { ...(node.meta || {}), growthDay: sumG };
+                return { bytes: sumB, growth: sumG };
+              };
+              let grandTotal = 0;
+              for (const root of treeData) {
+                grandTotal += finalizeNode(root).bytes;
+              }
+              
+              return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                  confine: true,
+                  backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.96)',
+                  borderColor: isDark ? '#334155' : '#cbd5e1',
+                  textStyle: { color: textColor, fontSize: 12 },
+                  formatter: (info) => {
+                    const d = info.data || {};
+                    const m = d.meta || {};
+                    const bytes = Number(d.rawBytes ?? info.value ?? 0);
+                    const pathNames = (info.treePathInfo || []).slice(1).map((p) => p.name);
+                    const parentInfo = info.treePathInfo && info.treePathInfo.length >= 2
+                      ? info.treePathInfo[info.treePathInfo.length - 2]
+                      : null;
+                    const parentVal = parentInfo ? Number(parentInfo.value || 0) : grandTotal;
+                    const pctParent = parentVal > 0 ? ((bytes / parentVal) * 100).toFixed(1) : '100.0';
+                    const pctTotal = grandTotal > 0 ? ((bytes / grandTotal) * 100).toFixed(1) : '100.0';
+                    const lines = [
+                      '<div style="font-weight:700;margin-bottom:4px">' + pathNames.join(' / ') + '</div>',
+                      '<div>Size: <b>' + fmtBytes(bytes) + '</b> (' + pctParent + '% of parent · ' + pctTotal + '% of view)</div>',
+                    ];
+                    if (m.kind) lines.push('<div>Type: ' + m.kind + '</div>');
+                    if (Number.isFinite(m.limit) && m.limit > 0) {
+                      lines.push('<div>Capacity: ' + fmtBytes(m.limit) + ' (' + (m.usagePct || 0).toFixed(1) + '% used)</div>');
+                    }
+                    if (Number.isFinite(m.growthDay)) {
+                      lines.push('<div>Growth / Day: <b>' + fmtSignedGrowth(m.growthDay) + '</b></div>');
+                    }
+                    return lines.join("");
+                  },
+                },
+                series: [
+                  {
+                    name: 'Storage (' + fmtBytes(grandTotal) + ')',
+                    type: 'treemap',
+                    roam: false,
+                    nodeClick: 'zoomToNode',
+                    width: '100%',
+                    height: '92%',
+                    top: 4,
+                    bottom: 34,
+                    squareRatio: 0.72,
+                    visibleMin: 220,
+                    childrenVisibleMin: 400,
+                    breadcrumb: {
+                      show: true,
+                      bottom: 4,
+                      height: 24,
+                      itemStyle: {
+                        color: headerBg,
+                        borderColor: isDark ? '#334155' : '#cbd5e1',
+                        borderWidth: 1,
+                        textStyle: { color: textColor, fontSize: 12 },
+                      },
+                    },
+                    label: {
+                      show: true,
+                      color: '#f8fafc',
+                      fontSize: 11,
+                      lineHeight: 15,
+                      overflow: 'truncate',
+                      formatter: (params) => {
+                        const d = params.data || {};
+                        const m = d.meta || {};
+                        const bytes = Number(d.rawBytes ?? params.value ?? 0);
+                        const sizeStr = fmtBytes(bytes);
+                        if (colorMode === 'growth' && Number.isFinite(m.growthDay) && Math.abs(m.growthDay) >= 1024) {
+                          return d.name + '\n' + sizeStr + '\n' + fmtSignedGrowth(m.growthDay);
+                        }
+                        if (colorMode === 'usage' && Number.isFinite(m.usagePct)) {
+                          return d.name + '\n' + sizeStr + ' (' + m.usagePct.toFixed(0) + '%)';
+                        }
+                        return d.name + '\n' + sizeStr;
+                      },
+                    },
+                    upperLabel: {
+                      show: true,
+                      height: 22,
+                      color: textColor,
+                      fontWeight: 600,
+                      fontSize: 11,
+                      padding: [2, 6],
+                      formatter: (params) => {
+                        const d = params.data || {};
+                        const bytes = Number(d.rawBytes ?? params.value ?? 0);
+                        return d.name + '  (' + fmtBytes(bytes) + ')';
+                      },
+                    },
+                    itemStyle: {
+                      borderColor: borderColor,
+                      borderWidth: 1,
+                      gapWidth: 1,
+                    },
+                    levels: [
+                      {
+                        itemStyle: {
+                          borderColor: isDark ? '#334155' : '#94a3b8',
+                          borderWidth: 2,
+                          gapWidth: 3,
+                        },
+                        upperLabel: {
+                          show: true,
+                          backgroundColor: headerBg,
+                        },
+                      },
+                      {
+                        itemStyle: {
+                          borderColor: isDark ? '#1e293b' : '#cbd5e1',
+                          borderWidth: 2,
+                          gapWidth: 2,
+                        },
+                        upperLabel: {
+                          show: true,
+                          backgroundColor: isDark ? '#172033' : '#f1f5f9',
+                        },
+                      },
+                      {
+                        itemStyle: {
+                          borderColor: borderColor,
+                          borderWidth: 1,
+                          gapWidth: 1,
+                        },
+                      },
+                    ],
+                    data: treeData,
+                  },
+                ],
+              };
+            '';
+            map = "none";
+            renderer = "canvas";
+            themeEditor = {
+              name = "default";
+            };
+          };
+          pluginVersion = "7.2.5";
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint, fstype) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint, fstype) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_used_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_limit_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, category, service, path, parent, depth) (nixconf_storage_dir_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, path) (deriv(nixconf_storage_dir_bytes{host=~\"$host\"}[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+          ];
+          title = "Interactive Storage Treemap — $view ($color_mode)";
+          type = "volkovlabs-echarts-panel";
+        }
+        {
+          collapsed = false;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 20;
+          };
+          id = 7;
+          panels = [ ];
+          title = "Dedicated Quick Views — WizTree Directory Map & Service Footprint";
+          type = "row";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          description = "Always-visible interactive local directory treemap (Host → Category → Directory → Subdirectories).";
+          gridPos = {
+            h = 12;
+            w = 12;
+            x = 0;
+            y = 21;
+          };
+          id = 8;
+          options = {
+            editorMode = "code";
+            getOption = ''
+              const viewMode = "directory";
+              const colorMode = context.grafana.replaceVariables('$color_mode') || 'growth';
+              const isDark = !context.grafana.theme || context.grafana.theme.isDark !== false;
+              const textColor = isDark ? '#e2e8f0' : '#0f172a';
+              const borderColor = isDark ? '#0f172a' : '#ffffff';
+              const headerBg = isDark ? '#1e293b' : '#e2e8f0';
+              
+              const colVals = (f) => {
+                if (!f || !f.values) return [];
+                if (Array.isArray(f.values)) return f.values;
+                if (typeof f.values.toArray === 'function') return f.values.toArray();
+                if (f.values.buffer) return Array.from(f.values.buffer);
+                const out = [];
+                for (let i = 0; i < (f.values.length || 0); i++) {
+                  out.push(typeof f.values.get === 'function' ? f.values.get(i) : f.values[i]);
+                }
+                return out;
+              };
+              
+              const readTable = (refId) => {
+                const frame = (context.panel.data.series || []).find((s) => s.refId === refId);
+                if (!frame || !frame.fields || frame.fields.length === 0) return [];
+                const cols = frame.fields.map((f) => ({ name: f.name, type: f.type, vals: colVals(f) }));
+                const numCol = cols.filter((c) => c.type === 'number' && c.name !== 'Time').slice(-1)[0];
+                if (!numCol) return [];
+                const rows = [];
+                for (let i = 0; i < numCol.vals.length; i++) {
+                  const v = Number(numCol.vals[i]);
+                  if (!Number.isFinite(v)) continue;
+                  const row = { value: v };
+                  for (const c of cols) {
+                    if (c.type === 'string') row[c.name] = String(c.vals[i] ?? "");
+                  }
+                  rows.push(row);
+                }
+                return rows;
+              };
+              
+              const fmtBytes = (b) => {
+                const sign = b < 0 ? '-' : "";
+                let n = Math.abs(Number(b) || 0);
+                const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+                let u = 0;
+                while (n >= 1024 && u < units.length - 1) { n /= 1024; u++; }
+                return sign + (n >= 100 || u === 0 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2)) + ' ' + units[u];
+              };
+              
+              const fmtSignedGrowth = (g) => {
+                if (!Number.isFinite(g) || Math.abs(g) < 1024) return '0 B/d';
+                return (g > 0 ? '+' : "") + fmtBytes(g) + '/d';
+              };
+              
+              const inferProvider = (row) => {
+                if (row.provider && row.provider !== "" && row.provider !== 'unknown') return row.provider;
+                const s = row.slice || "";
+                if (s.startsWith('hbox')) return 'hbox';
+                if (s.startsWith('gdrive')) return 'gdrive';
+                if (s.startsWith('b2')) return 'b2';
+                if (s === 'uchiyomi' || s === 'copyparty') return 'hbox';
+                return 'remote';
+              };
+              
+              const normalizeService = (raw) => {
+                const s = String(raw || 'other');
+                if (s === 'authelia-main') return 'authelia';
+                if (s === 'ntfy-sh') return 'ntfy';
+                if (s.startsWith('restic-backups-') || s.startsWith('host-snapshot-') || s === 'nixconf-backup' || s.includes('-backup-')) return 'backups';
+                return s;
+              };
+              
+              const fsUsedRows = readTable('A');
+              const fsSizeMap = new Map(readTable('B').map((r) => [r.host + '|' + r.mountpoint, r.value]));
+              const fsGrowthMap = new Map(readTable('C').map((r) => [r.host + '|' + r.mountpoint, r.value]));
+              
+              const remUsedRows = readTable('D');
+              const remLimitMap = new Map(readTable('E').map((r) => [r.host + '|' + inferProvider(r) + '|' + r.slice, r.value]));
+              const remGrowthMap = new Map(readTable('F').map((r) => [r.host + '|' + inferProvider(r) + '|' + r.slice, r.value]));
+              
+              const dirRows = readTable('G');
+              const dirGrowthMap = new Map(readTable('H').map((r) => [r.host + '|' + r.path, r.value]));
+              
+              // Palette for categorical WizTree mode
+              const catColors = {
+                local: '#2563eb',
+                hbox: '#7c3aed',
+                gdrive: '#059669',
+                b2: '#d97706',
+                remote: '#6366f1',
+                service_state: '#0891b2',
+                service_cache: '#ea580c',
+                system: '#4f46e5',
+                home: '#db2777',
+                logs: '#0d9488',
+                reserved: '#64748b',
+                backups: '#8b5cf6',
+                uchiyomi: '#e11d48',
+                victoriametrics: '#0284c7',
+                victorialogs: '#0369a1',
+                containers: '#2563eb',
+                grafana: '#f59e0b',
+                'nix-store': '#4f46e5',
+                copyparty: '#10b981',
+                alloy: '#14b8a6',
+              };
+              const fallbackPalette = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#0891b2', '#db2777', '#4f46e5', '#ea580c', '#0d9488', '#6366f1'];
+              const hashColor = (key) => {
+                if (catColors[key]) return catColors[key];
+                let h = 0;
+                for (let i = 0; i < key.length; i++) h = ((h << 5) - h + key.charCodeAt(i)) | 0;
+                return fallbackPalette[Math.abs(h) % fallbackPalette.length];
+              };
+              
+              const pickColor = (meta, groupKey) => {
+                if (colorMode === 'growth') {
+                  const g = meta.growthDay || 0;
+                  if (g < -10 * 1048576) return '#15803d';
+                  if (g < -1048576) return '#166534';
+                  if (g <= 1048576) return isDark ? '#334155' : '#64748b';
+                  if (g <= 25 * 1048576) return '#a16207';
+                  if (g <= 100 * 1048576) return '#c2410c';
+                  if (g <= 500 * 1048576) return '#dc2626';
+                  return '#991b1b';
+                }
+                if (colorMode === 'usage') {
+                  if (!Number.isFinite(meta.usagePct)) return isDark ? '#334155' : '#64748b';
+                  if (meta.usagePct >= 90) return '#b91c1c';
+                  if (meta.usagePct >= 80) return '#dc2626';
+                  if (meta.usagePct >= 65) return '#d97706';
+                  if (meta.usagePct >= 45) return '#0369a1';
+                  return '#0f766e';
+                }
+                return hashColor(groupKey || meta.groupKey || 'local');
+              };
+              
+              const mkLeaf = (name, bytes, meta, groupKey) => ({
+                name,
+                value: Math.max(bytes, 1),
+                rawBytes: bytes,
+                meta: { ...meta, groupKey: groupKey || meta.groupKey || name },
+                itemStyle: { color: pickColor(meta, groupKey) },
+              });
+              
+              // Compute per-host loopback ext4 volume sum so /persist isn't double-counted in fleet/provider views.
+              const loopVolSumByHost = new Map();
+              for (const r of fsUsedRows) {
+                if (r.fstype === 'ext4' && (r.mountpoint.startsWith('/var/') || r.mountpoint.startsWith('/persist/'))) {
+                  loopVolSumByHost.set(r.host, (loopVolSumByHost.get(r.host) || 0) + r.value);
+                }
+              }
+              
+              const pushGroup = (map, key, label) => {
+                if (!map.has(key)) map.set(key, { name: label || key, children: [] });
+                return map.get(key);
+              };
+              
+              // Build nested directory tree for a set of nixconf_storage_dir_bytes rows without double-counting parent vs children.
+              const buildDirSubtree = (rows, host) => {
+                const byCat = new Map();
+                const depth1 = rows.filter((r) => r.depth === '1');
+                const depth2ByParent = new Map();
+                for (const r of rows) {
+                  if (r.depth === '2') {
+                    const list = depth2ByParent.get(r.parent) || [];
+                    list.push(r);
+                    depth2ByParent.set(r.parent, list);
+                  }
+                }
+                for (const d1 of depth1) {
+                  if (d1.value <= 0) continue;
+                  const catGroup = pushGroup(byCat, d1.category || 'system', d1.category || 'system');
+                  const kids = (depth2ByParent.get(d1.path) || []).filter((k) => k.value > 0);
+                  const d1Growth = dirGrowthMap.get(host + '|' + d1.path) || 0;
+                  if (kids.length === 0) {
+                    catGroup.children.push(
+                      mkLeaf(d1.path, d1.value, {
+                        kind: 'Directory',
+                        host,
+                        provider: 'local',
+                        fullPath: d1.path,
+                        growthDay: d1Growth,
+                      }, d1.category)
+                    );
+                  } else {
+                    let kidSum = 0;
+                    const kidNodes = kids.map((k) => {
+                      kidSum += k.value;
+                      const kGrowth = dirGrowthMap.get(host + '|' + k.path) || 0;
+                      const shortName = k.path.replace(d1.path + '/', "");
+                      return mkLeaf(shortName, k.value, {
+                        kind: 'Directory',
+                        host,
+                        provider: 'local',
+                        fullPath: k.path,
+                        growthDay: kGrowth,
+                      }, d1.category);
+                    });
+                    const rem = d1.value - kidSum;
+                    if (rem > 1048576) {
+                      kidNodes.push(
+                        mkLeaf('(files & small dirs)', rem, {
+                          kind: 'Directory remainder',
+                          host,
+                          provider: 'local',
+                          fullPath: d1.path + '/*',
+                          growthDay: 0,
+                        }, d1.category)
+                      );
+                    }
+                    catGroup.children.push({
+                      name: d1.path,
+                      children: kidNodes,
+                    });
+                  }
+                }
+                return Array.from(byCat.values()).filter((g) => g.children.length > 0);
+              };
+              
+              let treeData = [];
+              
+              if (viewMode === 'fleet') {
+                const byHost = new Map();
+                for (const r of fsUsedRows) {
+                  if (r.value <= 0) continue;
+                  const hostNode = pushGroup(byHost, r.host, r.host);
+                  let localNode = hostNode.children.find((c) => c.name === 'local');
+                  if (!localNode) {
+                    localNode = { name: 'local', children: [] };
+                    hostNode.children.push(localNode);
+                  }
+                  const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                  const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                  let bytes = r.value;
+                  let label = r.mountpoint;
+                  if (r.mountpoint === '/persist') {
+                    const volSum = loopVolSumByHost.get(r.host) || 0;
+                    bytes = Math.max(r.value - volSum, 1);
+                    if (volSum > 0) label = '/persist (base)';
+                  }
+                  const usagePct = total > 0 ? (r.value / total) * 100 : NaN;
+                  localNode.children.push(
+                    mkLeaf(label, bytes, {
+                      kind: 'Local FS (' + r.fstype + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.mountpoint,
+                      limit: total,
+                      usagePct,
+                      growthDay: growth,
+                    }, 'local')
+                  );
+                }
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const hostNode = pushGroup(byHost, r.host, r.host);
+                  let provNode = hostNode.children.find((c) => c.name === prov);
+                  if (!provNode) {
+                    provNode = { name: prov, children: [] };
+                    hostNode.children.push(provNode);
+                  }
+                  const limit = remLimitMap.get(r.host + '|' + prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + prov + '|' + r.slice) || 0;
+                  const usagePct = limit > 0 ? (r.value / limit) * 100 : NaN;
+                  provNode.children.push(
+                    mkLeaf(r.slice, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: prov,
+                      fullPath: prov + ':' + r.slice,
+                      limit,
+                      usagePct,
+                      growthDay: growth,
+                    }, prov)
+                  );
+                }
+                treeData = Array.from(byHost.values());
+              } else if (viewMode === 'provider') {
+                const byProv = new Map();
+                // Local filesystems grouped under local -> host
+                for (const r of fsUsedRows) {
+                  if (r.value <= 0) continue;
+                  const provNode = pushGroup(byProv, 'local', 'local (disks & volumes)');
+                  let hostNode = provNode.children.find((c) => c.name === r.host);
+                  if (!hostNode) {
+                    hostNode = { name: r.host, children: [] };
+                    provNode.children.push(hostNode);
+                  }
+                  const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                  const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                  let bytes = r.value;
+                  let label = r.mountpoint;
+                  if (r.mountpoint === '/persist') {
+                    const volSum = loopVolSumByHost.get(r.host) || 0;
+                    bytes = Math.max(r.value - volSum, 1);
+                    if (volSum > 0) label = '/persist (base)';
+                  }
+                  const usagePct = total > 0 ? (r.value / total) * 100 : NaN;
+                  hostNode.children.push(
+                    mkLeaf(label, bytes, {
+                      kind: 'Local FS (' + r.fstype + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.mountpoint,
+                      limit: total,
+                      usagePct,
+                      growthDay: growth,
+                    }, 'local')
+                  );
+                }
+                // Deduplicate shared remote slices across hosts by taking max per (provider, slice)
+                const dedupRemote = new Map();
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const key = (r.scope === 'per-host') ? (prov + '|' + r.host + '|' + r.slice) : (prov + '|shared|' + r.slice);
+                  const prev = dedupRemote.get(key);
+                  if (!prev || r.value > prev.value) dedupRemote.set(key, { ...r, prov });
+                }
+                for (const r of dedupRemote.values()) {
+                  const provNode = pushGroup(byProv, r.prov, r.prov);
+                  const limit = remLimitMap.get(r.host + '|' + r.prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + r.prov + '|' + r.slice) || 0;
+                  const usagePct = limit > 0 ? (r.value / limit) * 100 : NaN;
+                  const label = r.scope === 'per-host' ? (r.slice + ' (' + r.host + ')') : r.slice;
+                  provNode.children.push(
+                    mkLeaf(label, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: r.prov,
+                      fullPath: r.prov + ':' + r.slice,
+                      limit,
+                      usagePct,
+                      growthDay: growth,
+                    }, r.prov)
+                  );
+                }
+                treeData = Array.from(byProv.values());
+              } else if (viewMode === 'service') {
+                const byService = new Map();
+                // Local service state/cache/system from directory scanner (depth=1 avoids double-counting)
+                for (const r of dirRows) {
+                  if (r.depth !== '1' || r.value <= 0) continue;
+                  const svc = normalizeService(r.service);
+                  const svcNode = pushGroup(byService, svc, svc);
+                  const growth = dirGrowthMap.get(r.host + '|' + r.path) || 0;
+                  svcNode.children.push(
+                    mkLeaf(r.host + ' · ' + r.path, r.value, {
+                      kind: 'Local (' + r.category + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.path,
+                      growthDay: growth,
+                    }, svc)
+                  );
+                }
+                // Fallback to loopback volumes if directory scanner has not run yet
+                if (dirRows.length === 0) {
+                  for (const r of fsUsedRows) {
+                    if (r.value <= 0) continue;
+                    const rawName = r.mountpoint.replace(/^\/var\/(lib|cache)\//, "").replace(/^\//, "") || 'root';
+                    const svc = normalizeService(rawName);
+                    const svcNode = pushGroup(byService, svc, svc);
+                    const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                    const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                    svcNode.children.push(
+                      mkLeaf(r.host + ' · ' + r.mountpoint, r.value, {
+                        kind: 'Local FS (' + r.fstype + ')',
+                        host: r.host,
+                        provider: 'local',
+                        fullPath: r.host + ':' + r.mountpoint,
+                        limit: total,
+                        usagePct: total > 0 ? (r.value / total) * 100 : NaN,
+                        growthDay: growth,
+                      }, svc)
+                    );
+                  }
+                }
+                // Remote storage slices mapped into their owning service
+                const seenRemote = new Set();
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const dedupKey = (r.scope === 'per-host') ? (r.host + '|' + prov + '|' + r.slice) : (prov + '|' + r.slice);
+                  if (seenRemote.has(dedupKey)) continue;
+                  seenRemote.add(dedupKey);
+                  const svc = normalizeService(r.slice);
+                  const svcNode = pushGroup(byService, svc, svc);
+                  const limit = remLimitMap.get(r.host + '|' + prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + prov + '|' + r.slice) || 0;
+                  svcNode.children.push(
+                    mkLeaf('remote · ' + prov + ':' + r.slice, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: prov,
+                      fullPath: prov + ':' + r.slice,
+                      limit,
+                      usagePct: limit > 0 ? (r.value / limit) * 100 : NaN,
+                      growthDay: growth,
+                    }, svc)
+                  );
+                }
+                treeData = Array.from(byService.values());
+              } else {
+                // WizTree Directory breakdown: Host -> Category -> Top Dir -> Subdirs
+                const hosts = Array.from(new Set(dirRows.map((r) => r.host)));
+                if (hosts.length > 0) {
+                  treeData = hosts.map((h) => ({
+                    name: h,
+                    children: buildDirSubtree(dirRows.filter((r) => r.host === h), h),
+                  }));
+                } else {
+                  // Graceful fallback before first scan runs: show local filesystems
+                  const byHost = new Map();
+                  for (const r of fsUsedRows) {
+                    if (r.value <= 0) continue;
+                    const hostNode = pushGroup(byHost, r.host, r.host);
+                    const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                    const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                    hostNode.children.push(
+                      mkLeaf(r.mountpoint, r.value, {
+                        kind: 'Local FS (awaiting first directory scan)',
+                        host: r.host,
+                        provider: 'local',
+                        fullPath: r.host + ':' + r.mountpoint,
+                        limit: total,
+                        usagePct: total > 0 ? (r.value / total) * 100 : NaN,
+                        growthDay: growth,
+                      }, 'local')
+                    );
+                  }
+                  treeData = Array.from(byHost.values());
+                }
+              }
+              
+              // Recursively roll up totals & growth so parent tooltips and percentage shares are exact.
+              const finalizeNode = (node) => {
+                if (!node.children || node.children.length === 0) {
+                  return {
+                    bytes: node.rawBytes ?? node.value ?? 0,
+                    growth: (node.meta && Number.isFinite(node.meta.growthDay)) ? node.meta.growthDay : 0,
+                  };
+                }
+                let sumB = 0;
+                let sumG = 0;
+                for (const c of node.children) {
+                  const res = finalizeNode(c);
+                  sumB += res.bytes;
+                  sumG += res.growth;
+                }
+                node.rawBytes = sumB;
+                node.meta = { ...(node.meta || {}), growthDay: sumG };
+                return { bytes: sumB, growth: sumG };
+              };
+              let grandTotal = 0;
+              for (const root of treeData) {
+                grandTotal += finalizeNode(root).bytes;
+              }
+              
+              return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                  confine: true,
+                  backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.96)',
+                  borderColor: isDark ? '#334155' : '#cbd5e1',
+                  textStyle: { color: textColor, fontSize: 12 },
+                  formatter: (info) => {
+                    const d = info.data || {};
+                    const m = d.meta || {};
+                    const bytes = Number(d.rawBytes ?? info.value ?? 0);
+                    const pathNames = (info.treePathInfo || []).slice(1).map((p) => p.name);
+                    const parentInfo = info.treePathInfo && info.treePathInfo.length >= 2
+                      ? info.treePathInfo[info.treePathInfo.length - 2]
+                      : null;
+                    const parentVal = parentInfo ? Number(parentInfo.value || 0) : grandTotal;
+                    const pctParent = parentVal > 0 ? ((bytes / parentVal) * 100).toFixed(1) : '100.0';
+                    const pctTotal = grandTotal > 0 ? ((bytes / grandTotal) * 100).toFixed(1) : '100.0';
+                    const lines = [
+                      '<div style="font-weight:700;margin-bottom:4px">' + pathNames.join(' / ') + '</div>',
+                      '<div>Size: <b>' + fmtBytes(bytes) + '</b> (' + pctParent + '% of parent · ' + pctTotal + '% of view)</div>',
+                    ];
+                    if (m.kind) lines.push('<div>Type: ' + m.kind + '</div>');
+                    if (Number.isFinite(m.limit) && m.limit > 0) {
+                      lines.push('<div>Capacity: ' + fmtBytes(m.limit) + ' (' + (m.usagePct || 0).toFixed(1) + '% used)</div>');
+                    }
+                    if (Number.isFinite(m.growthDay)) {
+                      lines.push('<div>Growth / Day: <b>' + fmtSignedGrowth(m.growthDay) + '</b></div>');
+                    }
+                    return lines.join("");
+                  },
+                },
+                series: [
+                  {
+                    name: 'Storage (' + fmtBytes(grandTotal) + ')',
+                    type: 'treemap',
+                    roam: false,
+                    nodeClick: 'zoomToNode',
+                    width: '100%',
+                    height: '92%',
+                    top: 4,
+                    bottom: 34,
+                    squareRatio: 0.72,
+                    visibleMin: 220,
+                    childrenVisibleMin: 400,
+                    breadcrumb: {
+                      show: true,
+                      bottom: 4,
+                      height: 24,
+                      itemStyle: {
+                        color: headerBg,
+                        borderColor: isDark ? '#334155' : '#cbd5e1',
+                        borderWidth: 1,
+                        textStyle: { color: textColor, fontSize: 12 },
+                      },
+                    },
+                    label: {
+                      show: true,
+                      color: '#f8fafc',
+                      fontSize: 11,
+                      lineHeight: 15,
+                      overflow: 'truncate',
+                      formatter: (params) => {
+                        const d = params.data || {};
+                        const m = d.meta || {};
+                        const bytes = Number(d.rawBytes ?? params.value ?? 0);
+                        const sizeStr = fmtBytes(bytes);
+                        if (colorMode === 'growth' && Number.isFinite(m.growthDay) && Math.abs(m.growthDay) >= 1024) {
+                          return d.name + '\n' + sizeStr + '\n' + fmtSignedGrowth(m.growthDay);
+                        }
+                        if (colorMode === 'usage' && Number.isFinite(m.usagePct)) {
+                          return d.name + '\n' + sizeStr + ' (' + m.usagePct.toFixed(0) + '%)';
+                        }
+                        return d.name + '\n' + sizeStr;
+                      },
+                    },
+                    upperLabel: {
+                      show: true,
+                      height: 22,
+                      color: textColor,
+                      fontWeight: 600,
+                      fontSize: 11,
+                      padding: [2, 6],
+                      formatter: (params) => {
+                        const d = params.data || {};
+                        const bytes = Number(d.rawBytes ?? params.value ?? 0);
+                        return d.name + '  (' + fmtBytes(bytes) + ')';
+                      },
+                    },
+                    itemStyle: {
+                      borderColor: borderColor,
+                      borderWidth: 1,
+                      gapWidth: 1,
+                    },
+                    levels: [
+                      {
+                        itemStyle: {
+                          borderColor: isDark ? '#334155' : '#94a3b8',
+                          borderWidth: 2,
+                          gapWidth: 3,
+                        },
+                        upperLabel: {
+                          show: true,
+                          backgroundColor: headerBg,
+                        },
+                      },
+                      {
+                        itemStyle: {
+                          borderColor: isDark ? '#1e293b' : '#cbd5e1',
+                          borderWidth: 2,
+                          gapWidth: 2,
+                        },
+                        upperLabel: {
+                          show: true,
+                          backgroundColor: isDark ? '#172033' : '#f1f5f9',
+                        },
+                      },
+                      {
+                        itemStyle: {
+                          borderColor: borderColor,
+                          borderWidth: 1,
+                          gapWidth: 1,
+                        },
+                      },
+                    ],
+                    data: treeData,
+                  },
+                ],
+              };
+            '';
+            map = "none";
+            renderer = "canvas";
+            themeEditor = {
+              name = "default";
+            };
+          };
+          pluginVersion = "7.2.5";
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint, fstype) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint, fstype) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_used_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_limit_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, category, service, path, parent, depth) (nixconf_storage_dir_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, path) (deriv(nixconf_storage_dir_bytes{host=~\"$host\"}[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+          ];
+          title = "WizTree Local Directory Map ($host)";
+          type = "volkovlabs-echarts-panel";
+        }
+        {
+          datasource = {
+            type = "prometheus";
+            uid = "prometheus";
+          };
+          description = "Side-by-side comparison of local disks/volumes against every remote storage provider (hbox, gdrive, b2).";
+          gridPos = {
+            h = 12;
+            w = 12;
+            x = 12;
+            y = 21;
+          };
+          id = 9;
+          options = {
+            editorMode = "code";
+            getOption = ''
+              const viewMode = "provider";
+              const colorMode = context.grafana.replaceVariables('$color_mode') || 'growth';
+              const isDark = !context.grafana.theme || context.grafana.theme.isDark !== false;
+              const textColor = isDark ? '#e2e8f0' : '#0f172a';
+              const borderColor = isDark ? '#0f172a' : '#ffffff';
+              const headerBg = isDark ? '#1e293b' : '#e2e8f0';
+              
+              const colVals = (f) => {
+                if (!f || !f.values) return [];
+                if (Array.isArray(f.values)) return f.values;
+                if (typeof f.values.toArray === 'function') return f.values.toArray();
+                if (f.values.buffer) return Array.from(f.values.buffer);
+                const out = [];
+                for (let i = 0; i < (f.values.length || 0); i++) {
+                  out.push(typeof f.values.get === 'function' ? f.values.get(i) : f.values[i]);
+                }
+                return out;
+              };
+              
+              const readTable = (refId) => {
+                const frame = (context.panel.data.series || []).find((s) => s.refId === refId);
+                if (!frame || !frame.fields || frame.fields.length === 0) return [];
+                const cols = frame.fields.map((f) => ({ name: f.name, type: f.type, vals: colVals(f) }));
+                const numCol = cols.filter((c) => c.type === 'number' && c.name !== 'Time').slice(-1)[0];
+                if (!numCol) return [];
+                const rows = [];
+                for (let i = 0; i < numCol.vals.length; i++) {
+                  const v = Number(numCol.vals[i]);
+                  if (!Number.isFinite(v)) continue;
+                  const row = { value: v };
+                  for (const c of cols) {
+                    if (c.type === 'string') row[c.name] = String(c.vals[i] ?? "");
+                  }
+                  rows.push(row);
+                }
+                return rows;
+              };
+              
+              const fmtBytes = (b) => {
+                const sign = b < 0 ? '-' : "";
+                let n = Math.abs(Number(b) || 0);
+                const units = ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB'];
+                let u = 0;
+                while (n >= 1024 && u < units.length - 1) { n /= 1024; u++; }
+                return sign + (n >= 100 || u === 0 ? n.toFixed(0) : n >= 10 ? n.toFixed(1) : n.toFixed(2)) + ' ' + units[u];
+              };
+              
+              const fmtSignedGrowth = (g) => {
+                if (!Number.isFinite(g) || Math.abs(g) < 1024) return '0 B/d';
+                return (g > 0 ? '+' : "") + fmtBytes(g) + '/d';
+              };
+              
+              const inferProvider = (row) => {
+                if (row.provider && row.provider !== "" && row.provider !== 'unknown') return row.provider;
+                const s = row.slice || "";
+                if (s.startsWith('hbox')) return 'hbox';
+                if (s.startsWith('gdrive')) return 'gdrive';
+                if (s.startsWith('b2')) return 'b2';
+                if (s === 'uchiyomi' || s === 'copyparty') return 'hbox';
+                return 'remote';
+              };
+              
+              const normalizeService = (raw) => {
+                const s = String(raw || 'other');
+                if (s === 'authelia-main') return 'authelia';
+                if (s === 'ntfy-sh') return 'ntfy';
+                if (s.startsWith('restic-backups-') || s.startsWith('host-snapshot-') || s === 'nixconf-backup' || s.includes('-backup-')) return 'backups';
+                return s;
+              };
+              
+              const fsUsedRows = readTable('A');
+              const fsSizeMap = new Map(readTable('B').map((r) => [r.host + '|' + r.mountpoint, r.value]));
+              const fsGrowthMap = new Map(readTable('C').map((r) => [r.host + '|' + r.mountpoint, r.value]));
+              
+              const remUsedRows = readTable('D');
+              const remLimitMap = new Map(readTable('E').map((r) => [r.host + '|' + inferProvider(r) + '|' + r.slice, r.value]));
+              const remGrowthMap = new Map(readTable('F').map((r) => [r.host + '|' + inferProvider(r) + '|' + r.slice, r.value]));
+              
+              const dirRows = readTable('G');
+              const dirGrowthMap = new Map(readTable('H').map((r) => [r.host + '|' + r.path, r.value]));
+              
+              // Palette for categorical WizTree mode
+              const catColors = {
+                local: '#2563eb',
+                hbox: '#7c3aed',
+                gdrive: '#059669',
+                b2: '#d97706',
+                remote: '#6366f1',
+                service_state: '#0891b2',
+                service_cache: '#ea580c',
+                system: '#4f46e5',
+                home: '#db2777',
+                logs: '#0d9488',
+                reserved: '#64748b',
+                backups: '#8b5cf6',
+                uchiyomi: '#e11d48',
+                victoriametrics: '#0284c7',
+                victorialogs: '#0369a1',
+                containers: '#2563eb',
+                grafana: '#f59e0b',
+                'nix-store': '#4f46e5',
+                copyparty: '#10b981',
+                alloy: '#14b8a6',
+              };
+              const fallbackPalette = ['#2563eb', '#7c3aed', '#059669', '#d97706', '#0891b2', '#db2777', '#4f46e5', '#ea580c', '#0d9488', '#6366f1'];
+              const hashColor = (key) => {
+                if (catColors[key]) return catColors[key];
+                let h = 0;
+                for (let i = 0; i < key.length; i++) h = ((h << 5) - h + key.charCodeAt(i)) | 0;
+                return fallbackPalette[Math.abs(h) % fallbackPalette.length];
+              };
+              
+              const pickColor = (meta, groupKey) => {
+                if (colorMode === 'growth') {
+                  const g = meta.growthDay || 0;
+                  if (g < -10 * 1048576) return '#15803d';
+                  if (g < -1048576) return '#166534';
+                  if (g <= 1048576) return isDark ? '#334155' : '#64748b';
+                  if (g <= 25 * 1048576) return '#a16207';
+                  if (g <= 100 * 1048576) return '#c2410c';
+                  if (g <= 500 * 1048576) return '#dc2626';
+                  return '#991b1b';
+                }
+                if (colorMode === 'usage') {
+                  if (!Number.isFinite(meta.usagePct)) return isDark ? '#334155' : '#64748b';
+                  if (meta.usagePct >= 90) return '#b91c1c';
+                  if (meta.usagePct >= 80) return '#dc2626';
+                  if (meta.usagePct >= 65) return '#d97706';
+                  if (meta.usagePct >= 45) return '#0369a1';
+                  return '#0f766e';
+                }
+                return hashColor(groupKey || meta.groupKey || 'local');
+              };
+              
+              const mkLeaf = (name, bytes, meta, groupKey) => ({
+                name,
+                value: Math.max(bytes, 1),
+                rawBytes: bytes,
+                meta: { ...meta, groupKey: groupKey || meta.groupKey || name },
+                itemStyle: { color: pickColor(meta, groupKey) },
+              });
+              
+              // Compute per-host loopback ext4 volume sum so /persist isn't double-counted in fleet/provider views.
+              const loopVolSumByHost = new Map();
+              for (const r of fsUsedRows) {
+                if (r.fstype === 'ext4' && (r.mountpoint.startsWith('/var/') || r.mountpoint.startsWith('/persist/'))) {
+                  loopVolSumByHost.set(r.host, (loopVolSumByHost.get(r.host) || 0) + r.value);
+                }
+              }
+              
+              const pushGroup = (map, key, label) => {
+                if (!map.has(key)) map.set(key, { name: label || key, children: [] });
+                return map.get(key);
+              };
+              
+              // Build nested directory tree for a set of nixconf_storage_dir_bytes rows without double-counting parent vs children.
+              const buildDirSubtree = (rows, host) => {
+                const byCat = new Map();
+                const depth1 = rows.filter((r) => r.depth === '1');
+                const depth2ByParent = new Map();
+                for (const r of rows) {
+                  if (r.depth === '2') {
+                    const list = depth2ByParent.get(r.parent) || [];
+                    list.push(r);
+                    depth2ByParent.set(r.parent, list);
+                  }
+                }
+                for (const d1 of depth1) {
+                  if (d1.value <= 0) continue;
+                  const catGroup = pushGroup(byCat, d1.category || 'system', d1.category || 'system');
+                  const kids = (depth2ByParent.get(d1.path) || []).filter((k) => k.value > 0);
+                  const d1Growth = dirGrowthMap.get(host + '|' + d1.path) || 0;
+                  if (kids.length === 0) {
+                    catGroup.children.push(
+                      mkLeaf(d1.path, d1.value, {
+                        kind: 'Directory',
+                        host,
+                        provider: 'local',
+                        fullPath: d1.path,
+                        growthDay: d1Growth,
+                      }, d1.category)
+                    );
+                  } else {
+                    let kidSum = 0;
+                    const kidNodes = kids.map((k) => {
+                      kidSum += k.value;
+                      const kGrowth = dirGrowthMap.get(host + '|' + k.path) || 0;
+                      const shortName = k.path.replace(d1.path + '/', "");
+                      return mkLeaf(shortName, k.value, {
+                        kind: 'Directory',
+                        host,
+                        provider: 'local',
+                        fullPath: k.path,
+                        growthDay: kGrowth,
+                      }, d1.category);
+                    });
+                    const rem = d1.value - kidSum;
+                    if (rem > 1048576) {
+                      kidNodes.push(
+                        mkLeaf('(files & small dirs)', rem, {
+                          kind: 'Directory remainder',
+                          host,
+                          provider: 'local',
+                          fullPath: d1.path + '/*',
+                          growthDay: 0,
+                        }, d1.category)
+                      );
+                    }
+                    catGroup.children.push({
+                      name: d1.path,
+                      children: kidNodes,
+                    });
+                  }
+                }
+                return Array.from(byCat.values()).filter((g) => g.children.length > 0);
+              };
+              
+              let treeData = [];
+              
+              if (viewMode === 'fleet') {
+                const byHost = new Map();
+                for (const r of fsUsedRows) {
+                  if (r.value <= 0) continue;
+                  const hostNode = pushGroup(byHost, r.host, r.host);
+                  let localNode = hostNode.children.find((c) => c.name === 'local');
+                  if (!localNode) {
+                    localNode = { name: 'local', children: [] };
+                    hostNode.children.push(localNode);
+                  }
+                  const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                  const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                  let bytes = r.value;
+                  let label = r.mountpoint;
+                  if (r.mountpoint === '/persist') {
+                    const volSum = loopVolSumByHost.get(r.host) || 0;
+                    bytes = Math.max(r.value - volSum, 1);
+                    if (volSum > 0) label = '/persist (base)';
+                  }
+                  const usagePct = total > 0 ? (r.value / total) * 100 : NaN;
+                  localNode.children.push(
+                    mkLeaf(label, bytes, {
+                      kind: 'Local FS (' + r.fstype + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.mountpoint,
+                      limit: total,
+                      usagePct,
+                      growthDay: growth,
+                    }, 'local')
+                  );
+                }
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const hostNode = pushGroup(byHost, r.host, r.host);
+                  let provNode = hostNode.children.find((c) => c.name === prov);
+                  if (!provNode) {
+                    provNode = { name: prov, children: [] };
+                    hostNode.children.push(provNode);
+                  }
+                  const limit = remLimitMap.get(r.host + '|' + prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + prov + '|' + r.slice) || 0;
+                  const usagePct = limit > 0 ? (r.value / limit) * 100 : NaN;
+                  provNode.children.push(
+                    mkLeaf(r.slice, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: prov,
+                      fullPath: prov + ':' + r.slice,
+                      limit,
+                      usagePct,
+                      growthDay: growth,
+                    }, prov)
+                  );
+                }
+                treeData = Array.from(byHost.values());
+              } else if (viewMode === 'provider') {
+                const byProv = new Map();
+                // Local filesystems grouped under local -> host
+                for (const r of fsUsedRows) {
+                  if (r.value <= 0) continue;
+                  const provNode = pushGroup(byProv, 'local', 'local (disks & volumes)');
+                  let hostNode = provNode.children.find((c) => c.name === r.host);
+                  if (!hostNode) {
+                    hostNode = { name: r.host, children: [] };
+                    provNode.children.push(hostNode);
+                  }
+                  const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                  const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                  let bytes = r.value;
+                  let label = r.mountpoint;
+                  if (r.mountpoint === '/persist') {
+                    const volSum = loopVolSumByHost.get(r.host) || 0;
+                    bytes = Math.max(r.value - volSum, 1);
+                    if (volSum > 0) label = '/persist (base)';
+                  }
+                  const usagePct = total > 0 ? (r.value / total) * 100 : NaN;
+                  hostNode.children.push(
+                    mkLeaf(label, bytes, {
+                      kind: 'Local FS (' + r.fstype + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.mountpoint,
+                      limit: total,
+                      usagePct,
+                      growthDay: growth,
+                    }, 'local')
+                  );
+                }
+                // Deduplicate shared remote slices across hosts by taking max per (provider, slice)
+                const dedupRemote = new Map();
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const key = (r.scope === 'per-host') ? (prov + '|' + r.host + '|' + r.slice) : (prov + '|shared|' + r.slice);
+                  const prev = dedupRemote.get(key);
+                  if (!prev || r.value > prev.value) dedupRemote.set(key, { ...r, prov });
+                }
+                for (const r of dedupRemote.values()) {
+                  const provNode = pushGroup(byProv, r.prov, r.prov);
+                  const limit = remLimitMap.get(r.host + '|' + r.prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + r.prov + '|' + r.slice) || 0;
+                  const usagePct = limit > 0 ? (r.value / limit) * 100 : NaN;
+                  const label = r.scope === 'per-host' ? (r.slice + ' (' + r.host + ')') : r.slice;
+                  provNode.children.push(
+                    mkLeaf(label, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: r.prov,
+                      fullPath: r.prov + ':' + r.slice,
+                      limit,
+                      usagePct,
+                      growthDay: growth,
+                    }, r.prov)
+                  );
+                }
+                treeData = Array.from(byProv.values());
+              } else if (viewMode === 'service') {
+                const byService = new Map();
+                // Local service state/cache/system from directory scanner (depth=1 avoids double-counting)
+                for (const r of dirRows) {
+                  if (r.depth !== '1' || r.value <= 0) continue;
+                  const svc = normalizeService(r.service);
+                  const svcNode = pushGroup(byService, svc, svc);
+                  const growth = dirGrowthMap.get(r.host + '|' + r.path) || 0;
+                  svcNode.children.push(
+                    mkLeaf(r.host + ' · ' + r.path, r.value, {
+                      kind: 'Local (' + r.category + ')',
+                      host: r.host,
+                      provider: 'local',
+                      fullPath: r.host + ':' + r.path,
+                      growthDay: growth,
+                    }, svc)
+                  );
+                }
+                // Fallback to loopback volumes if directory scanner has not run yet
+                if (dirRows.length === 0) {
+                  for (const r of fsUsedRows) {
+                    if (r.value <= 0) continue;
+                    const rawName = r.mountpoint.replace(/^\/var\/(lib|cache)\//, "").replace(/^\//, "") || 'root';
+                    const svc = normalizeService(rawName);
+                    const svcNode = pushGroup(byService, svc, svc);
+                    const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                    const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                    svcNode.children.push(
+                      mkLeaf(r.host + ' · ' + r.mountpoint, r.value, {
+                        kind: 'Local FS (' + r.fstype + ')',
+                        host: r.host,
+                        provider: 'local',
+                        fullPath: r.host + ':' + r.mountpoint,
+                        limit: total,
+                        usagePct: total > 0 ? (r.value / total) * 100 : NaN,
+                        growthDay: growth,
+                      }, svc)
+                    );
+                  }
+                }
+                // Remote storage slices mapped into their owning service
+                const seenRemote = new Set();
+                for (const r of remUsedRows) {
+                  if (r.value <= 0) continue;
+                  const prov = inferProvider(r);
+                  const dedupKey = (r.scope === 'per-host') ? (r.host + '|' + prov + '|' + r.slice) : (prov + '|' + r.slice);
+                  if (seenRemote.has(dedupKey)) continue;
+                  seenRemote.add(dedupKey);
+                  const svc = normalizeService(r.slice);
+                  const svcNode = pushGroup(byService, svc, svc);
+                  const limit = remLimitMap.get(r.host + '|' + prov + '|' + r.slice);
+                  const growth = remGrowthMap.get(r.host + '|' + prov + '|' + r.slice) || 0;
+                  svcNode.children.push(
+                    mkLeaf('remote · ' + prov + ':' + r.slice, r.value, {
+                      kind: 'Remote Slice (' + (r.scope || 'shared') + ')',
+                      host: r.host,
+                      provider: prov,
+                      fullPath: prov + ':' + r.slice,
+                      limit,
+                      usagePct: limit > 0 ? (r.value / limit) * 100 : NaN,
+                      growthDay: growth,
+                    }, svc)
+                  );
+                }
+                treeData = Array.from(byService.values());
+              } else {
+                // WizTree Directory breakdown: Host -> Category -> Top Dir -> Subdirs
+                const hosts = Array.from(new Set(dirRows.map((r) => r.host)));
+                if (hosts.length > 0) {
+                  treeData = hosts.map((h) => ({
+                    name: h,
+                    children: buildDirSubtree(dirRows.filter((r) => r.host === h), h),
+                  }));
+                } else {
+                  // Graceful fallback before first scan runs: show local filesystems
+                  const byHost = new Map();
+                  for (const r of fsUsedRows) {
+                    if (r.value <= 0) continue;
+                    const hostNode = pushGroup(byHost, r.host, r.host);
+                    const total = fsSizeMap.get(r.host + '|' + r.mountpoint);
+                    const growth = fsGrowthMap.get(r.host + '|' + r.mountpoint) || 0;
+                    hostNode.children.push(
+                      mkLeaf(r.mountpoint, r.value, {
+                        kind: 'Local FS (awaiting first directory scan)',
+                        host: r.host,
+                        provider: 'local',
+                        fullPath: r.host + ':' + r.mountpoint,
+                        limit: total,
+                        usagePct: total > 0 ? (r.value / total) * 100 : NaN,
+                        growthDay: growth,
+                      }, 'local')
+                    );
+                  }
+                  treeData = Array.from(byHost.values());
+                }
+              }
+              
+              // Recursively roll up totals & growth so parent tooltips and percentage shares are exact.
+              const finalizeNode = (node) => {
+                if (!node.children || node.children.length === 0) {
+                  return {
+                    bytes: node.rawBytes ?? node.value ?? 0,
+                    growth: (node.meta && Number.isFinite(node.meta.growthDay)) ? node.meta.growthDay : 0,
+                  };
+                }
+                let sumB = 0;
+                let sumG = 0;
+                for (const c of node.children) {
+                  const res = finalizeNode(c);
+                  sumB += res.bytes;
+                  sumG += res.growth;
+                }
+                node.rawBytes = sumB;
+                node.meta = { ...(node.meta || {}), growthDay: sumG };
+                return { bytes: sumB, growth: sumG };
+              };
+              let grandTotal = 0;
+              for (const root of treeData) {
+                grandTotal += finalizeNode(root).bytes;
+              }
+              
+              return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                  confine: true,
+                  backgroundColor: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.96)',
+                  borderColor: isDark ? '#334155' : '#cbd5e1',
+                  textStyle: { color: textColor, fontSize: 12 },
+                  formatter: (info) => {
+                    const d = info.data || {};
+                    const m = d.meta || {};
+                    const bytes = Number(d.rawBytes ?? info.value ?? 0);
+                    const pathNames = (info.treePathInfo || []).slice(1).map((p) => p.name);
+                    const parentInfo = info.treePathInfo && info.treePathInfo.length >= 2
+                      ? info.treePathInfo[info.treePathInfo.length - 2]
+                      : null;
+                    const parentVal = parentInfo ? Number(parentInfo.value || 0) : grandTotal;
+                    const pctParent = parentVal > 0 ? ((bytes / parentVal) * 100).toFixed(1) : '100.0';
+                    const pctTotal = grandTotal > 0 ? ((bytes / grandTotal) * 100).toFixed(1) : '100.0';
+                    const lines = [
+                      '<div style="font-weight:700;margin-bottom:4px">' + pathNames.join(' / ') + '</div>',
+                      '<div>Size: <b>' + fmtBytes(bytes) + '</b> (' + pctParent + '% of parent · ' + pctTotal + '% of view)</div>',
+                    ];
+                    if (m.kind) lines.push('<div>Type: ' + m.kind + '</div>');
+                    if (Number.isFinite(m.limit) && m.limit > 0) {
+                      lines.push('<div>Capacity: ' + fmtBytes(m.limit) + ' (' + (m.usagePct || 0).toFixed(1) + '% used)</div>');
+                    }
+                    if (Number.isFinite(m.growthDay)) {
+                      lines.push('<div>Growth / Day: <b>' + fmtSignedGrowth(m.growthDay) + '</b></div>');
+                    }
+                    return lines.join("");
+                  },
+                },
+                series: [
+                  {
+                    name: 'Storage (' + fmtBytes(grandTotal) + ')',
+                    type: 'treemap',
+                    roam: false,
+                    nodeClick: 'zoomToNode',
+                    width: '100%',
+                    height: '92%',
+                    top: 4,
+                    bottom: 34,
+                    squareRatio: 0.72,
+                    visibleMin: 220,
+                    childrenVisibleMin: 400,
+                    breadcrumb: {
+                      show: true,
+                      bottom: 4,
+                      height: 24,
+                      itemStyle: {
+                        color: headerBg,
+                        borderColor: isDark ? '#334155' : '#cbd5e1',
+                        borderWidth: 1,
+                        textStyle: { color: textColor, fontSize: 12 },
+                      },
+                    },
+                    label: {
+                      show: true,
+                      color: '#f8fafc',
+                      fontSize: 11,
+                      lineHeight: 15,
+                      overflow: 'truncate',
+                      formatter: (params) => {
+                        const d = params.data || {};
+                        const m = d.meta || {};
+                        const bytes = Number(d.rawBytes ?? params.value ?? 0);
+                        const sizeStr = fmtBytes(bytes);
+                        if (colorMode === 'growth' && Number.isFinite(m.growthDay) && Math.abs(m.growthDay) >= 1024) {
+                          return d.name + '\n' + sizeStr + '\n' + fmtSignedGrowth(m.growthDay);
+                        }
+                        if (colorMode === 'usage' && Number.isFinite(m.usagePct)) {
+                          return d.name + '\n' + sizeStr + ' (' + m.usagePct.toFixed(0) + '%)';
+                        }
+                        return d.name + '\n' + sizeStr;
+                      },
+                    },
+                    upperLabel: {
+                      show: true,
+                      height: 22,
+                      color: textColor,
+                      fontWeight: 600,
+                      fontSize: 11,
+                      padding: [2, 6],
+                      formatter: (params) => {
+                        const d = params.data || {};
+                        const bytes = Number(d.rawBytes ?? params.value ?? 0);
+                        return d.name + '  (' + fmtBytes(bytes) + ')';
+                      },
+                    },
+                    itemStyle: {
+                      borderColor: borderColor,
+                      borderWidth: 1,
+                      gapWidth: 1,
+                    },
+                    levels: [
+                      {
+                        itemStyle: {
+                          borderColor: isDark ? '#334155' : '#94a3b8',
+                          borderWidth: 2,
+                          gapWidth: 3,
+                        },
+                        upperLabel: {
+                          show: true,
+                          backgroundColor: headerBg,
+                        },
+                      },
+                      {
+                        itemStyle: {
+                          borderColor: isDark ? '#1e293b' : '#cbd5e1',
+                          borderWidth: 2,
+                          gapWidth: 2,
+                        },
+                        upperLabel: {
+                          show: true,
+                          backgroundColor: isDark ? '#172033' : '#f1f5f9',
+                        },
+                      },
+                      {
+                        itemStyle: {
+                          borderColor: borderColor,
+                          borderWidth: 1,
+                          gapWidth: 1,
+                        },
+                      },
+                    ],
+                    data: treeData,
+                  },
+                ],
+              };
+            '';
+            map = "none";
+            renderer = "canvas";
+            themeEditor = {
+              name = "default";
+            };
+          };
+          pluginVersion = "7.2.5";
+          targets = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint, fstype) (((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"})))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "A";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint, fstype) ((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "B";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, mountpoint) (deriv(((node_filesystem_size_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_size_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}) - (node_filesystem_avail_bytes{host=~\"$host\",fstype!~\"btrfs|ramfs|squashfs|overlay|fuse\\\\..*\",mountpoint!~\"/(etc|nix|var/run|run|sys|proc|dev).*|.*overlay-containers.*\"} or node_filesystem_avail_bytes{host=~\"$host\",fstype=\"btrfs\",mountpoint=~\"/|/persist\"}))[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "C";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_used_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "D";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_limit_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "E";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, provider, slice) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "F";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, category, service, path, parent, depth) (nixconf_storage_dir_bytes{host=~\"$host\"})";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "G";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              expr = "max by (host, path) (deriv(nixconf_storage_dir_bytes{host=~\"$host\"}[$window:])) * 86400";
+              format = "table";
+              instant = true;
+              legendFormat = "";
+              range = false;
+              refId = "H";
+            }
+          ];
+          title = "Storage by Provider (Local vs Cloud)";
+          type = "volkovlabs-echarts-panel";
+        }
+        {
+          collapsed = true;
+          gridPos = {
+            h = 1;
+            w = 24;
+            x = 0;
+            y = 33;
+          };
+          id = 10;
+          panels = [
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              fieldConfig = {
+                defaults = {
+                  custom = {
+                    align = "auto";
+                    cellOptions = {
+                      type = "auto";
+                    };
+                    filterable = true;
+                    inspect = false;
+                  };
+                  noValue = "Awaiting first nixconf-storage-scan run";
+                };
+                overrides = [
+                  {
+                    matcher = {
+                      id = "byName";
+                      options = "Size";
+                    };
+                    properties = [
+                      {
+                        id = "unit";
+                        value = "bytes";
+                      }
+                    ];
+                  }
+                  {
+                    matcher = {
+                      id = "byName";
+                      options = "Growth / Day";
+                    };
+                    properties = [
+                      {
+                        id = "unit";
+                        value = "bytes";
+                      }
+                    ];
+                  }
+                ];
+              };
+              gridPos = {
+                h = 10;
+                w = 14;
+                x = 0;
+                y = 34;
+              };
+              id = 11;
+              options = {
+                cellHeight = "sm";
+                footer = {
+                  countRows = false;
+                  fields = "";
+                  reducer = [
+                    "sum"
+                  ];
+                  show = false;
+                };
+                showHeader = true;
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Size";
+                  }
+                ];
+              };
+              targets = [
+                {
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus";
+                  };
+                  expr = "max by (host, category, service, path, depth) (nixconf_storage_dir_bytes{host=~\"$host\"})";
+                  format = "table";
+                  instant = true;
+                  legendFormat = "";
+                  range = false;
+                  refId = "A";
+                }
+                {
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus";
+                  };
+                  expr = "max by (host, category, service, path, depth) (deriv(nixconf_storage_dir_bytes{host=~\"$host\"}[$window:])) * 86400";
+                  format = "table";
+                  instant = true;
+                  legendFormat = "";
+                  range = false;
+                  refId = "B";
+                }
+              ];
+              title = "Local Directories & Services (Depth 1–2, >= 1 MiB)";
+              transformations = [
+                {
+                  id = "merge";
+                  options = { };
+                }
+                {
+                  id = "organize";
+                  options = {
+                    excludeByName = {
+                      Time = true;
+                    };
+                    indexByName = {
+                      "Value #A" = 5;
+                      "Value #B" = 6;
+                      category = 1;
+                      depth = 4;
+                      host = 0;
+                      path = 3;
+                      service = 2;
+                    };
+                    renameByName = {
+                      "Value #A" = "Size";
+                      "Value #B" = "Growth / Day";
+                      category = "Category";
+                      depth = "Depth";
+                      host = "Host";
+                      path = "Path";
+                      service = "Service";
+                    };
+                  };
+                }
+              ];
+              type = "table";
+            }
+            {
+              datasource = {
+                type = "prometheus";
+                uid = "prometheus";
+              };
+              fieldConfig = {
+                defaults = {
+                  custom = {
+                    align = "auto";
+                    cellOptions = {
+                      type = "auto";
+                    };
+                    filterable = true;
+                    inspect = false;
+                  };
+                  noValue = "No remote storage budgets configured";
+                };
+                overrides = [
+                  {
+                    matcher = {
+                      id = "byName";
+                      options = "Used";
+                    };
+                    properties = [
+                      {
+                        id = "unit";
+                        value = "bytes";
+                      }
+                    ];
+                  }
+                  {
+                    matcher = {
+                      id = "byName";
+                      options = "Limit";
+                    };
+                    properties = [
+                      {
+                        id = "unit";
+                        value = "bytes";
+                      }
+                    ];
+                  }
+                  {
+                    matcher = {
+                      id = "byName";
+                      options = "Usage %";
+                    };
+                    properties = [
+                      {
+                        id = "unit";
+                        value = "percent";
+                      }
+                      {
+                        id = "decimals";
+                        value = 1;
+                      }
+                      {
+                        id = "min";
+                        value = 0;
+                      }
+                      {
+                        id = "max";
+                        value = 100;
+                      }
+                      {
+                        id = "thresholds";
+                        value = {
+                          mode = "absolute";
+                          steps = [
+                            {
+                              color = "green";
+                              value = null;
+                            }
+                            {
+                              color = "orange";
+                              value = 80;
+                            }
+                            {
+                              color = "red";
+                              value = 90;
+                            }
+                          ];
+                        };
+                      }
+                      {
+                        id = "color";
+                        value = {
+                          mode = "thresholds";
+                        };
+                      }
+                      {
+                        id = "custom.cellOptions";
+                        value = {
+                          mode = "gradient";
+                          type = "gauge";
+                          valueDisplayMode = "color";
+                        };
+                      }
+                    ];
+                  }
+                  {
+                    matcher = {
+                      id = "byName";
+                      options = "Growth / Day";
+                    };
+                    properties = [
+                      {
+                        id = "unit";
+                        value = "bytes";
+                      }
+                    ];
+                  }
+                ];
+              };
+              gridPos = {
+                h = 10;
+                w = 10;
+                x = 14;
+                y = 34;
+              };
+              id = 12;
+              options = {
+                cellHeight = "sm";
+                footer = {
+                  countRows = false;
+                  fields = "";
+                  reducer = [
+                    "sum"
+                  ];
+                  show = false;
+                };
+                showHeader = true;
+                sortBy = [
+                  {
+                    desc = true;
+                    displayName = "Used";
+                  }
+                ];
+              };
+              targets = [
+                {
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus";
+                  };
+                  expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_used_bytes{host=~\"$host\"})";
+                  format = "table";
+                  instant = true;
+                  legendFormat = "";
+                  range = false;
+                  refId = "A";
+                }
+                {
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus";
+                  };
+                  expr = "max by (host, provider, slice, scope) (nixconf_storage_budget_limit_bytes{host=~\"$host\"})";
+                  format = "table";
+                  instant = true;
+                  legendFormat = "";
+                  range = false;
+                  refId = "B";
+                }
+                {
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus";
+                  };
+                  expr = "max by (host, provider, slice, scope) ((nixconf_storage_budget_used_bytes{host=~\"$host\"} / clamp_min(nixconf_storage_budget_limit_bytes{host=~\"$host\"}, 1)) * 100)";
+                  format = "table";
+                  instant = true;
+                  legendFormat = "";
+                  range = false;
+                  refId = "C";
+                }
+                {
+                  datasource = {
+                    type = "prometheus";
+                    uid = "prometheus";
+                  };
+                  expr = "max by (host, provider, slice, scope) (deriv(nixconf_storage_budget_used_bytes{host=~\"$host\"}[$window:])) * 86400";
+                  format = "table";
+                  instant = true;
+                  legendFormat = "";
+                  range = false;
+                  refId = "D";
+                }
+              ];
+              title = "Remote Storage Providers & Slices";
+              transformations = [
+                {
+                  id = "merge";
+                  options = { };
+                }
+                {
+                  id = "organize";
+                  options = {
+                    excludeByName = {
+                      Time = true;
+                    };
+                    indexByName = {
+                      "Value #A" = 4;
+                      "Value #B" = 5;
+                      "Value #C" = 6;
+                      "Value #D" = 7;
+                      host = 0;
+                      provider = 1;
+                      scope = 3;
+                      slice = 2;
+                    };
+                    renameByName = {
+                      "Value #A" = "Used";
+                      "Value #B" = "Limit";
+                      "Value #C" = "Usage %";
+                      "Value #D" = "Growth / Day";
+                      host = "Host";
+                      provider = "Provider";
+                      scope = "Scope";
+                      slice = "Slice";
+                    };
+                  };
+                }
+              ];
+              type = "table";
+            }
+          ];
+          title = "Exact Directory & Remote Breakdown Tables";
+          type = "row";
+        }
+      ];
+      refresh = "1m";
+      schemaVersion = 39;
+      tags = [
+        "nixconf"
+        "storage"
+        "treemap"
+        "wiztree"
+        "disk"
+        "providers"
+        "capacity"
+      ];
+      templating = {
+        list = [
+          {
+            allValue = ".*";
+            current = {
+              selected = true;
+              text = "All";
+              value = "$__all";
+            };
+            datasource = {
+              type = "prometheus";
+              uid = "prometheus";
+            };
+            definition = "label_values(node_uname_info, host)";
+            hide = 0;
+            includeAll = true;
+            label = "Host";
+            multi = true;
+            name = "host";
+            query = {
+              qryType = 1;
+              query = "label_values(node_uname_info, host)";
+            };
+            refresh = 2;
+            sort = 1;
+            type = "query";
+          }
+          {
+            current = {
+              selected = true;
+              text = "All (Host → Provider → Slice/FS)";
+              value = "fleet";
+            };
+            hide = 0;
+            includeAll = false;
+            label = "Hierarchy";
+            multi = false;
+            name = "view";
+            options = [
+              {
+                selected = true;
+                text = "All (Host → Provider → Slice/FS)";
+                value = "fleet";
+              }
+              {
+                selected = false;
+                text = "By Storage Provider (local / hbox / gdrive / b2)";
+                value = "provider";
+              }
+              {
+                selected = false;
+                text = "By Service (Local State + Cache + Remote)";
+                value = "service";
+              }
+              {
+                selected = false;
+                text = "By Directory (WizTree Local Tree)";
+                value = "directory";
+              }
+            ];
+            query = "All (Host → Provider → Slice/FS) : fleet,By Storage Provider (local / hbox / gdrive / b2) : provider,By Service (Local State + Cache + Remote) : service,By Directory (WizTree Local Tree) : directory";
+            type = "custom";
+          }
+          {
+            current = {
+              selected = true;
+              text = "Stock Market Heatmap (Growth / Day)";
+              value = "growth";
+            };
+            hide = 0;
+            includeAll = false;
+            label = "Color Mode";
+            multi = false;
+            name = "color_mode";
+            options = [
+              {
+                selected = true;
+                text = "Stock Market Heatmap (Growth / Day)";
+                value = "growth";
+              }
+              {
+                selected = false;
+                text = "Capacity Pressure (Usage %)";
+                value = "usage";
+              }
+              {
+                selected = false;
+                text = "WizTree Category Palette";
+                value = "category";
+              }
+            ];
+            query = "Stock Market Heatmap (Growth / Day) : growth,Capacity Pressure (Usage %) : usage,WizTree Category Palette : category";
+            type = "custom";
+          }
+          {
+            current = {
+              selected = true;
+              text = "7d";
+              value = "7d";
+            };
+            hide = 0;
+            includeAll = false;
+            label = "Growth Window";
+            multi = false;
+            name = "window";
+            options = [
+              {
+                selected = false;
+                text = "24h";
+                value = "24h";
+              }
+              {
+                selected = true;
+                text = "7d";
+                value = "7d";
+              }
+              {
+                selected = false;
+                text = "30d";
+                value = "30d";
+              }
+            ];
+            query = "24h,7d,30d";
+            type = "custom";
+          }
+        ];
+      };
+      time = {
+        from = "now-7d";
+        to = "now";
+      };
+      timezone = "browser";
+      title = "Storage Atlas (Treemap)";
+      uid = "nixconf-storage-atlas";
+    };
+    title = "Storage Atlas (Treemap)";
+  };
   task-manager = {
     enable = true;
     folder = "01 · Investigate";
@@ -24449,6 +27753,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -26941,6 +30255,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";
@@ -29523,6 +32847,16 @@ config = {
           tooltip = "Long-term baselines, allocation right-sizing, growth rates, and background operation costs";
           type = "link";
           url = "/d/nixconf-capacity-analytics";
+        }
+        {
+          icon = "database";
+          includeVars = true;
+          keepTime = true;
+          targetBlank = false;
+          title = "Storage";
+          tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+          type = "link";
+          url = "/d/nixconf-storage-atlas";
         }
         {
           icon = "apps";

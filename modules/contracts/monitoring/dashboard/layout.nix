@@ -249,6 +249,16 @@
         type = "link";
         url = "/d/nixconf-capacity-analytics";
       }
+      ++ lib.optional (uid != "nixconf-storage-atlas") {
+        icon = "database";
+        includeVars = true;
+        keepTime = true;
+        targetBlank = false;
+        title = "Storage";
+        tooltip = "WizTree & stock-market style interactive storage treemap by host, provider, service, and directory";
+        type = "link";
+        url = "/d/nixconf-storage-atlas";
+      }
       ++ lib.optional (uid != "nixconf-services-catalog") {
         icon = "apps";
         includeVars = true;

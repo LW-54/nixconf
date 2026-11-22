@@ -176,6 +176,7 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_paths
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__restic

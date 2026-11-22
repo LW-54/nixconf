@@ -598,6 +598,32 @@
       }
       // lib.optionalAttrs (description != null) {inherit description;};
   };
+
+  mkEcharts = {
+    title,
+    targets,
+    getOption,
+    renderer ? "canvas",
+    description ? null,
+    h ? 14,
+    w ? 24,
+  }: {
+    inherit h w;
+    panel =
+      {
+        type = "volkovlabs-echarts-panel";
+        pluginVersion = "7.2.5";
+        inherit title targets;
+        datasource = primaryDatasource targets;
+        options = {
+          editorMode = "code";
+          inherit renderer getOption;
+          map = "none";
+          themeEditor.name = "default";
+        };
+      }
+      // lib.optionalAttrs (description != null) {inherit description;};
+  };
 in {
   internal.monitoring.dashboard = {
     inherit
@@ -610,6 +636,7 @@ in {
       mkSystemdUnitsTable
       mkLogs
       mkText
+      mkEcharts
       ;
   };
 }

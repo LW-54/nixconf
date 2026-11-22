@@ -232,6 +232,7 @@
             declarativePlugins = with pkgs.grafanaPlugins; [
               prometheus
               victoriametrics-logs-datasource
+              volkovlabs-echarts-panel
             ];
             settings =
               lib.recursiveUpdate {

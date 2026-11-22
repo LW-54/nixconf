@@ -158,7 +158,9 @@ flowchart LR
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__astrolabe -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__astrolabe_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_oom
     urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_profile
@@ -246,6 +248,8 @@ flowchart LR
     urn__nixconf__ast__module__vaultwarden -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__vaultwarden -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__alloy
+    urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__x240_resources -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_disk
     urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_profile
@@ -746,7 +750,7 @@ Modules and instances configuring options under the `resources` contract capabil
 <details>
 <summary><code><a href="../hosts/astrolabe.md">astrolabe</a></code></summary>
 
-**Configures options**: `resources.oom`, `resources.profile`, `resources.storageBudgets`, `resources.tiers`, `resources.volumes`
+**Configures options**: `resources.oom`, `resources.profile`, `resources.storageBudgets`, `resources.tiers`, `resources.units`, `resources.volumes`
 
 ```nix
 # modules/hosts/astrolabe/resources.nix
