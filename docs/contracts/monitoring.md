@@ -1018,7 +1018,7 @@ Modules and instances configuring options under the `monitoring` contract capabi
 68: logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
 69: rules.restic = {
 ...
-88: json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
+98: json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 

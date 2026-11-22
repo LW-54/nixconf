@@ -761,7 +761,7 @@ Modules and instances configuring options under the `resources` contract capabil
 ```nix
 # modules/implementations/restic/default.nix
 ...
-92: resources.units = lib.mkIf (config.resources.enable or false) (
+102: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 
@@ -858,7 +858,7 @@ config = {
 ```nix
 # modules/features/snapshot.nix
 ...
-394: resources.units = lib.mkIf (config.resources.enable or false) (
+404: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 

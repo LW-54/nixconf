@@ -838,7 +838,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/snapshot.nix
 ...
-394: resources.units = lib.mkIf (config.resources.enable or false) (
+404: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 
@@ -890,11 +890,11 @@ Capability contracts configured by this feature:
 ...
 330: storage.activeSlices = lib.unique (lib.mapAttrsToList (_: t: t.slice) enabledTargets);
 ...
-411: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
+421: assertion = lib.all (t: config.storage.slices ? ${t.slice}) (builtins.attrValues enabledTargets);
 ...
-415: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
+425: assertion = lib.all (t: builtins.elem t.slice config.storage.activeSlices) (builtins.attrValues enabledTargets);
 ...
-416: message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
+426: message = "Enabled host snapshot target slices must be registered in `storage.activeSlices`.";
 ...
 ```
 

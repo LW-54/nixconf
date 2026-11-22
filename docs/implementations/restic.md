@@ -1065,7 +1065,7 @@ Capability contracts configured by this implementation:
 68: logs.journal.units = backupServiceUnits ++ restoreServiceUnits;
 69: rules.restic = {
 ...
-88: json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
+98: json = internalRestic.mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -1095,7 +1095,7 @@ Capability contracts configured by this implementation:
 ```nix
 # modules/implementations/restic/default.nix
 ...
-92: resources.units = lib.mkIf (config.resources.enable or false) (
+102: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 

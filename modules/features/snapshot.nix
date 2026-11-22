@@ -387,6 +387,16 @@ in {
                   description = "Btrfs/restic host snapshot unit {{ $labels.name }} failed on {{ $labels.host }}.";
                 };
               }
+              {
+                alert = "HostSnapshotStale";
+                expr = ''time() - (node_systemd_timer_last_trigger_seconds{name=~"host-snapshot-.*\\.timer"} or vector(time())) > 2 * 24 * 3600'';
+                "for" = "1h";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "Host snapshot timer {{ $labels.name }} is stale on {{ $labels.host }}";
+                  description = "Host snapshot timer {{ $labels.name }} has not triggered in over 48 hours on {{ $labels.host }}. It may be permanently deferred due to missing AC power.";
+                };
+              }
             ];
           };
         });

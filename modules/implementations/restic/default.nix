@@ -80,6 +80,16 @@ in {
                     description = "Restic backup or restore unit {{ $labels.name }} entered failed state on {{ $labels.host }}.";
                   };
                 }
+                {
+                  alert = "ResticBackupStale";
+                  expr = ''time() - (node_systemd_timer_last_trigger_seconds{name=~"restic-backups-.*\\.timer"} or vector(time())) > 2 * 24 * 3600'';
+                  "for" = "1h";
+                  labels.severity = "warning";
+                  annotations = {
+                    summary = "Restic backup timer {{ $labels.name }} is stale on {{ $labels.host }}";
+                    description = "Restic backup timer {{ $labels.name }} has not triggered in over 48 hours on {{ $labels.host }}. It may be permanently deferred due to missing AC power.";
+                  };
+                }
               ];
             };
             dashboards.backups = {
