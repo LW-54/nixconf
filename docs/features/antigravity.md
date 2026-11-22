@@ -420,10 +420,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/antigravity.nix
 ...
-30: home.shared.files = {
-31: ".gemini/GEMINI.md".text = globalRules;
-32: ".gemini/config/GEMINI.md".text = globalRules;
-33: };
+38: home.shared.files = {
+39: ".gemini/GEMINI.md".text = globalRules;
+40: ".gemini/config/GEMINI.md".text = globalRules;
+41: };
 ...
 ```
 
@@ -438,15 +438,15 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/antigravity.nix
 ...
-34: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-35: data.directories = [
-36: ".gemini"
-37: ];
+42: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+43: data.directories = [
+44: ".gemini"
+45: ];
 ...
-56: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-57: data.directories = [
-58: ".antigravity-ide"
-59: ];
+64: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+65: data.directories = [
+66: ".antigravity-ide"
+67: ];
 ...
 ```
 

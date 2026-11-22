@@ -269,10 +269,10 @@ Modules and instances configuring options under the `home` contract capability:
 ```nix
 # modules/features/antigravity.nix
 ...
-30: home.shared.files = {
-31: ".gemini/GEMINI.md".text = globalRules;
-32: ".gemini/config/GEMINI.md".text = globalRules;
-33: };
+38: home.shared.files = {
+39: ".gemini/GEMINI.md".text = globalRules;
+40: ".gemini/config/GEMINI.md".text = globalRules;
+41: };
 ...
 ```
 

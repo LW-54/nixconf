@@ -6,6 +6,14 @@
   globalRules = ''
     # Global Agent Rules
 
+    ## Autonomy & Decision Making
+    - Act autonomously on implementation details: directly perform file edits, formatting, refactoring, test execution, and diagnostic/build commands without asking for confirmation first.
+    - Do not ask for permission before running routine commands or applying straightforward code changes.
+    - Pause and ask for user input (using `ask_question` or an implementation plan) ONLY for:
+      - Architecture and high-level design decisions with meaningful trade-offs.
+      - Ambiguous product or behavioral requirements where multiple interpretations exist.
+      - Destructive or irreversible actions (e.g., deleting untracked data, force-pushing, dropping state).
+
     ## Git Commit Messages
     - Always format commit messages as `<type>: <description>` (e.g., `feat: ...`, `fix: ...`, `refactor: ...`, `docs: ...`, `chore: ...`, `revert: ...`).
     - NEVER use parenthetical scopes like `type(scope): ...` in commit messages.
