@@ -31,6 +31,7 @@ flowchart LR
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__ntfy["nixosModule/ntfy"]:::defaultNode
+    urn__nixconf__ast__module__perf_monitor["nixosModule/perf-monitor"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
@@ -160,6 +161,7 @@ flowchart LR
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
+    urn__nixconf__onto__feature__perf_monitor("perf-monitor"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
@@ -390,6 +392,13 @@ flowchart LR
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__perf_monitor -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__perf_monitor -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -682,6 +691,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ntfy
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__perf_monitor
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__snapshot
@@ -828,6 +838,9 @@ flowchart LR
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__perf_monitor -->|outputs| urn__nixconf__ast__module__perf_monitor
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -879,6 +892,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__micro
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__perf_monitor
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__tack
@@ -1001,6 +1015,7 @@ flowchart LR
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__ntfy href "../modules/ntfy.md" "ntfy"
+    click urn__nixconf__ast__module__perf_monitor href "../modules/perf-monitor.md" "perf-monitor"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
     click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
@@ -1130,6 +1145,7 @@ flowchart LR
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "../features/noctalia.md" "noctalia"
     click urn__nixconf__onto__feature__ntfy href "../features/ntfy.md" "ntfy"
+    click urn__nixconf__onto__feature__perf_monitor href "../features/perf-monitor.md" "perf-monitor"
     click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"

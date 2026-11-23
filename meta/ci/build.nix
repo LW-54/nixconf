@@ -127,12 +127,26 @@
 
         shopt -s nullglob
         miss_files=(/tmp/ci-miss/*)
-        if [ "''${#miss_files[@]}" -eq 0 ]; then
-          echo "All targets already cached in Attic & Cachix — skipping multi-GB download."
+        total_targets="$(wc -l < /tmp/ci-targets.tsv)"
+        miss_count="''${#miss_files[@]}"
+        hit_count=$((total_targets - miss_count))
+        t_start="$(date +%s)"
+        if [ "$miss_count" -eq 0 ]; then
+          echo "All $total_targets target(s) already cached in Attic & Cachix — skipping multi-GB download."
         else
           mapfile -t MISSING < <(cat "''${miss_files[@]}")
-          echo "Building ''${#MISSING[@]} uncached target(s)..."
+          echo "Building $miss_count / $total_targets uncached target(s)..."
           nix build --out-link ${outLink} ${extraBuildFlags} -L "''${MISSING[@]}"
+        fi
+        t_dur=$(( $(date +%s) - t_start ))
+        if [ -n "''${GITHUB_STEP_SUMMARY:-}" ]; then
+          {
+            echo "### ${name}"
+            echo ""
+            echo "| Targets | Cache Hits | Built | Build Time |"
+            echo "| ---: | ---: | ---: | ---: |"
+            echo "| $total_targets | $hit_count | $miss_count | ''${t_dur}s |"
+          } >> "$GITHUB_STEP_SUMMARY"
         fi
       '';
     };
@@ -211,6 +225,31 @@
                   ".#checks.${runnerSystem}.docs"
                   ".#checks.${runnerSystem}.ci"
                 ];
+              }
+              {
+                name = "Guard derivation cache isolation (README.md mutation)";
+                run = ''
+                  set -euo pipefail
+                  probe() {
+                    nix eval --no-eval-cache --json --apply 'b: {
+                      eval_astrolabe = b.checks-eval-astrolabe.outPath;
+                      eval_x240 = b.checks-eval-x240.outPath;
+                      ci = b.packages-ci.outPath;
+                      menu = b.packages-menu.outPath;
+                    }' .#legacyPackages.${runnerSystem}.ciBuildables
+                  }
+                  before="$(probe)"
+                  trap 'git checkout -- README.md' EXIT
+                  printf '\n<!-- cache-isolation-probe -->\n' >> README.md
+                  after="$(probe)"
+                  if [ "$before" != "$after" ]; then
+                    echo "ERROR: Editing README.md invalidated non-docs derivations (possible \''${self} leak)!" >&2
+                    echo "Before: $before" >&2
+                    echo "After:  $after" >&2
+                    exit 1
+                  fi
+                  echo "Cache isolation verified: 0 non-docs derivations invalidated by README.md edit."
+                '';
               }
             ];
         };

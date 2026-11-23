@@ -127,7 +127,7 @@ fn is_setup_step(name: &str) -> bool {
     )
 }
 
-pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32, String> {
+pub fn collect(repo: Option<String>, limit: u32, verbose: bool) -> Result<CiReport, String> {
     let slug = match repo {
         Some(r) => r,
         None => detect_repo_slug()?,
@@ -242,27 +242,29 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
             _ => 0.0,
         };
 
-        eprintln!(
-            "\n=== {} (run #{} [{}]) ===\n  jobs={} | wall={:.0}s | total_runner={:.1} min (setup={:.0}s, work={:.0}s)",
-            wf_name,
-            run_id,
-            wf_conclusion,
-            jobs.len(),
-            wall_s,
-            total_runner_s / 60.0,
-            setup_teardown_s,
-            work_s
-        );
-        for j in rows.iter().take(10) {
-            let fail_note = if j.failed_steps.is_empty() {
-                String::new()
-            } else {
-                format!("  FAILED: {}", j.failed_steps.join(", "))
-            };
+        if verbose {
             eprintln!(
-                "  - {:<36} [{:<9}] run={:5.0}s (setup={:3.0}s, work={:4.0}s, queue={:2.0}s){}",
-                j.name, j.conclusion, j.run_s, j.setup_s, j.work_s, j.queue_s, fail_note
+                "\n=== {} (run #{} [{}]) ===\n  jobs={} | wall={:.0}s | total_runner={:.1} min (setup={:.0}s, work={:.0}s)",
+                wf_name,
+                run_id,
+                wf_conclusion,
+                jobs.len(),
+                wall_s,
+                total_runner_s / 60.0,
+                setup_teardown_s,
+                work_s
             );
+            for j in rows.iter().take(10) {
+                let fail_note = if j.failed_steps.is_empty() {
+                    String::new()
+                } else {
+                    format!("  FAILED: {}", j.failed_steps.join(", "))
+                };
+                eprintln!(
+                    "  - {:<36} [{:<9}] run={:5.0}s (setup={:3.0}s, work={:4.0}s, queue={:2.0}s){}",
+                    j.name, j.conclusion, j.run_s, j.setup_s, j.work_s, j.queue_s, fail_note
+                );
+            }
         }
 
         workflows.insert(
@@ -280,12 +282,17 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
         );
     }
 
-    let report = CiReport {
+    Ok(CiReport {
         report_type: "ci".into(),
         timestamp: ts,
         repo: slug,
         workflows,
-    };
+    })
+}
+
+pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32, String> {
+    let report = collect(repo, limit, true)?;
+    let ts = report.timestamp;
 
     let out_path = out.unwrap_or_else(|| PathBuf::from(format!(".bench/results/ci-{ts}.json")));
     if let Some(p) = out_path.parent() {

@@ -3,6 +3,7 @@ mod cache;
 mod ci;
 mod compare;
 mod flamegraph;
+mod metrics;
 mod native;
 mod shim;
 mod trace;
@@ -162,6 +163,49 @@ enum Commands {
         /// New report JSON
         after: PathBuf,
     },
+
+    /// Export CI, binary cache, Nix eval, and cache-isolation telemetry in Prometheus textfile format
+    Metrics {
+        /// Collect GitHub Actions CI timings, substituter latency probes, and Attic disk usage
+        #[arg(long)]
+        ci: bool,
+
+        /// Collect uncached Nix eval timings, allocations, and README.md cache-isolation probe
+        #[arg(long)]
+        eval: bool,
+
+        /// GitHub repository slug owner/repo
+        #[arg(long)]
+        repo: Option<String>,
+
+        /// Number of recent workflow runs to inspect
+        #[arg(long, default_value_t = 12)]
+        limit: u32,
+
+        /// Attic binary cache base URL (e.g. https://cache.adje.app/nixconf)
+        #[arg(long, default_value = "https://cache.adje.app/nixconf")]
+        attic_url: String,
+
+        /// Cachix binary cache base URL
+        #[arg(long, default_value = "https://lw-54.cachix.org")]
+        cachix_url: String,
+
+        /// Local Attic storage directory to measure disk usage (e.g. /var/lib/atticd)
+        #[arg(long)]
+        attic_dir: Option<PathBuf>,
+
+        /// Local git repository checkout for --eval benchmarks
+        #[arg(long, default_value = ".")]
+        repo_dir: PathBuf,
+
+        /// Target Nix system for --eval benchmarks
+        #[arg(long, default_value = "x86_64-linux")]
+        system: String,
+
+        /// Output Prometheus .prom file path (atomic write; prints to stdout if omitted)
+        #[arg(short, long)]
+        out: Option<PathBuf>,
+    },
 }
 
 fn is_nix_shim_invocation() -> bool {
@@ -246,6 +290,29 @@ fn main() -> ExitCode {
         }),
         Commands::Ci { repo, limit, out } => ci::run(repo, limit, out),
         Commands::Compare { before, after } => compare::run(&before, &after),
+        Commands::Metrics {
+            ci,
+            eval,
+            repo,
+            limit,
+            attic_url,
+            cachix_url,
+            attic_dir,
+            repo_dir,
+            system,
+            out,
+        } => metrics::run(metrics::MetricsOpts {
+            ci,
+            eval,
+            repo,
+            limit,
+            attic_url,
+            cachix_url,
+            attic_dir,
+            repo_dir,
+            system,
+            out,
+        }),
     };
 
     match res {

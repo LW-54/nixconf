@@ -28,6 +28,86 @@
 
     hostFilter = "github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host";
 
+    cachedTestStep = {
+      name,
+      tier,
+      condition,
+      outLink,
+      postScript ? "",
+    }: {
+      inherit name;
+      "if" = condition;
+      env = {
+        HOST = "\${{ matrix.host }}";
+      };
+      run = ''
+        set -euo pipefail
+        ATTIC_URL="${atticCfg.endpoint}/${atticCfg.cache}"
+        CACHIX_URL="https://lw-54.cachix.org"
+
+        t_start="$(date +%s)"
+        read -r drv out < <(
+          nix derivation show ".#legacyPackages.${runnerSystem}.hostTests.''${HOST}.${tier}" \
+            | jq -r '(.derivations // .) | to_entries[0] | [(.key | if startswith("/nix/store/") then . else "/nix/store/" + . end), ((.value.outputs.out // (.value.outputs | to_entries[0].value)).path | if startswith("/nix/store/") then . else "/nix/store/" + . end)] | @tsv'
+        )
+        hash="''${out#/nix/store/}"
+        hash="''${hash%%-*}"
+
+        in_attic=0
+        in_cachix=0
+        curl -fsI --max-time 5 "''${ATTIC_URL}/''${hash}.narinfo" >/dev/null 2>&1 && in_attic=1
+        curl -fsI --max-time 5 "''${CACHIX_URL}/''${hash}.narinfo" >/dev/null 2>&1 && in_cachix=1
+
+        if [ "$in_attic" -eq 1 ] && [ "$in_cachix" -eq 1 ]; then
+          echo "Test ${tier} for ''${HOST} already cached in Attic & Cachix ($out) — skipping VM download/run."
+          status="cached (attic+cachix)"
+        else
+          echo "Running ${tier} for ''${HOST} (attic=$in_attic cachix=$in_cachix)..."
+          nix build --out-link ${outLink} -L "''${drv}^*"
+          status="built (attic=$in_attic cachix=$in_cachix)"
+        fi
+        ${postScript}
+        t_dur=$(( $(date +%s) - t_start ))
+        if [ -n "''${GITHUB_STEP_SUMMARY:-}" ]; then
+          {
+            echo "### ${name} (''${HOST})"
+            echo ""
+            echo "| Host | Tier | Status | Duration |"
+            echo "| :--- | :--- | :--- | ---: |"
+            echo "| ''${HOST} | ${tier} | $status | ''${t_dur}s |"
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+      '';
+    };
+
+    atticPushStep = {
+      condition,
+      outLink,
+    }: {
+      name = "Push test result to Attic binary cache (SOPS)";
+      "if" = "(${condition}) && github.event_name != 'pull_request'";
+      env = {
+        SOPS_AGE_KEY = "\${{ secrets.SOPS_AGE_KEY }}";
+      };
+      run = ''
+        shopt -s nullglob
+        outs=(${outLink}*)
+        if [ "''${#outs[@]}" -eq 0 ]; then
+          echo "No new test outputs built; skipping Attic push."
+          exit 0
+        fi
+        if [ -z "''${SOPS_AGE_KEY:-}" ] || [ ! -f secrets/ci/attic.yaml ]; then
+          echo "SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push."
+          exit 0
+        fi
+        tools="$(nix build --no-link --print-out-paths .#legacyPackages.${runnerSystem}.ciAtticTools)"
+        ATTIC_TOKEN="$("$tools/bin/sops" -d --extract '["token"]' secrets/ci/attic.yaml)"
+        echo "::add-mask::$ATTIC_TOKEN"
+        "$tools/bin/attic" login ${atticCfg.cache} "${atticCfg.endpoint}" "$ATTIC_TOKEN"
+        "$tools/bin/attic" push -j 16 ${atticCfg.cache} "''${outs[@]}"
+      '';
+    };
+
     kvmAndNixSteps = [
       {
         name = "Cache Nix fetcher & eval cache";
@@ -120,11 +200,16 @@
             ]
             ++ map (s: s // {"if" = hostFilter;}) kvmAndNixSteps
             ++ [
-              {
+              (cachedTestStep {
                 name = "Run VM Runtime Tests (vm)";
-                "if" = hostFilter;
-                run = ''nix build --no-link -L ".#legacyPackages.${runnerSystem}.hostTests.''${{ matrix.host }}.vm"'';
-              }
+                tier = "vm";
+                condition = hostFilter;
+                outLink = "/tmp/vm-test-out";
+              })
+              (atticPushStep {
+                condition = hostFilter;
+                outLink = "/tmp/vm-test-out";
+              })
             ];
         };
 
@@ -198,15 +283,20 @@
             ]
             ++ map (s: s // {"if" = "steps.should-run.outputs.run == 'true'";}) kvmAndNixSteps
             ++ [
-              {
+              (cachedTestStep {
                 name = "Run Install & Storage Lifecycle Tests (install)";
-                "if" = "steps.should-run.outputs.run == 'true'";
-                run = ''
-                  nix build --no-link -L ".#legacyPackages.${runnerSystem}.hostTests.''${{ matrix.host }}.install"
+                tier = "install";
+                condition = "steps.should-run.outputs.run == 'true'";
+                outLink = "/tmp/install-test-out";
+                postScript = ''
                   mkdir -p /tmp/install-cooldown-marker
                   date -u > /tmp/install-cooldown-marker/timestamp
                 '';
-              }
+              })
+              (atticPushStep {
+                condition = "steps.should-run.outputs.run == 'true'";
+                outLink = "/tmp/install-test-out";
+              })
             ];
         };
 

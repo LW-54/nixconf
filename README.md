@@ -89,6 +89,7 @@ end
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__noctalia("noctalia"):::featureNode
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
+    urn__nixconf__onto__feature__perf_monitor("perf-monitor"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
@@ -187,6 +188,8 @@ end
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
@@ -229,6 +232,7 @@ end
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__micro
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__perf_monitor
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__tack
@@ -370,6 +374,7 @@ end
     click urn__nixconf__onto__feature__nix href "docs/features/nix.md" "nix"
     click urn__nixconf__onto__feature__noctalia href "docs/features/noctalia.md" "noctalia"
     click urn__nixconf__onto__feature__ntfy href "docs/features/ntfy.md" "ntfy"
+    click urn__nixconf__onto__feature__perf_monitor href "docs/features/perf-monitor.md" "perf-monitor"
     click urn__nixconf__onto__feature__snapshot href "docs/features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "docs/features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "docs/features/tack.md" "tack"
@@ -467,7 +472,7 @@ Foundational structural primitives governing repository architecture, typing, an
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
 | [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 11 | [More →](docs/contracts/README.md) |
-| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 33 | [More →](docs/features/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 34 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
 | [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 12 | [More →](docs/implementations/README.md) |
 | [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 21 | [More →](docs/lib/README.md) |
@@ -622,6 +627,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | [`nix`](docs/features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](docs/features/nix.md) |
 | [`noctalia`](docs/features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](docs/features/noctalia.md) |
 | [`ntfy`](docs/features/ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [More →](docs/features/ntfy.md) |
+| [`perf-monitor`](docs/features/perf-monitor.md) | Continuous Nixconf CI, Nix evaluation, binary cache latency, and cache-isolation monitoring exported to VictoriaMetrics and Grafana. | [More →](docs/features/perf-monitor.md) |
 | [`snapshot`](docs/features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [More →](docs/features/snapshot.md) |
 | [`ssh`](docs/features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [More →](docs/features/ssh.md) |
 | [`tack`](docs/features/tack.md) | Flake input pinning and lockfile orchestration tool. | [More →](docs/features/tack.md) |

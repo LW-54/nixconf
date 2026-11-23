@@ -48,6 +48,7 @@ flowchart LR
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
     urn__nixconf__ast__module__noctalia["nixosModule/noctalia"]:::defaultNode
     urn__nixconf__ast__module__ntfy["nixosModule/ntfy"]:::defaultNode
+    urn__nixconf__ast__module__perf_monitor["nixosModule/perf-monitor"]:::defaultNode
     urn__nixconf__ast__module__rclone["nixosModule/rclone"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
     urn__nixconf__ast__module__snapshot["nixosModule/snapshot"]:::defaultNode
@@ -137,6 +138,7 @@ flowchart LR
     urn__nixconf__onto__feature__micro("micro"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
+    urn__nixconf__onto__feature__perf_monitor("perf-monitor"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
@@ -453,6 +455,13 @@ flowchart LR
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__ntfy -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__perf_monitor -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__perf_monitor -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_exporters
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__perf_monitor -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__rclone -.->|flowsTo| urn__nixconf__ast__module__grafana
@@ -640,6 +649,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__micro
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ntfy
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__perf_monitor
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__rclone
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__snapshot
@@ -745,6 +755,9 @@ flowchart LR
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__perf_monitor -->|outputs| urn__nixconf__ast__module__perf_monitor
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -->|outputs| urn__nixconf__ast__module__snapshot
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
@@ -786,6 +799,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__micro
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__perf_monitor
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__tack
@@ -868,6 +882,7 @@ flowchart LR
     click urn__nixconf__ast__module__nix href "../modules/nix.md" "nix"
     click urn__nixconf__ast__module__noctalia href "../modules/noctalia.md" "noctalia"
     click urn__nixconf__ast__module__ntfy href "../modules/ntfy.md" "ntfy"
+    click urn__nixconf__ast__module__perf_monitor href "../modules/perf-monitor.md" "perf-monitor"
     click urn__nixconf__ast__module__rclone href "../modules/rclone.md" "rclone"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
     click urn__nixconf__ast__module__snapshot href "../modules/snapshot.md" "snapshot"
@@ -957,6 +972,7 @@ flowchart LR
     click urn__nixconf__onto__feature__micro href "../features/micro.md" "micro"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__ntfy href "../features/ntfy.md" "ntfy"
+    click urn__nixconf__onto__feature__perf_monitor href "../features/perf-monitor.md" "perf-monitor"
     click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
@@ -1024,6 +1040,7 @@ The following system and desktop features are imported by `astrolabe`:
 | [`micro`](../features/micro.md) | Modern and intuitive terminal-based text editor with wrapped declarative configuration. | [`micro`](../modules/micro.md) (module), [`micro`](../packages.md#micro) (package) | [More →](../features/micro.md) |
 | [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [`nix`](../modules/nix.md) (module) | [More →](../features/nix.md) |
 | [`ntfy`](../features/ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [`ntfy`](../modules/ntfy.md) (module) | [More →](../features/ntfy.md) |
+| [`perf-monitor`](../features/perf-monitor.md) | Continuous Nixconf CI, Nix evaluation, binary cache latency, and cache-isolation monitoring exported to VictoriaMetrics and Grafana. | [`perf-monitor`](../modules/perf-monitor.md) (module) | [More →](../features/perf-monitor.md) |
 | [`snapshot`](../features/snapshot.md) | Atomic local Btrfs read-only snapshots paired with deduplicated restic off-site host snapshots and manual CLI triggers. | [`snapshot`](../modules/snapshot.md) (module) | [More →](../features/snapshot.md) |
 | [`ssh`](../features/ssh.md) | OpenSSH server daemon hardening, authorized key distribution, and master SSH key agent shell. | [`ssh`](../modules/ssh.md) (module) | [More →](../features/ssh.md) |
 | [`tack`](../features/tack.md) | Flake input pinning and lockfile orchestration tool. | [`tack`](../modules/tack.md) (module) | [More →](../features/tack.md) |
@@ -1115,6 +1132,7 @@ astrolabe-services = {...}: {
     self.nixosModules.uchiyomi
     self.nixosModules.copyparty
     self.nixosModules.attic
+    self.nixosModules.perf-monitor
   ];
 
   config = {
@@ -1258,7 +1276,7 @@ Workload tiering, OOM protection, and capacity policies enforced via [`resources
 | `standard.slice` | CPU:100, IO:100, MemHigh:75%, OOMKill:80%, Score:0 | — | `agy-hub.service`, `alertmanager.service`, `alloy.service`, `atticd.service`, `copyparty.service`, `grafana.service`, `mnt-storage-copyparty.mount`, `mnt-storage-gdrive.mount`, `mnt-storage-uchiyomi.mount`, `ntfy-sh.service`, `ttyd-web.service`, `victorialogs.service`, `victoriametrics.service`, `vmalert-logs.service`, `vmalert-metrics.service` |
 | `user.slice` | CPU:100, IO:100 | — | — |
 | `media.slice` | CPU:60, IO:60, MemHigh:50%, MemMax:65%, OOMKill:70%, Score:200 | — | `podman-uchiyomi-flaresolverr.service`, `podman-uchiyomi-suwayomi.service`, `podman-uchiyomi.service` |
-| `background.slice` | CPU:20, IO:20, MemHigh:80%, OOMKill:60%, Score:500 | — | `agy-remote-control.service`, `cachix-watch-store-agent.service`, `host-snapshot-gdrive.service`, `host-snapshot-hbox.service`, `nix-daemon.service`, `nix-gc.service`, `nix-optimise.service`, `nixconf-storage-scan.service`, `resources-storage-budgets.service`, `restic-backups-agy-gdrive-host.service`, `restic-backups-agy-hbox-host.service`, `restic-backups-authelia-gdrive-host.service`, `restic-backups-authelia-hbox-host.service`, `restic-backups-copyparty-gdrive-host.service`, `restic-backups-copyparty-hbox-host.service`, `restic-backups-grafana-gdrive-host.service`, `restic-backups-grafana-hbox-host.service`, `restic-backups-lldap-gdrive-host.service`, `restic-backups-lldap-hbox-host.service`, `restic-backups-telemetry-gdrive-host.service`, `restic-backups-telemetry-hbox-host.service`, `restic-backups-uchiyomi-gdrive-host.service`, `restic-backups-uchiyomi-hbox-host.service`, `restic-backups-vaultwarden-b2-shared.service`, `restic-backups-vaultwarden-gdrive-shared.service`, `restic-backups-vaultwarden-hbox-shared.service` |
+| `background.slice` | CPU:20, IO:20, MemHigh:80%, OOMKill:60%, Score:500 | — | `agy-remote-control.service`, `cachix-watch-store-agent.service`, `host-snapshot-gdrive.service`, `host-snapshot-hbox.service`, `nix-daemon.service`, `nix-gc.service`, `nix-optimise.service`, `nixconf-ci-metrics.service`, `nixconf-eval-metrics.service`, `nixconf-storage-scan.service`, `resources-storage-budgets.service`, `restic-backups-agy-gdrive-host.service`, `restic-backups-agy-hbox-host.service`, `restic-backups-authelia-gdrive-host.service`, `restic-backups-authelia-hbox-host.service`, `restic-backups-copyparty-gdrive-host.service`, `restic-backups-copyparty-hbox-host.service`, `restic-backups-grafana-gdrive-host.service`, `restic-backups-grafana-hbox-host.service`, `restic-backups-lldap-gdrive-host.service`, `restic-backups-lldap-hbox-host.service`, `restic-backups-telemetry-gdrive-host.service`, `restic-backups-telemetry-hbox-host.service`, `restic-backups-uchiyomi-gdrive-host.service`, `restic-backups-uchiyomi-hbox-host.service`, `restic-backups-vaultwarden-b2-shared.service`, `restic-backups-vaultwarden-gdrive-shared.service`, `restic-backups-vaultwarden-hbox-shared.service` |
 
 ### Local Disk Volumes
 
@@ -1296,11 +1314,11 @@ Capability contracts configured by `astrolabe`:
 
 ```nix
 config = {
-  monitoring.dashboards = { auth-security = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Authentication & Security"; }; backups = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Backups & Snapshots"; }; capacity-analytics = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Capacity, Right-Sizing & Operations"; }; containers = { enable = true; folder = "03 · Services"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Containers & OCI"; }; fleet-overview = { enable = true; folder = "00 · Overview"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Fleet Command Center"; }; host-hardware = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Host & Hardware"; }; ingress = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Ingress & Edge"; }; logs-explorer = { enable = true; folder = "01 · Investigate"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Logs Explorer"; }; /* ... +9 more */ };
+  monitoring.dashboards = { auth-security = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Authentication & Security"; }; backups = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Backups & Snapshots"; }; capacity-analytics = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Capacity, Right-Sizing & Operations"; }; containers = { enable = true; folder = "03 · Services"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Containers & OCI"; }; fleet-overview = { enable = true; folder = "00 · Overview"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Fleet Command Center"; }; host-hardware = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Host & Hardware"; }; ingress = { enable = true; folder = "02 · Infrastructure"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Ingress & Edge"; }; logs-explorer = { enable = true; folder = "01 · Investigate"; json = { /* 16 attrs: annotations, description, editable, fiscalYearStartMonth, graphTooltip, ... */ }; title = "Logs Explorer"; }; /* ... +10 more */ };
   monitoring.exporters = { blackbox = { enable = false; }; cadvisor = { dockerOnly = false; enable = true; }; extraBlocks = {}; process = { enable = true; }; unix = { collectors = [ /* 19 items */ ]; enable = true; setCollectors = []; textfileDirectory = "/var/lib/alloy/textfile"; }; };
   monitoring.extraGrafanaSettings = { users = { home_page = "/d/nixconf-fleet-overview"; }; };
   monitoring.logs = { files = {}; journal = { enable = true; labels = {}; maxAge = "12h"; stages = []; units = [ /* 50 items */ ]; }; };
-  monitoring.rules = { authelia = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; authelia-logs = { backend = "logs"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; caddy = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; disk = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; host = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 3 items */ ]; }; operations-recording = { backend = "logs"; enable = true; interval = "5m"; rules = [ /* 6 items */ ]; }; persistence = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; resources = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 9 items */ ]; }; /* ... +5 more */ };
+  monitoring.rules = { authelia = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; authelia-logs = { backend = "logs"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; caddy = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; disk = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; host = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 3 items */ ]; }; nixconf-perf = { backend = "metrics"; enable = true; interval = "5m"; rules = [ /* 5 items */ ]; }; operations-recording = { backend = "logs"; enable = true; interval = "5m"; rules = [ /* 6 items */ ]; }; persistence = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; /* ... +6 more */ };
 };
 ```
 
@@ -1337,7 +1355,7 @@ config = {
 ```nix
 # modules/hosts/astrolabe/services.nix
 ...
-21: reverse-proxy.domain = "adje.app";
+22: reverse-proxy.domain = "adje.app";
 ...
 ```
 

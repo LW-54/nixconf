@@ -52,9 +52,16 @@ jobs:
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: lw-54
-      - if: steps.should-run.outputs.run == 'true'
+      - env:
+          HOST: ${{ matrix.host }}
+        if: steps.should-run.outputs.run == 'true'
         name: Run Install & Storage Lifecycle Tests (install)
-        run: "nix build --no-link -L \".#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.install\"\nmkdir -p /tmp/install-cooldown-marker\ndate -u > /tmp/install-cooldown-marker/timestamp\n"
+        run: "set -euo pipefail\nATTIC_URL=\"https://cache.adje.app/nixconf\"\nCACHIX_URL=\"https://lw-54.cachix.org\"\n\nt_start=\"$(date +%s)\"\nread -r drv out < <(\n  nix derivation show \".#legacyPackages.x86_64-linux.hostTests.${HOST}.install\" \\\n    | jq -r '(.derivations // .) | to_entries[0] | [(.key | if startswith(\"/nix/store/\") then . else \"/nix/store/\" + . end), ((.value.outputs.out // (.value.outputs | to_entries[0].value)).path | if startswith(\"/nix/store/\") then . else \"/nix/store/\" + . end)] | @tsv'\n)\nhash=\"${out#/nix/store/}\"\nhash=\"${hash%%-*}\"\n\nin_attic=0\nin_cachix=0\ncurl -fsI --max-time 5 \"${ATTIC_URL}/${hash}.narinfo\" >/dev/null 2>&1 && in_attic=1\ncurl -fsI --max-time 5 \"${CACHIX_URL}/${hash}.narinfo\" >/dev/null 2>&1 && in_cachix=1\n\nif [ \"$in_attic\" -eq 1 ] && [ \"$in_cachix\" -eq 1 ]; then\n  echo \"Test install for ${HOST} already cached in Attic & Cachix ($out) — skipping VM download/run.\"\n  status=\"cached (attic+cachix)\"\nelse\n  echo \"Running install for ${HOST} (attic=$in_attic cachix=$in_cachix)...\"\n  nix build --out-link /tmp/install-test-out -L \"${drv}^*\"\n  status=\"built (attic=$in_attic cachix=$in_cachix)\"\nfi\nmkdir -p /tmp/install-cooldown-marker\ndate -u > /tmp/install-cooldown-marker/timestamp\n\nt_dur=$(( $(date +%s) - t_start ))\nif [ -n \"${GITHUB_STEP_SUMMARY:-}\" ]; then\n  {\n    echo \"### Run Install & Storage Lifecycle Tests (install) (${HOST})\"\n    echo \"\"\n    echo \"| Host | Tier | Status | Duration |\"\n    echo \"| :--- | :--- | :--- | ---: |\"\n    echo \"| ${HOST} | install | $status | ${t_dur}s |\"\n  } >> \"$GITHUB_STEP_SUMMARY\"\nfi\n"
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        if: (steps.should-run.outputs.run == 'true') && github.event_name != 'pull_request'
+        name: Push test result to Attic binary cache (SOPS)
+        run: "shopt -s nullglob\nouts=(/tmp/install-test-out*)\nif [ \"${#outs[@]}\" -eq 0 ]; then\n  echo \"No new test outputs built; skipping Attic push.\"\n  exit 0\nfi\nif [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push -j 16 nixconf \"${outs[@]}\"\n"
     strategy:
       fail-fast: false
       matrix:
@@ -125,9 +132,16 @@ jobs:
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: lw-54
-      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+      - env:
+          HOST: ${{ matrix.host }}
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
         name: Run VM Runtime Tests (vm)
-        run: nix build --no-link -L ".#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.vm"
+        run: "set -euo pipefail\nATTIC_URL=\"https://cache.adje.app/nixconf\"\nCACHIX_URL=\"https://lw-54.cachix.org\"\n\nt_start=\"$(date +%s)\"\nread -r drv out < <(\n  nix derivation show \".#legacyPackages.x86_64-linux.hostTests.${HOST}.vm\" \\\n    | jq -r '(.derivations // .) | to_entries[0] | [(.key | if startswith(\"/nix/store/\") then . else \"/nix/store/\" + . end), ((.value.outputs.out // (.value.outputs | to_entries[0].value)).path | if startswith(\"/nix/store/\") then . else \"/nix/store/\" + . end)] | @tsv'\n)\nhash=\"${out#/nix/store/}\"\nhash=\"${hash%%-*}\"\n\nin_attic=0\nin_cachix=0\ncurl -fsI --max-time 5 \"${ATTIC_URL}/${hash}.narinfo\" >/dev/null 2>&1 && in_attic=1\ncurl -fsI --max-time 5 \"${CACHIX_URL}/${hash}.narinfo\" >/dev/null 2>&1 && in_cachix=1\n\nif [ \"$in_attic\" -eq 1 ] && [ \"$in_cachix\" -eq 1 ]; then\n  echo \"Test vm for ${HOST} already cached in Attic & Cachix ($out) — skipping VM download/run.\"\n  status=\"cached (attic+cachix)\"\nelse\n  echo \"Running vm for ${HOST} (attic=$in_attic cachix=$in_cachix)...\"\n  nix build --out-link /tmp/vm-test-out -L \"${drv}^*\"\n  status=\"built (attic=$in_attic cachix=$in_cachix)\"\nfi\n\nt_dur=$(( $(date +%s) - t_start ))\nif [ -n \"${GITHUB_STEP_SUMMARY:-}\" ]; then\n  {\n    echo \"### Run VM Runtime Tests (vm) (${HOST})\"\n    echo \"\"\n    echo \"| Host | Tier | Status | Duration |\"\n    echo \"| :--- | :--- | :--- | ---: |\"\n    echo \"| ${HOST} | vm | $status | ${t_dur}s |\"\n  } >> \"$GITHUB_STEP_SUMMARY\"\nfi\n"
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        if: (github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) && github.event_name != 'pull_request'
+        name: Push test result to Attic binary cache (SOPS)
+        run: "shopt -s nullglob\nouts=(/tmp/vm-test-out*)\nif [ \"${#outs[@]}\" -eq 0 ]; then\n  echo \"No new test outputs built; skipping Attic push.\"\n  exit 0\nfi\nif [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push -j 16 nixconf \"${outs[@]}\"\n"
     strategy:
       fail-fast: false
       matrix:

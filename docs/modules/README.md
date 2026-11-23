@@ -52,6 +52,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`nix`](nix.md) | feature [`nix`](../features/nix.md) | Nix package manager daemon settings, binary caches, garbage collection, and nix-ld. | [More →](nix.md) |
 | [`noctalia`](noctalia.md) | feature [`noctalia`](../features/noctalia.md) | Noctalia shell environment, status bar, app launcher, and wallpaper manager. | [More →](noctalia.md) |
 | [`ntfy`](ntfy.md) | feature [`ntfy`](../features/ntfy.md) | Self-hosted push notification server (ntfy) with declarative admin credentials, metrics, probes, and Alertmanager wiring. | [More →](ntfy.md) |
+| [`perf-monitor`](perf-monitor.md) | feature [`perf-monitor`](../features/perf-monitor.md) | Continuous Nixconf CI, Nix evaluation, binary cache latency, and cache-isolation monitoring exported to VictoriaMetrics and Grafana. | [More →](perf-monitor.md) |
 | [`persistence`](persistence.md) | contract [`persistence`](../contracts/persistence.md) | Declarative state preservation across ephemeral reboots for system and user directories. | [More →](persistence.md) |
 | [`rclone`](rclone.md) | implementation [`rclone`](../implementations/rclone.md) | Declarative multi-provider storage mounts, crypt/union tiering, and rclone configuration provisioning. | [More →](rclone.md) |
 | [`resources`](resources.md) | contract [`resources`](../contracts/resources.md) | Declarative compute tiering, cgroups v2 limits, OOM ordering, power-aware throttling, local disk volumes, and remote storage budgets. | [More →](resources.md) |

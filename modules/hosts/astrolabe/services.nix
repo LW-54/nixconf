@@ -15,6 +15,7 @@
         self.nixosModules.uchiyomi
         self.nixosModules.copyparty
         self.nixosModules.attic
+        self.nixosModules.perf-monitor
       ];
 
       config = {

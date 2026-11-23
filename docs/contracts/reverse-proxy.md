@@ -68,6 +68,7 @@ flowchart LR
     urn__nixconf__onto__feature__micro("micro"):::featureNode
     urn__nixconf__onto__feature__nix("nix"):::featureNode
     urn__nixconf__onto__feature__ntfy("ntfy"):::featureNode
+    urn__nixconf__onto__feature__perf_monitor("perf-monitor"):::featureNode
     urn__nixconf__onto__feature__snapshot("snapshot"):::featureNode
     urn__nixconf__onto__feature__ssh("ssh"):::featureNode
     urn__nixconf__onto__feature__tack("tack"):::featureNode
@@ -235,6 +236,8 @@ flowchart LR
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__feature__ntfy -.->|consumes| urn__nixconf__onto__contract__secrets
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__perf_monitor -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__snapshot -.->|consumes| urn__nixconf__onto__contract__resources
@@ -282,6 +285,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__micro
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__nix
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ntfy
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__perf_monitor
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__snapshot
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__ssh
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__tack
@@ -434,6 +438,7 @@ flowchart LR
     click urn__nixconf__onto__feature__micro href "../features/micro.md" "micro"
     click urn__nixconf__onto__feature__nix href "../features/nix.md" "nix"
     click urn__nixconf__onto__feature__ntfy href "../features/ntfy.md" "ntfy"
+    click urn__nixconf__onto__feature__perf_monitor href "../features/perf-monitor.md" "perf-monitor"
     click urn__nixconf__onto__feature__snapshot href "../features/snapshot.md" "snapshot"
     click urn__nixconf__onto__feature__ssh href "../features/ssh.md" "ssh"
     click urn__nixconf__onto__feature__tack href "../features/tack.md" "tack"
@@ -525,7 +530,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/hosts/astrolabe/services.nix
 ...
-21: reverse-proxy.domain = "adje.app";
+22: reverse-proxy.domain = "adje.app";
 ...
 ```
 
