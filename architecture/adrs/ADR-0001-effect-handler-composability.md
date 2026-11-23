@@ -2,7 +2,7 @@
 id: ADR-0001
 title: Adopt Effect–Handler Composability as Foundational Pillar 1 (Implementation-Agnostic)
 type: adr
-status: accepted
+status: superseded
 created: 2026-11-23
 updated: 2026-11-23
 domain: foundations
@@ -10,8 +10,8 @@ tags: [adr, pillar-1, composability, algebraic-effects, handlers, polymorphism, 
 rfd: RFD-0001
 assumptions: [A-002]
 supersedes: null
-superseded_by: null
-summary: Ratifies Effect–Handler Composability (abstract Effects, open multi-instance/sub-component Handlers, O(N+M) mediation, strict stratification, commutative composition) as Pillar 1 while keeping all syntax, language, and encoding details explicitly open.
+superseded_by: ADR-0003
+summary: Superseded by ADR-0003 — originally ratified Effect–Handler Composability as Pillar 1; all guarantees are now strictly subsumed and generalized as the Hard interior-binding case of Promise Theory in ADR-0002 + ADR-0003.
 ---
 
 <!-- abstract:start -->

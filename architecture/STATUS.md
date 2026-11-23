@@ -13,13 +13,13 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 1 ratified in `ADR-0002`; Decision 2 in `discussion` via `RES-0008`)**. Decision 1 adopted **Model A (Fractal Uniform Agency & Non-Piercing Boundaries)**, proving standalone portability and substrate polymorphism emerge purely from ambient Superagent scope without entity bifurcation. Now deciding **Decision 2 (Promise Algebra, Scoped Binding & Boundary Projection)**.
+Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decisions 1–2 ratified in `ADR-0002` & `ADR-0003`, superseding `ADR-0001`; Decision 3 in `discussion` via `RES-0009`)**. Now deciding **Decision 3 — Hard Boundaries: Cryptographic Identity, Lampson Authority (`L1`/`L2`/`L3`) & Proper-Time State Ownership (`S1`/`S2`/`S3`)**.
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
-- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 2 in `discussion`)**
+- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 3 in `discussion`)**
 - **Last Updated**: 2026-11-23
 
 ---
@@ -40,13 +40,12 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 ## Active & Open Items
 
 - **Ratified Foundational Decisions**:
-  - **`ADR-0002` (`accepted`) — Decision 1**: Fractal Uniform Agency (Model A) & Non-Piercing Superagent Boundaries ($\Sigma$). Standalone portability and substrate heterogeneity emerge from ambient Superagent scope; Hard-vs-Soft enforcement and Lampson guards attach to Promises and Boundaries.
-  - *(`ADR-0001` remains preserved in lineage and will be formally superseded upon Decision 2 ratification.)*
-- **Current Decision Step — Decision 2 (Promise Algebra, Scoped Binding & Boundary Projection)**:
-  - Formal analysis completed in `RES-0008` covering Hard vs. Soft/Conditional promise anatomy, **Fork 2a** (Binding Topology: `B1` Explicit Wiring vs. `B2` Pure Broadcast vs. `B3` Cardinality-Checked Scoped Binding + Superagent Disambiguation), **Fork 2b** (Boundary Projection: `P-Explicit` vs. `P-Bubble` vs. `P-Dual`), and static compilation soundness (Stratification + Commutativity).
-- **Ordered Next Decisions (One at a Time)**:
-  - Decision 3: Hard Boundaries — Cryptographic Identity, Lampson Authority & Proper-Time State Ownership.
-  - Decision 4: Spacetime Dynamics — Calibration, Convergence, Assessment & the $\gamma(3,4)$ SST Graph.
+  - **`ADR-0002` (`accepted`) — Decision 1**: Fractal Uniform Agency (Model A) & Non-Piercing Superagent Boundaries ($\Sigma$).
+  - **`ADR-0003` (`accepted`, supersedes `ADR-0001`) — Decision 2**: Unified Hard/Soft Conditional Promise Algebra, `B3` Cardinality-Checked Scoped Binding, `P-Dual` (Strict `P-Explicit` Dressed Superagents + Transparent Profiles), and Strict Stratification + Commutative Keyed Aggregation.
+- **Current Decision Step — Decision 3 (Hard Boundaries: Cryptographic Identity, Lampson Authority & Proper-Time State Ownership)**:
+  - Formal analysis completed in `RES-0009` covering **Fork 3a** (Authority: `L1` Static Identity ACLs vs. `L2` Pure Dynamic Capabilities vs. `L3` Offline Root Identity + Attenuated Capabilities + Mechanical Compromise Trust Tiers) and **Fork 3b** (Proper-Time State Ownership & CAP/FLP: `S1` Implicit Host Filesystems vs. `S2` Mandatory Agent-Declared State-As-Promise Taxonomy vs. `S3` Pure Externalized Statelessness).
+- **Ordered Next Decision**:
+  - Decision 4 (Final Foundational Step): Spacetime Dynamics — Calibration, Convergence, Assessment & the $\gamma(3,4)$ SST Graph.
 
 ---
 
