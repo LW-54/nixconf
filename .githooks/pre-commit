@@ -41,12 +41,17 @@ fi
 # Determine which fast validation & sync targets are relevant to this commit
 NEEDS_NIX_SYNC=0
 NEEDS_DOCS_ONLY=0
+NEEDS_CI_LINT=0
 for f in "${STAGED_FILES[@]}"; do
   case "$f" in
+    meta/ci/*|.github/workflows/*)
+      NEEDS_NIX_SYNC=1
+      NEEDS_CI_LINT=1
+      ;;
     *.nix|.tack/*|flake.lock|meta/*|primitives/*|modules/*)
       NEEDS_NIX_SYNC=1
       ;;
-    README.md|docs/*|.github/workflows/*)
+    README.md|docs/*)
       NEEDS_DOCS_ONLY=1
       ;;
   esac
@@ -84,12 +89,16 @@ else
   )
 fi
 
+if [ "$NEEDS_CI_LINT" -eq 1 ]; then
+  TARGETS+=(".#legacyPackages.${SYS}.ciActionlint")
+fi
+
 OUT_PATHS="$(nix build --no-link --print-out-paths "${TARGETS[@]}")"
 mapfile -t BUILT <<< "$OUT_PATHS"
 DOCS_OUT="${BUILT[0]}"
 CI_OUT="${BUILT[1]}"
 
-# 3. Synchronize docs & CI directly from already-built store paths (~50ms, zero extra Nix evals)
+# 3. Synchronize docs & CI directly from already-built store paths (~30ms, zero extra Nix evals)
 "$DOCS_OUT/bin/nixconf-docs" --write
 if ! git diff --quiet README.md docs/ 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard docs/)" ]; then
   git add README.md docs/
@@ -97,6 +106,10 @@ if ! git diff --quiet README.md docs/ 2>/dev/null || [ -n "$(git ls-files --othe
 fi
 
 "$CI_OUT/bin/nixconf-ci" --write
+if [ "$NEEDS_CI_LINT" -eq 1 ]; then
+  ACTIONLINT_OUT="${BUILT[$((${#BUILT[@]} - 1))]}"
+  "$ACTIONLINT_OUT/bin/actionlint" .github/workflows/*.yml
+fi
 if ! git diff --quiet .github/workflows/ 2>/dev/null || [ -n "$(git ls-files --others --exclude-standard .github/workflows/)" ]; then
   git add .github/workflows/
   echo "==> [pre-commit] GitHub Actions CI workflows updated and staged."

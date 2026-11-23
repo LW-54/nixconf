@@ -102,11 +102,11 @@ fromYAML :: Pkgs -> String -> AttrSet
 <a id="toYAML"></a>
 ### `toYAML`
 
-Compiles and formats YAML with yamlfmt, pre-linting with actionlint.
+Compiles and formats YAML with yamlfmt.
 
 #### Inputs
 
-- `pkgs`: Package set providing yamlfmt and actionlint.
+- `pkgs`: Package set providing yamlfmt.
 - `name`: Workflow name string used for output file naming.
 - `data`: Native Nix attribute set or raw YAML string representing the workflow.
 

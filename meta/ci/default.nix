@@ -15,10 +15,11 @@
       fileset = ../../.github/workflows;
     };
   in {
+    legacyPackages.ciActionlint = pkgs.actionlint;
     packages.ci =
       (pkgs.writeShellScriptBin "nixconf-ci" ''
         set -euo pipefail
-        export PATH="${lib.makeBinPath [pkgs.diffutils pkgs.coreutils pkgs.findutils pkgs.git]}:$PATH"
+        export PATH="${lib.makeBinPath [pkgs.diffutils pkgs.coreutils pkgs.findutils]}:$PATH"
 
         REPO_ROOT="''${DEVENV_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
         WORKFLOWS_DIR="$REPO_ROOT/.github/workflows"
@@ -107,10 +108,11 @@
 
     checks.ci =
       pkgs.runCommandLocal "check-ci-workflows" {
-        nativeBuildInputs = [pkgs.diffutils];
+        nativeBuildInputs = [pkgs.diffutils pkgs.actionlint];
       } ''
         FAILED=0
         ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: drv: ''
+            actionlint "${drv}"
             if [ ! -f "${workflowsSrc}/.github/workflows/${name}.yml" ]; then
               echo "Missing committed workflow: .github/workflows/${name}.yml" >&2
               FAILED=1

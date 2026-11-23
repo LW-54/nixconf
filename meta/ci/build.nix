@@ -77,13 +77,79 @@
         }
       ];
 
-    atticPushStep = targetExpr: {
+    buildMissingStep = {
+      name,
+      outLink,
+      targets,
+      extraBuildFlags ? "",
+    }: {
+      inherit name;
+      env = {
+        IS_PR = "\${{ github.event_name == 'pull_request' }}";
+      };
+      run = ''
+        set -euo pipefail
+        ATTIC_URL="${atticCfg.endpoint}/${atticCfg.cache}"
+        CACHIX_URL="https://lw-54.cachix.org"
+        NIXOS_URL="https://cache.nixos.org"
+
+        nix derivation show ${lib.concatStringsSep " \\\n          " targets} \
+          | jq -r '(.derivations // .) | to_entries[] | [(.key | if startswith("/nix/store/") then . else "/nix/store/" + . end), ((.value.outputs.out // (.value.outputs | to_entries[0].value)).path | if startswith("/nix/store/") then . else "/nix/store/" + . end)] | @tsv' \
+          > /tmp/ci-targets.tsv
+
+        rm -rf /tmp/ci-miss
+        mkdir -p /tmp/ci-miss
+        while IFS=$'\t' read -r drv out; do
+          hash="''${out#/nix/store/}"
+          hash="''${hash%%-*}"
+          (
+            in_nixos=0
+            in_attic=0
+            in_cachix=0
+            curl -fsI --max-time 5 "''${NIXOS_URL}/''${hash}.narinfo" >/dev/null 2>&1 && in_nixos=1
+            if [ "$in_nixos" -eq 0 ]; then
+              curl -fsI --max-time 5 "''${ATTIC_URL}/''${hash}.narinfo" >/dev/null 2>&1 && in_attic=1
+              curl -fsI --max-time 5 "''${CACHIX_URL}/''${hash}.narinfo" >/dev/null 2>&1 && in_cachix=1
+            fi
+            if [ "$in_nixos" -eq 1 ]; then
+              echo "  [cached:nixos] $out"
+            elif [ "''${IS_PR:-false}" = "true" ] && { [ "$in_attic" -eq 1 ] || [ "$in_cachix" -eq 1 ]; }; then
+              echo "  [cached:pr] $out"
+            elif [ "$in_attic" -eq 1 ] && [ "$in_cachix" -eq 1 ]; then
+              echo "  [cached:attic+cachix] $out"
+            else
+              echo "  [build:attic=$in_attic cachix=$in_cachix] $out"
+              printf '%s^*\n' "$drv" > "/tmp/ci-miss/''${hash}"
+            fi
+          ) &
+        done < /tmp/ci-targets.tsv
+        wait
+
+        shopt -s nullglob
+        miss_files=(/tmp/ci-miss/*)
+        if [ "''${#miss_files[@]}" -eq 0 ]; then
+          echo "All targets already cached in Attic & Cachix — skipping multi-GB download."
+        else
+          mapfile -t MISSING < <(cat "''${miss_files[@]}")
+          echo "Building ''${#MISSING[@]} uncached target(s)..."
+          nix build --out-link ${outLink} ${extraBuildFlags} -L "''${MISSING[@]}"
+        fi
+      '';
+    };
+
+    atticPushStep = outLink: {
       name = "Push to Attic binary cache (SOPS)";
       "if" = "github.event_name != 'pull_request'";
       env = {
         SOPS_AGE_KEY = "\${{ secrets.SOPS_AGE_KEY }}";
       };
       run = ''
+        shopt -s nullglob
+        outs=(${outLink}*)
+        if [ "''${#outs[@]}" -eq 0 ]; then
+          echo "No new outputs built; skipping Attic push."
+          exit 0
+        fi
         if [ -z "''${SOPS_AGE_KEY:-}" ] || [ ! -f secrets/ci/attic.yaml ]; then
           echo "SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push."
           exit 0
@@ -92,7 +158,7 @@
         ATTIC_TOKEN="$("$tools/bin/sops" -d --extract '["token"]' secrets/ci/attic.yaml)"
         echo "::add-mask::$ATTIC_TOKEN"
         "$tools/bin/attic" login ${atticCfg.cache} "${atticCfg.endpoint}" "$ATTIC_TOKEN"
-        "$tools/bin/attic" push -j 16 ${atticCfg.cache} ${targetExpr}
+        "$tools/bin/attic" push -j 16 ${atticCfg.cache} "''${outs[@]}"
       '';
     };
   in {
@@ -159,16 +225,22 @@
           steps =
             setupSteps
             ++ [
-              {
-                name = "Evaluate, inspect, and build host toplevel";
-                run = lib.concatStringsSep " \\\n  " [
-                  "nix build --out-link /tmp/host-out -L"
-                  ''".#checks.${runnerSystem}.eval-''${{ matrix.host }}"''
-                  ''".#checks.${runnerSystem}.inspect-''${{ matrix.host }}"''
-                  ''".#nixosConfigurations.''${{ matrix.host }}.config.system.build.toplevel"''
-                ];
-              }
-              (atticPushStep "/tmp/host-out*")
+              ((buildMissingStep {
+                  name = "Evaluate, inspect, and build uncached host outputs";
+                  outLink = "/tmp/host-out";
+                  targets = [
+                    ''".#checks.${runnerSystem}.eval-''${HOST}"''
+                    ''".#checks.${runnerSystem}.inspect-''${HOST}"''
+                    ''".#nixosConfigurations.''${HOST}.config.system.build.toplevel"''
+                  ];
+                })
+                // {
+                  env = {
+                    IS_PR = "\${{ github.event_name == 'pull_request' }}";
+                    HOST = "\${{ matrix.host }}";
+                  };
+                })
+              (atticPushStep "/tmp/host-out")
             ];
         };
 
@@ -178,14 +250,13 @@
           steps =
             setupSteps
             ++ [
-              {
-                name = "Build & cache all packages and devShells in one evaluation";
-                run = lib.concatStringsSep " \\\n  " (
-                  ["nix build --out-link /tmp/pkg-out --keep-going -L"]
-                  ++ packagesAndShellsTargets
-                );
-              }
-              (atticPushStep "/tmp/pkg-out*")
+              (buildMissingStep {
+                name = "Build & cache uncached packages and devShells in one evaluation";
+                outLink = "/tmp/pkg-out";
+                extraBuildFlags = "--keep-going";
+                targets = packagesAndShellsTargets;
+              })
+              (atticPushStep "/tmp/pkg-out")
             ];
         };
       };

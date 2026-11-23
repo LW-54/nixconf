@@ -22,10 +22,9 @@
       else (pkgs.formats.yaml {}).generate "${name}.yml" data;
   in
     pkgs.runCommandLocal "${name}.yml" {
-      nativeBuildInputs = [pkgs.yamlfmt pkgs.actionlint];
+      nativeBuildInputs = [pkgs.yamlfmt];
     } ''
       yamlfmt -in < ${raw} > $out
-      actionlint $out
     '';
 
   collectBuildables = system: let
@@ -70,12 +69,12 @@ in {
 
       toYAML = {
         docstring = ''
-          Compiles and formats YAML with yamlfmt, pre-linting with actionlint.
+          Compiles and formats YAML with yamlfmt.
 
           # Inputs
 
           `pkgs`
-          : Package set providing yamlfmt and actionlint.
+          : Package set providing yamlfmt.
 
           `name`
           : Workflow name string used for output file naming.
@@ -108,10 +107,5 @@ in {
         value = collectBuildables;
       };
     };
-  };
-
-  # Preserve top-level flake.lib symbols for backward compatibility
-  flake.lib = {
-    inherit fromYAML toYAML collectBuildables;
   };
 }
