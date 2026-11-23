@@ -13,13 +13,13 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 (`RFD-0001` in `discussion`)** — completed broad manifold research (`RES-0003`), empirical multi-provider prototype (`EXP-0001`: 175ms, zero recursion, validating `A-002`), and drafted `RFD-0001` deriving 5 irreducible primitive categories and 3 Pareto candidates awaiting user co-design decisions.
+Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Ground-Up Foundational Derivation from Promise Theory + Semantic Spacetime (`RES-0007`)**. Following user direction not to assume `ADR-0001` or rigid "pillar" buckets, we derived the unified PT+SST+Hard-Enforcement theoretical bedrock against 5 physical constraints (`T1`–`T5`) and isolated **Decision 1 (Ontology of Agency, Scale & Boundaries $\Sigma$)** comparing Models A, B, and C.
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
-- **Current Phase**: **Phase 2 — Core Foundations (`RFD-0001` in active `discussion`)**
+- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 1 in `discussion`)**
 - **Last Updated**: 2026-11-23
 
 ---
@@ -39,12 +39,15 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 ## Active & Open Items
 
-- **Ratified Decisions**:
-  - **`ADR-0001` (`accepted`)**: Pillar 1 — Effect–Handler Composability (strictly implementation-agnostic; syntax/language/serialization like M1 vs M2 explicitly deferred).
-- **Current Decision Step (Core Theoretical Backbone)**:
-  - Deep dive completed into **Mark Burgess's Promise Theory + Semantic Spacetime** (`RES-0006`), including formal calculus, real-world industrial systems (CFEngine, Cisco ACI/OpFlex, K8s, `mgmt`), and its 3 hard limits (requiring Hard Structural Closures + Cryptographic/Lampson Enforcement inside boundaries).
-  - Awaiting user decision on adopting **Promise Theory + Hard Enforcement (Closures & Lampson Capabilities/ACLs)** as the overarching theoretical framework and choosing the first concrete foundational pillar to derive under it.
-- **Next After `RFD-0001` Ratification**: Crystallize `ADR-0001` (+ `ADR-0002` for pinning/standalone if split), then launch `RFD-0002` (Structural Invariants & Verification) and `RFD-0003` (Auxiliary Tooling & Pure Rust Integration).
+- **Previous Working Record (Under Re-Derivation, Not Assumed)**:
+  - **`ADR-0001` (`accepted`, subject to superseding)**: Effect–Handler Composability — re-evaluated from scratch in `RES-0007` and shown to emerge as a special case (hard-closed interior binding) of Promise Theory's complementary promises inside a Dressed Superagent, while missing scope/non-piercing, conditional degradation, hard-vs-soft enforcement, and SST proper time.
+- **Current Decision Step — Decision 1 (Ontology of Agency, Scale & Boundaries $\Sigma$)**:
+  - Formal derivation completed in `RES-0007` colliding Bergstra & Burgess Promise Theory + Burgess & Couch Semantic Spacetime (`arXiv:2506.07756`, `SSTorytime`) against 5 hard engineering constraints (`T1`–`T5`).
+  - Awaiting user decision on **Decision 1** among three ontologies: **Model A** (Fractal Uniform Agency), **Model B** (Stratified Two-Regime Domains), or **Model C** (Scale-Unified Agents with Typed Boundary Modalities).
+- **Ordered Next Decisions (One at a Time)**:
+  - Decision 2: Promise Algebra, Scope, Non-Piercing Superagents & Compilation Soundness (formally superseding/refining `ADR-0001`).
+  - Decision 3: Hard Boundaries — Cryptographic Identity, Lampson Authority & Proper-Time State Ownership.
+  - Decision 4: Spacetime Dynamics — Calibration, Convergence, Assessment & the $\gamma(3,4)$ SST Graph.
 
 ---
 
