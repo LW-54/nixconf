@@ -1,0 +1,10 @@
+name = "nixconf-foundation"
+version = "0.1.0"
+defaultTargets = ["NixconfFoundation", "nixconf-oracle"]
+
+[[lean_lib]]
+name = "NixconfFoundation"
+
+[[lean_exe]]
+name = "nixconf-oracle"
+root = "OracleCLI"

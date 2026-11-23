@@ -4,11 +4,11 @@ title: Nixconf v2 Master Theoretical Foundation Specification (Promise Theory + 
 type: spec
 status: active
 created: 2026-11-23
-updated: 2026-11-23
+updated: 2026-11-24
 domain: foundations
-tags: [spec, constitution, promise-theory, semantic-spacetime, hard-enforcement, adr-0002, adr-0003, adr-0004, adr-0005, adr-0006]
+tags: [spec, constitution, promise-theory, semantic-spacetime, hard-enforcement, lean4, quint, aws-cedar, tuf, calm, adr-0002, adr-0003, adr-0004, adr-0005, adr-0006, adr-0007]
 assumptions: [A-001, A-002, A-004, A-005, A-006, A-011, A-013]
-summary: Single-page master architectural constitution synthesizing ADR-0002..ADR-0006 into the complete, implementation-agnostic theoretical foundation governing all Phase 3 realization RFDs.
+summary: Single-page master architectural constitution synthesizing ADR-0002..ADR-0007 — backed by 22 machine-checked Lean 4 theorems, 8 exhaustively TLC-verified Quint invariants, AWS Cedar VGD differential testing (2,004 fleets, 0 divergences), and PAPER-FOUNDATION.
 ---
 
 <!-- abstract:start -->
@@ -70,10 +70,10 @@ The ratified, implementation-agnostic **Theoretical Constitution** of `nixconf` 
 1. **Dual-Layer Cryptographic Authority (`L3+`)**:
    - **Layer 1 (Offline Root Identity)**: Long-lived situated boundaries hold cryptographic keypairs; static offline ACLs cover *strictly* the irreducible offline/bootstrap core (own boot/runtime secrets, mesh identity, offline human recovery).
    - **Layer 2 (Attenuated Capabilities)**: All active delegation across $\Sigma$ (AI agents, CI cache writers, PR-only bots, Live ISO onboarding, per-service boundaries) uses narrow, revocable, least-privilege Capabilities + kernel isolation.
-   - **Boolean Set-Algebra Authorization ($\cup, \cap, \in, \setminus$)**: Agents express factual groups & security/posture attributes; policies enforce union, intersection, inclusion, and exclusion statically (handling incomparable postures without rigid linear tiers).
-2. **Mandatory Agent-Declared State-As-Promise (`S2+`)**:
+   - **Boolean Set-Algebra Authorization (`Cedar` Semantics: $\cup, \cap, \in, \setminus$)**: Agents express factual groups & security/posture attributes; policies obey **Default-Deny**, **`forbid`-overrides-`permit`**, and **Order-Invariance** (proved in `Authority.lean`). Delegated capabilities obey **Offline-Verifiable Monotonic Attenuation** (`Biscuit` pattern, `attenuation_monotonic`).
+2. **Mandatory Agent-Declared State-As-Promise (`S2+` + `CALM` Monotonicity)**:
    - Zero invisible non-reconstructible mutable state. Every stateful Agent declares state volumes/stores via typed promises with **Owner Boundary** and **open, orthogonal, composable traits** (reconstructibility, retention, CAP/FLP writer & consistency semantics, backup/replication policy, external ownership).
-   - Multi-agent state crossing partitions MUST declare honest distributed consistency semantics (single-primary + async mirror/replica, monotonic content-addressed/append-only, or eventual sync with conflict surfacing).
+   - **CALM Theorem Law (`StateSafety.lean`)**: Multi-agent state crossing partitions without a single authoritative writer MUST be logically **monotonic** (join-semilattice / content-addressed / conflict-preserving lattice), forbidding silent split-brain.
 3. **Lifecycle Transitions (`C1`)**:
    - *Zero-Trust Genesis ($t=0$)*: Ephemeral installer media never holds master keys or production secrets; new Agents generate local keys, verify custody, register public identity/attributes into Git, and converge to $g_0$.
    - *Mechanical Blast-Radius Revocation*: Revoking a compromised Agent blocks future access and computes the exact historical secret/capability rotation set from the `L3+` Boolean policy graph.
@@ -83,12 +83,21 @@ The ratified, implementation-agnostic **Theoretical Constitution** of `nixconf` 
 
 ## 4. Spacetime Dynamics & Epistemics (`ADR-0005`, `ADR-0006` C7)
 
-1. **Triadic Calibrated Autonomous Pull (`C3`)**:
-   - Changes enter via PR impositions gated by verification Agents into **calibrated signed references**: Git `main` (+ async self-hosted mirror) and **signed prebuilt multi-arch binary caches**.
-   - Hosts pull autonomously on local proper time (`FOLLOWS`: $g_n \to g_{n+1}$), rejecting uncalibrated commits and avoiding forced local compilation on constrained/ARM nodes. Zero inbound CI push-root.
+1. **Triadic Calibrated Autonomous Pull (`C3` + `TUF` Supply-Chain Defense)**:
+   - Changes enter via PR impositions gated by verification Agents into **calibrated signed Snapshot Manifests** (`commit + monotonic epoch + timestamp → exact host Nix closure hashes` across Git `main` + async self-hosted mirror + signed prebuilt multi-arch binary caches — defeating **mix-and-match attacks**).
+   - Hosts pull autonomously on local proper time (`FOLLOWS`: $g_n \to g_{n+1}$), enforcing **local monotonic epoch counters** (defeating **TUF rollback/downgrade attacks**) and **freshness staleness windows $\Delta t$** assessed by `E3` (detecting **TUF freeze attacks**), while avoiding forced local compilation on constrained/ARM nodes. Zero inbound CI push-root.
    - Atomic transitions run a local self-assessment gate ($\alpha$) with **automatic rollback to $g_n$** on survival failure (retaining explicit `L3+` human-authorized interactive switches).
 2. **Semantic Spacetime ($\gamma(3,4)$) Epistemic Spine (`E3`) & Tri-Purpose Probes (`C7`)**:
    - All layers (hosts, services, substrates, Rust tools, CI, docs, generations, assessments) project onto **one minimal 4-link schema**: `CONTAINS`, `FOLLOWS`, `EXPRESSES`, `NEAR` (replacing ad-hoc CPG ontologies and eliminating all-layer doc/check blind spots).
    - **Spine vs. Bulk Telemetry Split**: High-volume metrics/logs live in compact specialized engines; only boundaries, causal transitions, assessments ($\alpha$), anomalies, and pointers populate the offline-queryable, token-efficient SST spine.
    - **Trust-Budgeted Assessment (*"Policy for Inattentiveness"*)**: `Hard` promises cost zero runtime RAM; `Soft` promises budget monitoring proportional to criticality × uncertainty, escalating deep inspection (including autonomous AI causal-cone analysis) upon degradation.
    - **Tri-Purpose Probes (`C7`)**: Assessment probes ($\alpha$) and degradation contracts (`+b | C`) declared once drive: (1) pre-merge CI & simulated fault-injection VM tests, (2) `C3` local auto-rollback gates, and (3) `E3` live observability.
+
+---
+
+## 5. Machine-Checked Verification Pillar (`ADR-0007` — AWS Cedar VGD `F3-b`)
+
+- **Unbounded Algebraic Proofs**: [`architecture/formal/lean/`](../formal/lean/) (`lean4 4.35.0`, zero Mathlib) — **22 theorems** verified cold in `3.34 s` with zero `sorryAx` (`AxiomAudit.lean`).
+- **Exhaustive Distributed Model Checking**: [`architecture/formal/quint/`](../formal/quint/) (`quint 0.33.1` + TLC) — **8 safety invariants** exhaustively verified across `165,376` (`triadic_pull_c3`) + `241` (`genesis_and_degradation`) transitions in `< 5 s`.
+- **Production Engine Equivalence**: [`architecture/formal/drt/main.rs`](../formal/drt/main.rs) — idiomatic Rust production verifier (`319k fleets/s`) continuously locked to the proved Lean 4 oracle via Differential Randomized Testing (`2,004 / 2,004` fleets, `0` divergences).
+- **Complete Mathematical Treatise**: [`PAPER-FOUNDATION`](../paper/FOUNDATION-PAPER.md).
