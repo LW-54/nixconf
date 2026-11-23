@@ -34,8 +34,8 @@ Build a declarative system, fleet, and personal-computing platform of genuinely 
 ## 2. Calibrated Design Axioms & Priority Policy
 
 ### Priority Policy (User-Calibrated 2026-11-23)
-- **Operational reliability & safety** is the non-negotiable #1 baseline (hosts stay bootable, VPS stays healthy, failures degrade gracefully and recover cleanly).
-- **True Elegance as a Reconciler**: Elegance is not a vanity axis traded against reliability or maintainability — a design that feels mathematically neat while causing fragility, friction, or bloat is *not* genuinely elegant.
+- **Explicit Priority Order**: **Operational Reliability (`B`) > Capability Richness (`E`) > Low Maintenance & Dependency Risk (`D`) > Mathematical Elegance (`A`) > Iteration Speed (`C`)**.
+- **True Elegance as a Reconciler**: Elegance is not a vanity axis traded against reliability, richness, or maintainability — a design that feels mathematically neat while causing fragility, friction, or bloat is *not* genuinely elegant. Iteration speed (`C`) is welcome when free, but never justifies sacrificing reliability, capability power, maintainability, or conceptual clarity.
 - **Standalone Portability First**: As many tools, wrapped applications, and capabilities as possible must be usable **standalone from anywhere** (e.g., `nix run`, non-NixOS Linux/WSL/containers), cleanly decoupled from NixOS host wiring.
 - **Graceful Degradation Over Rigid Isolation**: Hosts must remain fundamentally self-sufficient for core vitality (boot, local auth/core ops), while cross-host capabilities (mesh mounts, remote builders, shared storage/compute) may temporarily pause when peers vanish — provided degradation is bounded, non-blocking, self-healing, and clearly surfaced.
 - **AI-First Behind Clean Human UX**: Human-facing user interfaces remain optimized for human clarity and ergonomics; everything behind the UI boundary welcomes AI-first design (determinism, structured introspection, token efficiency, safe PR-gated autonomy).
