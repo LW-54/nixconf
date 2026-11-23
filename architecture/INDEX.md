@@ -1,0 +1,56 @@
+# Architecture Redesign Knowledge Index (Layer 0)
+
+> **Routing Rule**: Read this index + [`STATUS.md`](STATUS.md) first. Before opening any large document, inspect its Layer-1 YAML frontmatter and `<!-- abstract:start/end -->` block (lines 1–45). Archived files (`status: archived`) are preserved for lineage and skipped unless investigating history.
+
+## Core Control Plane (Layers 0 & 2)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `ARCH-METHODOLOGY` | [`README.md`](README.md) | methodology | `active` | meta | Formal redesign methodology, 5-layer progressive-disclosure knowledge architecture, lifecycles, and append-only rules. |
+| `ARCH-STATUS` | [`STATUS.md`](STATUS.md) | status | `active` | meta | Live dashboard of current phase, progress table, open decisions, and immediate next actions. |
+| `ARCH-CHARTER` | [`CHARTER.md`](CHARTER.md) | charter | `active` | foundations | Bias-free fundamental mission, 6 mathematical design axioms (`X1`–`X6`), ATAM scenarios (`QA-01`–`QA-08`), and fleet/capability horizon. |
+| `ARCH-ASSUMPTIONS` | [`ASSUMPTIONS.md`](ASSUMPTIONS.md) | ledger | `active` | foundations | Explicit falsifiable Assumptions Ledger (`A-001`–`A-012`) tracking validation status and linked evidence. |
+
+## Empirical Audit — Phase 1 (`audit/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| — | *(Phase 1 next)* | — | — | — | `AUD-0001` (Primitives & Modules), `AUD-0002` (Tooling, Meta & Rust), `AUD-0003` (Perf, CI, Secrets, Monitoring), `AUD-0004` (Fleet & Capability Boundary Constraints). |
+
+## Requests for Discussion — Phases 2–3 (`rfds/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `TEMPLATE` | [`rfds/TEMPLATE.md`](rfds/TEMPLATE.md) | template | `active` | meta | Standardized bias-free RFD template with Zwicky GMA box, CCA, ATAM trade-off matrix, and abstract block. |
+
+## Architecture Decision Records — Phase 4 (`adrs/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `TEMPLATE` | [`adrs/TEMPLATE.md`](adrs/TEMPLATE.md) | template | `active` | meta | Standardized immutable MADR decision record template. |
+
+## Experiments & Benchmarks (`experiments/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `TEMPLATE` | [`experiments/TEMPLATE.md`](experiments/TEMPLATE.md) | template | `active` | meta | Standardized reproducible experiment & empirical benchmark report template. |
+
+## Deep Research Dossiers — Layer 3 (`research/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `RES-0001` | [`research/RES-0001-methodology-and-knowledge-architecture.md`](research/RES-0001-methodology-and-knowledge-architecture.md) | research | `active` | meta | Phase 0 meta-research dossier: Parnas, Ousterhout, Brooks, Jackson, Zwicky GMA, ATAM, Oxide RFDs, MADR, arc42, and Progressive Disclosure vs Vector RAG (validates `A-011`). |
+| `RES-0002` | [`research/RES-0002-nixos-composition-initial-notes.md`](research/RES-0002-nixos-composition-initial-notes.md) | research | `active` | foundations | Non-binding initial survey notes on NixOS Dendritic & `flake-parts` patterns (one point in the RFD-0001 manifold). |
+
+## Session Lineage — Layer 4 (`journal/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `SES-0001` | [`journal/2026-11-23-session-01.md`](journal/2026-11-23-session-01.md) | journal | `active` | meta | Session 01 kickoff, Phase 0 meta-research, user bias-corrections, and initialization of `design/v2`. |
+
+## Append-Only Archive — Layer 4 (`archive/`)
+
+| ID | Path | Type | Status | Domain | Summary |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `ARCH-ARCHIVE-POLICY` | [`archive/README.md`](archive/README.md) | archive | `active` | meta | Append-only archival rules (never silently overwrite or delete historical drafts). |
+| `ARC-0001` | [`archive/2026-11-23-phase0-initial-roadmap-draft.md`](archive/2026-11-23-phase0-initial-roadmap-draft.md) | archive | `archived` | meta | Archived first Phase 0 roadmap draft before removing current-repo bias (`meta/`, Dendritic) and moving to `design/v2`. |
