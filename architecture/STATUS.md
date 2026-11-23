@@ -13,13 +13,13 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decisions 1–3 ratified in `ADR-0002`..`ADR-0004`; Decision 4 — final foundational step — in `discussion` via `RES-0010`)**. Now deciding **Decision 4 — Spacetime Dynamics: Triadic Calibrated Pull Convergence (`C1`/`C2`/`C3`) & Unified Semantic Spacetime $\gamma(3,4)$ Epistemic Spine (`E1`/`E2`/`E3`)**.
+Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Red-Team Review (Decisions 1–4 ratified in `ADR-0002`..`ADR-0005`; adversarial CCA red-team audit completed in `RES-0011`)**. Reviewing 7 high-signal gaps & unification opportunities surfaced by `RES-0011` before finalizing the Theoretical Foundation baseline and entering Phase 3 (Concrete Realization RFDs).
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
-- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 4 in `discussion`)**
+- **Current Phase**: **Phase 2 — Cross-Consistency Red-Team Review (`RES-0011` in `discussion`)**
 - **Last Updated**: 2026-11-23
 
 ---
@@ -43,9 +43,10 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
   - **`ADR-0002` (`accepted`) — Decision 1**: Fractal Uniform Agency (Model A) & Non-Piercing Superagent Boundaries ($\Sigma$).
   - **`ADR-0003` (`accepted`, supersedes `ADR-0001`) — Decision 2**: Unified Hard/Soft Conditional Promise Algebra, `B3` Cardinality-Checked Scoped Binding, `P-Dual` (Strict `P-Explicit` Dressed Superagents + Transparent Profiles), and Strict Stratification + Commutative Keyed Aggregation.
   - **`ADR-0004` (`accepted`) — Decision 3**: `L3+` Offline Root Identity + Attenuated Capabilities + **Boolean Set-Algebra Authorization** ($\cup, \cap, \in, \setminus$ over agent attributes/groups) and `S2+` **Mandatory Agent-Declared State-As-Promise** with open composable traits.
-- **Current Decision Step — Decision 4 *(Final Foundational Decision)*: Spacetime Dynamics & Epistemics**:
-  - Formal analysis completed in `RES-0010` covering **Fork 4a** (Proper-Time Convergence & Calibration: `C1` Push Imposition vs. `C2` Blind Local Pull vs. `C3` Triadic Calibrated Autonomous Pull with Self-Assessing Atomic Transitions & Rollback) and **Fork 4b** (Epistemic Substrate: `E1` Siloed Tools vs. `E2` Monolithic Live SST DB vs. `E3` Unified Semantic Spacetime $\gamma(3,4)$ Spine over Specialized Storage & Trust-Budgeted Assessment).
-- **Next After Decision 4 Ratification**: Complete Phase 2 synthesis (`ADR-0005` + concise Master Theoretical Foundation spec), then enter **Phase 3 — Concrete Realization & Engineering RFDs**!
+  - **`ADR-0005` (`accepted`) — Decision 4**: `C3` Triadic Calibrated Autonomous Pull with self-assessing atomic switches & auto-rollback, and `E3` Semantic Spacetime $\gamma(3,4)$ universal epistemic spine over specialized bulk telemetry & trust-budgeted assessment.
+- **Current Step — Adversarial Red-Team Review (`RES-0011`)**:
+  - Audited `ADR-0002`..`ADR-0005` end-to-end against `CHARTER.md` and `AUD-0001`..`AUD-0004`. Found zero fatal contradictions, **4 genuine gaps** (Lifecycle Genesis/Revocation/Break-Glass, Boundary-First Stratification $\Pi_{\text{ext}} \perp \text{Interior}$, Ousterhout/Foreign-Agent Wrapping Discipline, Quantitative Budgeted Capacity & Power Conditions), **1 paradox fix** (Operational Non-Piercing vs. Authorized Epistemic Zoom), and **2 high-leverage unification opportunities** (Portable User-Space Boundary, Tri-Purpose Assessment Probes $\alpha$).
+- **Next After Red-Team Resolution**: Crystallize foundational corollaries (`ADR-0006` + Master Theoretical Foundation spec), then enter **Phase 3 — Concrete Realization & Engineering RFDs**.
 
 ---
 
