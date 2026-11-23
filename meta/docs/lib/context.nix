@@ -41,6 +41,37 @@
   in
     lib.filterAttrs (n: o: !lib.hasPrefix "_" n && lib.isOption o) declared;
 
+  isCommentLine = l: lib.hasPrefix "#" l || lib.hasPrefix "//" l || lib.hasPrefix "/*" l;
+
+  loadSnippetFile = f: let
+    fullPath = self + "/${f}";
+    exists = f != null && builtins.pathExists fullPath;
+    rawText =
+      if exists
+      then builtins.readFile fullPath
+      else "";
+    lines =
+      if exists
+      then lib.splitString "\n" rawText
+      else [];
+    numLines = builtins.length lines;
+    codeLines =
+      if exists
+      then
+        lib.filter (x: x.trimmed != "" && !isCommentLine x.trimmed)
+        (lib.imap1 (idx: line: {
+            inherit idx line;
+            trimmed = lib.trim line;
+          })
+          lines)
+      else [];
+  in {
+    inherit exists rawText lines numLines codeLines;
+  };
+
+  hasSubstr = needle: haystack:
+    needle != "" && builtins.replaceStrings [needle] ["${needle}_"] haystack != haystack;
+
   mkContext = {
     id,
     graph,
@@ -48,6 +79,7 @@
     system,
     nodesByKind ? null,
     graphWithoutContains ? null,
+    fileCache ? {},
   }: let
     page = pages.${id};
     link = md.relPath page.path;
@@ -345,45 +377,27 @@
       hostName ? null,
     }: let
       clean = l: lib.trim l;
-      isComment = l: lib.hasPrefix "#" l || lib.hasPrefix "//" l || lib.hasPrefix "/*" l;
       allTerms = lib.unique (terms ++ options);
       renderFileMatches = f: let
-        fullPath = self + "/${f}";
-        exists = f != null && builtins.pathExists fullPath;
-        rawText =
-          if exists
-          then builtins.readFile fullPath
-          else "";
+        entry = fileCache.${f} or (loadSnippetFile f);
         presentTerms =
-          if exists && allTerms != []
-          then lib.filter (t: lib.hasInfix t rawText) allTerms
+          if entry.exists && allTerms != []
+          then lib.filter (t: hasSubstr t entry.rawText) allTerms
           else [];
         termPattern =
           if presentTerms != []
           then ".*(" + lib.concatMapStringsSep "|" lib.escapeRegex presentTerms + ").*"
           else null;
-        lines =
-          if presentTerms != []
-          then lib.splitString "\n" rawText
-          else [];
-        numLines = builtins.length lines;
         matches =
           if termPattern == null
           then []
-          else
-            lib.filter (
-              x:
-                x.line
-                != ""
-                && builtins.match termPattern x.line != null
-                && (let t = clean x.line; in t != "" && !isComment t)
-            ) (lib.imap1 (idx: line: {inherit idx line;}) lines);
+          else lib.filter (x: builtins.match termPattern x.line != null) entry.codeLines;
         formattedMatches = map (m: let
-          trimmed = clean m.line;
+          trimmed = m.trimmed;
           needsBlock = lib.hasSuffix "{" trimmed || lib.hasSuffix "=" trimmed;
           blockLines =
             if needsBlock
-            then map (i: "${toString i}: ${clean (builtins.elemAt lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) numLines))
+            then map (i: "${toString i}: ${clean (builtins.elemAt entry.lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) entry.numLines))
             else ["${toString m.idx}: ${trimmed}"];
         in
           lib.concatStringsSep "\n" blockLines)
@@ -467,6 +481,6 @@
   };
 in {
   internal.docs = {
-    inherit mkContext;
+    inherit mkContext loadSnippetFile;
   };
 }

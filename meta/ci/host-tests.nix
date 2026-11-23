@@ -3,13 +3,13 @@
   lib,
   ...
 }: {
-  perSystem = {config, ...}: let
+  perSystem = {...}: let
     runnerSystem = "x86_64-linux";
-    hostTests = config.legacyPackages.hostTests or {};
+    hostDefs = self.host or {};
     cooldownHours = 4;
     cooldownSeconds = toString (cooldownHours * 3600);
-    hostsWithVm = builtins.attrNames (lib.filterAttrs (_: t: t ? vm) hostTests);
-    hostsWithInstall = builtins.attrNames (lib.filterAttrs (_: t: t ? install) hostTests);
+    hostsWithVm = builtins.attrNames (lib.filterAttrs (_: h: h.vmTest or true) hostDefs);
+    hostsWithInstall = builtins.attrNames (lib.filterAttrs (_: h: h.installTest or true) hostDefs);
     atticCfg =
       self.lib.attic.cacheConfig
       or {

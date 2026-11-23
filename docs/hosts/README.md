@@ -17,11 +17,13 @@ Declarative target host definitions binding concrete hardware configurations, pl
 | `configuration` | `module` | `{ }` | Host NixOS configuration module defining system settings, imports, and services. |
 | `description` | `string` | **required** | Formal description of this primitive instance. |
 | `devShells` | `raw value` | `{ }` | Development shells provided by this primitive. |
+| `installTest` | `boolean` | `true` | Whether this host is included in CI Disko install lifecycle tests. |
 | `lib` | `attribute set of raw value` | `{ }` | Library helper functions and values exported on flake.lib.<name>. |
 | `packages` | `raw value` | `{ }` | Packages provided by this primitive. |
 | `specialArgs` | `attribute set of raw value` | `{ }` | Additional special arguments forwarded to nixpkgs.lib.nixosSystem. |
 | `subModules` | `attribute set of module` | `{ }` | Host configuration submodules partitioning hardware, disks, and local system services. |
 | `system` | `string` | `"x86_64-linux"` | Target Nix platform architecture for this host. |
+| `vmTest` | `boolean` | `true` | Whether this host is included in CI QEMU VM runtime tests. |
 
 ## Declaration Example
 

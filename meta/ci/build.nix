@@ -92,7 +92,7 @@
         ATTIC_TOKEN="$("$tools/bin/sops" -d --extract '["token"]' secrets/ci/attic.yaml)"
         echo "::add-mask::$ATTIC_TOKEN"
         "$tools/bin/attic" login ${atticCfg.cache} "${atticCfg.endpoint}" "$ATTIC_TOKEN"
-        "$tools/bin/attic" push ${atticCfg.cache} ${targetExpr}
+        "$tools/bin/attic" push -j 16 ${atticCfg.cache} ${targetExpr}
       '';
     };
   in {
@@ -126,7 +126,7 @@
             ++ [
               {
                 name = "Check Nix formatting";
-                run = "nix run .#formatter -- --check .";
+                run = "nix run .#formatter.${runnerSystem} -- --check .";
               }
             ];
         };

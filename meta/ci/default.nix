@@ -15,13 +15,11 @@
       fileset = ../../.github/workflows;
     };
   in {
-    packages.ci = pkgs.writeShellApplication {
-      name = "nixconf-ci";
-      runtimeInputs = [pkgs.diffutils pkgs.coreutils pkgs.findutils];
-      meta = {
-        description = "GitHub Actions CI workflow synchronization and drift verification CLI";
-      };
-      text = ''
+    packages.ci =
+      (pkgs.writeShellScriptBin "nixconf-ci" ''
+        set -euo pipefail
+        export PATH="${lib.makeBinPath [pkgs.diffutils pkgs.coreutils pkgs.findutils pkgs.git]}:$PATH"
+
         REPO_ROOT="''${DEVENV_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
         WORKFLOWS_DIR="$REPO_ROOT/.github/workflows"
         mkdir -p "$WORKFLOWS_DIR"
@@ -99,8 +97,13 @@
             exit 1
             ;;
         esac
-      '';
-    };
+      '')
+      // {
+        meta = {
+          description = "GitHub Actions CI workflow synchronization and drift verification CLI";
+          mainProgram = "nixconf-ci";
+        };
+      };
 
     checks.ci =
       pkgs.runCommandLocal "check-ci-workflows" {

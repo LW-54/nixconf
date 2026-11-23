@@ -52,7 +52,7 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         if: github.event_name != 'pull_request'
         name: Push to Attic binary cache (SOPS)
-        run: "if [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push nixconf /tmp/host-out*\n"
+        run: "if [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push -j 16 nixconf /tmp/host-out*\n"
     strategy:
       fail-fast: false
       matrix:
@@ -76,7 +76,7 @@ jobs:
         with:
           extra_nix_config: "extra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - name: Check Nix formatting
-        run: nix run .#formatter -- --check .
+        run: nix run .#formatter.x86_64-linux -- --check .
   packages-and-shells:
     name: Packages & DevShells (Single Eval)
     runs-on: ubuntu-latest
@@ -104,7 +104,7 @@ jobs:
           SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
         if: github.event_name != 'pull_request'
         name: Push to Attic binary cache (SOPS)
-        run: "if [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push nixconf /tmp/pkg-out*\n"
+        run: "if [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push -j 16 nixconf /tmp/pkg-out*\n"
 name: CI & Binary Cache Push
 'on':
   pull_request:

@@ -45,31 +45,6 @@
     in "  ${u}${lib.concatStrings (lib.genList (_: " ") (lib.max 1 (22 - builtins.stringLength u)))}${cmd.description}")
     commands
   );
-
-  # Compares a generated tree against a repository root; shared by the CLI and the flake check.
-  compareScript = generated: root: ''
-    FAILED=0
-    while IFS= read -r -d "" src; do
-      rel="''${src#${generated}/}"
-      if [ ! -f "${root}/$rel" ]; then
-        echo "Missing generated file: $rel" >&2
-        FAILED=1
-      elif ! diff -q "$src" "${root}/$rel" >/dev/null 2>&1; then
-        echo "Out of sync: $rel" >&2
-        FAILED=1
-      fi
-    done < <(find -L "${generated}" -type f -print0)
-
-    if [ -d "${root}/docs" ]; then
-      while IFS= read -r -d "" existing; do
-        rel="''${existing#${root}/}"
-        if [ ! -f "${generated}/$rel" ]; then
-          echo "Stale file (no longer generated): $rel" >&2
-          FAILED=1
-        fi
-      done < <(find "${root}/docs" -type f -name '*.md' -print0)
-    fi
-  '';
 in {
   docs.pages.documentation.sections.cli = {
     order = 60;
@@ -96,60 +71,30 @@ in {
   }: let
     files = config.flake.lib.docs.generateAll {inherit system;};
 
+    # Native zero-dependency Rust helper for docs materialization, diff-aware sync, and drift check.
+    # Compiled once from isolated ./sync.rs and cached in the Nix store.
+    docsSyncBin =
+      pkgs.runCommandCC "nixconf-docs-sync" {
+        nativeBuildInputs = [pkgs.rustc];
+      } ''
+        mkdir -p $out/bin
+        rustc -C opt-level=3 --edition=2021 ${./sync.rs} -o $out/bin/nixconf-docs-sync
+      '';
+
     # Single-derivation store materialization:
-    # Streams all generated pages from a single JSON manifest in ~0.04s,
-    # eliminating 128 individual writeText derivations and store fragmentation.
+    # Streams all generated pages from a single JSON manifest in ~2ms via native Rust,
+    # eliminating per-page writeText derivations and Python runtime dependencies.
     docFiles =
       pkgs.runCommandLocal "nixconf-docs-tree" {
         manifest = builtins.toFile "docs-manifest.json" (builtins.toJSON files);
-        nativeBuildInputs = [pkgs.coreutils pkgs.python3Minimal];
       } ''
-        mkdir -p $out
-        ${pkgs.python3Minimal}/bin/python3 -c '
-        import json, os, sys
-        with open(os.environ["manifest"], "r", encoding="utf-8") as fh:
-            file_map = json.load(fh)
-        out_dir = sys.argv[1]
-        for rel_path, content in file_map.items():
-            target = os.path.join(out_dir, rel_path)
-            os.makedirs(os.path.dirname(target), exist_ok=True)
-            with open(target, "w", encoding="utf-8") as out:
-                out.write(content)
-        ' "$out"
+        ${docsSyncBin}/bin/nixconf-docs-sync materialize "$manifest" "$out"
       '';
 
-    docsApp = pkgs.writeShellApplication {
-      name = "nixconf-docs";
-      runtimeInputs = [
-        pkgs.coreutils
-        pkgs.diffutils
-        pkgs.findutils
-      ];
-      meta = {
-        description = "Unified documentation generator, validation test runner, and quality audit toolchain.";
-        usage = ''
-          Documentation generator and validator suite CLI.
+    docsApp =
+      (pkgs.writeShellScriptBin "nixconf-docs" ''
+        set -euo pipefail
 
-          ```bash
-          # Write generated markdown documentation to repository tree
-          nix run .#docs -- --write
-
-          # Verify committed documentation matches evaluated specification
-          nix run .#docs -- --check
-
-          # Check documentation with strict 100% coverage enforcement
-          nix run .#docs -- --check --strict
-
-          # Inspect documentation health metrics and warnings
-          nix run .#docs -- --health
-
-          # List all generated documentation target files
-          nix run .#docs -- --list
-          ```
-        '';
-        helpCommand = "nixconf-docs --help";
-      };
-      text = ''
         show_help() {
           cat <<'HELP'
         ${helpText}
@@ -222,26 +167,7 @@ in {
         fi
 
         if [ "$DO_WRITE" -eq 1 ]; then
-          COUNT=0
-          while IFS= read -r -d "" src; do
-            rel="''${src#${docFiles}/}"
-            mkdir -p "$(dirname "$rel")"
-            cp -f "$src" "$rel"
-            chmod 644 "$rel"
-            COUNT=$((COUNT + 1))
-          done < <(find -L "${docFiles}" -type f -print0)
-
-          if [ -d docs ]; then
-            while IFS= read -r -d "" existing; do
-              if [ ! -f "${docFiles}/$existing" ]; then
-                rm -f "$existing"
-                echo "Removed stale file: $existing"
-              fi
-            done < <(find docs -type f -name '*.md' -print0)
-            find docs -type d -empty -delete
-          fi
-
-          echo "Documentation synchronized: $COUNT files written."
+          ${docsSyncBin}/bin/nixconf-docs-sync write "${docFiles}" "."
           ${
           if !audit.isPerfect
           then ''echo "${audit.summaryLine}" >&2''
@@ -251,8 +177,7 @@ in {
         fi
 
         if [ "$DO_CHECK" -eq 1 ]; then
-          ${compareScript docFiles "."}
-          if [ "$FAILED" -eq 1 ]; then
+          if ! ${docsSyncBin}/bin/nixconf-docs-sync check "${docFiles}" "."; then
             echo "" >&2
             echo "Documentation is out of date. Run 'nix run .#docs -- --write' to update it." >&2
             exit 1
@@ -273,8 +198,34 @@ in {
 
           exit 0
         fi
-      '';
-    };
+      '')
+      // {
+        meta = {
+          description = "Unified documentation generator, validation test runner, and quality audit toolchain.";
+          mainProgram = "nixconf-docs";
+          usage = ''
+            Documentation generator and validator suite CLI.
+
+            ```bash
+            # Write generated markdown documentation to repository tree
+            nix run .#docs -- --write
+
+            # Verify committed documentation matches evaluated specification
+            nix run .#docs -- --check
+
+            # Check documentation with strict 100% coverage enforcement
+            nix run .#docs -- --check --strict
+
+            # Inspect documentation health metrics and warnings
+            nix run .#docs -- --health
+
+            # List all generated documentation target files
+            nix run .#docs -- --list
+            ```
+          '';
+          helpCommand = "nixconf-docs --help";
+        };
+      };
     committedDocsSrc = lib.fileset.toSource {
       root = ../..;
       fileset = lib.fileset.unions [
@@ -285,32 +236,25 @@ in {
   in {
     packages.docs = docsApp;
 
-    checks.docs =
-      pkgs.runCommandLocal "check-docs-synchronized" {
-        nativeBuildInputs = [
-          pkgs.diffutils
-          pkgs.findutils
-        ];
-      } ''
-        ${compareScript docFiles committedDocsSrc}
-        if [ "$FAILED" -eq 1 ]; then
-          echo "Documentation synchronization check failed. Run 'nix run .#docs -- --write'." >&2
+    checks.docs = pkgs.runCommandLocal "check-docs-synchronized" {} ''
+      if ! ${docsSyncBin}/bin/nixconf-docs-sync check "${docFiles}" "${committedDocsSrc}"; then
+        echo "Documentation synchronization check failed. Run 'nix run .#docs -- --write'." >&2
+        exit 1
+      fi
+      ${
+        if !audit.isPerfect
+        then ''echo "${audit.summaryLine}" >&2''
+        else ""
+      }
+      ${
+        if config.docs.strict && !audit.isPerfect
+        then ''
+          echo "Strict documentation check failed: ${toString audit.undocumentedItems} warnings present." >&2
           exit 1
-        fi
-        ${
-          if !audit.isPerfect
-          then ''echo "${audit.summaryLine}" >&2''
-          else ""
-        }
-        ${
-          if config.docs.strict && !audit.isPerfect
-          then ''
-            echo "Strict documentation check failed: ${toString audit.undocumentedItems} warnings present." >&2
-            exit 1
-          ''
-          else ""
-        }
-        touch $out
-      '';
+        ''
+        else ""
+      }
+      touch $out
+    '';
   };
 }

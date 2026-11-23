@@ -58,6 +58,18 @@
         description = "Target Nix platform architecture for this host.";
       };
 
+      vmTest = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether this host is included in CI QEMU VM runtime tests.";
+      };
+
+      installTest = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Whether this host is included in CI Disko install lifecycle tests.";
+      };
+
       configuration = lib.mkOption {
         type = lib.types.deferredModule;
         default = {};
