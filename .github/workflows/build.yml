@@ -17,7 +17,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
@@ -40,7 +40,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
@@ -74,7 +74,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - name: Check Nix formatting
         run: nix run .#formatter -- --check .
   packages-and-shells:
@@ -92,7 +92,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:

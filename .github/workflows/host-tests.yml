@@ -45,7 +45,7 @@ jobs:
         name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\nextra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\nextra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - if: steps.should-run.outputs.run == 'true'
         name: Setup Cachix
         uses: cachix/cachix-action@v17
@@ -80,7 +80,7 @@ jobs:
         name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
         name: Setup Cachix
         uses: cachix/cachix-action@v17
@@ -118,7 +118,7 @@ jobs:
         name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\nextra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\nextra-substituters = https://lw-54.cachix.org https://cache.adje.app/nixconf\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o= nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=\n"
       - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
         name: Setup Cachix
         uses: cachix/cachix-action@v17

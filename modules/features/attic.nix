@@ -252,7 +252,8 @@
           git add -N secrets/ci/attic.yaml
 
           echo "==> [5/5] Enabling Attic substituter in modules/features/attic.nix and syncing workflows/docs..."
-          sed -i -E "s|publicKey = (null|\"[^\"]*\");|publicKey = \"$pub_key\";|" modules/features/attic.nix
+          chmod 644 secrets/ci/attic.yaml
+          sed -i -E "s#publicKey = (null|\"[^\"]*\");#publicKey = \"$pub_key\";#" modules/features/attic.nix
           nix run .#ci -- --write
           nix run .#docs -- --write
 
@@ -277,7 +278,7 @@
       value = {
         endpoint = "https://cache.adje.app";
         cache = "nixconf";
-        publicKey = null;
+        publicKey = "nixconf:JRUOgq7A0Q95V4A7ETuJnXJdbDI3xLZdG+PmCMEqZjE=";
       };
     };
   };
