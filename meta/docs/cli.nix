@@ -81,14 +81,21 @@ in {
         rustc -C opt-level=3 --edition=2021 ${./sync.rs} -o $out/bin/nixconf-docs-sync
       '';
 
+    # Isolated source tree containing only .nix files for Rust targetedSnippet scanning
+    # (excludes README.md and docs/** so documentation edits never invalidate docFiles).
+    nixFilesSrc = lib.fileset.toSource {
+      root = ../..;
+      fileset = lib.fileset.fileFilter (file: file.hasExt "nix") ../..;
+    };
+
     # Single-derivation store materialization:
-    # Streams all generated pages from a single JSON manifest in ~2ms via native Rust,
-    # eliminating per-page writeText derivations and Python runtime dependencies.
+    # Streams all generated pages from a single JSON manifest in ~10ms via native Rust,
+    # expanding deferred Mermaid diagrams and targeted source snippets without Python.
     docFiles =
       pkgs.runCommandLocal "nixconf-docs-tree" {
         manifest = builtins.toFile "docs-manifest.json" (builtins.toJSON files);
       } ''
-        ${docsSyncBin}/bin/nixconf-docs-sync materialize "$manifest" "$out"
+        ${docsSyncBin}/bin/nixconf-docs-sync materialize "$manifest" "$out" "${nixFilesSrc}"
       '';
 
     docsApp =

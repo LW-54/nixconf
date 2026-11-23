@@ -942,7 +942,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/uchiyomi.nix
 ...
-289: (self.lib.backup.mkConfig {inherit config cfg;})
+294: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -957,17 +957,17 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/uchiyomi.nix
 ...
-291: (self.lib.monitoring.mkConfig {
-292: inherit config cfg;
-293: name = "uchiyomi";
-294: })
+296: (self.lib.monitoring.mkConfig {
+297: inherit config cfg;
+298: name = "uchiyomi";
+299: })
 ...
-296: (lib.mkIf (config.monitoring.enable or false) {
-297: monitoring.exporters.cadvisor.enable = true;
-298: })
-299: ]);
+301: (lib.mkIf (config.monitoring.enable or false) {
+302: monitoring.exporters.cadvisor.enable = true;
+303: })
+304: ]);
 ...
-297: monitoring.exporters.cadvisor.enable = true;
+302: monitoring.exporters.cadvisor.enable = true;
 ...
 ```
 
@@ -982,14 +982,14 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/uchiyomi.nix
 ...
-284: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
-285: persistence.directories = ["/var/lib/containers"];
-286: })
-287: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+289: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
+290: persistence.directories = ["/var/lib/containers"];
+291: })
+292: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
-285: persistence.directories = ["/var/lib/containers"];
+290: persistence.directories = ["/var/lib/containers"];
 ...
-288: (self.lib.persistence.mkConfig {inherit config cfg;})
+293: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -1008,7 +1008,7 @@ Capability contracts configured by this feature:
 ...
 26: "--cgroup-parent=${self.lib.resources.sliceName cfg.resources.tier}"
 ...
-295: (self.lib.resources.mkConfig {inherit config cfg;})
+300: (self.lib.resources.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -1025,7 +1025,7 @@ Capability contracts configured by this feature:
 ...
 24: domain = config.reverse-proxy.domain or null;
 ...
-287: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+292: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
 ```
 
@@ -1050,19 +1050,19 @@ Capability contracts configured by this feature:
 ...
 136: ++ lib.optional cfg.storage.enable "uchiyomi-storage-prep.service";
 ...
-225: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
+230: ++ lib.optional cfg.storage.enable "d ${cfg.storage.mountPoint} 0755 root root -"
 ...
-226: ++ lib.optionals (!cfg.storage.enable) [
+231: ++ lib.optionals (!cfg.storage.enable) [
 ...
-260: slice=${lib.escapeShellArg cfg.storage.slice}
+265: slice=${lib.escapeShellArg cfg.storage.slice}
 ...
-275: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+280: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-278: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
+283: ++ lib.optional (c == "${backend}-uchiyomi" && cfg.storage.enable) "uchiyomi-storage-prep.service";
 ...
-281: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
+286: unitConfig.RequiresMountsFor = [cfg.storage.mountPoint];
 ...
-290: (self.lib.storage.mkConfig {inherit config cfg;})
+295: (self.lib.storage.mkConfig {inherit config cfg;})
 ...
 ```
 

@@ -171,3 +171,7 @@ attic-bootstrap:
 # Run all flake validation checks (full eval + inspect + docs + ci + schemas)
 check:
     nix flake check
+
+# Run all flake checks in parallel across CPU cores using nix-fast-build
+check-parallel:
+    nix-fast-build --no-nom --skip-cached --flake .#checks.x86_64-linux

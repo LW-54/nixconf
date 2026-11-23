@@ -1018,7 +1018,7 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-141: resources.units = lib.mkIf (config.resources.enable or false) (
+144: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 
@@ -1105,7 +1105,7 @@ config = {
 ...
 26: "--cgroup-parent=${self.lib.resources.sliceName cfg.resources.tier}"
 ...
-295: (self.lib.resources.mkConfig {inherit config cfg;})
+300: (self.lib.resources.mkConfig {inherit config cfg;})
 ...
 ```
 

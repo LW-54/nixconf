@@ -860,10 +860,10 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-125: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-126: cache.directories = [
-127: ".cache/nix"
-128: ".cache/nix-index"
+128: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+129: cache.directories = [
+130: ".cache/nix"
+131: ".cache/nix-index"
 ...
 ```
 
@@ -941,14 +941,14 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-284: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
-285: persistence.directories = ["/var/lib/containers"];
-286: })
-287: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+289: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
+290: persistence.directories = ["/var/lib/containers"];
+291: })
+292: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
-285: persistence.directories = ["/var/lib/containers"];
+290: persistence.directories = ["/var/lib/containers"];
 ...
-288: (self.lib.persistence.mkConfig {inherit config cfg;})
+293: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 

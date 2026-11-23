@@ -8,7 +8,6 @@
   md = config.internal.docs.md;
   pages = config.docs.pages;
   mkContext = config.internal.docs.mkContext;
-  loadSnippetFile = config.internal.docs.loadSnippetFile;
 
   renderSection = ctx: s: let
     raw =
@@ -86,16 +85,6 @@
         edgeFilter = e: lib.toLower (e.relation or "") != "contains";
       }
       resolvedGraph;
-    knownFiles = lib.unique (lib.concatMap (n:
-      lib.optional (n ? meta && (n.meta.file or null) != null) n.meta.file
-      ++ (
-        if n ? meta && builtins.isList (n.meta.files or null)
-        then n.meta.files
-        else []
-      )
-      ++ lib.optional (n ? source && (n.source.file or null) != null) n.source.file
-      ++ lib.optional (n ? origin && (n.origin.file or null) != null) n.origin.file) (builtins.attrValues resolvedGraph.nodes));
-    fileCache = lib.genAttrs knownFiles loadSnippetFile;
     byPath = lib.groupBy (id: pages.${id}.path) (builtins.attrNames pages);
     clashes = lib.filterAttrs (_: ids: builtins.length ids > 1) byPath;
   in
@@ -104,7 +93,7 @@
     else
       lib.mapAttrs' (id: page:
         lib.nameValuePair page.path (renderPage (mkContext {
-          inherit id system nodesByKind graphWithoutContains fileCache;
+          inherit id system nodesByKind graphWithoutContains;
           graph = resolvedGraph;
           cpg = resolvedCPG;
         })))

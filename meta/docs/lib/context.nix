@@ -41,37 +41,6 @@
   in
     lib.filterAttrs (n: o: !lib.hasPrefix "_" n && lib.isOption o) declared;
 
-  isCommentLine = l: lib.hasPrefix "#" l || lib.hasPrefix "//" l || lib.hasPrefix "/*" l;
-
-  loadSnippetFile = f: let
-    fullPath = self + "/${f}";
-    exists = f != null && builtins.pathExists fullPath;
-    rawText =
-      if exists
-      then builtins.readFile fullPath
-      else "";
-    lines =
-      if exists
-      then lib.splitString "\n" rawText
-      else [];
-    numLines = builtins.length lines;
-    codeLines =
-      if exists
-      then
-        lib.filter (x: x.trimmed != "" && !isCommentLine x.trimmed)
-        (lib.imap1 (idx: line: {
-            inherit idx line;
-            trimmed = lib.trim line;
-          })
-          lines)
-      else [];
-  in {
-    inherit exists rawText lines numLines codeLines;
-  };
-
-  hasSubstr = needle: haystack:
-    needle != "" && builtins.replaceStrings [needle] ["${needle}_"] haystack != haystack;
-
   mkContext = {
     id,
     graph,
@@ -79,7 +48,6 @@
     system,
     nodesByKind ? null,
     graphWithoutContains ? null,
-    fileCache ? {},
   }: let
     page = pages.${id};
     link = md.relPath page.path;
@@ -189,6 +157,57 @@
 
     hostQuery = pathList: default:
       query.eval inferredName pathList default;
+
+    mkMermaidMarker = {
+      graph,
+      layout ? "TD",
+      clusterBy ? null,
+      includeTheme ? true,
+      linkFn ? null,
+      tooltipFn ? null,
+      title ? null,
+      wrapCodeBlock ? true,
+      raw ? false,
+      collapse ? null,
+      ...
+    }: let
+      clusterFn =
+        if builtins.isFunction clusterBy
+        then clusterBy
+        else null;
+      nodes = map (n: let
+        url =
+          if linkFn != null
+          then linkFn n
+          else null;
+        tooltip =
+          if tooltipFn != null
+          then tooltipFn n
+          else n.name or n.id;
+      in
+        {
+          inherit (n) id;
+          label = n.label or n.name or n.id;
+          kind = n.kind or "default";
+          stratum = n.stratum or "other";
+          inherit tooltip;
+        }
+        // lib.optionalAttrs (url != null && url != "") {inherit url;}
+        // lib.optionalAttrs (clusterFn != null) {cluster = clusterFn n;})
+      (builtins.attrValues graph.nodes);
+      edges =
+        map (e: {
+          inherit (e) source target relation;
+        })
+        graph.edges;
+      spec =
+        {
+          inherit layout includeTheme wrapCodeBlock raw nodes edges;
+        }
+        // lib.optionalAttrs (builtins.isString clusterBy) {inherit clusterBy;}
+        // lib.optionalAttrs (title != null) {inherit title;}
+        // lib.optionalAttrs (collapse != null) {inherit collapse;};
+    in "<!--NIXCONF_MERMAID:${builtins.toJSON spec}-->";
   in {
     inherit config graph system md page pages link nodeLink sourceLink query hostQuery;
     cpg = resolvedCPG;
@@ -332,7 +351,7 @@
     in
       node.properties.subModulesList or [];
 
-    # Neighborhood Mermaid diagram (auto-collapses if large or requested)
+    # Neighborhood Mermaid diagram (auto-collapses if large or requested, rendered in native Rust)
     neighborhoodDiagram = {
       nodeId,
       depth ? 2,
@@ -344,31 +363,30 @@
         graph = resolvedGraphWithoutContains;
         inherit nodeId depth;
       };
-      diagram =
-        if node == null || neighborhood.edges == []
-        then null
-        else
-          graphLib.renderMermaid {
-            linkFn = nodeLink;
-            graph = neighborhood;
-            layout = "LR";
-          };
-      lineCount =
-        if diagram == null
-        then 0
-        else builtins.length (lib.splitString "\n" diagram);
-      shouldCollapse = collapsible || lineCount > 16;
     in
-      if diagram == null
+      if node == null || neighborhood.edges == []
       then null
-      else if shouldCollapse
-      then md.details "${title} (click to expand)" diagram
-      else diagram;
+      else
+        mkMermaidMarker {
+          linkFn = nodeLink;
+          graph = neighborhood;
+          layout = "LR";
+          collapse = {
+            always = collapsible;
+            maxLines = 16;
+            summary = "${title} (click to expand)";
+          };
+        };
 
-    # Generic mermaid renderer with node linking
-    mermaid = args: graphLib.renderMermaid ({linkFn = nodeLink;} // args);
+    # Generic mermaid renderer with node linking (deferred to native Rust unless custom formatters are supplied)
+    mermaid = args: let
+      merged = {linkFn = nodeLink;} // args;
+    in
+      if (merged.customNodeFormatter or null) != null || (merged.customEdgeFormatter or null) != null
+      then graphLib.renderMermaid merged
+      else mkMermaidMarker merged;
 
-    # Targeted source code snippet matching specific terms/options with line numbers
+    # Targeted source code snippet matching specific terms/options with line numbers (file scan deferred to native Rust)
     targetedSnippet = {
       file ? null,
       files ? (lib.optional (file != null) file),
@@ -376,37 +394,8 @@
       options ? [],
       hostName ? null,
     }: let
-      clean = l: lib.trim l;
+      cleanFiles = lib.unique (lib.filter (f: f != null) files);
       allTerms = lib.unique (terms ++ options);
-      renderFileMatches = f: let
-        entry = fileCache.${f} or (loadSnippetFile f);
-        presentTerms =
-          if entry.exists && allTerms != []
-          then lib.filter (t: hasSubstr t entry.rawText) allTerms
-          else [];
-        termPattern =
-          if presentTerms != []
-          then ".*(" + lib.concatMapStringsSep "|" lib.escapeRegex presentTerms + ").*"
-          else null;
-        matches =
-          if termPattern == null
-          then []
-          else lib.filter (x: builtins.match termPattern x.line != null) entry.codeLines;
-        formattedMatches = map (m: let
-          trimmed = m.trimmed;
-          needsBlock = lib.hasSuffix "{" trimmed || lib.hasSuffix "=" trimmed;
-          blockLines =
-            if needsBlock
-            then map (i: "${toString i}: ${clean (builtins.elemAt entry.lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) entry.numLines))
-            else ["${toString m.idx}: ${trimmed}"];
-        in
-          lib.concatStringsSep "\n" blockLines)
-        matches;
-      in
-        if matches != []
-        then "# " + f + "\n...\n" + lib.concatStringsSep "\n...\n" formattedMatches + "\n..."
-        else null;
-      fileSnippets = lib.filter (s: s != null) (map renderFileMatches (lib.unique (lib.filter (f: f != null) files)));
       summarizeValue = depth: v: let
         tried = builtins.tryEval v;
       in
@@ -459,7 +448,8 @@
       evalSnippet =
         if options != []
         then
-          lib.concatMapStringsSep "\n  " (o: let
+          "config = {\n  "
+          + lib.concatMapStringsSep "\n  " (o: let
             cfg =
               if hostName != null && config.flake.nixosConfigurations ? ${hostName}
               then config.flake.nixosConfigurations.${hostName}.config
@@ -471,16 +461,19 @@
               else "...";
           in "${o} = ${valStr};")
           options
+          + "\n};"
         else null;
     in
-      if fileSnippets != []
-      then lib.concatStringsSep "\n\n" fileSnippets
-      else if evalSnippet != null
-      then "config = {\n  " + evalSnippet + "\n};"
-      else null;
+      if cleanFiles != [] && allTerms != []
+      then "<!--NIXCONF_SNIPPET:${builtins.toJSON ({
+          files = cleanFiles;
+          terms = allTerms;
+        }
+        // lib.optionalAttrs (evalSnippet != null) {fallback = evalSnippet;})}-->"
+      else evalSnippet;
   };
 in {
   internal.docs = {
-    inherit mkContext loadSnippetFile;
+    inherit mkContext;
   };
 }

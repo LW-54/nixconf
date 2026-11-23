@@ -850,10 +850,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/nix.nix
 ...
-132: monitoring = lib.mkIf (config.monitoring.enable or false) {
-133: watchedUnits =
-134: ["nix-daemon.service" "nix-gc.service"]
-135: ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
+135: monitoring = lib.mkIf (config.monitoring.enable or false) {
+136: watchedUnits =
+137: ["nix-daemon.service" "nix-gc.service"]
+138: ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
 ...
 ```
 
@@ -868,10 +868,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/nix.nix
 ...
-125: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-126: cache.directories = [
-127: ".cache/nix"
-128: ".cache/nix-index"
+128: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+129: cache.directories = [
+130: ".cache/nix"
+131: ".cache/nix-index"
 ...
 ```
 
@@ -886,7 +886,7 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/nix.nix
 ...
-141: resources.units = lib.mkIf (config.resources.enable or false) (
+144: resources.units = lib.mkIf (config.resources.enable or false) (
 ...
 ```
 

@@ -117,7 +117,8 @@ in {
           ctx.md.blocks [
             "## Graph Schema"
             "Every distinct `(kind, relation, kind)` triple observed in the graph, clustered by stratum:"
-            (graphLib.renderMermaid {
+            (ctx.mermaid {
+              linkFn = null;
               graph = {
                 nodes = schemaNodes;
                 edges = schemaEdges;

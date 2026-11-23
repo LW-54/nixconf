@@ -135,8 +135,11 @@
               ]
               ++ lib.optional cfg.storage.enable "uchiyomi-storage-prep.service";
 
-            virtualisation.oci-containers.containers = {
+            virtualisation.oci-containers.containers = let
+              autoStart = !(config.testing.enable or false);
+            in {
               ${flaresolverrHost} = {
+                inherit autoStart;
                 image = cfg.flaresolverrImage;
                 networks = [networkName];
                 environment = {
@@ -151,6 +154,7 @@
               };
 
               ${suwayomiHost} = {
+                inherit autoStart;
                 image = cfg.suwayomiImage;
                 networks = [networkName];
                 dependsOn = [flaresolverrHost];
@@ -174,6 +178,7 @@
               };
 
               uchiyomi = {
+                inherit autoStart;
                 inherit (cfg) image;
                 ports = [
                   "${cfg.address}:${toString cfg.port}:3000"
@@ -250,7 +255,7 @@
                   after = ["rclone-config.service" "network-online.target"];
                   wants = ["network-online.target"];
                   requires = ["rclone-config.service"];
-                  wantedBy = ["multi-user.target"];
+                  wantedBy = lib.optionals (!(config.testing.enable or false)) ["multi-user.target"];
                   path = [pkgs.coreutils pkgs.rclone];
                   serviceConfig = {
                     Type = "oneshot";

@@ -1307,10 +1307,10 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-132: monitoring = lib.mkIf (config.monitoring.enable or false) {
-133: watchedUnits =
-134: ["nix-daemon.service" "nix-gc.service"]
-135: ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
+135: monitoring = lib.mkIf (config.monitoring.enable or false) {
+136: watchedUnits =
+137: ["nix-daemon.service" "nix-gc.service"]
+138: ++ lib.optional config.nix.cachixWatchStore "cachix-watch-store-agent.service";
 ...
 ```
 
@@ -1409,17 +1409,17 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-291: (self.lib.monitoring.mkConfig {
-292: inherit config cfg;
-293: name = "uchiyomi";
-294: })
+296: (self.lib.monitoring.mkConfig {
+297: inherit config cfg;
+298: name = "uchiyomi";
+299: })
 ...
-296: (lib.mkIf (config.monitoring.enable or false) {
-297: monitoring.exporters.cadvisor.enable = true;
-298: })
-299: ]);
+301: (lib.mkIf (config.monitoring.enable or false) {
+302: monitoring.exporters.cadvisor.enable = true;
+303: })
+304: ]);
 ...
-297: monitoring.exporters.cadvisor.enable = true;
+302: monitoring.exporters.cadvisor.enable = true;
 ...
 ```
 

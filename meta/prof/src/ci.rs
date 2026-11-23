@@ -10,6 +10,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JobSummary {
     pub name: String,
+    #[serde(default)]
+    pub conclusion: String,
+    #[serde(default)]
+    pub failed_steps: Vec<String>,
     pub queue_s: f64,
     pub run_s: f64,
     pub setup_s: f64,
@@ -19,6 +23,8 @@ pub struct JobSummary {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WorkflowSummary {
     pub run_id: u64,
+    #[serde(default)]
+    pub conclusion: String,
     pub job_count: usize,
     pub wall_s: f64,
     pub total_runner_s: f64,
@@ -106,6 +112,8 @@ fn is_setup_step(name: &str) -> bool {
         name,
         "Set up job"
             | "Checkout repository"
+            | "Cache Nix fetcher & eval cache"
+            | "Post Cache Nix fetcher & eval cache"
             | "Install Nix"
             | "Setup Cachix"
             | "Post Setup Cachix"
@@ -133,20 +141,21 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
         "https://api.github.com/repos/{slug}/actions/runs?per_page={limit}"
     ))?;
 
-    let mut latest_by_wf: BTreeMap<String, u64> = BTreeMap::new();
+    let mut latest_by_wf: BTreeMap<String, (u64, String)> = BTreeMap::new();
     if let Some(runs) = runs_val.get("workflow_runs").and_then(Value::as_array) {
         for r in runs {
-            let concl = r.get("conclusion").and_then(Value::as_str).unwrap_or("");
+            let status = r.get("status").and_then(Value::as_str).unwrap_or("");
+            let concl = r.get("conclusion").and_then(Value::as_str).unwrap_or(status);
             let name = r.get("name").and_then(Value::as_str).unwrap_or("");
             let id = r.get("id").and_then(Value::as_u64).unwrap_or(0);
-            if concl == "success" && !name.is_empty() && !latest_by_wf.contains_key(name) {
-                latest_by_wf.insert(name.to_string(), id);
+            if status == "completed" && !name.is_empty() && !latest_by_wf.contains_key(name) {
+                latest_by_wf.insert(name.to_string(), (id, concl.to_string()));
             }
         }
     }
 
     let mut workflows = BTreeMap::new();
-    for (wf_name, run_id) in latest_by_wf {
+    for (wf_name, (run_id, wf_conclusion)) in latest_by_wf {
         let jobs_val = curl_json(&format!(
             "https://api.github.com/repos/{slug}/actions/runs/{run_id}/jobs?per_page=100"
         ))?;
@@ -165,6 +174,11 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
 
         for j in &jobs {
             let jname = j.get("name").and_then(Value::as_str).unwrap_or("").to_string();
+            let jconcl = j
+                .get("conclusion")
+                .and_then(Value::as_str)
+                .unwrap_or("unknown")
+                .to_string();
             let jc = j.get("created_at").and_then(Value::as_str).and_then(parse_iso_utc);
             let js = j.get("started_at").and_then(Value::as_str).and_then(parse_iso_utc);
             let je = j.get("completed_at").and_then(Value::as_str).and_then(parse_iso_utc);
@@ -187,9 +201,14 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
 
             let mut j_setup = 0.0;
             let mut j_work = 0.0;
+            let mut failed_steps = Vec::new();
             if let Some(steps) = j.get("steps").and_then(Value::as_array) {
                 for st in steps {
                     let sname = st.get("name").and_then(Value::as_str).unwrap_or("");
+                    let sconcl = st.get("conclusion").and_then(Value::as_str).unwrap_or("");
+                    if sconcl == "failure" {
+                        failed_steps.push(sname.to_string());
+                    }
                     let ss = st.get("started_at").and_then(Value::as_str).and_then(parse_iso_utc);
                     let se = st.get("completed_at").and_then(Value::as_str).and_then(parse_iso_utc);
                     let sd = match (ss, se) {
@@ -208,6 +227,8 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
 
             rows.push(JobSummary {
                 name: jname,
+                conclusion: jconcl,
+                failed_steps,
                 queue_s,
                 run_s,
                 setup_s: j_setup,
@@ -222,19 +243,25 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
         };
 
         eprintln!(
-            "\n=== {} (run #{}) ===\n  jobs={} | wall={:.0}s | total_runner={:.1} min (setup={:.0}s, work={:.0}s)",
+            "\n=== {} (run #{} [{}]) ===\n  jobs={} | wall={:.0}s | total_runner={:.1} min (setup={:.0}s, work={:.0}s)",
             wf_name,
             run_id,
+            wf_conclusion,
             jobs.len(),
             wall_s,
             total_runner_s / 60.0,
             setup_teardown_s,
             work_s
         );
-        for j in rows.iter().take(8) {
+        for j in rows.iter().take(10) {
+            let fail_note = if j.failed_steps.is_empty() {
+                String::new()
+            } else {
+                format!("  FAILED: {}", j.failed_steps.join(", "))
+            };
             eprintln!(
-                "  - {:<36} run={:5.0}s (setup={:3.0}s, work={:4.0}s, queue={:2.0}s)",
-                j.name, j.run_s, j.setup_s, j.work_s, j.queue_s
+                "  - {:<36} [{:<9}] run={:5.0}s (setup={:3.0}s, work={:4.0}s, queue={:2.0}s){}",
+                j.name, j.conclusion, j.run_s, j.setup_s, j.work_s, j.queue_s, fail_note
             );
         }
 
@@ -242,6 +269,7 @@ pub fn run(repo: Option<String>, limit: u32, out: Option<PathBuf>) -> Result<i32
             wf_name,
             WorkflowSummary {
                 run_id,
+                conclusion: wf_conclusion,
                 job_count: jobs.len(),
                 wall_s,
                 total_runner_s,

@@ -115,9 +115,12 @@
             cacheName = "lw-54";
             cachixTokenFile = config.secrets.files.cachix-token.path;
           };
-          systemd.services.cachix-watch-store-agent.serviceConfig.KillMode = lib.mkIf config.nix.cachixWatchStore (lib.mkForce "control-group");
-          # Pushing to the binary cache needs the real token and internet access, neither of
-          # which exists in the isolated test network.
+          systemd.services.cachix-watch-store-agent = lib.mkIf config.nix.cachixWatchStore {
+            serviceConfig.KillMode = lib.mkForce "control-group";
+            # Pushing to the binary cache needs the real token and internet access, neither of
+            # which exists in the isolated test network; skip auto-starting in QEMU test VMs.
+            wantedBy = lib.mkIf (config.testing.enable or false) (lib.mkForce []);
+          };
           testing.vm.allowedFailedUnits = lib.mkIf config.nix.cachixWatchStore ["cachix-watch-store-agent.service"];
           # allowUnfree is configured centrally on the shared pkgs instance (meta/pkgs.nix & primitives/host/default.nix).
           environment.systemPackages = [pkgs.nixd];
