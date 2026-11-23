@@ -41,8 +41,9 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 - **Ratified Decisions**:
   - **`ADR-0001` (`accepted`)**: Pillar 1 — Effect–Handler Composability (strictly implementation-agnostic; syntax/language/serialization like M1 vs M2 explicitly deferred).
-- **Current Decision Step (Meta-Primitives — Coordinate System)**:
-  - Choosing the cleanest, literature-grounded coordinate system for the remaining abstract foundational pillars before exploring Pillar 2 (`RES-0005` compares **A: Saltzer & Kaashoek**, **B: Promise Theory + Cybernetics**, **C: Space × Time × Authority × Truth**).
+- **Current Decision Step (Core Theoretical Backbone)**:
+  - Deep dive completed into **Mark Burgess's Promise Theory + Semantic Spacetime** (`RES-0006`), including formal calculus, real-world industrial systems (CFEngine, Cisco ACI/OpFlex, K8s, `mgmt`), and its 3 hard limits (requiring Hard Structural Closures + Cryptographic/Lampson Enforcement inside boundaries).
+  - Awaiting user decision on adopting **Promise Theory + Hard Enforcement (Closures & Lampson Capabilities/ACLs)** as the overarching theoretical framework and choosing the first concrete foundational pillar to derive under it.
 - **Next After `RFD-0001` Ratification**: Crystallize `ADR-0001` (+ `ADR-0002` for pinning/standalone if split), then launch `RFD-0002` (Structural Invariants & Verification) and `RFD-0003` (Auxiliary Tooling & Pure Rust Integration).
 
 ---

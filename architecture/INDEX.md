@@ -53,6 +53,7 @@
 | `RES-0003` | [`research/RES-0003-core-primitives-and-composition-manifold.md`](research/RES-0003-core-primitives-and-composition-manifold.md) | research | `active` | foundations | Expansive Phase 2 survey: Nickel/CUE/Nix/Rust seam, Tvix/Snix/Harmonia, `clan-core` tradeoffs, `nix-wrapper-modules`, `flake-parts` partitions, `blueprint`, `npins`, `.tack`. |
 | `RES-0004` | [`research/RES-0004-paradigms-theory-and-nix-semantics.md`](research/RES-0004-paradigms-theory-and-nix-semantics.md) | research | `active` | foundations | Theoretical analysis of 5 foundational paradigms (Mixin Lattice, ML Functors, Concepts+Sync, Algebraic Effects, Typed Compiler IR), Dolstra `evalModules` fixed-point limits, and Divnix/Paisano/Haumea lessons. |
 | `RES-0005` | [`research/RES-0005-fundamental-system-decompositions.md`](research/RES-0005-fundamental-system-decompositions.md) | research | `active` | foundations | Grounds remaining foundational axes in Saltzer & Kaashoek, Burgess Promise Theory, and Lampson Access Matrix; compares three candidate Coordinate Systems (A, B, C). |
+| `RES-0006` | [`research/RES-0006-promise-theory-and-semantic-spacetime.md`](research/RES-0006-promise-theory-and-semantic-spacetime.md) | research | `active` | foundations | Deep mathematical & practical study of Promise Theory (+b/-b, conditional promises, Dressed Superagents, Trust/Assessment), Semantic Spacetime (4-link graph), real-world deployments (CFEngine/OpFlex/K8s/mgmt), and its 3 hard limits (closures, Lampson security, CAP/FLP). |
 
 ## Session Lineage — Layer 4 (`journal/`)
 
