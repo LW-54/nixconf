@@ -39,10 +39,11 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 ## Active & Open Items
 
-- **Open Decisions (`RFD-0001` in `discussion`)**:
-  1. Core Architecture: Candidate 1 (**Lean Native `evalModules` Algebra + Rust Control Plane**) vs Candidate 2 (same + `flake-parts` partitions) vs Candidate 3 (Vanilla NixOS without Intent/Sync).
-  2. Input Pinning: Standard `flake.nix` + `flake.lock` vs `.tack/`.
-  3. Standalone User Layer: Artifact-first (`nix-wrapper-modules`) + thin OS file projection (`hjem` on NixOS, optional standalone `home-manager`/profile on non-NixOS).
+- **Open Decisions (`RFD-0001` broken into progressive steps — currently on Step 1A)**:
+  - **Step 1A (Active)**: Core Semantic Paradigm & Mathematical Ontology (comparing P1 Mixin Lattice, P2 ML Functors/DI, P3 Stratified Concepts+Sync, P4 Typed Compiler IR→JSON→Nix, P5 Algebraic Effects & Handlers — backed by `RES-0004` & `EXP-0002`).
+  - **Step 1B (Next)**: Concrete Primitive Algebra & Language/Seam Boundary (exact minimal set of primitives + where Nix ends and Rust begins).
+  - **Step 1C (Queued)**: Standalone Portability & User Layer (`nix run` unification with OS layers).
+  - **Step 1D (Queued)**: Packaging, Entrypoint & Input Pinning (`flake.nix` vs `flake-parts` partitions vs `npins` vs `.tack`).
 - **Next After `RFD-0001` Ratification**: Crystallize `ADR-0001` (+ `ADR-0002` for pinning/standalone if split), then launch `RFD-0002` (Structural Invariants & Verification) and `RFD-0003` (Auxiliary Tooling & Pure Rust Integration).
 
 ---

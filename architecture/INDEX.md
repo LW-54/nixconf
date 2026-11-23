@@ -39,6 +39,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `TEMPLATE` | [`experiments/TEMPLATE.md`](experiments/TEMPLATE.md) | template | `active` | meta | Standardized reproducible experiment & empirical benchmark report template. |
 | `EXP-0001` | [`experiments/EXP-0001-intent-sync-multi-provider-algebra.md`](experiments/EXP-0001-intent-sync-multi-provider-algebra.md) | experiment | `completed` | foundations | Validated ~120-LOC `lib.evalModules` Intent+Sync multi-provider core across VPS, test-mock, and WSL substrates in 175ms with zero recursion (`A-002` validated). |
+| `EXP-0002` | [`experiments/EXP-0002-comparative-paradigm-torture-test.md`](experiments/EXP-0002-comparative-paradigm-torture-test.md) | experiment | `completed` | foundations | Head-to-head torture test of Functors (P2), Stratified Intent+Sync (P3), and Rust Typed IR (P4) on feedback loops, type errors, port conflicts, and list-order bugs. |
 
 ## Deep Research Dossiers — Layer 3 (`research/`)
 
@@ -47,6 +48,7 @@
 | `RES-0001` | [`research/RES-0001-methodology-and-knowledge-architecture.md`](research/RES-0001-methodology-and-knowledge-architecture.md) | research | `active` | meta | Phase 0 meta-research dossier: Parnas, Ousterhout, Brooks, Jackson, Zwicky GMA, ATAM, Oxide RFDs, MADR, arc42, and Progressive Disclosure vs Vector RAG (validates `A-011`). |
 | `RES-0002` | [`research/RES-0002-nixos-composition-initial-notes.md`](research/RES-0002-nixos-composition-initial-notes.md) | research | `active` | foundations | Non-binding initial survey notes on NixOS Dendritic & `flake-parts` patterns (one point in the RFD-0001 manifold). |
 | `RES-0003` | [`research/RES-0003-core-primitives-and-composition-manifold.md`](research/RES-0003-core-primitives-and-composition-manifold.md) | research | `active` | foundations | Expansive Phase 2 survey: Nickel/CUE/Nix/Rust seam, Tvix/Snix/Harmonia, `clan-core` tradeoffs, `nix-wrapper-modules`, `flake-parts` partitions, `blueprint`, `npins`, `.tack`. |
+| `RES-0004` | [`research/RES-0004-paradigms-theory-and-nix-semantics.md`](research/RES-0004-paradigms-theory-and-nix-semantics.md) | research | `active` | foundations | Theoretical analysis of 5 foundational paradigms (Mixin Lattice, ML Functors, Concepts+Sync, Algebraic Effects, Typed Compiler IR), Dolstra `evalModules` fixed-point limits, and Divnix/Paisano/Haumea lessons. |
 
 ## Session Lineage — Layer 4 (`journal/`)
 
