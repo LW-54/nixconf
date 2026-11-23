@@ -111,6 +111,16 @@ in {
           default = config.networking.hostName;
           description = "Machine instance name displayed in the Antigravity Remote Control web dashboard.";
         };
+
+        gitPush = {
+          enable = lib.mkEnableOption "scoped SOPS-backed GitHub deploy key for autonomous agent git push";
+
+          secretStore = lib.mkOption {
+            type = lib.types.str;
+            default = "hosts/${config.networking.hostName}/agent-git";
+            description = "SOPS secret store (relative to `secrets/`) containing `privateKey` and `publicKey` for the repo-scoped GitHub deploy key.";
+          };
+        };
       }
       // self.lib.monitoring.mkOption {
         units = ["agy-remote-control.service"];
@@ -130,17 +140,23 @@ in {
         systemd.services.agy-remote-control = {
           description = "Antigravity CLI remote-control daemon (${cfg.instanceName})";
           wantedBy = ["multi-user.target"];
-          after = ["network-online.target"];
+          after =
+            ["network-online.target"]
+            ++ lib.optional cfg.gitPush.enable "sops-install-secrets.service";
           wants = ["network-online.target"];
           unitConfig.ConditionPathExists = tokenPath;
+          environment =
+            {
+              HOME = "/home/${cfg.user}";
+              PATH = lib.mkForce "/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin";
+            }
+            // lib.optionalAttrs cfg.gitPush.enable {
+              GIT_SSH_COMMAND = "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -i ${config.secrets.files.agy-git-deploy-key.path}";
+            };
           serviceConfig = {
             Type = "simple";
             User = cfg.user;
             WorkingDirectory = "/home/${cfg.user}";
-            Environment = [
-              "HOME=/home/${cfg.user}"
-              "PATH=/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin"
-            ];
             ExecStart = "${self.packages.${pkgs.stdenv.hostPlatform.system}.agy}/bin/agy remote-control serve";
             Restart = "on-failure";
             RestartSec = "10s";
@@ -159,6 +175,23 @@ in {
           };
         };
       }
+      (lib.mkIf cfg.gitPush.enable {
+        secrets.files.agy-git-deploy-key = {
+          store = cfg.gitPush.secretStore;
+          key = "privateKey";
+          owner = cfg.user;
+          group = "users";
+          mode = "0400";
+          testValue = "nixconf-test-agy-git-deploy-key";
+        };
+
+        agy.config.rules.gitPush = ''
+          ## Autonomous Git Push
+          - A repo-scoped GitHub deploy key is pre-configured via `GIT_SSH_COMMAND` in this environment, so plain `git push` works directly without Bitwarden.
+          - Only push after local checks and `.githooks/pre-commit` succeed.
+          - NEVER force-push (`--force`, `--force-with-lease`) or delete remote branches.
+        '';
+      })
       (lib.mkIf (config.monitoring.enable or false) {
         monitoring.exporters.unix.textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
 

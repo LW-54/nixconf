@@ -12,7 +12,11 @@ Declarative encrypted secrets provisioning, filesystem mounting, and permission 
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__attic["nixosModule/attic"]:::defaultNode
+  urn__nixconf__ast__module__agy["nixosModule/agy"]:::defaultNode
+    urn__nixconf__ast__module__agy_config["nixosModule/agy-config"]:::defaultNode
+    urn__nixconf__ast__module__agy_hub["nixosModule/agy-hub"]:::defaultNode
+    urn__nixconf__ast__module__agy_remote_control["nixosModule/agy-remote-control"]:::defaultNode
+    urn__nixconf__ast__module__attic["nixosModule/attic"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__grafana["nixosModule/grafana"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
@@ -37,9 +41,15 @@ flowchart LR
     urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
     urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
     urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
+    urn__nixconf__drv__devShell__gemini_api["devShell/gemini-api"]:::devShellNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
     urn__nixconf__drv__devShell__sops_host["devShell/sops-host"]:::devShellNode
+    urn__nixconf__drv__package__agent_git_bootstrap[("package/agent-git-bootstrap")]:::pkgNode
+    urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
+    urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
+    urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
+    urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
     urn__nixconf__drv__package__attic_bootstrap[("package/attic-bootstrap")]:::pkgNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
@@ -92,6 +102,31 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
     urn__nixconf__ast__module__attic -->|dependsOn| urn__nixconf__drv__package__attic_bootstrap
     urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -143,6 +178,9 @@ flowchart LR
     urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__agy_api
+    urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__agy
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__agy
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
@@ -162,12 +200,23 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_config
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agent_git_bootstrap
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity_ide
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__home
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
     urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__drv__package__attic_bootstrap
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -345,6 +394,10 @@ flowchart LR
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
+    click urn__nixconf__ast__module__agy href "../modules/agy.md" "agy"
+    click urn__nixconf__ast__module__agy_config href "../modules/agy-config.md" "agy-config"
+    click urn__nixconf__ast__module__agy_hub href "../modules/agy-hub.md" "agy-hub"
+    click urn__nixconf__ast__module__agy_remote_control href "../modules/agy-remote-control.md" "agy-remote-control"
     click urn__nixconf__ast__module__attic href "../modules/attic.md" "attic"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__grafana href "../modules/grafana.md" "grafana"
@@ -370,9 +423,15 @@ flowchart LR
     click urn__nixconf__ast__option__secrets_templates href "secrets.md" "secrets.templates"
     click urn__nixconf__ast__type__secrets_secret href "secrets.md" "secrets.secret"
     click urn__nixconf__ast__type__secrets_template href "secrets.md" "secrets.template"
+    click urn__nixconf__drv__devShell__gemini_api href "../devshells.md#gemini-api" "gemini-api"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
     click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
+    click urn__nixconf__drv__package__agent_git_bootstrap href "../packages.md#agent-git-bootstrap" "agent-git-bootstrap"
+    click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
+    click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
+    click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
+    click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
     click urn__nixconf__drv__package__attic_bootstrap href "../packages.md#attic-bootstrap" "attic-bootstrap"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
@@ -691,6 +750,20 @@ config = {
 
 
 ### Features
+
+<details>
+<summary><code><a href="../features/antigravity.md">antigravity</a></code></summary>
+
+**Configures options**: `secrets.files`
+
+```nix
+config = {
+  secrets.files = ...;
+};
+```
+
+</details>
+
 
 <details>
 <summary><code><a href="../features/attic.md">attic</a></code></summary>

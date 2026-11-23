@@ -168,6 +168,10 @@ prof-ci:
 attic-bootstrap:
     nix develop .#github-cli --command nix run .#attic-bootstrap
 
+# Register astrolabe's SOPS-encrypted repo-scoped GitHub deploy key and main force-push protection via CLI (zero GUI)
+agent-git-bootstrap:
+    nix develop .#github-cli --command nix run .#agent-git-bootstrap
+
 # Run all flake validation checks (full eval + inspect + docs + ci + schemas)
 check:
     nix flake check

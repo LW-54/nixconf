@@ -4,6 +4,29 @@ Executable packages exported on `flake.packages`.
 
 [← Back to Main README](../README.md)
 
+<a id="agent-git-bootstrap"></a>
+### `agent-git-bootstrap`
+
+Zero-GUI CLI bootstrapper registering astrolabe's SOPS-encrypted GitHub deploy key and main branch ruleset.
+
+Provided by feature [`antigravity`](features/antigravity.md).
+
+```bash
+nix run .#agent-git-bootstrap
+```
+
+```bash
+nix run github:LW-54/nixconf#agent-git-bootstrap
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+agent-git-bootstrap --help
+```
+
 <a id="agy"></a>
 ### `agy`
 

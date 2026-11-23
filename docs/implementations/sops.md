@@ -13,7 +13,8 @@ Declarative encrypted secrets provisioning using SOPS and age keys.
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__astrolabe["nixosModule/astrolabe"]:::defaultNode
+  urn__nixconf__ast__module__agy["nixosModule/agy"]:::defaultNode
+    urn__nixconf__ast__module__astrolabe["nixosModule/astrolabe"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_disk["nixosModule/astrolabe-disk"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_hardware["nixosModule/astrolabe-hardware"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_resources["nixosModule/astrolabe-resources"]:::defaultNode
@@ -100,6 +101,10 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -153,6 +158,7 @@ flowchart LR
     urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__drv__devShell__sops_admin -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__agy
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_disk
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_hardware
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_resources
@@ -170,6 +176,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__ssh
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__bw
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__agy
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__lw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__nix
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__rclone
@@ -189,10 +196,12 @@ flowchart LR
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
     urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
@@ -365,6 +374,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
+    click urn__nixconf__ast__module__agy href "../modules/agy.md" "agy"
     click urn__nixconf__ast__module__astrolabe href "../modules/astrolabe.md" "astrolabe"
     click urn__nixconf__ast__module__astrolabe_disk href "../modules/astrolabe-disk.md" "astrolabe-disk"
     click urn__nixconf__ast__module__astrolabe_hardware href "../modules/astrolabe-hardware.md" "astrolabe-hardware"

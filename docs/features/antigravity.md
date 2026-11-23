@@ -29,6 +29,7 @@ flowchart LR
     urn__nixconf__ast__module__hjem["nixosModule/hjem"]:::defaultNode
     urn__nixconf__ast__module__impermanence["nixosModule/impermanence"]:::defaultNode
     urn__nixconf__ast__module__restic["nixosModule/restic"]:::defaultNode
+    urn__nixconf__ast__module__sops["nixosModule/sops"]:::defaultNode
     urn__nixconf__ast__module__x240["nixosModule/x240"]:::defaultNode
     urn__nixconf__ast__module__x240_desktop["nixosModule/x240-desktop"]:::defaultNode
     urn__nixconf__ast__module__x240_disk["nixosModule/x240-disk"]:::defaultNode
@@ -76,6 +77,11 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_forwardAuth[/"reverse-proxy.forwardAuth"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_hosts[/"reverse-proxy.hosts"/]:::optNode
     urn__nixconf__ast__option__reverse_proxy_ports[/"reverse-proxy.ports"/]:::optNode
+    urn__nixconf__ast__option__secrets_defaultFile[/"secrets.defaultFile"/]:::optNode
+    urn__nixconf__ast__option__secrets_enable[/"secrets.enable"/]:::optNode
+    urn__nixconf__ast__option__secrets_files[/"secrets.files"/]:::optNode
+    urn__nixconf__ast__option__secrets_placeholder[/"secrets.placeholder"/]:::optNode
+    urn__nixconf__ast__option__secrets_templates[/"secrets.templates"/]:::optNode
     urn__nixconf__ast__type__backup_destination[["backup.destination"]]:::typeNode
     urn__nixconf__ast__type__backup_destinationOverride[["backup.destinationOverride"]]:::typeNode
     urn__nixconf__ast__type__backup_retention[["backup.retention"]]:::typeNode
@@ -122,7 +128,10 @@ flowchart LR
     urn__nixconf__ast__type__reverse_proxy_fqdn[["reverse-proxy.fqdn"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_host[["reverse-proxy.host"]]:::typeNode
     urn__nixconf__ast__type__reverse_proxy_portAllocation[["reverse-proxy.portAllocation"]]:::typeNode
+    urn__nixconf__ast__type__secrets_secret[["secrets.secret"]]:::typeNode
+    urn__nixconf__ast__type__secrets_template[["secrets.template"]]:::typeNode
     urn__nixconf__drv__devShell__gemini_api["devShell/gemini-api"]:::devShellNode
+    urn__nixconf__drv__package__agent_git_bootstrap[("package/agent-git-bootstrap")]:::pkgNode
     urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
     urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
@@ -183,6 +192,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -193,6 +203,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_users
@@ -204,10 +215,13 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -224,6 +238,7 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -299,6 +314,7 @@ flowchart LR
     urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__grafana -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__grafana -.->|reads| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__grafana -.->|reads| urn__nixconf__ast__option__monitoring_exporters
     urn__nixconf__ast__module__grafana -.->|reads| urn__nixconf__ast__option__monitoring_extraGrafanaSettings
@@ -322,6 +338,7 @@ flowchart LR
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__grafana -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__hjem -.->|reads| urn__nixconf__ast__option__home_users
     urn__nixconf__ast__module__impermanence -.->|flowsTo| urn__nixconf__ast__module__alloy
@@ -334,6 +351,7 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__restic -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_exclude
     urn__nixconf__ast__module__restic -.->|reads| urn__nixconf__ast__option__backup_paths
@@ -345,6 +363,11 @@ flowchart LR
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__persistence_directories
     urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__restic -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__ast__module__sops -.->|reads| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__ast__module__sops -.->|writes| urn__nixconf__ast__option__secrets_placeholder
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__x240 -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__x240 -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
@@ -360,9 +383,11 @@ flowchart LR
     urn__nixconf__ast__module__x240_resources -.->|writes| urn__nixconf__ast__option__resources_volumes
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__alloy
     urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__x240_system -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_enable
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__monitoring_agent
+    urn__nixconf__ast__module__x240_system -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_destination
     urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_destinationOverride
     urn__nixconf__ast__option__backup_destinations -.->|typedBy| urn__nixconf__ast__type__backup_retention
@@ -524,6 +549,10 @@ flowchart LR
     urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_forwardAuth
     urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_host
     urn__nixconf__ast__option__reverse_proxy_ports -.->|typedBy| urn__nixconf__ast__type__reverse_proxy_portAllocation
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_files -.->|typedBy| urn__nixconf__ast__type__secrets_template
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__ast__option__secrets_templates -.->|typedBy| urn__nixconf__ast__type__secrets_template
     urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__drv__devShell__gemini_api -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__astrolabe -->|dependsOn| urn__nixconf__drv__package__agy
@@ -541,6 +570,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__hjem
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__restic
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__eval__configuration__x240 -->|dependsOn| urn__nixconf__drv__package__bw
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__agy
@@ -549,6 +579,7 @@ flowchart LR
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__hjem
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__impermanence
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__restic
+    urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__sops
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_desktop
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_disk
     urn__nixconf__eval__configuration__x240 -->|imports| urn__nixconf__ast__module__x240_hardware
@@ -641,11 +672,19 @@ flowchart LR
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_fqdn
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_host
     urn__nixconf__onto__contract__reverse_proxy -->|declares| urn__nixconf__ast__type__reverse_proxy_portAllocation
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_defaultFile
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_enable
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_placeholder
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__option__secrets_templates
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_secret
+    urn__nixconf__onto__contract__secrets -->|declares| urn__nixconf__ast__type__secrets_template
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_config
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
@@ -656,6 +695,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
@@ -850,6 +890,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__implementation__restic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__restic ==>|implements| urn__nixconf__onto__contract__backup
+    urn__nixconf__onto__implementation__sops -->|outputs| urn__nixconf__ast__module__sops
     urn__nixconf__onto__implementation__sops -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
@@ -871,6 +912,7 @@ flowchart LR
     click urn__nixconf__ast__module__hjem href "../modules/hjem.md" "hjem"
     click urn__nixconf__ast__module__impermanence href "../modules/impermanence.md" "impermanence"
     click urn__nixconf__ast__module__restic href "../modules/restic.md" "restic"
+    click urn__nixconf__ast__module__sops href "../modules/sops.md" "sops"
     click urn__nixconf__ast__module__x240 href "../modules/x240.md" "x240"
     click urn__nixconf__ast__module__x240_desktop href "../modules/x240-desktop.md" "x240-desktop"
     click urn__nixconf__ast__module__x240_disk href "../modules/x240-disk.md" "x240-disk"
@@ -918,6 +960,11 @@ flowchart LR
     click urn__nixconf__ast__option__reverse_proxy_forwardAuth href "../contracts/reverse-proxy.md" "reverse-proxy.forwardAuth"
     click urn__nixconf__ast__option__reverse_proxy_hosts href "../contracts/reverse-proxy.md" "reverse-proxy.hosts"
     click urn__nixconf__ast__option__reverse_proxy_ports href "../contracts/reverse-proxy.md" "reverse-proxy.ports"
+    click urn__nixconf__ast__option__secrets_defaultFile href "../contracts/secrets.md" "secrets.defaultFile"
+    click urn__nixconf__ast__option__secrets_enable href "../contracts/secrets.md" "secrets.enable"
+    click urn__nixconf__ast__option__secrets_files href "../contracts/secrets.md" "secrets.files"
+    click urn__nixconf__ast__option__secrets_placeholder href "../contracts/secrets.md" "secrets.placeholder"
+    click urn__nixconf__ast__option__secrets_templates href "../contracts/secrets.md" "secrets.templates"
     click urn__nixconf__ast__type__backup_destination href "../contracts/backup.md" "backup.destination"
     click urn__nixconf__ast__type__backup_destinationOverride href "../contracts/backup.md" "backup.destinationOverride"
     click urn__nixconf__ast__type__backup_retention href "../contracts/backup.md" "backup.retention"
@@ -964,7 +1011,10 @@ flowchart LR
     click urn__nixconf__ast__type__reverse_proxy_fqdn href "../contracts/reverse-proxy.md" "reverse-proxy.fqdn"
     click urn__nixconf__ast__type__reverse_proxy_host href "../contracts/reverse-proxy.md" "reverse-proxy.host"
     click urn__nixconf__ast__type__reverse_proxy_portAllocation href "../contracts/reverse-proxy.md" "reverse-proxy.portAllocation"
+    click urn__nixconf__ast__type__secrets_secret href "../contracts/secrets.md" "secrets.secret"
+    click urn__nixconf__ast__type__secrets_template href "../contracts/secrets.md" "secrets.template"
     click urn__nixconf__drv__devShell__gemini_api href "../devshells.md#gemini-api" "gemini-api"
+    click urn__nixconf__drv__package__agent_git_bootstrap href "../packages.md#agent-git-bootstrap" "agent-git-bootstrap"
     click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
     click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
@@ -1055,6 +1105,7 @@ flowchart LR
 
 | Package | Command | Description | Docs |
 | :--- | :--- | :--- | :--- |
+| [`agent-git-bootstrap`](../packages.md#agent-git-bootstrap) | `nix run .#agent-git-bootstrap` | Zero-GUI CLI bootstrapper registering astrolabe's SOPS-encrypted GitHub deploy key and main branch ruleset. | [More →](../packages.md#agent-git-bootstrap) |
 | [`agy`](../packages.md#agy) | `nix run .#agy` | Google Antigravity CLI - Describe what you need, and Antigravity handles the rest | [More →](../packages.md#agy) |
 | [`agy-api`](../packages.md#agy-api) | `nix run .#agy-api` | Google Antigravity CLI - Describe what you need, and Antigravity handles the rest | [More →](../packages.md#agy-api) |
 | [`antigravity`](../packages.md#antigravity) | `nix run .#antigravity` | Google Antigravity | [More →](../packages.md#antigravity) |
@@ -1174,6 +1225,20 @@ config = {
 config = {
   reverse-proxy.hosts = ...;
   reverse-proxy.ports = ...;
+};
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../contracts/secrets.md">secrets</a></code></summary>
+
+**Configures options**: `secrets.files`
+
+```nix
+config = {
+  secrets.files = ...;
 };
 ```
 

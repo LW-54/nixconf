@@ -20,6 +20,7 @@
 
       config = {
         reverse-proxy.domain = "adje.app";
+        services.agy-remote-control.gitPush.enable = true;
       };
     };
   };

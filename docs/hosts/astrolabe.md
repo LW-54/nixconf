@@ -114,6 +114,7 @@ flowchart LR
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
     urn__nixconf__drv__devShell__storage_admin["devShell/storage-admin"]:::devShellNode
+    urn__nixconf__drv__package__agent_git_bootstrap[("package/agent-git-bootstrap")]:::pkgNode
     urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
     urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
@@ -157,6 +158,7 @@ flowchart LR
     urn__nixconf__onto__implementation__restic["restic"]:::implNode
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
 
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -167,6 +169,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__hjem
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_shared
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__home_users
@@ -178,10 +181,13 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -198,6 +204,7 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -719,6 +726,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
@@ -948,6 +956,7 @@ flowchart LR
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
     click urn__nixconf__drv__devShell__storage_admin href "../devshells.md#storage-admin" "storage-admin"
+    click urn__nixconf__drv__package__agent_git_bootstrap href "../packages.md#agent-git-bootstrap" "agent-git-bootstrap"
     click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
     click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
@@ -1029,7 +1038,7 @@ The following system and desktop features are imported by `astrolabe`:
 
 | Feature | Description | Outputs Used | Docs |
 | :--- | :--- | :--- | :--- |
-| [`antigravity`](../features/antigravity.md) | Modular Google Antigravity CLI (agy), declarative config/rules, remote-control daemon, Rust hub, desktop/IDE packages, and Gemini API shell. | [`agy`](../modules/agy.md) (module), [`agy-config`](../modules/agy-config.md) (module), [`agy-hub`](../modules/agy-hub.md) (module), [`agy-remote-control`](../modules/agy-remote-control.md) (module), [`agy`](../packages.md#agy) (package), [`agy-api`](../packages.md#agy-api) (package), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package) | [More →](../features/antigravity.md) |
+| [`antigravity`](../features/antigravity.md) | Modular Google Antigravity CLI (agy), declarative config/rules, remote-control daemon, Rust hub, desktop/IDE packages, and Gemini API shell. | [`agy`](../modules/agy.md) (module), [`agy-config`](../modules/agy-config.md) (module), [`agy-hub`](../modules/agy-hub.md) (module), [`agy-remote-control`](../modules/agy-remote-control.md) (module), [`agent-git-bootstrap`](../packages.md#agent-git-bootstrap) (package), [`agy`](../packages.md#agy) (package), [`agy-api`](../packages.md#agy-api) (package), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package) | [More →](../features/antigravity.md) |
 | [`attic`](../features/attic.md) | Self-hosted Attic Nix binary cache server with content-defined chunking deduplication, local storage, and automatic LRU garbage collection. | [`attic`](../modules/attic.md) (module), [`attic-bootstrap`](../packages.md#attic-bootstrap) (package) | [More →](../features/attic.md) |
 | [`bitwarden`](../features/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`bitwarden-desktop`](../modules/bitwarden-desktop.md) (module), [`bw`](../modules/bw.md) (module), [`bw`](../packages.md#bw) (package) | [More →](../features/bitwarden.md) |
 | [`copyparty`](../features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [`copyparty`](../modules/copyparty.md) (module) | [More →](../features/copyparty.md) |
@@ -1137,6 +1146,7 @@ astrolabe-services = {...}: {
 
   config = {
     reverse-proxy.domain = "adje.app";
+    services.agy-remote-control.gitPush.enable = true;
   };
 };
 ```

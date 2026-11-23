@@ -153,6 +153,7 @@ end
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
@@ -677,6 +678,17 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 <summary><h3>Packages</h3></summary>
 
 Executable packages exported across target platforms on `flake.packages`. See [Packages Documentation](docs/packages.md).
+
+#### [`agent-git-bootstrap`](docs/packages.md#agent-git-bootstrap)
+Zero-GUI CLI bootstrapper registering astrolabe's SOPS-encrypted GitHub deploy key and main branch ruleset.
+
+```bash
+nix run .#agent-git-bootstrap
+```
+
+```bash
+nix run github:LW-54/nixconf#agent-git-bootstrap
+```
 
 #### [`agy`](docs/packages.md#agy)
 Google Antigravity CLI - Describe what you need, and Antigravity handles the rest

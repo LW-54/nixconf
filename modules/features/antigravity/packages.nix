@@ -36,8 +36,89 @@
               helpCommand = "agy-api --help";
             };
         };
+      agent-git-bootstrap =
+        (pkgs.writeShellScriptBin "agent-git-bootstrap" ''
+          set -euo pipefail
+          export PATH="${pkgs.lib.makeBinPath [pkgs.gh pkgs.sops pkgs.jq pkgs.gnugrep pkgs.coreutils pkgs.openssh]}:$PATH"
+
+          repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+          cd "$repo_root"
+
+          if [[ -z "''${SOPS_AGE_KEY:-}" || -z "''${GH_TOKEN:-}" ]]; then
+            echo "error: SOPS_AGE_KEY and GH_TOKEN must be set. Run via: just agent-git-bootstrap" >&2
+            exit 1
+          fi
+
+          repo="LW-54/nixconf"
+          title="astrolabe-agent-push"
+          secret_file="secrets/hosts/astrolabe/agent-git.yaml"
+
+          if [[ ! -f "$secret_file" ]]; then
+            echo "error: missing $secret_file" >&2
+            exit 1
+          fi
+
+          echo "==> [1/3] Reading SOPS-encrypted deploy public key from $secret_file..."
+          pub_key="$(sops -d --extract '["publicKey"]' "$secret_file")"
+
+          echo "==> [2/3] Ensuring write-scoped GitHub deploy key '$title' is registered on $repo..."
+          if gh repo deploy-key list --repo "$repo" | grep -Fq "$title"; then
+            echo "    Deploy key '$title' already registered on $repo."
+          else
+            printf '%s\n' "$pub_key" | gh repo deploy-key add - --repo "$repo" --allow-write --title "$title"
+            echo "    Registered read-write deploy key '$title' on $repo."
+          fi
+
+          echo "==> [3/3] Ensuring main branch ruleset (block force-push & deletion) on $repo..."
+          ruleset_name="protect-main-no-force-push"
+          if existing_rulesets="$(gh api "repos/$repo/rulesets" 2>/dev/null)"; then
+            if printf '%s' "$existing_rulesets" | jq -e --arg n "$ruleset_name" 'any(.[]; .name == $n)' >/dev/null; then
+              echo "    Ruleset '$ruleset_name' already active on $repo."
+            else
+              if gh api --method POST "repos/$repo/rulesets" --input - >/dev/null <<'JSON'
+          {
+            "name": "protect-main-no-force-push",
+            "target": "branch",
+            "enforcement": "active",
+            "conditions": {
+              "ref_name": {
+                "include": ["refs/heads/main"],
+                "exclude": []
+              }
+            },
+            "rules": [
+              { "type": "deletion" },
+              { "type": "non_fast_forward" }
+            ]
+          }
+          JSON
+              then
+                echo "    Created ruleset '$ruleset_name' blocking force-push & deletion on main."
+              else
+                echo "    Warning: could not create ruleset via API (token may lack Administration:write). Deploy key is active." >&2
+              fi
+            fi
+          else
+            echo "    Warning: could not query rulesets API (token may lack Administration:read). Deploy key is active." >&2
+          fi
+
+          if [[ -r /run/secrets/agy-git-deploy-key ]]; then
+            echo "==> Verifying SSH authentication with /run/secrets/agy-git-deploy-key..."
+            ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -i /run/secrets/agy-git-deploy-key -T git@github.com 2>&1 || true
+          else
+            echo ""
+            echo "Deploy key registered! Run 'just switch astrolabe' to decrypt /run/secrets/agy-git-deploy-key and restart agy-remote-control."
+          fi
+        '')
+        // {
+          meta = {
+            description = "Zero-GUI CLI bootstrapper registering astrolabe's SOPS-encrypted GitHub deploy key and main branch ruleset.";
+            mainProgram = "agent-git-bootstrap";
+            helpCommand = "agent-git-bootstrap --help";
+          };
+        };
     in {
-      inherit agy agy-api;
+      inherit agy agy-api agent-git-bootstrap;
       antigravity = wrapMeta upstream.default "antigravity --help";
       antigravity-ide = wrapMeta upstream.google-antigravity-ide "antigravity-ide --help";
     };

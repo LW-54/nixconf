@@ -79,6 +79,7 @@ flowchart LR
     urn__nixconf__ast__type__monitoring_service[["monitoring.service"]]:::typeNode
     urn__nixconf__drv__devShell__gemini_api["devShell/gemini-api"]:::devShellNode
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
+    urn__nixconf__drv__package__agent_git_bootstrap[("package/agent-git-bootstrap")]:::pkgNode
     urn__nixconf__drv__package__agy[("package/agy")]:::pkgNode
     urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
@@ -141,6 +142,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -156,10 +158,12 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity
     urn__nixconf__ast__module__agy_config -->|dependsOn| urn__nixconf__drv__package__antigravity_ide
+    urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_hub -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -173,6 +177,7 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_rules
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_services
     urn__nixconf__ast__module__agy_hub -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__agy_api
     urn__nixconf__ast__module__agy_remote_control -->|dependsOn| urn__nixconf__drv__package__antigravity
@@ -585,6 +590,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_hub
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__ast__module__agy_remote_control
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__devShell__gemini_api
+    urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agent_git_bootstrap
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__agy_api
     urn__nixconf__onto__feature__antigravity -->|outputs| urn__nixconf__drv__package__antigravity
@@ -595,6 +601,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
     urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__drv__package__attic_bootstrap
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -883,6 +890,7 @@ flowchart LR
     click urn__nixconf__ast__type__monitoring_service href "monitoring.md" "monitoring.service"
     click urn__nixconf__drv__devShell__gemini_api href "../devshells.md#gemini-api" "gemini-api"
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
+    click urn__nixconf__drv__package__agent_git_bootstrap href "../packages.md#agent-git-bootstrap" "agent-git-bootstrap"
     click urn__nixconf__drv__package__agy href "../packages.md#agy" "agy"
     click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"

@@ -188,6 +188,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__restic
+    urn__nixconf__ast__module__agy -.->|flowsTo| urn__nixconf__ast__module__sops
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__backup_units
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_exporters
@@ -197,6 +198,7 @@ flowchart LR
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__persistence_users
     urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__resources_units
+    urn__nixconf__ast__module__agy -.->|writes| urn__nixconf__ast__option__secrets_files
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__restic
@@ -706,6 +708,7 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
