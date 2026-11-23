@@ -49,6 +49,12 @@ in {
           {
             environment.systemPackages = [cfg.package];
 
+            # Materialize system CA bundles as regular files instead of symlinks through
+            # /etc/static so Linux mount-namespace sandboxes (agy's sbox localcert) can
+            # read and bind-mount over them without /etc/static mounted.
+            environment.etc."ssl/certs/ca-certificates.crt".mode = "0444";
+            environment.etc."pki/tls/certs/ca-bundle.crt".mode = "0444";
+
             persistence.users = self.lib.user.forNormalUsers config (_: _: {
               data.directories = [".gemini"];
             });

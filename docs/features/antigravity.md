@@ -1134,15 +1134,15 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/antigravity/default.nix
 ...
-56: (lib.mkIf (config.backup.enable or false) {
-57: backup.units.agy = {
-58: enable = lib.mkDefault true;
-59: paths = ["/home/${backupUser}/.gemini"];
+62: (lib.mkIf (config.backup.enable or false) {
+63: backup.units.agy = {
+64: enable = lib.mkDefault true;
+65: paths = ["/home/${backupUser}/.gemini"];
 ...
-57: backup.units.agy = {
-58: enable = lib.mkDefault true;
-59: paths = ["/home/${backupUser}/.gemini"];
-60: exclude = [
+63: backup.units.agy = {
+64: enable = lib.mkDefault true;
+65: paths = ["/home/${backupUser}/.gemini"];
+66: exclude = [
 ...
 ```
 
@@ -1192,10 +1192,10 @@ config = {
 ```nix
 # modules/features/antigravity/default.nix
 ...
-52: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-53: data.directories = [".gemini"];
-54: });
-55: }
+58: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+59: data.directories = [".gemini"];
+60: });
+61: }
 ...
 ```
 

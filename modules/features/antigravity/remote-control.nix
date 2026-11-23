@@ -8,12 +8,20 @@ in {
   internal.antigravity.remoteControlModule = {
     config,
     lib,
+    options,
     pkgs,
     ...
   }: let
     cfg = config.services.agy-remote-control;
+    system = pkgs.stdenv.hostPlatform.system;
     tokenPath = "/home/${cfg.user}/.gemini/antigravity-cli/antigravity-oauth-token";
     textfileDir = config.monitoring.exporters.unix.textfileDirectory or "/var/lib/alloy/textfile";
+    agentToolsPath = lib.makeBinPath cfg.extraPackages;
+    servicePath =
+      lib.optionalString (cfg.extraPackages != []) "${agentToolsPath}:"
+      + "/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin";
+    gitSshConfigPath = "/home/${cfg.user}/.config/git/nixconf-agent-ssh";
+    repoDirClean = lib.removeSuffix "/" cfg.gitPush.repoDir;
 
     metricsScript = pkgs.writeShellScript "agy-export-metrics" ''
       set -euo pipefail
@@ -112,6 +120,42 @@ in {
           description = "Machine instance name displayed in the Antigravity Remote Control web dashboard.";
         };
 
+        extraPackages = lib.mkOption {
+          type = lib.types.listOf lib.types.package;
+          default = with pkgs; [
+            # Search & text utilities
+            ripgrep
+            fd
+            jq
+            curl
+            gnugrep
+            gnused
+            gawk
+            diffutils
+            findutils
+            file
+            # Nix & repo workflow
+            just
+            alejandra
+            statix
+            deadnix
+            nvd
+            nix-diff
+            nix-eval-jobs
+            nix-fast-build
+            attic-client
+            self.packages.${system}.prof
+            # VCS, secrets & sandbox helpers
+            git
+            gh
+            sops
+            age
+            bubblewrap
+            python3Minimal
+          ];
+          description = "Packages prepended to `PATH` for `agy-remote-control.service` and spawned agent tool subshells.";
+        };
+
         gitPush = {
           enable = lib.mkEnableOption "scoped SOPS-backed GitHub deploy key for autonomous agent git push";
 
@@ -120,16 +164,28 @@ in {
             default = "hosts/${config.networking.hostName}/agent-git";
             description = "SOPS secret store (relative to `secrets/`) containing `privateKey` and `publicKey` for the repo-scoped GitHub deploy key.";
           };
+
+          repoDir = lib.mkOption {
+            type = lib.types.str;
+            default = "/home/${cfg.user}/nixconf";
+            description = "Local repository checkout directory matched via Git `includeIf` for the scoped deploy key.";
+          };
+
+          remoteUrlPattern = lib.mkOption {
+            type = lib.types.str;
+            default = "git@github.com:LW-54/nixconf*";
+            description = "Git remote URL glob matched via `includeIf \"hasconfig:remote.*.url:...\"` so worktrees and branched subagent workspaces also inherit the deploy key.";
+          };
         };
       }
       // self.lib.monitoring.mkOption {
         units = ["agy-remote-control.service"];
       }
       // self.lib.resources.mkOption {
-        tier = "background";
+        tier = "standard";
         memory = {
-          high = "45%";
-          max = "65%";
+          high = "60%";
+          max = "78%";
         };
       };
 
@@ -148,7 +204,9 @@ in {
           environment =
             {
               HOME = "/home/${cfg.user}";
-              PATH = lib.mkForce "/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin";
+              PATH = lib.mkForce servicePath;
+              SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
+              NIX_SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
             }
             // lib.optionalAttrs cfg.gitPush.enable {
               GIT_SSH_COMMAND = "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -i ${config.secrets.files.agy-git-deploy-key.path}";
@@ -157,7 +215,8 @@ in {
             Type = "simple";
             User = cfg.user;
             WorkingDirectory = "/home/${cfg.user}";
-            ExecStart = "${self.packages.${pkgs.stdenv.hostPlatform.system}.agy}/bin/agy remote-control serve";
+            ExecStart = "${self.packages.${system}.agy}/bin/agy remote-control serve";
+            LimitNOFILE = 65536;
             Restart = "on-failure";
             RestartSec = "10s";
             TimeoutStopSec = "30s";
@@ -175,23 +234,34 @@ in {
           };
         };
       }
-      (lib.mkIf cfg.gitPush.enable {
-        secrets.files.agy-git-deploy-key = {
-          store = cfg.gitPush.secretStore;
-          key = "privateKey";
-          owner = cfg.user;
-          group = "users";
-          mode = "0400";
-          testValue = "nixconf-test-agy-git-deploy-key";
-        };
+      (lib.mkIf cfg.gitPush.enable ({
+          secrets.files.agy-git-deploy-key = {
+            store = cfg.gitPush.secretStore;
+            key = "privateKey";
+            owner = cfg.user;
+            group = "users";
+            mode = "0400";
+            testValue = "nixconf-test-agy-git-deploy-key";
+          };
 
-        agy.config.rules.gitPush = ''
-          ## Autonomous Git Push
-          - A repo-scoped GitHub deploy key is pre-configured via `GIT_SSH_COMMAND` in this environment, so plain `git push` works directly without Bitwarden.
-          - Only push after local checks and `.githooks/pre-commit` succeed.
-          - NEVER force-push (`--force`, `--force-with-lease`) or delete remote branches.
-        '';
-      })
+          home.shared.xdg.config."git/nixconf-agent-ssh".text = ''
+            [core]
+              sshCommand = ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -i ${config.secrets.files.agy-git-deploy-key.path}
+          '';
+
+          agy.config.rules.gitPush = ''
+            ## Autonomous Git Push
+            - A repo-scoped GitHub deploy key is pre-configured via Git `includeIf` (`core.sshCommand`) for this repository, so plain `git push` works directly without Bitwarden.
+            - Only push after local checks and `.githooks/pre-commit` succeed.
+            - NEVER force-push (`--force`, `--force-with-lease`) or delete remote branches.
+          '';
+        }
+        // lib.optionalAttrs (options ? git) {
+          git.settings = {
+            "includeIf \"gitdir:${repoDirClean}/\"".path = gitSshConfigPath;
+            "includeIf \"hasconfig:remote.*.url:${cfg.gitPush.remoteUrlPattern}\"".path = gitSshConfigPath;
+          };
+        }))
       (lib.mkIf (config.monitoring.enable or false) {
         monitoring.exporters.unix.textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
 
@@ -211,6 +281,50 @@ in {
             OnBootSec = "15s";
             OnUnitActiveSec = "30s";
             AccuracySec = "5s";
+          };
+        };
+      })
+      (lib.mkIf (options ? testing) {
+        testing.agy-remote-control = {
+          description = "Antigravity remote-control agent environment, CA bundle, git push, and resource tier checks";
+
+          evalChecks =
+            {
+              ca-bundle-regular-file = {
+                assertion = (config.environment.etc."ssl/certs/ca-certificates.crt".mode or "symlink") == "0444";
+                message = "`/etc/ssl/certs/ca-certificates.crt` must be materialized with mode 0444 so agy sbox can read it without /etc/static.";
+              };
+            }
+            // lib.optionalAttrs (cfg.gitPush.enable && (options ? git)) {
+              git-includeif-configured = {
+                assertion =
+                  (config.git.settings."includeIf \"gitdir:${repoDirClean}/\"".path or null)
+                  == gitSshConfigPath;
+                message = "Declarative Git includeIf for `agy-remote-control.gitPush` must point to `${gitSshConfigPath}`.";
+              };
+            };
+
+          inspectChecks.service-env = {
+            description = "Verify agy-remote-control.service environment, dev tools PATH, and file descriptor limits";
+            priority = 235;
+            script = ''
+              ${self.lib.testing.mkInspectFile {
+                path = "$etc/systemd/system/agy-remote-control.service";
+                pattern = "SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt";
+              }}
+              ${self.lib.testing.mkInspectFile {
+                path = "$etc/systemd/system/agy-remote-control.service";
+                pattern = "LimitNOFILE=65536";
+              }}
+              ${self.lib.testing.mkInspectFile {
+                path = "$etc/systemd/system/agy-remote-control.service";
+                pattern = "alejandra";
+              }}
+              ${self.lib.testing.mkInspectFile {
+                path = "$etc/systemd/system/agy-remote-control.service";
+                pattern = "nixprof";
+              }}
+            '';
           };
         };
       })

@@ -799,10 +799,12 @@ Modules and instances configuring options under the `resources` contract capabil
 ...
 6: services.uchiyomi-server.resources.tier = "media";
 ...
-8: resources = {
-9: profile = "server";
-10: # VPS relies solely on zram; disable swapKill to avoid false-positive kills under compressed swap pressure.
-11: oom.swapKill = false;
+7: services.agy-remote-control.resources.tier = "agent";
+...
+9: resources = {
+10: profile = "server";
+11: # VPS relies solely on zram; disable swapKill to avoid false-positive kills under compressed swap pressure.
+12: oom.swapKill = false;
 ...
 ```
 

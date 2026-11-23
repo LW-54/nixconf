@@ -708,10 +708,10 @@ config = {
 ```nix
 # modules/features/antigravity/default.nix
 ...
-52: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-53: data.directories = [".gemini"];
-54: });
-55: }
+58: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+59: data.directories = [".gemini"];
+60: });
+61: }
 ...
 ```
 

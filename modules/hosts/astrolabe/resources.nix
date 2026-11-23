@@ -4,11 +4,28 @@
       isTest = config.testing.enable or false;
     in {
       services.uchiyomi-server.resources.tier = "media";
+      services.agy-remote-control.resources.tier = "agent";
 
       resources = {
         profile = "server";
         # VPS relies solely on zram; disable swapKill to avoid false-positive kills under compressed swap pressure.
         oom.swapKill = false;
+
+        tiers.agent = {
+          description = "Autonomous coding agent daemon and spawned build/test subshells (Antigravity CLI).";
+          cpu.weight = 120;
+          io.weight = 120;
+          memory = {
+            high = "60%";
+            max = "78%";
+          };
+          oom = {
+            preference = "none";
+            kill = true;
+            pressureLimit = "75%";
+            scoreAdjust = 100;
+          };
+        };
 
         tiers.media = {
           description = "Isolated media and container stack (Uchiyomi, Suwayomi, FlareSolverr).";
