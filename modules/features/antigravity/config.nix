@@ -1,6 +1,11 @@
 _: let
   defaultSettings = {
     agentMode = "auto";
+    # agy's built-in Linux sandbox (exebox/sbox) constructs a pivot_root mount namespace
+    # without mounting /nix, preventing any NixOS binary from executing inside it.
+    # Kernel-level filesystem and privilege isolation is enforced declaratively via
+    # systemd hardening on agy-remote-control.service instead.
+    enableTerminalSandbox = false;
   };
 
   defaultRules = {

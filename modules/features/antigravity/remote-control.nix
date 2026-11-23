@@ -21,7 +21,13 @@ in {
       lib.optionalString (cfg.extraPackages != []) "${agentToolsPath}:"
       + "/run/current-system/sw/bin:/nix/var/nix/profiles/default/bin";
     gitSshConfigPath = "/home/${cfg.user}/.config/git/nixconf-agent-ssh";
+    gitKnownHostsPath = "/home/${cfg.user}/.cache/nixconf-agent-known_hosts";
+    gitSshCommand = "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=${gitKnownHostsPath} -i ${config.secrets.files.agy-git-deploy-key.path}";
     repoDirClean = lib.removeSuffix "/" cfg.gitPush.repoDir;
+    quoteSystemdPath = p:
+      if lib.hasInfix " " p
+      then ''"${p}"''
+      else p;
 
     metricsScript = pkgs.writeShellScript "agy-export-metrics" ''
       set -euo pipefail
@@ -177,6 +183,47 @@ in {
             description = "Git remote URL glob matched via `includeIf \"hasconfig:remote.*.url:...\"` so worktrees and branched subagent workspaces also inherit the deploy key.";
           };
         };
+
+        sandbox = {
+          enable = lib.mkEnableOption "systemd kernel-level filesystem and privilege sandboxing for agy-remote-control.service" // {default = true;};
+
+          readWritePaths = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [
+              "-${repoDirClean}"
+              "-/home/${cfg.user}/Projects"
+              "-/home/${cfg.user}/.gemini"
+              "-/home/${cfg.user}/.cache"
+              "-/home/${cfg.user}/.local/state"
+              "-/home/${cfg.user}/.cargo"
+            ];
+            description = "Filesystem paths writable by `agy-remote-control.service` under `ProtectSystem=strict` (prefix with `-` to ignore missing paths).";
+          };
+
+          extraReadWritePaths = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [];
+            description = "Additional host-specific writable paths appended to `sandbox.readWritePaths`.";
+          };
+
+          inaccessiblePaths = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [
+              "-/home/${cfg.user}/.ssh"
+              "-/home/${cfg.user}/.config/sops"
+              "-/home/${cfg.user}/.config/gh"
+              "-/home/${cfg.user}/.config/Bitwarden CLI"
+              "-/home/${cfg.user}/.gnupg"
+              "-/var/lib/sops-nix"
+              "-/var/lib/vaultwarden"
+              "-/var/lib/authelia-main"
+              "-/var/lib/lldap"
+              "-/var/lib/atticd"
+              "-/root"
+            ];
+            description = "Sensitive paths hidden from `agy-remote-control.service` via systemd `InaccessiblePaths`.";
+          };
+        };
       }
       // self.lib.monitoring.mkOption {
         units = ["agy-remote-control.service"];
@@ -213,20 +260,37 @@ in {
               NIX_SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
             }
             // lib.optionalAttrs cfg.gitPush.enable {
-              GIT_SSH_COMMAND = "ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -i ${config.secrets.files.agy-git-deploy-key.path}";
+              GIT_SSH_COMMAND = gitSshCommand;
             };
-          serviceConfig = {
-            Type = "simple";
-            User = cfg.user;
-            WorkingDirectory = "/home/${cfg.user}";
-            ExecStart = "${self.packages.${system}.agy}/bin/agy remote-control serve";
-            LimitNOFILE = 65536;
-            Restart = "on-failure";
-            RestartSec = "10s";
-            TimeoutStopSec = "30s";
-            StandardOutput = "journal";
-            StandardError = "journal";
-          };
+          serviceConfig =
+            {
+              Type = "simple";
+              User = cfg.user;
+              WorkingDirectory = "/home/${cfg.user}";
+              ExecStart = "${self.packages.${system}.agy}/bin/agy remote-control serve";
+              LimitNOFILE = 65536;
+              Restart = "on-failure";
+              RestartSec = "10s";
+              TimeoutStopSec = "30s";
+              StandardOutput = "journal";
+              StandardError = "journal";
+            }
+            // lib.optionalAttrs cfg.sandbox.enable {
+              NoNewPrivileges = true;
+              CapabilityBoundingSet = "";
+              RestrictSUIDSGID = true;
+              ProtectSystem = "strict";
+              PrivateTmp = true;
+              ProtectKernelTunables = true;
+              ProtectKernelModules = true;
+              ProtectKernelLogs = true;
+              ProtectControlGroups = true;
+              ProtectClock = true;
+              LockPersonality = true;
+              SystemCallArchitectures = "native";
+              ReadWritePaths = map quoteSystemdPath (cfg.sandbox.readWritePaths ++ cfg.sandbox.extraReadWritePaths);
+              InaccessiblePaths = map quoteSystemdPath cfg.sandbox.inaccessiblePaths;
+            };
         };
 
         systemd.paths.agy-remote-control = {
@@ -250,7 +314,7 @@ in {
 
           home.shared.xdg.config."git/nixconf-agent-ssh".text = ''
             [core]
-              sshCommand = ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -i ${config.secrets.files.agy-git-deploy-key.path}
+              sshCommand = ${gitSshCommand}
           '';
 
           agy.config.rules.gitPush = ''
@@ -290,17 +354,21 @@ in {
       })
       (lib.mkIf (options ? testing) {
         testing.agy-remote-control = {
-          description = "Antigravity remote-control agent environment, CA bundle, git push, and resource tier checks";
+          description = "Antigravity remote-control agent environment, systemd sandbox, CA bundle, git push, and resource tier checks";
 
           evalChecks =
             {
               ca-bundle-regular-file = {
                 assertion = (config.environment.etc."ssl/certs/ca-certificates.crt".mode or "symlink") == "0444";
-                message = "`/etc/ssl/certs/ca-certificates.crt` must be materialized with mode 0444 so agy sbox can read it without /etc/static.";
+                message = "`/etc/ssl/certs/ca-certificates.crt` must be materialized with mode 0444.";
               };
               no-path-unit-switch-race = {
                 assertion = config.systemd.services.agy-remote-control.stopIfChanged == false;
                 message = "`agy-remote-control.service` must set `stopIfChanged = false` to avoid racing `agy-remote-control.path` before daemon-reload.";
+              };
+              terminal-sandbox-disabled-for-nixos = {
+                assertion = (config.agy.config.settings.enableTerminalSandbox or true) == false;
+                message = "`agy.config.settings.enableTerminalSandbox` should default to false on NixOS (replaced by systemd hardening).";
               };
             }
             // lib.optionalAttrs (cfg.gitPush.enable && (options ? git)) {
@@ -313,7 +381,7 @@ in {
             };
 
           inspectChecks.service-env = {
-            description = "Verify agy-remote-control.service environment, dev tools PATH, and file descriptor limits";
+            description = "Verify agy-remote-control.service environment, dev tools PATH, and systemd kernel sandboxing";
             priority = 235;
             script = ''
               ${self.lib.testing.mkInspectFile {
@@ -332,6 +400,28 @@ in {
                 path = "$etc/systemd/system/agy-remote-control.service";
                 pattern = "nixprof";
               }}
+              ${lib.optionalString cfg.sandbox.enable ''
+                ${self.lib.testing.mkInspectFile {
+                  path = "$etc/systemd/system/agy-remote-control.service";
+                  pattern = "ProtectSystem=strict";
+                }}
+                ${self.lib.testing.mkInspectFile {
+                  path = "$etc/systemd/system/agy-remote-control.service";
+                  pattern = "NoNewPrivileges=true";
+                }}
+                ${self.lib.testing.mkInspectFile {
+                  path = "$etc/systemd/system/agy-remote-control.service";
+                  pattern = "PrivateTmp=true";
+                }}
+                ${self.lib.testing.mkInspectFile {
+                  path = "$etc/systemd/system/agy-remote-control.service";
+                  pattern = "InaccessiblePaths=-/home/${cfg.user}/.ssh";
+                }}
+                ${self.lib.testing.mkInspectFile {
+                  path = "$etc/systemd/system/agy-remote-control.service";
+                  pattern = "ReadWritePaths=-${repoDirClean}";
+                }}
+              ''}
             '';
           };
         };
