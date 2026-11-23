@@ -41,6 +41,7 @@
 | `EXP-0001` | [`experiments/EXP-0001-intent-sync-multi-provider-algebra.md`](experiments/EXP-0001-intent-sync-multi-provider-algebra.md) | experiment | `completed` | foundations | Validated ~120-LOC `lib.evalModules` Intent+Sync multi-provider core across VPS, test-mock, and WSL substrates in 175ms with zero recursion (`A-002` validated). |
 | `EXP-0002` | [`experiments/EXP-0002-comparative-paradigm-torture-test.md`](experiments/EXP-0002-comparative-paradigm-torture-test.md) | experiment | `completed` | foundations | Head-to-head torture test of Functors (P2), Stratified Intent+Sync (P3), and Rust Typed IR (P4) on feedback loops, type errors, port conflicts, and list-order bugs. |
 | `EXP-0003` | [`experiments/EXP-0003-rust-nix-seam-and-ux-comparison.md`](experiments/EXP-0003-rust-nix-seam-and-ux-comparison.md) | experiment | `completed` | foundations | Benchmarked M1–M4 Rust↔Nix authoring seams and verified commutative P5 handlers via pure zero-IFD `builtins.fromTOML` (264ms Nix eval, 4ms Rust validation vs 556ms recompile). |
+| `EXP-0004` | [`experiments/EXP-0004-m1-nix-vs-m2-toml-topology.md`](experiments/EXP-0004-m1-nix-vs-m2-toml-topology.md) | experiment | `completed` | foundations | Measured M1 (`fleet.nix` 66ms standalone vs 830ms flake) vs M2 (`fleet.toml` 72ms Nix / 4ms Rust / 260ms pre-Nix CI) and isolated 5 structural differentiators (S0 purity, `toml_edit` onboarding, zero-Nix consumers, IDE schema vs single-syntax). |
 
 ## Deep Research Dossiers — Layer 3 (`research/`)
 
