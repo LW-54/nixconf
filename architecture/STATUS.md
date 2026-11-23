@@ -13,13 +13,13 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decisions 1–2 ratified in `ADR-0002` & `ADR-0003`, superseding `ADR-0001`; Decision 3 in `discussion` via `RES-0009`)**. Now deciding **Decision 3 — Hard Boundaries: Cryptographic Identity, Lampson Authority (`L1`/`L2`/`L3`) & Proper-Time State Ownership (`S1`/`S2`/`S3`)**.
+Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decisions 1–3 ratified in `ADR-0002`..`ADR-0004`; Decision 4 — final foundational step — in `discussion` via `RES-0010`)**. Now deciding **Decision 4 — Spacetime Dynamics: Triadic Calibrated Pull Convergence (`C1`/`C2`/`C3`) & Unified Semantic Spacetime $\gamma(3,4)$ Epistemic Spine (`E1`/`E2`/`E3`)**.
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
-- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 3 in `discussion`)**
+- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 4 in `discussion`)**
 - **Last Updated**: 2026-11-23
 
 ---
@@ -42,10 +42,10 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 - **Ratified Foundational Decisions**:
   - **`ADR-0002` (`accepted`) — Decision 1**: Fractal Uniform Agency (Model A) & Non-Piercing Superagent Boundaries ($\Sigma$).
   - **`ADR-0003` (`accepted`, supersedes `ADR-0001`) — Decision 2**: Unified Hard/Soft Conditional Promise Algebra, `B3` Cardinality-Checked Scoped Binding, `P-Dual` (Strict `P-Explicit` Dressed Superagents + Transparent Profiles), and Strict Stratification + Commutative Keyed Aggregation.
-- **Current Decision Step — Decision 3 (Hard Boundaries: Cryptographic Identity, Lampson Authority & Proper-Time State Ownership)**:
-  - Formal analysis completed in `RES-0009` covering **Fork 3a** (Authority: `L1` Static Identity ACLs vs. `L2` Pure Dynamic Capabilities vs. `L3` Offline Root Identity + Attenuated Capabilities + Mechanical Compromise Trust Tiers) and **Fork 3b** (Proper-Time State Ownership & CAP/FLP: `S1` Implicit Host Filesystems vs. `S2` Mandatory Agent-Declared State-As-Promise Taxonomy vs. `S3` Pure Externalized Statelessness).
-- **Ordered Next Decision**:
-  - Decision 4 (Final Foundational Step): Spacetime Dynamics — Calibration, Convergence, Assessment & the $\gamma(3,4)$ SST Graph.
+  - **`ADR-0004` (`accepted`) — Decision 3**: `L3+` Offline Root Identity + Attenuated Capabilities + **Boolean Set-Algebra Authorization** ($\cup, \cap, \in, \setminus$ over agent attributes/groups) and `S2+` **Mandatory Agent-Declared State-As-Promise** with open composable traits.
+- **Current Decision Step — Decision 4 *(Final Foundational Decision)*: Spacetime Dynamics & Epistemics**:
+  - Formal analysis completed in `RES-0010` covering **Fork 4a** (Proper-Time Convergence & Calibration: `C1` Push Imposition vs. `C2` Blind Local Pull vs. `C3` Triadic Calibrated Autonomous Pull with Self-Assessing Atomic Transitions & Rollback) and **Fork 4b** (Epistemic Substrate: `E1` Siloed Tools vs. `E2` Monolithic Live SST DB vs. `E3` Unified Semantic Spacetime $\gamma(3,4)$ Spine over Specialized Storage & Trust-Budgeted Assessment).
+- **Next After Decision 4 Ratification**: Complete Phase 2 synthesis (`ADR-0005` + concise Master Theoretical Foundation spec), then enter **Phase 3 — Concrete Realization & Engineering RFDs**!
 
 ---
 
