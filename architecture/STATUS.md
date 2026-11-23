@@ -13,13 +13,13 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Ground-Up Foundational Derivation from Promise Theory + Semantic Spacetime (`RES-0007`)**. Following user direction not to assume `ADR-0001` or rigid "pillar" buckets, we derived the unified PT+SST+Hard-Enforcement theoretical bedrock against 5 physical constraints (`T1`–`T5`) and isolated **Decision 1 (Ontology of Agency, Scale & Boundaries $\Sigma$)** comparing Models A, B, and C.
+Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 1 ratified in `ADR-0002`; Decision 2 in `discussion` via `RES-0008`)**. Decision 1 adopted **Model A (Fractal Uniform Agency & Non-Piercing Boundaries)**, proving standalone portability and substrate polymorphism emerge purely from ambient Superagent scope without entity bifurcation. Now deciding **Decision 2 (Promise Algebra, Scoped Binding & Boundary Projection)**.
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
-- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 1 in `discussion`)**
+- **Current Phase**: **Phase 2 — Foundational Architecture Derivation (Decision 2 in `discussion`)**
 - **Last Updated**: 2026-11-23
 
 ---
@@ -39,13 +39,12 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 ## Active & Open Items
 
-- **Previous Working Record (Under Re-Derivation, Not Assumed)**:
-  - **`ADR-0001` (`accepted`, subject to superseding)**: Effect–Handler Composability — re-evaluated from scratch in `RES-0007` and shown to emerge as a special case (hard-closed interior binding) of Promise Theory's complementary promises inside a Dressed Superagent, while missing scope/non-piercing, conditional degradation, hard-vs-soft enforcement, and SST proper time.
-- **Current Decision Step — Decision 1 (Ontology of Agency, Scale & Boundaries $\Sigma$)**:
-  - Formal derivation completed in `RES-0007` colliding Bergstra & Burgess Promise Theory + Burgess & Couch Semantic Spacetime (`arXiv:2506.07756`, `SSTorytime`) against 5 hard engineering constraints (`T1`–`T5`).
-  - Awaiting user decision on **Decision 1** among three ontologies: **Model A** (Fractal Uniform Agency), **Model B** (Stratified Two-Regime Domains), or **Model C** (Scale-Unified Agents with Typed Boundary Modalities).
+- **Ratified Foundational Decisions**:
+  - **`ADR-0002` (`accepted`) — Decision 1**: Fractal Uniform Agency (Model A) & Non-Piercing Superagent Boundaries ($\Sigma$). Standalone portability and substrate heterogeneity emerge from ambient Superagent scope; Hard-vs-Soft enforcement and Lampson guards attach to Promises and Boundaries.
+  - *(`ADR-0001` remains preserved in lineage and will be formally superseded upon Decision 2 ratification.)*
+- **Current Decision Step — Decision 2 (Promise Algebra, Scoped Binding & Boundary Projection)**:
+  - Formal analysis completed in `RES-0008` covering Hard vs. Soft/Conditional promise anatomy, **Fork 2a** (Binding Topology: `B1` Explicit Wiring vs. `B2` Pure Broadcast vs. `B3` Cardinality-Checked Scoped Binding + Superagent Disambiguation), **Fork 2b** (Boundary Projection: `P-Explicit` vs. `P-Bubble` vs. `P-Dual`), and static compilation soundness (Stratification + Commutativity).
 - **Ordered Next Decisions (One at a Time)**:
-  - Decision 2: Promise Algebra, Scope, Non-Piercing Superagents & Compilation Soundness (formally superseding/refining `ADR-0001`).
   - Decision 3: Hard Boundaries — Cryptographic Identity, Lampson Authority & Proper-Time State Ownership.
   - Decision 4: Spacetime Dynamics — Calibration, Convergence, Assessment & the $\gamma(3,4)$ SST Graph.
 

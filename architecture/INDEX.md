@@ -33,6 +33,7 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `TEMPLATE` | [`adrs/TEMPLATE.md`](adrs/TEMPLATE.md) | template | `active` | meta | Standardized immutable MADR decision record template. |
 | `ADR-0001` | [`adrs/ADR-0001-effect-handler-composability.md`](adrs/ADR-0001-effect-handler-composability.md) | adr | `accepted` | foundations | Ratifies Pillar 1: implementation-agnostic Effect–Handler Composability (open multi-instance handlers, $O(N+M)$ mediation, strict stratification, commutative composition). |
+| `ADR-0002` | [`adrs/ADR-0002-fractal-uniform-agency-and-non-piercing-boundaries.md`](adrs/ADR-0002-fractal-uniform-agency-and-non-piercing-boundaries.md) | adr | `accepted` | foundations | Ratifies Decision 1 (Model A): Fractal Uniform Agency ($A = \langle \Sigma, \Pi_{\text{ext}}, \text{Interior} \rangle$), recursive Dressed Superagents, Non-Piercing Boundaries $\Sigma$, and scope-emergent standalone/substrate polymorphism. |
 
 ## Experiments & Benchmarks (`experiments/`)
 
@@ -55,6 +56,7 @@
 | `RES-0005` | [`research/RES-0005-fundamental-system-decompositions.md`](research/RES-0005-fundamental-system-decompositions.md) | research | `active` | foundations | Grounds remaining foundational axes in Saltzer & Kaashoek, Burgess Promise Theory, and Lampson Access Matrix; compares three candidate Coordinate Systems (A, B, C). |
 | `RES-0006` | [`research/RES-0006-promise-theory-and-semantic-spacetime.md`](research/RES-0006-promise-theory-and-semantic-spacetime.md) | research | `active` | foundations | Deep mathematical & practical study of Promise Theory (+b/-b, conditional promises, Dressed Superagents, Trust/Assessment), Semantic Spacetime (4-link graph), real-world deployments (CFEngine/OpFlex/K8s/mgmt), and its 3 hard limits (closures, Lampson security, CAP/FLP). |
 | `RES-0007` | [`research/RES-0007-promise-theory-sst-formal-derivation.md`](research/RES-0007-promise-theory-sst-formal-derivation.md) | research | `active` | foundations | Formal first-principles derivation of nixconf v2 from Promise Theory & Semantic Spacetime collided with 5 physical constraints (T1–T5), re-evaluating ADR-0001 without assumptions and framing Decision 1 (Models A, B, C). |
+| `RES-0008` | [`research/RES-0008-promise-algebra-binding-and-projection.md`](research/RES-0008-promise-algebra-binding-and-projection.md) | research | `active` | foundations | Decision 2 formal analysis on top of ADR-0002: Hard vs Soft/Conditional Promise anatomy, Interior Binding Topology (B1 vs B2 vs B3), Boundary Projection (P-Explicit vs P-Bubble vs P-Dual), and compilation soundness laws. |
 
 ## Session Lineage — Layer 4 (`journal/`)
 
