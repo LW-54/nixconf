@@ -200,6 +200,10 @@ in {
             ["network-online.target"]
             ++ lib.optional cfg.gitPush.enable "sops-install-secrets.service";
           wants = ["network-online.target"];
+          # Prevent switch-to-configuration from stopping the service before `daemon-reload`:
+          # `agy-remote-control.path` (PathExists) would otherwise immediately re-trigger the
+          # service with the stale unit file before `daemon-reload` applies the new Slice/PATH.
+          stopIfChanged = false;
           unitConfig.ConditionPathExists = tokenPath;
           environment =
             {
@@ -293,6 +297,10 @@ in {
               ca-bundle-regular-file = {
                 assertion = (config.environment.etc."ssl/certs/ca-certificates.crt".mode or "symlink") == "0444";
                 message = "`/etc/ssl/certs/ca-certificates.crt` must be materialized with mode 0444 so agy sbox can read it without /etc/static.";
+              };
+              no-path-unit-switch-race = {
+                assertion = config.systemd.services.agy-remote-control.stopIfChanged == false;
+                message = "`agy-remote-control.service` must set `stopIfChanged = false` to avoid racing `agy-remote-control.path` before daemon-reload.";
               };
             }
             // lib.optionalAttrs (cfg.gitPush.enable && (options ? git)) {
