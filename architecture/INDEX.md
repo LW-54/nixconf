@@ -10,6 +10,7 @@
 | `ARCH-STATUS` | [`STATUS.md`](STATUS.md) | status | `active` | meta | Live dashboard of current phase, progress table, open decisions, and immediate next actions. |
 | `ARCH-CHARTER` | [`CHARTER.md`](CHARTER.md) | charter | `active` | foundations | Bias-free fundamental mission, 6 mathematical design axioms (`X1`–`X6`), ATAM scenarios (`QA-01`–`QA-08`), and fleet/capability horizon. |
 | `ARCH-ASSUMPTIONS` | [`ASSUMPTIONS.md`](ASSUMPTIONS.md) | ledger | `active` | foundations | Explicit falsifiable Assumptions Ledger (`A-001`–`A-012`) tracking validation status and linked evidence. |
+| `SPEC-FOUNDATION` | [`spec/FOUNDATION.md`](spec/FOUNDATION.md) | spec | `active` | foundations | Ratified Phase 2 Master Theoretical Constitution unifying Promise Theory, Semantic Spacetime, and Hard Enforcement (`ADR-0002`..`ADR-0006`). |
 
 ## Empirical Audit — Phase 1 (`audit/`)
 
@@ -37,6 +38,7 @@
 | `ADR-0003` | [`adrs/ADR-0003-promise-algebra-scoped-binding-and-boundary-projection.md`](adrs/ADR-0003-promise-algebra-scoped-binding-and-boundary-projection.md) | adr | `accepted` | foundations | Ratifies Decision 2 (superseding `ADR-0001`): Unified Hard/Soft Conditional Promise algebra, `B3` Cardinality-Checked Scoped Binding, `P-Dual` Opaque Superagents vs Transparent Profiles, and Stratification + Commutativity. |
 | `ADR-0004` | [`adrs/ADR-0004-hard-boundaries-boolean-authority-and-state-as-promise.md`](adrs/ADR-0004-hard-boundaries-boolean-authority-and-state-as-promise.md) | adr | `accepted` | foundations | Ratifies Decision 3: `L3+` Offline Root Identity + Attenuated Capabilities + Boolean Set-Algebra Authorization ($\cup,\cap,\in,\setminus$ over agent attributes/groups) and `S2+` Mandatory Agent-Declared State-As-Promise with open composable traits. |
 | `ADR-0005` | [`adrs/ADR-0005-triadic-calibrated-pull-and-sst-epistemic-spine.md`](adrs/ADR-0005-triadic-calibrated-pull-and-sst-epistemic-spine.md) | adr | `accepted` | foundations | Ratifies Decision 4: `C3` Triadic Calibrated Autonomous Pull with self-assessing atomic transitions & auto-rollback, and `E3` Semantic Spacetime $\gamma(3,4)$ universal epistemic spine over specialized bulk telemetry & trust-budgeted assessment. |
+| `ADR-0006` | [`adrs/ADR-0006-foundational-corollaries-lifecycle-stratification-and-budgets.md`](adrs/ADR-0006-foundational-corollaries-lifecycle-stratification-and-budgets.md) | adr | `accepted` | foundations | Ratifies 7 foundational corollaries from `RES-0011` (Genesis/Revocation/Break-Glass, Boundary-First Stratification, Ousterhout/Foreign Wrapping, Budgeted Capacity, Epistemic Zoom, Portable User-Space, Tri-Purpose Probes), completing Phase 2. |
 
 ## Experiments & Benchmarks (`experiments/`)
 
