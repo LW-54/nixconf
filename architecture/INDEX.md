@@ -15,7 +15,10 @@
 
 | ID | Path | Type | Status | Domain | Summary |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| — | *(Phase 1 next)* | — | — | — | `AUD-0001` (Primitives & Modules), `AUD-0002` (Tooling, Meta & Rust), `AUD-0003` (Perf, CI, Secrets, Monitoring), `AUD-0004` (Fleet & Capability Boundary Constraints). |
+| `AUD-0001` | [`audit/AUD-0001-primitives-modules-entanglement.md`](audit/AUD-0001-primitives-modules-entanglement.md) | audit | `active` | foundations | Audits `primitives/` & `modules/`: 3-pass compiler overhead, 226 `internal.*` backchannels, 1:1 impl lock-in, Grafana/SOPS leaks in contracts, cross-host eval coupling, and standalone portability gaps. |
+| `AUD-0002` | [`audit/AUD-0002-meta-tooling-rust-deps.md`](audit/AUD-0002-meta-tooling-rust-deps.md) | audit | `active` | tooling | Audits 15k LOC `meta/`, `Justfile`, `.githooks/`, 5.3k LOC fragmented Rust, 5.3k LOC `meta/graph/`, doc enforcement blind spots, and 15 global `.tack/` inputs. |
+| `AUD-0003` | [`audit/AUD-0003-testing-ci-secrets-ops.md`](audit/AUD-0003-testing-ci-secrets-ops.md) | audit | `active` | verification | Audits 4-tier testing, CI/Attic cache isolation (plus residual `${self}` leak in `rclone`), SOPS/Bitwarden trust boundaries, and live `astrolabe` RAM/disk baselines (~1.59 GiB obs vs ~291 MiB core services). |
+| `AUD-0004` | [`audit/AUD-0004-fleet-and-capability-constraints.md`](audit/AUD-0004-fleet-and-capability-constraints.md) | audit | `active` | networking-fleet | Harvests non-negotiable technical constraints across VPS, laptops, ZenBook Duo, TUF dGPU, Chromebook tablet, `aarch64` RPi, `NixOS-WSL`, Live ISO, standalone `nix run`, mesh, GitOps, and distributed workloads. |
 
 ## Requests for Discussion — Phases 2–3 (`rfds/`)
 
@@ -54,3 +57,4 @@
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `ARCH-ARCHIVE-POLICY` | [`archive/README.md`](archive/README.md) | archive | `active` | meta | Append-only archival rules (never silently overwrite or delete historical drafts). |
 | `ARC-0001` | [`archive/2026-11-23-phase0-initial-roadmap-draft.md`](archive/2026-11-23-phase0-initial-roadmap-draft.md) | archive | `archived` | meta | Archived first Phase 0 roadmap draft before removing current-repo bias (`meta/`, Dendritic) and moving to `design/v2`. |
+| `ARC-0002` | [`archive/2026-11-23-charter-v0-pre-calibration.md`](archive/2026-11-23-charter-v0-pre-calibration.md) | archive | `archived` | foundations | Archived pre-calibration Charter snapshot before locking user priorities (standalone `nix run`, reliability-first, graceful degradation, language-agnostic primitives). |

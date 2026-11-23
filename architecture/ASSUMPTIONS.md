@@ -31,9 +31,9 @@ This ledger tracks every non-trivial technical and architectural assumption unde
 
 | ID | Domain | Status | Risk if False | Statement (Short) | Evidence |
 | :--- | :--- | :--- | :---: | :--- | :--- |
-| **A-001** | Foundations | `unverified` | High | Nix's native module system (`lib.evalModules`) is expressive enough to serve as the sole base composition algebra without needing heavy custom DSL layers on top. | — *(RFD-0001)* |
-| **A-002** | Foundations | `unverified` | High | Multi-implementation & sub-component swapping can be modeled cleanly via typed module interfaces/adapters without creating N×M combinatorial glue or infinite recursion. | — *(RFD-0001)* |
-| **A-003** | Foundations | `unverified` | High | `flake.nix` + pinned inputs (vs non-flake / `npins` / `tack` / Nix-only) remains the best evaluation entry point for CI, GitOps, multi-arch builds, and external interoperability. | — *(RFD-0001)* |
+| **A-001** | Foundations | `unverified` | High | Nix's native module system (`lib.evalModules`) vs alternative/hybrid authoring primitives (e.g., Rust/Nickel/CUE compiling to Nix, pure functional combinators, Concept+Sync) — whether pure Nix or a multi-layer primitive foundation delivers superior clarity and composability. | — *(RFD-0001)* |
+| **A-002** | Foundations | `unverified` | High | Multi-implementation & sub-component swapping can be modeled cleanly via typed interfaces/adapters without creating N×M combinatorial glue or evaluation recursion. | — *(RFD-0001)* |
+| **A-003** | Foundations | `unverified` | High | Flake outputs (`nix run` / `nix shell` / `nixosConfigurations`) remain the best distribution boundary for standalone universal access, even if internal authoring/pinning uses different mechanisms. | — *(RFD-0001)* |
 | **A-004** | Verification | `unverified` | Medium | Separating fast static invariants (eval/schema/lint) from VM/runtime checks can enforce uniform standards across *all* repo layers (including tooling) within a <15s pre-commit budget. | — *(RFD-0002)* |
 | **A-005** | Tooling | `unverified` | Medium | Pure Nix Rust builds (`crane` vs `rustPlatform` vs single-file `rustc` vs Cargo workspace) can achieve fast incremental iteration without heavy flake-input bloat or cache busting. | — *(RFD-0003)* |
 | **A-006** | Networking | `unverified` | High | A WireGuard-based mesh VPN (Tailscale / Headscale / NetBird) can operate cleanly on impermanent NixOS, WSL, `aarch64` RPi, and live ISOs without breaking public ingress or offline boot. | — *(RFD-0004)* |
@@ -43,6 +43,7 @@ This ledger tracks every non-trivial technical and architectural assumption unde
 | **A-010** | Observability | `unverified` | Medium | On an 11 GiB RAM VPS, VictoriaMetrics + VictoriaLogs + Alloy + Grafana sits near the Pareto frontier of telemetry richness per GiB RAM compared to ClickHouse / OTel / Prometheus / Pyroscope stacks. | — *(RFD-0007)* |
 | **A-011** | Knowledge | `validated` | Medium | For structured software/architecture repositories (tens to hundreds of docs), hierarchical progressive-disclosure Markdown + YAML metadata + `rg` outperforms naive vector RAG in precision, token efficiency, and zero-drift maintainability. | [`RES-0001`](research/RES-0001-methodology-and-knowledge-architecture.md) |
 | **A-012** | Knowledge | `unverified` | Low-Med | Moving generated human documentation out of the main Git working tree (e.g., CI-built static site / artifact) while keeping a compact, prefix-cacheable context index in-repo eliminates doc-sync churn without hurting LLM comprehension. | — *(RFD-0008)* |
+| **A-013** | Portability | `unverified` | High | Decoupling portable capabilities (wrapped apps, CLIs, user configs, dev environments) from NixOS host wiring allows the majority of tools and configs to run standalone via `nix run` / `nix shell` on any Nix-capable machine (Linux, WSL, non-NixOS). | — *(AUD-0001, RFD-0001)* |
 
 ---
 

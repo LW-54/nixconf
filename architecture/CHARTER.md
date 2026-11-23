@@ -27,22 +27,33 @@ Build a declarative system, fleet, and personal-computing platform of genuinely 
 2. Makes **good practices, correctness, and hygiene structural invariants** enforced by the architecture itself so technical debt cannot silently accumulate.
 3. Remains **fast to iterate on, easy to reason about (for both humans and AI agents), and safe to evolve over years** across heterogeneous hardware and shifting upstream ecosystems.
 
-> **Anti-Bias Rule**: Everything in the current repository is an empirical artifact, **not** a constraint. Patterns currently in use (module layouts, flake frameworks, directory names, specific services, docs engines, CLI tools) must re-earn their place from first principles or be replaced.
+> **Anti-Bias & Blank-Sheet Rule**: Everything in the current repository is an empirical artifact, **not** a constraint. "Primitives" does **not** refer to `primitives/` or even necessarily to Nix — it refers to whatever irreducible foundational concepts (across one or many categories/media: config/schema languages, Rust/compiled cores, trust/identity, network, state/lifecycle, verification, etc.) emerge from first-principles analysis of the problem.
 
 ---
 
-## 2. Mathematical & Systems Design Axioms
+## 2. Calibrated Design Axioms & Priority Policy
 
-Every architectural proposal in `rfds/` is judged against these six axioms:
+### Priority Policy (User-Calibrated 2026-11-23)
+- **Operational reliability & safety** is the non-negotiable #1 baseline (hosts stay bootable, VPS stays healthy, failures degrade gracefully and recover cleanly).
+- **True Elegance as a Reconciler**: Elegance is not a vanity axis traded against reliability or maintainability — a design that feels mathematically neat while causing fragility, friction, or bloat is *not* genuinely elegant.
+- **Standalone Portability First**: As many tools, wrapped applications, and capabilities as possible must be usable **standalone from anywhere** (e.g., `nix run`, non-NixOS Linux/WSL/containers), cleanly decoupled from NixOS host wiring.
+- **Graceful Degradation Over Rigid Isolation**: Hosts must remain fundamentally self-sufficient for core vitality (boot, local auth/core ops), while cross-host capabilities (mesh mounts, remote builders, shared storage/compute) may temporarily pause when peers vanish — provided degradation is bounded, non-blocking, self-healing, and clearly surfaced.
+- **AI-First Behind Clean Human UX**: Human-facing user interfaces remain optimized for human clarity and ergonomics; everything behind the UI boundary welcomes AI-first design (determinism, structured introspection, token efficiency, safe PR-gated autonomy).
+- **Anti-Entanglement Mandate**: Current pain point explicitly flagged by the user — too many subsystems feel entangled, opaque, and fragile; v2 must be both dramatically easier to understand and far more powerful to compose.
+
+### Core Axioms
+
+Every architectural proposal in `rfds/` is judged against these seven axioms:
 
 | Axiom | Statement | Anti-Pattern It Rejects |
 | :--- | :--- | :--- |
-| **X1 — Minimality & Orthogonality** | Primitives should be as few, fundamental, and mutually independent as possible; rich behavior must emerge from *composition*, not special-case flags baked into primitives. | Primitives handling 100 edge cases; monolithic god-abstractions. |
-| **X2 — Ousterhout Depth** | Every abstraction must earn its existence through high `expressive power / interface surface`. Never wrap a clear standard interface in a shallow custom DSL or alias pile just to save a few characters. | Premature abstraction; thin wrapper DSLs that obscure upstream semantics. |
-| **X3 — Parnas Information Hiding & Polymorphism** | Draw boundaries around *volatile design decisions* (secret backends, home managers, proxies, storage engines, network meshes, OS targets) so components and sub-components can be swapped—or even instantiated simultaneously in multiple backends—without cascading rewrites. | Hardcoded peer coupling; single-implementation assumptions leaking into consumers. |
-| **X4 — Structural Enforcement (Make Bad States Unrepresentable)** | Prefer invariants enforced by types, schemas, graph/module structure, and build purity over prose conventions or after-the-fact lint hacks. Enforce uniformly across *all* layers (including auxiliary tooling and automation). | "Enforced in one directory, ignored in another"; tribal knowledge. |
-| **X5 — Disciplined Standards Over Reinvention** | Build on rock-solid, well-maintained standards and tools when they solve hard problems reliably; avoid unmaintained or bloated dependencies; write clean owned implementations (e.g., pure Rust) only when the problem is crisp, core, and benefits from full control. | Not-invented-here bloat *and* careless dependency sprawl. |
-| **X6 — Empirical & Performance Discipline** | Evaluation latency, binary cache isolation, memory/storage footprint, and operational reliability are first-class architectural properties—measured by reproducible benchmarks, not guessed. | Accidental cache busting; heavyweight stacks on resource-constrained hosts. |
+| **X1 — Minimality & Orthogonality** | Primitives (across any layer or language) should be as few, fundamental, and mutually independent as possible; rich behavior must emerge from *composition*, not special-case flags baked into primitives. | Primitives handling 100 edge cases; monolithic god-abstractions. |
+| **X2 — Ousterhout Depth & True Elegance** | Every abstraction must earn its existence through high `expressive power / interface surface` AND must harmonize reliability, clarity, and speed. Never wrap a clear standard interface in a shallow custom DSL or alias pile. | Premature abstraction; thin wrapper DSLs; "clever" fragility. |
+| **X3 — Parnas Information Hiding & Polymorphism** | Draw boundaries around *volatile design decisions* (secret backends, home managers, proxies, storage engines, network meshes, OS targets) so components and sub-components can be swapped—or instantiated simultaneously in multiple backends—without cascading rewrites. | Hardcoded peer coupling; single-implementation assumptions leaking into consumers. |
+| **X4 — Standalone Portability** | Separate portable capabilities (CLIs, wrapped apps, user configs, dev environments, verification tools) from host/OS wiring so they remain directly runnable anywhere (`nix run`, non-NixOS machines, rescue shells). | Locking reusable tools/apps inside NixOS host-only modules. |
+| **X5 — Structural Enforcement (Make Bad States Unrepresentable)** | Prefer invariants enforced by types, schemas, graph/module structure, and build purity over prose conventions or after-the-fact lint hacks. Enforce uniformly across *all* layers (including auxiliary tooling and automation). | "Enforced in one directory, ignored in another"; tribal knowledge. |
+| **X6 — Disciplined Standards Over Reinvention** | Build on rock-solid, well-maintained standards and tools when they solve hard problems reliably; avoid unmaintained or bloated dependencies; write clean owned implementations (e.g., pure Rust) only when the problem is crisp, core, and benefits from full control. | Not-invented-here bloat *and* careless dependency sprawl. |
+| **X7 — Empirical & Graceful-Degradation Discipline** | Reliability, graceful degradation under network/peer loss, evaluation latency, binary cache isolation, and memory/storage footprint are first-class architectural properties—measured by reproducible benchmarks, not guessed. | Boot hangs on missing peers; accidental cache busting; heavyweight stacks on constrained hosts. |
 
 ---
 
@@ -90,8 +101,10 @@ Each candidate architecture in Phases 2–4 is scored against these concrete sce
 | **QA-04** | **Structural Invariant Enforcement** | H | Adding an undocumented component, broken schema, impure leak, or cache-busting input anywhere in the repository (including tooling/automation layers) is caught mechanically before merge. |
 | **QA-05** | **Developer & Agent Iteration Speed** | H | Editing a single host or feature evaluates in <10s, triggers 0 unrelated derivation rebuilds (verified by cache-isolation checks), and lets agents navigate context with minimal wasted tokens. |
 | **QA-06** | **Autonomous GitOps Safety & Currency** | M-H | Security updates (e.g., Vaultwarden) propagate via automated PR → CI verification → binary cache → host convergence, with automatic rollback and alerting if a host fails health checks. |
-| **QA-07** | **Resource Efficiency & Graceful Degradation** | M-H | Observability, mesh, and distributed workloads fit comfortably within VPS limits (11 GiB RAM, bounded disk) and tolerate laptops/SBCs going offline abruptly without cascading failures. |
+| **QA-07** | **Resource Efficiency & Graceful Degradation** | H | Core host vitality survives offline/peer loss without hangs or corruption; cross-host enhancements pause gracefully and self-heal on reconnect; observability/mesh fit comfortably within VPS limits (11 GiB RAM, bounded disk). |
 | **QA-08** | **Long-Term Maintainability & Low Dependency Risk** | H | External dependencies are intentionally chosen, actively maintained, and cleanly bounded behind interfaces so upstream churn causes localized, low-effort updates over a 5+ year horizon. |
+| **QA-09** | **Standalone Portability (`nix run` Anywhere)** | H | Portable tools, wrapped apps, user environments, and dev workflows can be invoked standalone via `nix run` / `nix shell` on any Nix-capable machine (including non-NixOS Linux/WSL) without dragging in NixOS host wiring. |
+| **QA-10** | **AI Ergonomics Behind Clean Human UX** | M-H | Human UIs prioritize human clarity, while underlying interfaces provide deterministic, structured, token-efficient introspection and safe PR-gated autonomy for AI agents. |
 
 ---
 
