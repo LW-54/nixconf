@@ -8,7 +8,7 @@ Reusable system configurations, applications, desktop environments, development 
 
 - **Declared as**: `feature.<name>` in any flake-parts module under `modules/features/`
 - **Primitive definition**: [`primitives/feature/default.nix`](../../primitives/feature/default.nix)
-- **Instances**: 32
+- **Instances**: 33
 
 ## Option Schema (`feature.<name>`)
 
@@ -43,6 +43,7 @@ Smallest declaration in the repository, [`modules/features/fonts.nix`](../../mod
 | Feature | Description | Outputs | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
 | [`antigravity`](antigravity.md) | Modular Google Antigravity CLI (agy), declarative config/rules, remote-control daemon, Rust hub, desktop/IDE packages, and Gemini API shell. | [`agy`](../modules/agy.md) (module), [`agy-config`](../modules/agy-config.md) (module), [`agy-hub`](../modules/agy-hub.md) (module), [`agy-remote-control`](../modules/agy-remote-control.md) (module), [`agy`](../packages.md#agy) (package), [`agy-api`](../packages.md#agy-api) (package), [`antigravity`](../packages.md#antigravity) (package), [`antigravity-ide`](../packages.md#antigravity-ide) (package), [`gemini-api`](../devshells.md#gemini-api) (devShell) | [`modules/features/antigravity/default.nix`](../../modules/features/antigravity/default.nix) | [More →](antigravity.md) |
+| [`attic`](attic.md) | Self-hosted Attic Nix binary cache server with content-defined chunking deduplication, local storage, and automatic LRU garbage collection. | [`attic`](../modules/attic.md) (module), [`attic-bootstrap`](../packages.md#attic-bootstrap) (package) | [`modules/features/attic.nix`](../../modules/features/attic.nix) | [More →](attic.md) |
 | [`audio`](audio.md) | PipeWire sound server and real-time audio processing stack. | [`audio`](../modules/audio.md) (module) | [`modules/features/audio.nix`](../../modules/features/audio.nix) | [More →](audio.md) |
 | [`bitwarden`](bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`bitwarden-desktop`](../modules/bitwarden-desktop.md) (module), [`bw`](../modules/bw.md) (module), [`bw`](../packages.md#bw) (package) | [`modules/features/bitwarden.nix`](../../modules/features/bitwarden.nix) | [More →](bitwarden.md) |
 | [`copyparty`](copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [`copyparty`](../modules/copyparty.md) (module) | [`modules/features/copyparty.nix`](../../modules/features/copyparty.nix) | [More →](copyparty.md) |

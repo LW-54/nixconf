@@ -7,23 +7,23 @@ Automated quality and completeness audit tracking documentation health across pr
 ## Health Overview
 
 > [!TIP]
-> **Documentation Health**: **100.0%** — All 205 audited architectural entities are fully documented with descriptions, docstrings, and type specifications.
+> **Documentation Health**: **100.0%** — All 209 audited architectural entities are fully documented with descriptions, docstrings, and type specifications.
 
 
 | Metric | Value | Description |
 | :--- | :--- | :--- |
 | **Overall Health Score** | `100.0%` | Percentage of audited entities satisfying documentation completeness criteria. |
-| **Total Audited Items** | `205` | Combined count of primitives, exported library functions/symbols, and schema options. |
-| **Fully Documented** | `205` | Entities with valid, non-placeholder descriptions and type signatures. |
+| **Total Audited Items** | `209` | Combined count of primitives, exported library functions/symbols, and schema options. |
+| **Fully Documented** | `209` | Entities with valid, non-placeholder descriptions and type signatures. |
 | **Audit Warnings** | `0` | Entities requiring docstrings, option descriptions, or type signatures. |
 
 ## Category Breakdown
 
 | Subsystem | Documented | Total | Health | Warnings |
 | :--- | :--- | :--- | :--- | :--- |
-| **Primitives (Hosts, Features, Contracts, Libs)** | 83 | 83 | `100.0%` | ✅ None |
-| **Library Symbols & Functions** | 86 | 86 | `100.0%` | ✅ None |
-| **Primitive Schema Options** | 36 | 36 | `100.0%` | ✅ None |
+| **Primitives (Hosts, Features, Contracts, Libs)** | 85 | 85 | `100.0%` | ✅ None |
+| **Library Symbols & Functions** | 87 | 87 | `100.0%` | ✅ None |
+| **Primitive Schema Options** | 37 | 37 | `100.0%` | ✅ None |
 
 ## Missing Documentation Registry
 

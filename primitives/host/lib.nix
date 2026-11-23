@@ -162,12 +162,16 @@
       testing.enable = true;
     };
 
+    # Use the base host config directly for eval & inspect tiers so we never force a
+    # second full NixOS evaluation (`variant = nixos.extendModules`) during `nix flake check`.
+    evalCfg = nixos.config.testing;
+
     variant = nixos.extendModules {modules = [harnessModule];};
     vcfg = variant.config;
     cfg = vcfg.testing;
 
-    failures = testingLib.failedEvalChecks cfg;
-    toplevelDrv = builtins.unsafeDiscardStringContext nixos.config.system.build.toplevel.drvPath;
+    failures = testingLib.failedEvalChecks evalCfg;
+    nixosAssertionFailures = map (a: a.message) (lib.filter (a: !a.assertion) nixos.config.assertions);
 
     assertEval =
       if failures != []
@@ -176,36 +180,82 @@
           host '${name}' failed ${toString (builtins.length failures)} evaluation check(s):
           ${lib.concatMapStringsSep "\n" (f: "  - ${f.name}: ${f.message}") failures}
           Fix the configuration, or opt out per host with `testing.<namespace>.evalChecks.<name>.enable = false;`.''
+      else if nixosAssertionFailures != []
+      then
+        throw ''
+          host '${name}' failed ${toString (builtins.length nixosAssertionFailures)} NixOS assertion(s):
+          ${lib.concatMapStringsSep "\n" (m: "  - ${m}") nixosAssertionFailures}''
       else true;
 
+    evalCheckNames = map (c: c.qualifiedName) (testingLib.collectChecks "evalChecks" evalCfg);
+
     eval = assert assertEval;
-      pkgs.runCommand "nixconf-eval-${name}" {
-        meta.description = "Evaluation tier for host ${name}: system evaluates and essential checks hold.";
+      pkgs.runCommandLocal "nixconf-eval-${name}" {
+        meta.description = "Evaluation tier for host ${name}: system assertions and essential evalChecks hold without instantiating toplevel derivations.";
       } ''
-        echo ${lib.escapeShellArg toplevelDrv} > $out
+        printf '%s\n' ${lib.escapeShellArgs (["host=${name}"] ++ evalCheckNames)} > $out
       '';
 
-    inspectScript = testingLib.mkInspectScript cfg;
+    inspectScript = testingLib.mkInspectScript evalCfg;
 
     inspect = assert assertEval;
       pkgs.runCommand "nixconf-inspect-${name}" {
-        meta.description = "Artifact inspection tier for host ${name}: validates /etc and system artifacts without KVM.";
+        meta.description = "Artifact inspection tier for host ${name}: validates /etc and system-path artifacts without KVM.";
       } ''
         etc="${nixos.config.system.build.etc}/etc"
-        system="${nixos.config.system.build.toplevel}"
+        sw="${nixos.config.system.path}"
         echo "Validating system artifacts for ${name} at $etc..."
 
         ${inspectScript}
 
         mkdir -p $out
         echo "Passed artifact inspection for host ${name}" > $out/success
-        echo ${lib.escapeShellArg toplevelDrv} >> $out/toplevel
       '';
+
+    inspectNamespaces = lib.unique (map (c: c.namespace) (testingLib.collectChecks "inspectChecks" evalCfg));
+    inspectByNamespace = lib.genAttrs inspectNamespaces (ns:
+      assert assertEval;
+        pkgs.runCommand "nixconf-inspect-${name}-${ns}" {
+          meta.description = "Targeted artifact inspection tier (${ns}) for host ${name}.";
+        } ''
+          etc="${nixos.config.system.build.etc}/etc"
+          sw="${nixos.config.system.path}"
+          echo "Validating ${ns} artifacts for ${name} at $etc..."
+
+          ${testingLib.mkFilteredInspectScript {
+            testing = evalCfg;
+            namespace = ns;
+          }}
+
+          mkdir -p $out
+          echo "Passed ${ns} inspection for host ${name}" > $out/success
+        '');
+
+    vmNamespaces = lib.unique (map (c: c.namespace) (testingLib.collectChecks "vmChecks" evalCfg));
+    vmByNamespace = lib.genAttrs vmNamespaces (ns:
+      assert assertEval;
+        inputs.nixpkgs.lib.nixos.runTest {
+          name = "nixconf-${name}-${ns}";
+          hostPkgs = pkgs;
+          node.pkgsReadOnly = false;
+          node.specialArgs = systemArgs.specialArgs;
+          nodes.machine.imports = systemArgs.modules ++ [harnessModule];
+          testScript = {nodes, ...}: ''
+            start_all()
+
+            ${testingLib.mkVmScript {
+              inherit (nodes.machine.config) testing;
+              label = "${name}/${ns}";
+              namespaces = [ns];
+            }}
+          '';
+        });
 
     vm = assert assertEval;
       inputs.nixpkgs.lib.nixos.runTest {
         name = "nixconf-${name}";
         hostPkgs = pkgs;
+        node.pkgsReadOnly = false;
         node.specialArgs = systemArgs.specialArgs;
         nodes.machine.imports = systemArgs.modules ++ [harnessModule];
         testScript = {nodes, ...}: ''
@@ -237,19 +287,19 @@
       };
   in
     {
-      inherit eval inspect run variant;
+      inherit eval inspect inspectByNamespace run variant;
       checks = {
-        eval = map (c: c.name) (testingLib.collectChecks "evalChecks" cfg);
-        inspect = map (c: c.qualifiedName) (testingLib.collectChecks "inspectChecks" cfg);
-        vm = map (c: c.qualifiedName) (testingLib.collectChecks "vmChecks" cfg);
-        install = map (c: c.qualifiedName) ((testingLib.collectChecks "vmChecks" cfg) ++ (testingLib.collectChecks "installChecks" cfg));
+        eval = map (c: c.name) (testingLib.collectChecks "evalChecks" evalCfg);
+        inspect = map (c: c.qualifiedName) (testingLib.collectChecks "inspectChecks" evalCfg);
+        vm = map (c: c.qualifiedName) (testingLib.collectChecks "vmChecks" evalCfg);
+        install = map (c: c.qualifiedName) ((testingLib.collectChecks "vmChecks" evalCfg) ++ (testingLib.collectChecks "installChecks" evalCfg));
       };
     }
-    // lib.optionalAttrs cfg.vm.enable {
-      inherit vm;
+    // lib.optionalAttrs evalCfg.vm.enable {
+      inherit vm vmByNamespace;
       interactive = vm.driverInteractive;
     }
-    // lib.optionalAttrs (cfg.install.enable && vcfg.system.build ? installTest) {
+    // lib.optionalAttrs (evalCfg.install.enable && nixos.config.system.build ? installTest) {
       install = assert assertEval; vcfg.system.build.installTest;
     };
 in {

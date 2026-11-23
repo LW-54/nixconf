@@ -161,7 +161,7 @@
   in
     if cleanFailed != []
     then builtins.throw (lib.concatStringsSep "\n" cleanFailed)
-    else pkgs.runCommand "check-primitive-schemas" {} "touch $out";
+    else pkgs.runCommandLocal "check-primitive-schemas" {} "touch $out";
 
   checkFlakeSchemas = {
     docstring = ''

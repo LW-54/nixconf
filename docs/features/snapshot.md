@@ -113,6 +113,7 @@ flowchart LR
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__attic("attic"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
@@ -494,6 +495,11 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__persistence
@@ -555,6 +561,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__attic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
@@ -758,6 +765,7 @@ flowchart LR
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "../contracts/storage.md" "storage"
     click urn__nixconf__onto__feature__antigravity href "antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__attic href "attic.md" "attic"
     click urn__nixconf__onto__feature__bitwarden href "bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__direnv href "direnv.md" "direnv"

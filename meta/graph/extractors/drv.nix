@@ -24,8 +24,12 @@
     devShellNames = builtins.attrNames flakeDevShells;
     hostNames = builtins.attrNames (config.host or {});
 
-    pkgs =
-      if inputs ? nixpkgs && inputs.nixpkgs ? legacyPackages && inputs.nixpkgs.legacyPackages ? ${system}
+    pkgs = let
+      shared = config.allSystems.${system}._module.args.pkgs or null;
+    in
+      if shared != null
+      then shared
+      else if inputs ? nixpkgs && inputs.nixpkgs ? legacyPackages && inputs.nixpkgs.legacyPackages ? ${system}
       then inputs.nixpkgs.legacyPackages.${system}
       else {};
 
@@ -200,7 +204,7 @@
     };
 
     moduleDependsOnPackageEdges = deps.extractModuleDeps {
-      inherit features pkgArgs;
+      inherit features featurePackageMap;
     };
 
     allNodes = packageNodes // devShellNodes;

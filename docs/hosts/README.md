@@ -21,6 +21,7 @@ Declarative target host definitions binding concrete hardware configurations, pl
 | `packages` | `raw value` | `{ }` | Packages provided by this primitive. |
 | `specialArgs` | `attribute set of raw value` | `{ }` | Additional special arguments forwarded to nixpkgs.lib.nixosSystem. |
 | `subModules` | `attribute set of module` | `{ }` | Host configuration submodules partitioning hardware, disks, and local system services. |
+| `system` | `string` | `"x86_64-linux"` | Target Nix platform architecture for this host. |
 
 ## Declaration Example
 

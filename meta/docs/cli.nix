@@ -275,17 +275,24 @@ in {
         fi
       '';
     };
+    committedDocsSrc = lib.fileset.toSource {
+      root = ../..;
+      fileset = lib.fileset.unions [
+        ../../README.md
+        ../../docs
+      ];
+    };
   in {
     packages.docs = docsApp;
 
     checks.docs =
-      pkgs.runCommand "check-docs-synchronized" {
+      pkgs.runCommandLocal "check-docs-synchronized" {
         nativeBuildInputs = [
           pkgs.diffutils
           pkgs.findutils
         ];
       } ''
-        ${compareScript docFiles self}
+        ${compareScript docFiles committedDocsSrc}
         if [ "$FAILED" -eq 1 ]; then
           echo "Documentation synchronization check failed. Run 'nix run .#docs -- --write'." >&2
           exit 1

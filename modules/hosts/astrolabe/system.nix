@@ -23,7 +23,6 @@
           rsync
           btop
         ];
-        system.configurationRevision = self.rev or self.dirtyRev or "unknown";
         system.stateVersion = "25.11";
       };
     };

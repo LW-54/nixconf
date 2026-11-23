@@ -17,6 +17,7 @@ flowchart LR
     urn__nixconf__ast__module__agy_hub["nixosModule/agy-hub"]:::defaultNode
     urn__nixconf__ast__module__agy_remote_control["nixosModule/agy-remote-control"]:::defaultNode
     urn__nixconf__ast__module__alloy["nixosModule/alloy"]:::defaultNode
+    urn__nixconf__ast__module__attic["nixosModule/attic"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__bitwarden_desktop["nixosModule/bitwarden-desktop"]:::defaultNode
     urn__nixconf__ast__module__bw["nixosModule/bw"]:::defaultNode
@@ -54,6 +55,7 @@ flowchart LR
     urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
+    urn__nixconf__drv__package__attic_bootstrap[("package/attic-bootstrap")]:::pkgNode
     urn__nixconf__drv__package__bw[("package/bw")]:::pkgNode
     urn__nixconf__drv__package__dolphin[("package/dolphin")]:::pkgNode
     urn__nixconf__drv__package__foot[("package/foot")]:::pkgNode
@@ -70,6 +72,7 @@ flowchart LR
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__contract__wayland{{"wayland"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__attic("attic"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
@@ -124,6 +127,12 @@ flowchart LR
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__impermanence
     urn__nixconf__ast__module__alloy -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__alloy -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__attic -->|dependsOn| urn__nixconf__drv__package__attic_bootstrap
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__impermanence
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__persistence_directories
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__persistence_files
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__impermanence
@@ -244,6 +253,13 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__drv__package__attic_bootstrap
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bitwarden_desktop
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__ast__module__bw
     urn__nixconf__onto__feature__bitwarden -->|outputs| urn__nixconf__drv__package__bw
@@ -322,6 +338,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__attic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
@@ -421,6 +438,7 @@ flowchart LR
     click urn__nixconf__ast__module__agy_hub href "../modules/agy-hub.md" "agy-hub"
     click urn__nixconf__ast__module__agy_remote_control href "../modules/agy-remote-control.md" "agy-remote-control"
     click urn__nixconf__ast__module__alloy href "../modules/alloy.md" "alloy"
+    click urn__nixconf__ast__module__attic href "../modules/attic.md" "attic"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__bitwarden_desktop href "../modules/bitwarden-desktop.md" "bitwarden-desktop"
     click urn__nixconf__ast__module__bw href "../modules/bw.md" "bw"
@@ -458,6 +476,7 @@ flowchart LR
     click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
+    click urn__nixconf__drv__package__attic_bootstrap href "../packages.md#attic-bootstrap" "attic-bootstrap"
     click urn__nixconf__drv__package__bw href "../packages.md#bw" "bw"
     click urn__nixconf__drv__package__dolphin href "../packages.md#dolphin" "dolphin"
     click urn__nixconf__drv__package__foot href "../packages.md#foot" "foot"
@@ -474,6 +493,7 @@ flowchart LR
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
     click urn__nixconf__onto__contract__wayland href "wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__attic href "../features/attic.md" "attic"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
@@ -691,6 +711,21 @@ config = {
 
 
 <details>
+<summary><code><a href="../features/attic.md">attic</a></code></summary>
+
+**Configures options**: `persistence.directories`, `persistence.files`
+
+```nix
+# modules/features/attic.nix
+...
+171: (self.lib.persistence.mkConfig {inherit config cfg;})
+...
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../features/bitwarden.md">bitwarden</a></code></summary>
 
 **Configures options**: `persistence.users`
@@ -825,10 +860,10 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-85: persistence.users = self.lib.user.forNormalUsers config (_: _: {
-86: cache.directories = [
-87: ".cache/nix"
-88: ".cache/nix-index"
+125: persistence.users = self.lib.user.forNormalUsers config (_: _: {
+126: cache.directories = [
+127: ".cache/nix"
+128: ".cache/nix-index"
 ...
 ```
 

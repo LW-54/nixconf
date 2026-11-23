@@ -69,8 +69,22 @@
   generateAll = {
     system ? "x86_64-linux",
     cpg ? null,
-    graph ? graphLib.buildGraph {inherit system;},
+    graph ? null,
   }: let
+    resolvedCPG =
+      if cpg != null
+      then cpg
+      else graphLib.buildCPG {inherit system;};
+    resolvedGraph =
+      if graph != null
+      then graph
+      else config.internal.graph.core.algebra.overlay (graphLib.toArchitectureLPG {cpg = resolvedCPG;}) resolvedCPG;
+    nodesByKind = lib.groupBy (n: n.kind) (lib.sort (a: b: a.name < b.name) (builtins.attrValues resolvedGraph.nodes));
+    graphWithoutContains =
+      graphLib.filterGraph {
+        edgeFilter = e: lib.toLower (e.relation or "") != "contains";
+      }
+      resolvedGraph;
     byPath = lib.groupBy (id: pages.${id}.path) (builtins.attrNames pages);
     clashes = lib.filterAttrs (_: ids: builtins.length ids > 1) byPath;
   in
@@ -78,7 +92,11 @@
     then throw "docs: several pages render to the same path: ${lib.concatStringsSep "; " (lib.mapAttrsToList (path: ids: "${path} <- ${lib.concatStringsSep ", " ids}") clashes)}"
     else
       lib.mapAttrs' (id: page:
-        lib.nameValuePair page.path (renderPage (mkContext {inherit id graph cpg system;})))
+        lib.nameValuePair page.path (renderPage (mkContext {
+          inherit id system nodesByKind graphWithoutContains;
+          graph = resolvedGraph;
+          cpg = resolvedCPG;
+        })))
       pages;
 in {
   internal.docs = {

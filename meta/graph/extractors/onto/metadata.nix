@@ -7,6 +7,9 @@
   source = config.internal.graph.extractors.source;
   inherit (source) resolveFile instanceSourceText attrSourceCode referenceConfiguration;
 
+  hostNames = builtins.attrNames (config.host or {});
+  hostContents = lib.genAttrs hostNames (hName: instanceSourceText "host" hName);
+
   computeInstanceMeta = {
     pName,
     iName,
@@ -82,13 +85,13 @@
           }
         else (iDef.devShells or {})
       );
-      importingHosts = lib.filter (
-        hName: let
-          hostContent = instanceSourceText "host" hName;
-        in
-          lib.hasInfix "nixosModules.${iName}" hostContent
-          || builtins.elem (config.flake.nixosModules.${iName} or null) ((config.host.${hName} or {}).modules or [])
-      ) (builtins.attrNames (config.host or {}));
+      importingHosts =
+        lib.filter (
+          hName:
+            lib.hasInfix "nixosModules.${iName}" hostContents.${hName}
+            || builtins.elem (config.flake.nixosModules.${iName} or null) ((config.host.${hName} or {}).modules or [])
+        )
+        hostNames;
     }
     else if pName == "feature"
     then {
@@ -113,27 +116,29 @@
           }
         else (iDef.devShells or {})
       );
-      importingHosts = lib.filter (
-        hName: let
-          hostContent = instanceSourceText "host" hName;
-        in
-          lib.hasInfix "nixosModules.${iName}" hostContent
-          || builtins.any (
-            mName: let
-              actualName =
-                if mName == "default"
-                then iName
-                else mName;
-            in
-              lib.hasInfix "nixosModules.${actualName}" hostContent
-              || builtins.elem (config.flake.nixosModules.${actualName} or null) ((config.host.${hName} or {}).modules or [])
-          ) (builtins.attrNames (iDef.modules or {}))
-      ) (builtins.attrNames (config.host or {}));
+      importingHosts =
+        lib.filter (
+          hName: let
+            hostContent = hostContents.${hName};
+          in
+            lib.hasInfix "nixosModules.${iName}" hostContent
+            || builtins.any (
+              mName: let
+                actualName =
+                  if mName == "default"
+                  then iName
+                  else mName;
+              in
+                lib.hasInfix "nixosModules.${actualName}" hostContent
+                || builtins.elem (config.flake.nixosModules.${actualName} or null) ((config.host.${hName} or {}).modules or [])
+            ) (builtins.attrNames (iDef.modules or {}))
+        )
+        hostNames;
     }
     else if pName == "host"
     then let
       hCfg = config.flake.nixosConfigurations.${iName} or null;
-      hostContent = instanceSourceText "host" iName;
+      hostContent = hostContents.${iName};
       activeImpls = lib.filter (
         implName:
           lib.hasInfix "nixosModules.${implName}" hostContent

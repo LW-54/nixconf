@@ -7,7 +7,7 @@ Interactive environments exported on `flake.devShells`.
 <a id="default"></a>
 ### `default`
 
-Development shell default.
+Main development shell with just, fzf, menu, nixprof, attic-client, and Nix linters.
 
 ```bash
 nix develop .#default

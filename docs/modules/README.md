@@ -17,6 +17,7 @@ Every NixOS module exported on `flake.nixosModules`.
 | [`astrolabe-resources`](astrolabe-resources.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-resources.md) |
 | [`astrolabe-services`](astrolabe-services.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-services.md) |
 | [`astrolabe-system`](astrolabe-system.md) | host [`astrolabe`](../hosts/astrolabe.md) | NixOS module exported by host 'astrolabe'. | [More →](astrolabe-system.md) |
+| [`attic`](attic.md) | feature [`attic`](../features/attic.md) | Self-hosted Attic Nix binary cache server with content-defined chunking deduplication, local storage, and automatic LRU garbage collection. | [More →](attic.md) |
 | [`audio`](audio.md) | feature [`audio`](../features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](audio.md) |
 | [`auth`](auth.md) | contract [`auth`](../contracts/auth.md) | Declarative single sign-on (SSO), forward authentication, access control policy, and LDAP directory contract. | [More →](auth.md) |
 | [`authelia`](authelia.md) | implementation [`authelia`](../implementations/authelia.md) | Centralized SSO, forward authentication, 2FA, and LDAP directory implementation using Authelia and LLDAP. | [More →](authelia.md) |

@@ -292,7 +292,7 @@ in {
             - [**Documentation Generator & Audit (`meta/docs`)**](${ctx.link ctx.pages.documentation.path}): Type-checked markdown compiler maintaining 100% doc coverage ([Audit Dashboard](${ctx.link ctx.pages.coverage.path})).
             - [**Testing Harness (`meta/tests`)**](${ctx.link ctx.pages.testing.path}): Progressive 6-tier test driver (<code>eval</code>, <code>inspect</code>, <code>vm</code>, <code>install</code>, <code>interactive</code>, <code>run</code>).
             - [**CI Compiler (`meta/ci`)**](${ctx.link ctx.pages.ci.path}): Declarative GitHub Actions workflow compilation and drift checking.
-            - [**Developer Environment (`meta/devenv` &amp; `meta/menu`)**]: Interactive devenv shell and fuzzy command palette (<code>menu</code>).
+            - [**Developer Environment (`meta/devenv` &amp; `meta/menu`)**]: Lightweight pure-Nix devshell (`mkShellNoCC`) and fuzzy command palette (<code>menu</code>).
           ''}
         '';
       };

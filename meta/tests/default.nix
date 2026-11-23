@@ -43,7 +43,7 @@
 
         usage() {
           cat <<'EOF'
-        Usage: nix run .#test -- [TIER|scenario] [TARGET...]
+        Usage: nix run .#test -- [TIER|scenario] [--only NAMESPACE] [TARGET...]
 
         Tiers (default: eval):
           eval         Evaluate every host and its essential checks; seconds, builds no system.
@@ -54,6 +54,9 @@
           interactive  Open test driver REPL for one host or scenario.
           run          Boot one host as an interactive VM with stand-in secrets.
           list         Show hosts, scenarios, available tiers and their checks.
+
+        Options:
+          --only NS    For `inspect` or `vm`, run only checks in namespace NS (e.g. `--only rclone`, `--only grafana`).
 
         Without TARGET arguments every host or scenario providing the tier is tested.
         Set NIXCONF_FLAKE to test another checkout (default: current directory).
@@ -121,8 +124,31 @@
             fi
             ;;
           eval|inspect|vm|install)
+            only_ns=""
+            pos_args=()
+            while [ "$#" -gt 0 ]; do
+              case "$1" in
+                --only)
+                  if [ "$#" -lt 2 ]; then
+                    echo "Error: --only requires a namespace argument (e.g. --only rclone)." >&2
+                    exit 1
+                  fi
+                  only_ns="$2"
+                  shift 2
+                  ;;
+                --only=*)
+                  only_ns="''${1#--only=}"
+                  shift
+                  ;;
+                *)
+                  pos_args+=("$1")
+                  shift
+                  ;;
+              esac
+            done
+
             read -r -a hosts <<< "''${available[$tier]}"
-            [ "$#" -gt 0 ] && hosts=("$@")
+            [ "''${#pos_args[@]}" -gt 0 ] && hosts=("''${pos_args[@]}")
             if [ "''${#hosts[@]}" -eq 0 ]; then
               echo "No host provides the '$tier' tier." >&2
               exit 1
@@ -134,11 +160,21 @@
             targets=()
             for host in "''${hosts[@]}"; do
               case " ''${available[$tier]} " in
-                *" $host "*) targets+=("$flake#$hostAttr.$host.$tier") ;;
+                *" $host "*)
+                  if [ -n "$only_ns" ] && { [ "$tier" = "vm" ] || [ "$tier" = "inspect" ]; }; then
+                    targets+=("$flake#$hostAttr.$host.''${tier}ByNamespace.$only_ns")
+                  else
+                    targets+=("$flake#$hostAttr.$host.$tier")
+                  fi
+                  ;;
                 *) echo "Host '$host' does not provide the '$tier' tier (available: ''${available[$tier]:-none})." >&2; exit 1 ;;
               esac
             done
-            echo "==> $tier: ''${hosts[*]}" >&2
+            if [ -n "$only_ns" ]; then
+              echo "==> $tier (only: $only_ns): ''${hosts[*]}" >&2
+            else
+              echo "==> $tier: ''${hosts[*]}" >&2
+            fi
             nix build --no-link --print-build-logs "''${targets[@]}"
             echo "==> $tier passed: ''${hosts[*]}" >&2
             ;;

@@ -10,6 +10,10 @@
   }: let
     ciLib = self.lib.ci or self.lib;
     compiledWorkflows = lib.mapAttrs (name: wfData: ciLib.toYAML pkgs name wfData) config.workflow;
+    workflowsSrc = lib.fileset.toSource {
+      root = ../..;
+      fileset = ../../.github/workflows;
+    };
   in {
     packages.ci = pkgs.writeShellApplication {
       name = "nixconf-ci";
@@ -99,15 +103,15 @@
     };
 
     checks.ci =
-      pkgs.runCommand "check-ci-workflows" {
+      pkgs.runCommandLocal "check-ci-workflows" {
         nativeBuildInputs = [pkgs.diffutils];
       } ''
         FAILED=0
         ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: drv: ''
-            if [ ! -f "${self}/.github/workflows/${name}.yml" ]; then
+            if [ ! -f "${workflowsSrc}/.github/workflows/${name}.yml" ]; then
               echo "Missing committed workflow: .github/workflows/${name}.yml" >&2
               FAILED=1
-            elif ! diff -u "${drv}" "${self}/.github/workflows/${name}.yml"; then
+            elif ! diff -u "${drv}" "${workflowsSrc}/.github/workflows/${name}.yml"; then
               echo "Committed workflow .github/workflows/${name}.yml is out of sync with evaluated Nix workflow." >&2
               FAILED=1
             fi

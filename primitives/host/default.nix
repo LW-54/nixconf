@@ -52,6 +52,12 @@
       ) (instance.subModules or {}));
 
     options = {
+      system = lib.mkOption {
+        type = lib.types.str;
+        default = "x86_64-linux";
+        description = "Target Nix platform architecture for this host.";
+      };
+
       configuration = lib.mkOption {
         type = lib.types.deferredModule;
         default = {};
@@ -81,6 +87,11 @@
       config,
       ...
     }: let
+      sharedPkgs = lib.genAttrs (import inputs.systems) (system:
+        import inputs.nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        });
       systemArgs =
         lib.mapAttrs (name: host: {
           specialArgs =
@@ -89,6 +100,11 @@
             }
             // host.specialArgs;
           modules = [
+            {
+              nixpkgs.pkgs = lib.mkDefault sharedPkgs.${host.system or "x86_64-linux"};
+              # Disable NixOS manual / option-doc generation by default to speed up host evaluation and builds
+              documentation.nixos.enable = lib.mkDefault false;
+            }
             config.flake.nixosModules.${name}
             (config.flake.nixosModules.contracts or {})
             (config.flake.nixosModules.testing or {})
@@ -114,9 +130,10 @@
             system,
             ...
           }: let
-            names = lib.filter (name: (config.flake.nixosConfigurations.${name}.config.nixpkgs.hostPlatform.system or "x86_64-linux") == system) (builtins.attrNames instances);
+            names = lib.filter (name: (instances.${name}.system or "x86_64-linux") == system) (builtins.attrNames instances);
             tests = lib.genAttrs names (name: hostLib.mkHostTests {inherit pkgs name config inputs;});
           in {
+            _module.args.pkgs = sharedPkgs.${system};
             legacyPackages.hostTests = tests;
             checks =
               lib.concatMapAttrs (name: t: {

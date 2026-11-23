@@ -148,8 +148,8 @@ in {
           if [[ -z "''${GH_TOKEN:-}" ]]; then
             repo_root="''${DEVENV_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
             sops_file="$repo_root/secrets/admin/github.yaml"
-            if [[ ! -f "$sops_file" && -f "${self}/secrets/admin/github.yaml" ]]; then
-              sops_file="${self}/secrets/admin/github.yaml"
+            if [[ ! -f "$sops_file" && -f "${../../secrets/admin/github.yaml}" ]]; then
+              sops_file="${../../secrets/admin/github.yaml}"
             fi
             if [[ ! -f "$sops_file" ]]; then
               printf 'Missing GitHub token SOPS file: %s\n' "$sops_file" >&2

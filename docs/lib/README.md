@@ -8,7 +8,7 @@ Pure reusable helper functions, data types, calculations, and configuration pres
 
 - **Declared as**: `lib.<name>` in any flake-parts module under `modules/` or `primitives/`
 - **Primitive definition**: [`primitives/lib/default.nix`](../../primitives/lib/default.nix)
-- **Instances**: 20
+- **Instances**: 21
 
 ## Option Schema (`lib.<name>`)
 
@@ -62,6 +62,7 @@ Smallest declaration in the repository, [`modules/contracts/default-user.nix`](.
 
 | Library Namespace | Description | Exported Functions | Definition | Docs |
 | :--- | :--- | :--- | :--- | :--- |
+| [`attic`](attic.md) | Self-hosted Attic Nix binary cache server with content-defined chunking deduplication, local storage, and automatic LRU garbage collection. | [`cacheConfig`](attic.md#cacheConfig) | [`modules/features/attic.nix`](../../modules/features/attic.nix) | [More →](attic.md) |
 | [`auth`](auth.md) | Library helpers and constructors for the 'auth' contract. | [`mkConfig`](auth.md#mkConfig), [`mkOption`](auth.md#mkOption), [`types`](auth.md#types) | [`modules/contracts/auth/default.nix`](../../modules/contracts/auth/default.nix) | [More →](auth.md) |
 | [`backup`](backup.md) | Library helpers and constructors for the 'backup' contract. | [`mkConfig`](backup.md#mkConfig), [`mkOption`](backup.md#mkOption), [`retentionToPruneOpts`](backup.md#retentionToPruneOpts), [`scheduleToTimerConfig`](backup.md#scheduleToTimerConfig), [`types`](backup.md#types) | [`modules/contracts/backup/default.nix`](../../modules/contracts/backup/default.nix) | [More →](backup.md) |
 | [`bitwarden`](bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [`mkShell`](bitwarden.md#mkShell), [`mkValue`](bitwarden.md#mkValue) | [`modules/features/bitwarden.nix`](../../modules/features/bitwarden.nix) | [More →](bitwarden.md) |

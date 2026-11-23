@@ -94,6 +94,7 @@ in {
         docs = "meta/docs (meta/docs/cli.nix)";
         graph = "meta/graph (meta/graph/cli.nix)";
         menu = "meta/menu (meta/menu/default.nix)";
+        prof = "meta/prof (meta/prof/default.nix)";
         test = "meta/tests (meta/tests/default.nix)";
       };
 
@@ -110,8 +111,6 @@ in {
     ignoredPackages = [
       "cpg-json"
       "nixconf-json"
-      "devenv-test"
-      "devenv-up"
     ];
     packageNames =
       lib.filter (n: !builtins.elem n ignoredPackages)
@@ -168,9 +167,9 @@ in {
           then
             mkEntryLine {
               category = "devshell";
-              title = "enter: default (devenv)";
+              title = "enter: default";
               command = "nix develop .#default";
-              description = "Main development shell with devenv, just, fzf, and linters.";
+              description = "Main development shell with just, fzf, menu, nixprof, attic-client, and linters.";
               inherit origin;
             }
           else let
@@ -457,7 +456,7 @@ in {
         title = "lint dead code & patterns";
         command = "statix check && deadnix";
         description = "Run Statix anti-pattern checks and Deadnix unused variable detection.";
-        origin = "meta/devenv (meta/devenv/packages.nix)";
+        origin = "meta/devenv (meta/devenv/default.nix)";
       })
       (mkEntryLine {
         category = "check";
@@ -467,6 +466,11 @@ in {
         origin = "flake.nix";
       })
     ];
+
+    secretsSrc = lib.fileset.toSource {
+      root = ../..;
+      fileset = ../../secrets;
+    };
 
     staticCatalogFile = pkgs.writeText "nixconf-menu-catalog.tsv" (
       lib.concatStringsSep "\n" (
@@ -609,8 +613,8 @@ in {
           # Live SOPS secret file inspection (encrypted key names & recipients without decrypting)
           if [ "$CATEGORY" = "secrets" ]; then
             SECRET_PATH="''${COMMAND#sops }"
-            if [ ! -f "$SECRET_PATH" ] && [ -f "${self}/$SECRET_PATH" ]; then
-              SECRET_PATH="${self}/$SECRET_PATH"
+            if [ ! -f "$SECRET_PATH" ] && [ -f "${secretsSrc}/$SECRET_PATH" ]; then
+              SECRET_PATH="${secretsSrc}/$SECRET_PATH"
             fi
             if [ -f "$SECRET_PATH" ]; then
               echo ""
@@ -644,8 +648,8 @@ in {
 
         generate_secrets_entries() {
           local secrets_dir="$REPO_ROOT/secrets"
-          if [ ! -d "$secrets_dir" ] && [ -d "${self}/secrets" ]; then
-            secrets_dir="${self}/secrets"
+          if [ ! -d "$secrets_dir" ] && [ -d "${secretsSrc}/secrets" ]; then
+            secrets_dir="${secretsSrc}/secrets"
           fi
           if [ -d "$secrets_dir" ]; then
             while IFS= read -r rel_secret; do

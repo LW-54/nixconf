@@ -63,8 +63,8 @@
           if [[ -z "''${GEMINI_API_KEY:-}" ]]; then
             repo_root="''${DEVENV_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || pwd)}"
             sops_file="$repo_root/secrets/admin/gemini.yaml"
-            if [[ ! -f "$sops_file" && -f "${self}/secrets/admin/gemini.yaml" ]]; then
-              sops_file="${self}/secrets/admin/gemini.yaml"
+            if [[ ! -f "$sops_file" && -f "${../../../secrets/admin/gemini.yaml}" ]]; then
+              sops_file="${../../../secrets/admin/gemini.yaml}"
             fi
             if [[ ! -f "$sops_file" ]]; then
               printf 'Missing Gemini SOPS file: %s\n' "$sops_file" >&2

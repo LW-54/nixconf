@@ -68,6 +68,7 @@ end
 
   subgraph cluster_feature ["feature"]
   urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__attic("attic"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
@@ -122,7 +123,8 @@ end
 end
 
   subgraph cluster_lib ["lib"]
-  urn__nixconf__onto__lib__auth["auth"]:::defaultNode
+  urn__nixconf__onto__lib__attic["attic"]:::defaultNode
+    urn__nixconf__onto__lib__auth["auth"]:::defaultNode
     urn__nixconf__onto__lib__backup["backup"]:::defaultNode
     urn__nixconf__onto__lib__bitwarden["bitwarden"]:::defaultNode
     urn__nixconf__onto__lib__ci["ci"]:::defaultNode
@@ -150,6 +152,11 @@ end
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -212,6 +219,7 @@ end
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__attic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
@@ -341,6 +349,7 @@ end
     click urn__nixconf__onto__contract__storage href "docs/contracts/storage.md" "storage"
     click urn__nixconf__onto__contract__wayland href "docs/contracts/wayland.md" "wayland"
     click urn__nixconf__onto__feature__antigravity href "docs/features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__attic href "docs/features/attic.md" "attic"
     click urn__nixconf__onto__feature__audio href "docs/features/audio.md" "audio"
     click urn__nixconf__onto__feature__bitwarden href "docs/features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "docs/features/copyparty.md" "copyparty"
@@ -386,6 +395,7 @@ end
     click urn__nixconf__onto__implementation__restic href "docs/implementations/restic.md" "restic"
     click urn__nixconf__onto__implementation__sops href "docs/implementations/sops.md" "sops"
     click urn__nixconf__onto__implementation__uwsm href "docs/implementations/uwsm.md" "uwsm"
+    click urn__nixconf__onto__lib__attic href "docs/lib/attic.md" "attic"
     click urn__nixconf__onto__lib__auth href "docs/lib/auth.md" "auth"
     click urn__nixconf__onto__lib__backup href "docs/lib/backup.md" "backup"
     click urn__nixconf__onto__lib__bitwarden href "docs/lib/bitwarden.md" "bitwarden"
@@ -457,10 +467,10 @@ Foundational structural primitives governing repository architecture, typing, an
 | Primitive | Description | Instances | Docs |
 | :--- | :--- | :--- | :--- |
 | [`contract`](docs/contracts/README.md) | Pure contract interfaces defining shared option schemas, custom types, and configuration contracts decoupled from any specific service provider or backend implementation. | 11 | [More →](docs/contracts/README.md) |
-| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 32 | [More →](docs/features/README.md) |
+| [`feature`](docs/features/README.md) | Reusable system configurations, applications, desktop environments, development toolchains, and services that consume contracts to integrate with the host system. | 33 | [More →](docs/features/README.md) |
 | [`host`](docs/hosts/README.md) | Declarative target host definitions binding concrete hardware configurations, platform architectures, active implementations, and enabled system features into bootable NixOS systems. | 2 | [More →](docs/hosts/README.md) |
 | [`implementation`](docs/implementations/README.md) | Concrete capability providers satisfying contract interfaces by translating abstract capability options into provider-specific NixOS services, packages, and system configurations. | 12 | [More →](docs/implementations/README.md) |
-| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 20 | [More →](docs/lib/README.md) |
+| [`lib`](docs/lib/README.md) | Pure reusable helper functions, data types, calculations, and configuration presets exported across the repository. | 21 | [More →](docs/lib/README.md) |
 
 </details>
 
@@ -591,6 +601,7 @@ Reusable system configurations and desktop services consuming contracts. Declare
 | Feature | Description | Docs |
 | :--- | :--- | :--- |
 | [`antigravity`](docs/features/antigravity.md) | Modular Google Antigravity CLI (agy), declarative config/rules, remote-control daemon, Rust hub, desktop/IDE packages, and Gemini API shell. | [More →](docs/features/antigravity.md) |
+| [`attic`](docs/features/attic.md) | Self-hosted Attic Nix binary cache server with content-defined chunking deduplication, local storage, and automatic LRU garbage collection. | [More →](docs/features/attic.md) |
 | [`audio`](docs/features/audio.md) | PipeWire sound server and real-time audio processing stack. | [More →](docs/features/audio.md) |
 | [`bitwarden`](docs/features/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/features/bitwarden.md) |
 | [`copyparty`](docs/features/copyparty.md) | Self-hosted multi-protocol file server, resumable upload hub, and cloud storage browser via Copyparty. | [More →](docs/features/copyparty.md) |
@@ -632,6 +643,7 @@ Pure reusable helper functions, data types, calculations, and presets. Declared 
 
 | Library Namespace | Description | Docs |
 | :--- | :--- | :--- |
+| [`attic`](docs/lib/attic.md) | Self-hosted Attic Nix binary cache server with content-defined chunking deduplication, local storage, and automatic LRU garbage collection. | [More →](docs/lib/attic.md) |
 | [`auth`](docs/lib/auth.md) | Library helpers and constructors for the 'auth' contract. | [More →](docs/lib/auth.md) |
 | [`backup`](docs/lib/backup.md) | Library helpers and constructors for the 'backup' contract. | [More →](docs/lib/backup.md) |
 | [`bitwarden`](docs/lib/bitwarden.md) | Bitwarden password manager CLI wrapper, desktop application, and vault retrieval helpers. | [More →](docs/lib/bitwarden.md) |
@@ -704,6 +716,17 @@ nix run .#antigravity-ide
 nix run github:LW-54/nixconf#antigravity-ide
 ```
 
+#### [`attic-bootstrap`](docs/packages.md#attic-bootstrap)
+One-command Attic binary cache and GitHub Actions SOPS bootstrap helper.
+
+```bash
+nix run .#attic-bootstrap
+```
+
+```bash
+nix run github:LW-54/nixconf#attic-bootstrap
+```
+
 #### [`bw`](docs/packages.md#bw)
 Bitwarden CLI wrapper providing automated server configuration and session management.
 
@@ -724,28 +747,6 @@ nix run .#ci
 
 ```bash
 nix run github:LW-54/nixconf#ci
-```
-
-#### [`devenv-test`](docs/packages.md#devenv-test)
-Application package devenv-test.
-
-```bash
-nix run .#devenv-test
-```
-
-```bash
-nix run github:LW-54/nixconf#devenv-test
-```
-
-#### [`devenv-up`](docs/packages.md#devenv-up)
-Application package devenv-up.
-
-```bash
-nix run .#devenv-up
-```
-
-```bash
-nix run github:LW-54/nixconf#devenv-up
 ```
 
 #### [`dolphin`](docs/packages.md#dolphin)
@@ -803,6 +804,17 @@ nix run .#micro
 nix run github:LW-54/nixconf#micro
 ```
 
+#### [`prof`](docs/packages.md#prof)
+General-purpose Nix and command profiler with transparent nix PATH shim, SVG flamegraphs, Speedscope timelines, cache-diff, and CI telemetry.
+
+```bash
+nix run .#prof
+```
+
+```bash
+nix run github:LW-54/nixconf#prof
+```
+
 #### [`storage`](docs/packages.md#storage)
 Declarative multi-provider storage reconciler and drift checker across all fleet hosts.
 
@@ -844,7 +856,7 @@ nix run github:LW-54/nixconf#zed
 Interactive development and administrative shells exported on `flake.devShells`. See [DevShells Documentation](docs/devshells.md).
 
 #### [`default`](docs/devshells.md#default)
-Development shell default.
+Main development shell with just, fzf, menu, nixprof, attic-client, and Nix linters.
 
 ```bash
 nix develop .#default
@@ -942,7 +954,7 @@ The operational engine that inspects, documents, tests, and builds the repositor
 - [**Documentation Generator & Audit (`meta/docs`)**](docs/documentation.md): Type-checked markdown compiler maintaining 100% doc coverage ([Audit Dashboard](docs/coverage.md)).
 - [**Testing Harness (`meta/tests`)**](docs/testing.md): Progressive 6-tier test driver (<code>eval</code>, <code>inspect</code>, <code>vm</code>, <code>install</code>, <code>interactive</code>, <code>run</code>).
 - [**CI Compiler (`meta/ci`)**](docs/ci.md): Declarative GitHub Actions workflow compilation and drift checking.
-- [**Developer Environment (`meta/devenv` &amp; `meta/menu`)**]: Interactive devenv shell and fuzzy command palette (<code>menu</code>).
+- [**Developer Environment (`meta/devenv` &amp; `meta/menu`)**]: Lightweight pure-Nix devshell (`mkShellNoCC`) and fuzzy command palette (<code>menu</code>).
 
 </details>
 

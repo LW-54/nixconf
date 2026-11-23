@@ -12,7 +12,8 @@ Declarative encrypted secrets provisioning, filesystem mounting, and permission 
 
 ```mermaid
 flowchart LR
-  urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
+  urn__nixconf__ast__module__attic["nixosModule/attic"]:::defaultNode
+    urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__grafana["nixosModule/grafana"]:::defaultNode
     urn__nixconf__ast__module__lw["nixosModule/lw"]:::defaultNode
     urn__nixconf__ast__module__nix["nixosModule/nix"]:::defaultNode
@@ -39,6 +40,7 @@ flowchart LR
     urn__nixconf__drv__devShell__master_ssh["devShell/master-ssh"]:::devShellNode
     urn__nixconf__drv__devShell__sops_admin["devShell/sops-admin"]:::devShellNode
     urn__nixconf__drv__devShell__sops_host["devShell/sops-host"]:::devShellNode
+    urn__nixconf__drv__package__attic_bootstrap[("package/attic-bootstrap")]:::pkgNode
     urn__nixconf__eval__configuration__x240(["nixosConfiguration/x240"]):::hostNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
@@ -51,6 +53,7 @@ flowchart LR
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__attic("attic"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__cursor("cursor"):::featureNode
@@ -89,6 +92,11 @@ flowchart LR
     urn__nixconf__onto__implementation__sops["sops"]:::implNode
     urn__nixconf__onto__implementation__uwsm["uwsm"]:::implNode
 
+    urn__nixconf__ast__module__attic -->|dependsOn| urn__nixconf__drv__package__attic_bootstrap
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__sops
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__secrets_files
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__secrets_templates
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__restic
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__sops
@@ -160,6 +168,13 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__drv__package__attic_bootstrap
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__direnv -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__disko -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -207,6 +222,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__attic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__disko
@@ -329,6 +345,7 @@ flowchart LR
     urn__nixconf__onto__implementation__sops ==>|implements| urn__nixconf__onto__contract__secrets
 
 
+    click urn__nixconf__ast__module__attic href "../modules/attic.md" "attic"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__grafana href "../modules/grafana.md" "grafana"
     click urn__nixconf__ast__module__lw href "../modules/lw.md" "lw"
@@ -356,6 +373,7 @@ flowchart LR
     click urn__nixconf__drv__devShell__master_ssh href "../devshells.md#master-ssh" "master-ssh"
     click urn__nixconf__drv__devShell__sops_admin href "../devshells.md#sops-admin" "sops-admin"
     click urn__nixconf__drv__devShell__sops_host href "../devshells.md#sops-host" "sops-host"
+    click urn__nixconf__drv__package__attic_bootstrap href "../packages.md#attic-bootstrap" "attic-bootstrap"
     click urn__nixconf__eval__configuration__x240 href "../hosts/x240.md" "x240"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
@@ -368,6 +386,7 @@ flowchart LR
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__attic href "../features/attic.md" "attic"
     click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__cursor href "../features/cursor.md" "cursor"
@@ -674,6 +693,35 @@ config = {
 ### Features
 
 <details>
+<summary><code><a href="../features/attic.md">attic</a></code></summary>
+
+**Configures options**: `secrets.files`, `secrets.templates`
+
+```nix
+# modules/features/attic.nix
+...
+77: secrets.files.attic-server-token = {
+78: store = "services/attic";
+79: key = "serverTokenRs256Base64";
+80: };
+...
+82: secrets.templates."attic-env" = {
+83: content = ''
+84: ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${config.secrets.placeholder.attic-server-token}
+85: '';
+...
+84: ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${config.secrets.placeholder.attic-server-token}
+...
+94: else config.secrets.templates."attic-env".path;
+...
+133: after = lib.optionals (!isTest) ["sops-install-secrets.service"];
+...
+```
+
+</details>
+
+
+<details>
 <summary><code><a href="../features/nix.md">nix</a></code></summary>
 
 **Configures options**: `secrets.files`
@@ -681,12 +729,12 @@ config = {
 ```nix
 # modules/features/nix.nix
 ...
-28: secrets.files = lib.mkIf config.nix.cachixWatchStore {
-29: cachix-token = {
-30: file = ../../secrets/cachix/cachix.yaml;
-31: key = "token";
+64: secrets.files = lib.mkIf config.nix.cachixWatchStore {
+65: cachix-token = {
+66: file = ../../secrets/cachix/cachix.yaml;
+67: key = "token";
 ...
-76: cachixTokenFile = config.secrets.files.cachix-token.path;
+116: cachixTokenFile = config.secrets.files.cachix-token.path;
 ...
 ```
 

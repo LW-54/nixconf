@@ -105,7 +105,8 @@
     else let
       lines = lib.splitString "\n" (builtins.readFile pos.file);
       rem = lib.drop (pos.line - 1) lines;
-      countChars = char: s: builtins.length (lib.filter (c: c == char) (lib.stringToCharacters s));
+      countChars = char: s:
+        builtins.stringLength s - builtins.stringLength (builtins.replaceStrings [char] [""] s);
       folder = acc: line:
         if acc.isFinished
         then acc
@@ -113,16 +114,17 @@
           newDepth = acc.depth + countChars "{" line - countChars "}" line;
         in {
           depth = newDepth;
-          lines = acc.lines ++ [line];
+          count = acc.count + 1;
           isFinished = (acc.depth > 0 || countChars "{" line > 0) && newDepth <= 0;
         };
-      block =
+      blockCount =
         (lib.foldl' folder {
             depth = 0;
-            lines = [];
+            count = 0;
             isFinished = false;
           }
-          rem).lines;
+          rem).count;
+      block = lib.take blockCount rem;
       indentOf = line: builtins.stringLength (builtins.head (builtins.match "( *).*" line));
       indent = lib.foldl' lib.min (pos.column - 1) (map indentOf (lib.filter (l: lib.trim l != "") block));
     in

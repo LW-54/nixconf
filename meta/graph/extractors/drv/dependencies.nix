@@ -113,12 +113,22 @@
 
   extractModuleDeps = {
     features,
-    pkgArgs,
-  }:
+    featurePackageMap ? {},
+    pkgArgs ? {},
+  }: let
+    pkgsByFeature = lib.foldl' (acc: pName: let
+      prod = featurePackageMap.${pName};
+    in
+      if prod.primitive == "feature"
+      then acc // {${prod.instance} = (acc.${prod.instance} or []) ++ [pName];}
+      else acc) {} (builtins.attrNames featurePackageMap);
+  in
     lib.concatMap (fName: let
       fDef = features.${fName};
       featPkgNames =
-        if fDef ? packages
+        if featurePackageMap != {}
+        then pkgsByFeature.${fName} or []
+        else if fDef ? packages
         then
           builtins.attrNames (
             if builtins.isFunction fDef.packages

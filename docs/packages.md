@@ -104,6 +104,29 @@ antigravity-ide --help
 
 Official Documentation: [https://github.com/jacopone/antigravity-nix](https://github.com/jacopone/antigravity-nix)
 
+<a id="attic-bootstrap"></a>
+### `attic-bootstrap`
+
+One-command Attic binary cache and GitHub Actions SOPS bootstrap helper.
+
+Provided by feature [`attic`](features/attic.md).
+
+```bash
+nix run .#attic-bootstrap
+```
+
+```bash
+nix run github:LW-54/nixconf#attic-bootstrap
+```
+
+#### Help & Documentation
+
+Display command-line flags and subcommands:
+
+```bash
+attic-bootstrap --help
+```
+
 <a id="bw"></a>
 ### `bw`
 
@@ -150,48 +173,6 @@ Display command-line flags and subcommands:
 
 ```bash
 nixconf-ci --help
-```
-
-<a id="devenv-test"></a>
-### `devenv-test`
-
-Application package devenv-test.
-
-```bash
-nix run .#devenv-test
-```
-
-```bash
-nix run github:LW-54/nixconf#devenv-test
-```
-
-#### Help & Documentation
-
-Display command-line flags and subcommands:
-
-```bash
-devenv-test --help
-```
-
-<a id="devenv-up"></a>
-### `devenv-up`
-
-Application package devenv-up.
-
-```bash
-nix run .#devenv-up
-```
-
-```bash
-nix run github:LW-54/nixconf#devenv-up
-```
-
-#### Help & Documentation
-
-Display command-line flags and subcommands:
-
-```bash
-devenv-up --help
 ```
 
 <a id="dolphin"></a>
@@ -314,6 +295,43 @@ micro --help
 ```
 
 Official Documentation: [https://micro-editor.github.io](https://micro-editor.github.io)
+
+<a id="prof"></a>
+### `prof`
+
+General-purpose Nix and command profiler with transparent nix PATH shim, SVG flamegraphs, Speedscope timelines, cache-diff, and CI telemetry.
+
+```bash
+nix run .#prof
+```
+
+```bash
+nix run github:LW-54/nixconf#prof
+```
+
+#### Usage
+
+Profile any Nix command, script, or pre-commit hook with full eval flamegraphs and Gantt timelines:
+
+```bash
+# Trace any command or script (auto-profiles all nested nix calls)
+nixprof trace -- ./.githooks/pre-commit
+
+# Statistical multi-run benchmark via hyperfine
+nixprof bench --runs 5 "nix flake check --no-build"
+
+# Native CPU profiling via samply (Firefox Profiler UI)
+nixprof native -- nix eval .#nixosConfigurations.x240.config.system.build.toplevel.drvPath
+
+# Derivation cache-invalidation matrix + nix-diff root causes
+nixprof cache-diff --flake-all --mutate README.md --mutate modules/features/foot.nix
+
+# GitHub Actions workflow/job/step telemetry
+nixprof ci
+
+# Side-by-side comparison of two saved reports
+nixprof compare before.json after.json
+```
 
 <a id="storage"></a>
 ### `storage`

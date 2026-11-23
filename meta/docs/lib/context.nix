@@ -46,6 +46,8 @@
     graph,
     cpg,
     system,
+    nodesByKind ? null,
+    graphWithoutContains ? null,
   }: let
     page = pages.${id};
     link = md.relPath page.path;
@@ -69,7 +71,19 @@
       then lib.concatStringsSep "/" (lib.tail idParts)
       else id;
 
-    nodesByKind = lib.groupBy (n: n.kind) (lib.sort (a: b: a.name < b.name) (builtins.attrValues graph.nodes));
+    resolvedNodesByKind =
+      if nodesByKind != null
+      then nodesByKind
+      else lib.groupBy (n: n.kind) (lib.sort (a: b: a.name < b.name) (builtins.attrValues graph.nodes));
+
+    resolvedGraphWithoutContains =
+      if graphWithoutContains != null
+      then graphWithoutContains
+      else
+        graphLib.filterGraph {
+          edgeFilter = e: lib.toLower (e.relation or "") != "contains";
+        }
+        graph;
 
     # Resolves node documentation link
     nodeLink = node: let
@@ -190,7 +204,7 @@
     morePageLink = pageId: "[More →](${link pages.${pageId}.path})";
 
     # Graph nodes of a given kind, sorted by name.
-    nodes = kind: nodesByKind.${kind} or [];
+    nodes = kind: resolvedNodesByKind.${kind} or [];
 
     # Graph node of a primitive instance (or null).
     instanceNode = kind: name: graph.nodes.${instanceURN kind name} or null;
@@ -295,11 +309,7 @@
     }: let
       node = graph.nodes.${nodeId} or null;
       neighborhood = graphLib.getNeighborhood {
-        graph =
-          graphLib.filterGraph {
-            edgeFilter = e: lib.toLower (e.relation or "") != "contains";
-          }
-          graph;
+        graph = resolvedGraphWithoutContains;
         inherit nodeId depth;
       };
       diagram =
@@ -335,28 +345,45 @@
       hostName ? null,
     }: let
       clean = l: lib.trim l;
-      isComment = l: lib.hasPrefix "#" (clean l) || lib.hasPrefix "//" (clean l) || lib.hasPrefix "/*" (clean l);
-      allTerms = terms ++ options;
+      isComment = l: lib.hasPrefix "#" l || lib.hasPrefix "//" l || lib.hasPrefix "/*" l;
+      allTerms = lib.unique (terms ++ options);
       renderFileMatches = f: let
         fullPath = self + "/${f}";
         exists = f != null && builtins.pathExists fullPath;
-        lines =
+        rawText =
           if exists
-          then lib.splitString "\n" (builtins.readFile fullPath)
+          then builtins.readFile fullPath
+          else "";
+        presentTerms =
+          if exists && allTerms != []
+          then lib.filter (t: lib.hasInfix t rawText) allTerms
           else [];
-        withIdx = lib.imap1 (idx: line: {inherit idx line;}) lines;
+        termPattern =
+          if presentTerms != []
+          then ".*(" + lib.concatMapStringsSep "|" lib.escapeRegex presentTerms + ").*"
+          else null;
+        lines =
+          if presentTerms != []
+          then lib.splitString "\n" rawText
+          else [];
+        numLines = builtins.length lines;
         matches =
-          lib.filter (
-            x:
-              !isComment x.line && clean x.line != "" && lib.any (t: lib.hasInfix t x.line) allTerms
-          )
-          withIdx;
+          if termPattern == null
+          then []
+          else
+            lib.filter (
+              x:
+                x.line
+                != ""
+                && builtins.match termPattern x.line != null
+                && (let t = clean x.line; in t != "" && !isComment t)
+            ) (lib.imap1 (idx: line: {inherit idx line;}) lines);
         formattedMatches = map (m: let
           trimmed = clean m.line;
           needsBlock = lib.hasSuffix "{" trimmed || lib.hasSuffix "=" trimmed;
           blockLines =
             if needsBlock
-            then map (i: "${toString i}: ${clean (builtins.elemAt lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) (builtins.length lines)))
+            then map (i: "${toString i}: ${clean (builtins.elemAt lines (i - 1))}") (lib.range m.idx (lib.min (m.idx + 3) numLines))
             else ["${toString m.idx}: ${trimmed}"];
         in
           lib.concatStringsSep "\n" blockLines)
@@ -366,6 +393,55 @@
         then "# " + f + "\n...\n" + lib.concatStringsSep "\n...\n" formattedMatches + "\n..."
         else null;
       fileSnippets = lib.filter (s: s != null) (map renderFileMatches (lib.unique (lib.filter (f: f != null) files)));
+      summarizeValue = depth: v: let
+        tried = builtins.tryEval v;
+      in
+        if !tried.success
+        then "<unevaluated>"
+        else let
+          val = tried.value;
+        in
+          if val == null
+          then "null"
+          else if builtins.isBool val || builtins.isInt val || builtins.isFloat val
+          then lib.generators.toPretty {} val
+          else if builtins.isString val
+          then let
+            s = builtins.replaceStrings ["${toString self.outPath}/"] ["./"] (builtins.unsafeDiscardStringContext val);
+          in
+            if builtins.stringLength s > 160
+            then builtins.toJSON (builtins.substring 0 157 s + "...")
+            else builtins.toJSON s
+          else if builtins.isPath val
+          then builtins.replaceStrings ["${toString self.outPath}/"] ["./"] (toString val)
+          else if builtins.isFunction val
+          then "<function>"
+          else if lib.isDerivation val
+          then "<derivation ${val.name or "drv"}>"
+          else if builtins.isList val
+          then let
+            len = builtins.length val;
+          in
+            if len == 0
+            then "[]"
+            else if depth <= 0 || len > 8
+            then "[ /* ${toString len} items */ ]"
+            else "[ ${lib.concatMapStringsSep " " (summarizeValue (depth - 1)) val} ]"
+          else if builtins.isAttrs val
+          then let
+            names = builtins.attrNames val;
+            len = builtins.length names;
+          in
+            if len == 0
+            then "{}"
+            else if depth <= 0
+            then "{ /* ${toString len} attrs: ${lib.concatStringsSep ", " (lib.take 5 names)}${lib.optionalString (len > 5) ", ..."} */ }"
+            else let
+              shown = lib.take 8 names;
+              entries = map (k: "${k} = ${summarizeValue (depth - 1) val.${k}};") shown;
+              more = lib.optional (len > 8) "/* ... +${toString (len - 8)} more */";
+            in "{ ${lib.concatStringsSep " " (entries ++ more)} }"
+          else "...";
       evalSnippet =
         if options != []
         then
@@ -377,7 +453,7 @@
             valTry = builtins.tryEval (lib.attrByPath (lib.splitString "." o) null cfg);
             valStr =
               if valTry.success && valTry.value != null
-              then builtins.replaceStrings ["${toString self.outPath}/"] ["./"] (builtins.unsafeDiscardStringContext (lib.generators.toPretty {} valTry.value))
+              then summarizeValue 2 valTry.value
               else "...";
           in "${o} = ${valStr};")
           options

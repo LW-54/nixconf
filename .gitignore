@@ -4,4 +4,6 @@
 /.devenv
 /.devenv.*
 devenv.local.nix
+/.bench
+/meta/prof/target
 

@@ -62,8 +62,14 @@
     then "NixOS module exported by ${producer.primitive} '${producer.instance}'."
     else "Exported NixOS module '${name}'.";
 
+  countChars = char: s:
+    builtins.stringLength s - builtins.stringLength (builtins.replaceStrings [char] [""] s);
+
   extractModuleData = {}: let
     hosts = config.host or {};
+    hostNames = builtins.attrNames hosts;
+    hostContents = lib.genAttrs hostNames (hName: instanceSourceText "host" hName);
+    hostLines = lib.mapAttrs (_: lib.splitString "\n") hostContents;
     flakeModules = config.flake.nixosModules or {};
     moduleNames = builtins.attrNames flakeModules;
 
@@ -87,22 +93,21 @@
             inherit name producer;
           };
 
-        importingHosts = lib.filter (
-          hName: let
-            hostContent = instanceSourceText "host" hName;
-          in
-            lib.hasInfix "nixosModules.${mName}" hostContent
-            || builtins.elem (config.flake.nixosModules.${mName} or null) ((hosts.${hName} or {}).modules or [])
-        ) (builtins.attrNames hosts);
+        importingHosts =
+          lib.filter (
+            hName:
+              lib.hasInfix "nixosModules.${mName}" hostContents.${hName}
+              || builtins.elem (config.flake.nixosModules.${mName} or null) ((hosts.${hName} or {}).modules or [])
+          )
+          hostNames;
 
         hostConfigurations = lib.genAttrs importingHosts (hName: let
-          hostContent = instanceSourceText "host" hName;
-          lines = lib.splitString "\n" hostContent;
-          countChars = char: s: builtins.length (lib.filter (c: c == char) (lib.stringToCharacters s));
+          lines = hostLines.${hName};
+          numLines = builtins.length lines;
           isMatch = line: lib.hasInfix "${mName}." line || lib.hasInfix "self.nixosModules.${mName}" line;
-          matchingIndices = lib.filter (i: isMatch (builtins.elemAt lines i)) (lib.range 0 (builtins.length lines - 1));
+          firstIdx = lib.findFirst (i: isMatch (builtins.elemAt lines i)) null (lib.range 0 (numLines - 1));
           extractBlockFrom = startIdx: let
-            rem = lib.sublist startIdx (builtins.length lines - startIdx) lines;
+            rem = lib.sublist startIdx (numLines - startIdx) lines;
             folder = acc: line:
               if acc.done
               then acc
@@ -114,22 +119,22 @@
                 done = (acc.depth > 0 && newDepth <= 0) || (acc.depth == 0 && opens > 0 && opens == closes) || (acc.depth == 0 && hasSemi);
               in {
                 depth = newDepth;
-                lines = acc.lines ++ [line];
+                count = acc.count + 1;
                 done = done;
               };
             res =
               lib.foldl' folder {
                 depth = 0;
-                lines = [];
+                count = 0;
                 done = false;
               }
               rem;
           in
-            lib.concatStringsSep "\n" res.lines;
+            lib.concatStringsSep "\n" (lib.take res.count rem);
         in
-          if matchingIndices == []
+          if firstIdx == null
           then ""
-          else extractBlockFrom (builtins.head matchingIndices));
+          else extractBlockFrom firstIdx);
 
         findModuleOptions = name: let
           findInTree = path: attrs:

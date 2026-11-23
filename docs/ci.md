@@ -32,8 +32,8 @@ nix run .#ci -- --write
 
 ### Workflow Details
 
-- **`build`** ([`meta/ci/build.nix`](../meta/ci/build.nix)): Runs on pull requests and pushes to `main`. Executes `nix flake check`, collects all buildable derivations via `lib.ci.collectBuildables`, and builds targets in parallel while pushing artifacts to the `lw-54` Cachix binary cache.
-- **`host-tests`** ([`meta/ci/host-tests.nix`](../meta/ci/host-tests.nix)): Automated matrix verification testing host closures across progressive tiers (`static`, `vm`, `install`), supporting manual dispatch filtering, nightly scheduled execution, and 4h debounce cooldowns.
+- **`build`** ([`meta/ci/build.nix`](../meta/ci/build.nix)): Runs on pull requests and pushes to `main`. Executes formatting (`lint`), meta checks (`schemas`, `docs`, `ci`), per-host verification & toplevel builds (`host`), and a single-eval batched `packages-and-shells` job in full parallel while caching `~/.cache/nix` and pushing to the `lw-54` Cachix binary cache.
+- **`host-tests`** ([`meta/ci/host-tests.nix`](../meta/ci/host-tests.nix)): Parallelized matrix verification executing `vm-tests`, `install-tests`, and `static-tests` as independent concurrent jobs via direct `nix build` targets, with `~/.cache/nix` caching, disk-change detection, and 4h install cooldowns.
 
 ## Library Reference
 

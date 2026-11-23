@@ -16,18 +16,21 @@
     };
 
   /**
-  Overlays a list of graphs.
+  Overlays a list of graphs in a single pass, building indices once at the end.
   */
   overlayList = graphs:
-    builtins.foldl' overlay container.emptyGraph graphs;
+    container.mkGraph {
+      nodes = builtins.foldl' (acc: g: acc // g.nodes) {} graphs;
+      edges = builtins.concatLists (map (g: g.edges) graphs);
+      meta = builtins.foldl' (acc: g: acc // (g.meta or {})) {} graphs;
+    };
 
   /**
   Filters a graph by node predicate, producing an induced subgraph.
   */
   selectNodes = pred: g: let
     filteredNodes = lib.filterAttrs (_: pred) g.nodes;
-    validNodeIds = builtins.attrNames filteredNodes;
-    filteredEdges = lib.filter (e: builtins.elem e.source validNodeIds && builtins.elem e.target validNodeIds) g.edges;
+    filteredEdges = lib.filter (e: filteredNodes ? ${e.source} && filteredNodes ? ${e.target}) g.edges;
   in
     container.mkGraph {
       nodes = filteredNodes;
@@ -53,12 +56,11 @@
     edgeFilter ? (_: true),
   }: g: let
     filteredNodes = lib.filterAttrs (_: nodeFilter) g.nodes;
-    validNodeIds = builtins.attrNames filteredNodes;
     filteredEdges =
       lib.filter (
         e:
-          builtins.elem e.source validNodeIds
-          && builtins.elem e.target validNodeIds
+          filteredNodes ? ${e.source}
+          && filteredNodes ? ${e.target}
           && edgeFilter e
       )
       g.edges;
@@ -209,30 +211,63 @@
     res.subgraph;
 
   /**
-  Extracts an undirected k-hop neighborhood (ego network).
+  Extracts an undirected k-hop neighborhood (ego network) using adjacency indices.
   */
   neighborhood = {
     center,
     radius ? 1,
   }: g: let
-    findNeighbors = currentIds: let
-      incidentEdges = lib.filter (e: builtins.elem e.source currentIds || builtins.elem e.target currentIds) g.edges;
-      neighborIds = lib.unique (builtins.concatMap (e: [e.source e.target]) incidentEdges);
-    in
-      lib.unique (currentIds ++ neighborIds);
+    outIdx = g.indices.outgoing or {};
+    inIdx = g.indices.incoming or {};
+    edgeMap = g.indices.edgeMap or (lib.listToAttrs (map (e: lib.nameValuePair e.id e) g.edges));
 
-    expand = d: currentIds:
-      if d <= 0
-      then currentIds
-      else expand (d - 1) (findNeighbors currentIds);
+    expand = d: frontier: visited:
+      if d <= 0 || frontier == []
+      then visited
+      else let
+        neighborList = lib.concatMap (nId: let
+          outTargets = map (eId: edgeMap.${eId}.target) (outIdx.${nId} or []);
+          inSources = map (eId: edgeMap.${eId}.source) (inIdx.${nId} or []);
+        in
+          outTargets ++ inSources)
+        frontier;
+        newSet = builtins.listToAttrs (
+          map (id: {
+            name = id;
+            value = true;
+          }) (lib.filter (id: !(visited ? ${id})) neighborList)
+        );
+      in
+        expand (d - 1) (builtins.attrNames newSet) (visited // newSet);
 
     initial =
       if builtins.isList center
       then center
       else [center];
-    allNeighborIds = expand radius initial;
+    initialSet = builtins.listToAttrs (map (id: {
+        name = id;
+        value = true;
+      })
+      initial);
+    visitedSet = expand radius initial initialSet;
+
+    # Induced subgraph using O(1) attrset membership + adjacency index
+    filteredNodes = lib.filterAttrs (id: _: visitedSet ? ${id}) g.nodes;
+    incidentEdgeIds = builtins.attrNames (builtins.listToAttrs (
+      lib.concatMap (nId:
+        map (eId: {
+          name = eId;
+          value = true;
+        }) (outIdx.${nId} or []))
+      (builtins.attrNames filteredNodes)
+    ));
+    filteredEdges = lib.filter (e: filteredNodes ? ${e.target}) (map (eId: edgeMap.${eId}) incidentEdgeIds);
   in
-    selectNodes (n: builtins.elem n.id allNeighborIds) g;
+    container.mkGraph {
+      nodes = filteredNodes;
+      edges = filteredEdges;
+      meta = g.meta or {};
+    };
 in {
   internal.graph.core.algebra = {
     inherit

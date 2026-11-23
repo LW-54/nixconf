@@ -24,7 +24,7 @@
     secretStoreHashes =
       map (
         store: let
-          p = self + "/secrets/${store}.yaml";
+          p = ../../../secrets + "/${store}.yaml";
         in
           if builtins.pathExists p
           then builtins.hashString "sha256" (builtins.readFile p)

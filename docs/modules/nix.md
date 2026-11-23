@@ -18,6 +18,10 @@ Nix package manager daemon settings, binary caches, garbage collection, and nix-
 | Option Path | Type | Default | Example | Description |
 | :--- | :--- | :--- | :--- | :--- |
 | `nix.allowedUsers` | `submodule` | — | — | Alias of {option}`nix.settings.allowed-users`. |
+| `nix.attic.cacheName` | `string` | `"nixconf"` | — | Name of the public Attic cache to substitute from. |
+| `nix.attic.enable` | `boolean` | `false` | `true` | Whether to enable Self-hosted Attic binary cache substituter. |
+| `nix.attic.endpoint` | `string` | `"https://cache.adje.app"` | — | Base HTTPS URL of the Attic binary cache server. |
+| `nix.attic.publicKey` | `null or string` | — | — | Public signing key of the Attic cache (populated by `just attic-bootstrap`). |
 | `nix.autoOptimiseStore` | `submodule` | — | — | Alias of {option}`nix.settings.auto-optimise-store`. |
 | `nix.binaryCachePublicKeys` | `submodule` | — | — | Alias of {option}`nix.settings.trusted-public-keys`. |
 | `nix.binaryCaches` | `submodule` | — | — | Alias of {option}`nix.settings.substituters`. |

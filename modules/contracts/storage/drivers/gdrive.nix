@@ -53,7 +53,7 @@
       secretStore,
       rcloneRemoteName,
     }: let
-      sopsFile = self + "/secrets/${providerCfg.secretStore}.yaml";
+      sopsFile = ../../../../secrets + "/${providerCfg.secretStore}.yaml";
       sopsLines =
         if builtins.pathExists sopsFile
         then lib.splitString "\n" (builtins.readFile sopsFile)

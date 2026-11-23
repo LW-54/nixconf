@@ -72,7 +72,7 @@
         description = "Verify rclone and mount.rclone helpers exist in system closure";
         priority = 200;
         script = ''
-          for bin in "$system/sw/bin/rclone" "$system/sw/bin/mount.rclone"; do
+          for bin in "$sw/bin/rclone" "$sw/bin/mount.rclone"; do
             if [ ! -x "$bin" ]; then
               echo "Error: expected executable '$bin' missing!" >&2
               exit 1

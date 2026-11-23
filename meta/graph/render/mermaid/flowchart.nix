@@ -41,12 +41,11 @@
     raw ? false,
   }: let
     nodes = builtins.attrValues graph.nodes;
-    validNodeIds = builtins.attrNames graph.nodes;
     validEdges =
       lib.filter (
         e:
-          builtins.elem e.source validNodeIds
-          && builtins.elem e.target validNodeIds
+          graph.nodes ? ${e.source}
+          && graph.nodes ? ${e.target}
       )
       graph.edges;
 

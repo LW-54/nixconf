@@ -21,40 +21,29 @@
       then pkgs.writeText "${name}.raw.yml" data
       else (pkgs.formats.yaml {}).generate "${name}.yml" data;
   in
-    pkgs.runCommand "${name}.yml" {
+    pkgs.runCommandLocal "${name}.yml" {
       nativeBuildInputs = [pkgs.yamlfmt pkgs.actionlint];
     } ''
       yamlfmt -in < ${raw} > $out
       actionlint $out
     '';
 
-  collectBuildables = system:
-    lib.concatMapAttrs (
-      name: output:
-        if name == "nixosConfigurations"
-        then
-          lib.concatMapAttrs (hname: host:
-            lib.optionalAttrs ((host.pkgs.system or host.config.nixpkgs.hostPlatform.system) == system) {
-              "host-${hname}" = host.config.system.build.toplevel;
-            })
-          output
-        else if name != "legacyPackages" && name != "outputs" && builtins.isAttrs output && output ? ${system}
-        then let
-          sysVal = output.${system};
-        in
-          if lib.isDerivation sysVal
-          then {"${name}" = sysVal;}
-          else if builtins.isAttrs sysVal
-          then
-            lib.concatMapAttrs (subName: v:
-              lib.optionalAttrs (lib.isDerivation (v.inputDerivation or v)) {
-                "${name}-${subName}" = v.inputDerivation or v;
-              })
-            sysVal
-          else {}
-        else {}
-    )
-    self;
+  collectBuildables = system: let
+    hosts = lib.concatMapAttrs (hname: host:
+      lib.optionalAttrs ((self.host.${hname}.system or "x86_64-linux") == system) {
+        "host-${hname}" = host.config.system.build.toplevel;
+      }) (self.nixosConfigurations or {});
+    # Map standard per-system flake outputs lazily by attribute name so
+    # `builtins.attrNames (collectBuildables system)` never forces heavy derivations
+    # like `packages.cpg-json` or `checks.docs` during evaluation.
+    checks = lib.mapAttrs' (n: v: lib.nameValuePair "checks-${n}" v) (self.checks.${system} or {});
+    packages = lib.mapAttrs' (n: v: lib.nameValuePair "packages-${n}" v) (self.packages.${system} or {});
+    devShells = lib.mapAttrs' (n: v: lib.nameValuePair "devShells-${n}" (v.inputDerivation or v)) (self.devShells.${system} or {});
+    formatter = lib.optionalAttrs ((self.formatter or {}) ? ${system}) {
+      formatter = self.formatter.${system};
+    };
+  in
+    checks // devShells // formatter // hosts // packages;
 in {
   lib.ci = {
     description = "Continuous integration workflow helpers, YAML serialization, and derivation collection utilities.";

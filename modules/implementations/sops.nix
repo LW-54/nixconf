@@ -268,7 +268,7 @@ in {
                 else if s.file != null
                 then s.file
                 else if s.store != null
-                then self + "/secrets/${s.store}.yaml"
+                then ../../secrets + "/${s.store}.yaml"
                 else config.sops.defaultSopsFile;
               inherit (s) key owner group mode neededForUsers;
             })

@@ -2,80 +2,109 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
 jobs:
-  build:
-    name: Build & Cache (${{ matrix.target }})
-    needs:
-      - check
+  checks-meta:
+    name: Meta Checks (schemas, docs, ci)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
       - name: Install Nix
         uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: lw-54
-      - name: Build derivation
-        run: nix build -L '.#legacyPackages.x86_64-linux.ciBuildables."${{ matrix.target }}"'
+      - name: Build meta checks in one shared evaluation
+        run: "nix build --no-link -L \\\n  .#checks.x86_64-linux.schemas \\\n  .#checks.x86_64-linux.docs \\\n  .#checks.x86_64-linux.ci"
+  host:
+    name: Host (${{ matrix.host }})
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+      - name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: lw-54
+      - name: Evaluate, inspect, and build host toplevel
+        run: "nix build --out-link /tmp/host-out -L \\\n  \".#checks.x86_64-linux.eval-${{ matrix.host }}\" \\\n  \".#checks.x86_64-linux.inspect-${{ matrix.host }}\" \\\n  \".#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel\""
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        if: github.event_name != 'pull_request'
+        name: Push to Attic binary cache (SOPS)
+        run: "if [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push nixconf /tmp/host-out*\n"
     strategy:
       fail-fast: false
       matrix:
-        target:
-          - checks-ci
-          - checks-docs
-          - checks-eval-astrolabe
-          - checks-eval-x240
-          - checks-inspect-astrolabe
-          - checks-inspect-x240
-          - checks-schemas
-          - devShells-default
-          - devShells-gemini-api
-          - devShells-github-cli
-          - devShells-github-ssh
-          - devShells-master-ssh
-          - devShells-sops-admin
-          - devShells-sops-host
-          - devShells-storage-admin
-          - formatter
-          - host-astrolabe
-          - host-x240
-          - packages-agy
-          - packages-agy-api
-          - packages-antigravity
-          - packages-antigravity-ide
-          - packages-bw
-          - packages-ci
-          - packages-cpg-json
-          - packages-devenv-test
-          - packages-devenv-up
-          - packages-docs
-          - packages-dolphin
-          - packages-foot
-          - packages-git
-          - packages-graph
-          - packages-menu
-          - packages-micro
-          - packages-nixconf-json
-          - packages-storage
-          - packages-test
-          - packages-zed
-  check:
-    name: Flake Checks
+        host:
+          - astrolabe
+          - x240
+  lint:
+    name: Formatting (Alejandra)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
       - name: Install Nix
         uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+      - name: Check Nix formatting
+        run: nix run .#formatter -- --check .
+  packages-and-shells:
+    name: Packages & DevShells (Single Eval)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
       - name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: lw-54
-      - name: Run flake check
-        run: nix flake check
+      - name: Build & cache all packages and devShells in one evaluation
+        run: "nix build --out-link /tmp/pkg-out --keep-going -L \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-default\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-gemini-api\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-github-cli\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-github-ssh\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-master-ssh\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-sops-admin\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-sops-host\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"devShells-storage-admin\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"formatter\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-agy\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-agy-api\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-antigravity\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-antigravity-ide\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-attic-bootstrap\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-bw\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-ci\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-cpg-json\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-docs\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-dolphin\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-foot\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-git\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-graph\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-menu\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-micro\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-nixconf-json\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-prof\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-storage\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-test\" \\\n  .#legacyPackages.x86_64-linux.ciPackagesAndShells.\"packages-zed\""
+      - env:
+          SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        if: github.event_name != 'pull_request'
+        name: Push to Attic binary cache (SOPS)
+        run: "if [ -z \"${SOPS_AGE_KEY:-}\" ] || [ ! -f secrets/ci/attic.yaml ]; then\n  echo \"SOPS_AGE_KEY or secrets/ci/attic.yaml not configured; skipping Attic push.\"\n  exit 0\nfi\ntools=\"$(nix build --no-link --print-out-paths .#legacyPackages.x86_64-linux.ciAtticTools)\"\nATTIC_TOKEN=\"$(\"$tools/bin/sops\" -d --extract '[\"token\"]' secrets/ci/attic.yaml)\"\necho \"::add-mask::$ATTIC_TOKEN\"\n\"$tools/bin/attic\" login nixconf \"https://cache.adje.app\" \"$ATTIC_TOKEN\"\n\"$tools/bin/attic\" push nixconf /tmp/pkg-out*\n"
 name: CI & Binary Cache Push
 'on':
   pull_request:

@@ -23,6 +23,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_resources["nixosModule/astrolabe-resources"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
+    urn__nixconf__ast__module__attic["nixosModule/attic"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__copyparty["nixosModule/copyparty"]:::defaultNode
@@ -45,6 +46,7 @@ flowchart LR
     urn__nixconf__drv__package__agy_api[("package/agy-api")]:::pkgNode
     urn__nixconf__drv__package__antigravity[("package/antigravity")]:::pkgNode
     urn__nixconf__drv__package__antigravity_ide[("package/antigravity-ide")]:::pkgNode
+    urn__nixconf__drv__package__attic_bootstrap[("package/attic-bootstrap")]:::pkgNode
     urn__nixconf__eval__configuration__astrolabe(["nixosConfiguration/astrolabe"]):::hostNode
     urn__nixconf__onto__contract__auth{{"auth"}}:::contractNode
     urn__nixconf__onto__contract__backup{{"backup"}}:::contractNode
@@ -56,6 +58,7 @@ flowchart LR
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__attic("attic"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
     urn__nixconf__onto__feature__direnv("direnv"):::featureNode
@@ -111,6 +114,11 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__astrolabe_services -.->|writes| urn__nixconf__ast__option__reverse_proxy_domain
+    urn__nixconf__ast__module__attic -->|dependsOn| urn__nixconf__drv__package__attic_bootstrap
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__reverse_proxy_hosts
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__reverse_proxy_ports
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__grafana
     urn__nixconf__ast__module__authelia -.->|writes| urn__nixconf__ast__option__reverse_proxy_forwardAuth
@@ -165,6 +173,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_resources
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__attic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__authelia
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__copyparty
@@ -197,6 +206,13 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__drv__package__attic_bootstrap
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__persistence
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__bitwarden -.->|consumes| urn__nixconf__onto__contract__persistence
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
@@ -256,6 +272,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__attic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
@@ -372,6 +389,7 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_resources href "../modules/astrolabe-resources.md" "astrolabe-resources"
     click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
+    click urn__nixconf__ast__module__attic href "../modules/attic.md" "attic"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
     click urn__nixconf__ast__module__copyparty href "../modules/copyparty.md" "copyparty"
@@ -394,6 +412,7 @@ flowchart LR
     click urn__nixconf__drv__package__agy_api href "../packages.md#agy-api" "agy-api"
     click urn__nixconf__drv__package__antigravity href "../packages.md#antigravity" "antigravity"
     click urn__nixconf__drv__package__antigravity_ide href "../packages.md#antigravity-ide" "antigravity-ide"
+    click urn__nixconf__drv__package__attic_bootstrap href "../packages.md#attic-bootstrap" "attic-bootstrap"
     click urn__nixconf__eval__configuration__astrolabe href "../hosts/astrolabe.md" "astrolabe"
     click urn__nixconf__onto__contract__auth href "auth.md" "auth"
     click urn__nixconf__onto__contract__backup href "backup.md" "backup"
@@ -405,6 +424,7 @@ flowchart LR
     click urn__nixconf__onto__contract__secrets href "secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "storage.md" "storage"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__attic href "../features/attic.md" "attic"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
     click urn__nixconf__onto__feature__direnv href "../features/direnv.md" "direnv"
@@ -505,7 +525,7 @@ Modules and instances configuring options under the `reverse-proxy` contract cap
 ```nix
 # modules/hosts/astrolabe/services.nix
 ...
-20: reverse-proxy.domain = "adje.app";
+21: reverse-proxy.domain = "adje.app";
 ...
 ```
 
@@ -614,6 +634,23 @@ config = {
   reverse-proxy.hosts = ...;
   reverse-proxy.ports = ...;
 };
+```
+
+</details>
+
+
+<details>
+<summary><code><a href="../features/attic.md">attic</a></code></summary>
+
+**Configures options**: `reverse-proxy.hosts`, `reverse-proxy.ports`
+
+```nix
+# modules/features/attic.nix
+...
+13: domain = config.reverse-proxy.domain or null;
+...
+170: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+...
 ```
 
 </details>

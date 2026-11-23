@@ -48,11 +48,31 @@
     '')
     checks;
 
+  mkFilteredInspectScriptFn = {
+    testing,
+    namespace,
+  }: let
+    checks = sortChecks (lib.filter (c: c.namespace == namespace) (collectChecks "inspectChecks" testing));
+  in
+    lib.concatMapStringsSep "\n\n" (c: ''
+      echo "==> [inspect] ${c.qualifiedName}: ${c.description}"
+      (
+      ${indent "  " c.script}
+      )
+    '')
+    checks;
+
   mkVmScriptFn = {
     testing,
     label ? null,
+    namespaces ? null,
   }: let
-    checks = sortChecks (collectChecks "vmChecks" testing);
+    allChecks = collectChecks "vmChecks" testing;
+    filtered =
+      if namespaces == null
+      then allChecks
+      else lib.filter (c: c.qualifiedName == "host.boot" || builtins.elem c.namespace namespaces) allChecks;
+    checks = sortChecks filtered;
   in
     lib.concatMapStringsSep "\n\n" (c: let
       title = (lib.optionalString (label != null) "${label}: ") + "${c.qualifiedName} (${c.description})";
@@ -167,6 +187,7 @@ in {
 
     failedEvalChecks = failedEvalChecksFn;
     mkInspectScript = mkInspectScriptFn;
+    mkFilteredInspectScript = mkFilteredInspectScriptFn;
     mkVmScript = mkVmScriptFn;
     mkInstallScript = mkInstallScriptFn;
     mkTtyLogin = mkTtyLoginFn;

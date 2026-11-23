@@ -2,6 +2,7 @@ keys:
   admin: &admin_key age1yph7kqs5wq2hf4edt2f648en0unpjak7nps9u5v8r43ev9fvsewsmuahjk
   x240: &x240_key age14fnlmar7dt4nzu3dayql669mavuvd5epn0vrplg76jwpesq3dvnqr6d9zy
   astrolabe: &astrolabe_key age173rv8hnu7sa66u8583hyp0pjuwzjxsfepr4cmtxzeklazpq5la9szp35hk
+  github_actions: &github_actions_key age1a4qyen3zr240t07cserzzuf7m667mykklynj6cwq0fq0avgk95ls7nq5pa
 
 tags:
   base: &base
@@ -35,10 +36,20 @@ tags:
       - *x240_key
       - *astrolabe_key
 
+  ci: &ci
+    <<: *base
+    age:
+      - *github_actions_key
+      - *x240_key
+      - *astrolabe_key
+
 creation_rules:
   - path_regex: ^secrets/admin/.*$
     key_groups:
       - *base
+  - path_regex: ^secrets/ci/.*$
+    key_groups:
+      - *ci
   - path_regex: ^secrets/hosts/x240/.*$
     key_groups:
       - *host_x240

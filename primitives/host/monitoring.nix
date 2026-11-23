@@ -15,11 +15,6 @@
         if t != null
         then t
         else "/var/lib/alloy/textfile";
-      rawRev = config.system.configurationRevision or "unknown";
-      deployRev =
-        if rawRev == null || rawRev == ""
-        then "unknown"
-        else toString rawRev;
 
       storageScanScript = pkgs.writeShellApplication {
         name = "nixconf-storage-tree-scan";
@@ -375,16 +370,19 @@
           install -d -m 0755 ${lib.escapeShellArg textfileDir}
           tmp_prom="$(mktemp ${lib.escapeShellArg "${textfileDir}/.deployment.XXXXXX"})"
           now_ts="$(date +%s)"
+          sys_target="$(readlink -f "''${systemConfig:-/run/current-system}" 2>/dev/null || echo unknown)"
+          deploy_rev="$(basename "$sys_target" | cut -d- -f1)"
+          [ -n "$deploy_rev" ] || deploy_rev="unknown"
           cat > "$tmp_prom" <<'EOF'
           # HELP nixconf_deployment_info Static label metadata identifying the active NixOS revision.
           # TYPE nixconf_deployment_info gauge
           EOF
-          printf 'nixconf_deployment_info{rev=%s} 1\n' ${lib.escapeShellArg (builtins.toJSON deployRev)} >> "$tmp_prom"
+          printf 'nixconf_deployment_info{rev="%s"} 1\n' "$deploy_rev" >> "$tmp_prom"
           cat >> "$tmp_prom" <<'EOF'
           # HELP nixconf_deployment_timestamp_seconds Unix epoch timestamp of the latest NixOS activation.
           # TYPE nixconf_deployment_timestamp_seconds gauge
           EOF
-          printf 'nixconf_deployment_timestamp_seconds{rev=%s} %s\n' ${lib.escapeShellArg (builtins.toJSON deployRev)} "$now_ts" >> "$tmp_prom"
+          printf 'nixconf_deployment_timestamp_seconds{rev="%s"} %s\n' "$deploy_rev" "$now_ts" >> "$tmp_prom"
           chmod 0644 "$tmp_prom"
           mv -f "$tmp_prom" ${lib.escapeShellArg "${textfileDir}/deployment.prom"}
         '';

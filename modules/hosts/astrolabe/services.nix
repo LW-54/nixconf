@@ -14,6 +14,7 @@
         self.nixosModules.agy-hub
         self.nixosModules.uchiyomi
         self.nixosModules.copyparty
+        self.nixosModules.attic
       ];
 
       config = {

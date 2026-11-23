@@ -2,59 +2,138 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
 jobs:
-  host-tests:
-    name: Host Tests (${{ matrix.host }})
+  install-tests:
+    if: github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'install'))
+    name: Install Tests (${{ matrix.host }})
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - id: disk-diff
-        if: "matrix.hasInstall &&\ngithub.event_name == 'push'\n"
+        if: (github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) && github.event_name == 'push'
         name: Detect disk configuration changes
         run: "if git rev-parse HEAD~1 >/dev/null 2>&1; then\n  if git diff --name-only HEAD~1 HEAD | grep -E '(disko|impermanence|disk)' >/dev/null; then\n    echo \"changed=true\" >> \"$GITHUB_OUTPUT\"\n    echo \"Disk configuration changed in this push; install tier will be triggered.\"\n    exit 0\n  fi\nfi\necho \"changed=false\" >> \"$GITHUB_OUTPUT\"\n"
       - id: cooldown-key
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
         name: Compute cooldown key
         run: "bucket=$(( $(date -u +%s) / 14400 ))\necho \"key=install-cooldown-${{ matrix.host }}-$bucket\" >> \"$GITHUB_OUTPUT\"\n"
       - id: cooldown
-        if: "matrix.hasInstall &&\ngithub.event_name == 'push' &&\ngithub.ref == 'refs/heads/main'\n"
+        if: (github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) && github.event_name == 'push' && github.ref == 'refs/heads/main'
         name: Check install tier cooldown cache
         uses: actions/cache@v4
         with:
           key: ${{ steps.cooldown-key.outputs.key }}
           path: /tmp/install-cooldown-marker
-      - if: "(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(github.event_name != 'workflow_dispatch' || github.event.inputs.tier != 'static')\n"
+      - id: should-run
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Determine whether install tier should run
+        run: "if [ \"${{ github.event_name }}\" = \"schedule\" ] || [ \"${{ github.event_name }}\" = \"workflow_dispatch\" ]; then\n  echo \"run=true\" >> \"$GITHUB_OUTPUT\"\nelif [ \"${{ steps.disk-diff.outputs.changed }}\" = \"true\" ]; then\n  echo \"run=true\" >> \"$GITHUB_OUTPUT\"\nelif [ \"${{ github.ref }}\" = \"refs/heads/main\" ] && [ \"${{ steps.cooldown.outputs.cache-hit }}\" != \"true\" ]; then\n  echo \"run=true\" >> \"$GITHUB_OUTPUT\"\nelse\n  echo \"run=false\" >> \"$GITHUB_OUTPUT\"\nfi\n"
+      - if: steps.should-run.outputs.run == 'true'
+        name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
+      - if: steps.should-run.outputs.run == 'true'
         name: Enable KVM permissions
         run: "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0666\", OPTIONS+=\"static_node=kvm\"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules\nsudo udevadm control --reload-rules\nsudo udevadm trigger --name-match=kvm\n[ -e /dev/kvm ] && sudo chmod 666 /dev/kvm || true\n"
-      - if: "github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host\n"
+      - if: steps.should-run.outputs.run == 'true'
         name: Install Nix
         uses: cachix/install-nix-action@v31
         with:
-          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\n"
-      - if: "github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host\n"
+          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\nextra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+      - if: steps.should-run.outputs.run == 'true'
         name: Setup Cachix
         uses: cachix/cachix-action@v17
         with:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           name: lw-54
-      - if: "(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(\n  github.event_name == 'schedule' ||\n  (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'static'))\n)\n"
-        name: Static Verification (eval & inspect)
-        run: "nix run .#test -- eval \"${{ matrix.host }}\"\nnix run .#test -- inspect \"${{ matrix.host }}\"\n"
-      - if: "(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(\n  github.event_name == 'schedule' ||\n  github.event_name == 'push' ||\n  (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'vm'))\n)\n"
-        name: VM Runtime Tests (vm)
-        run: "nix run .#test -- vm \"${{ matrix.host }}\"\n"
-      - if: "matrix.hasInstall &&\n(github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host) &&\n(\n  github.event_name == 'schedule' ||\n  (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'install')) ||\n  (github.event_name == 'push' && (steps.disk-diff.outputs.changed == 'true' || (github.ref == 'refs/heads/main' && steps.cooldown.outputs.cache-hit != 'true')))\n)\n"
-        name: Install & Storage Lifecycle Tests (install)
-        run: "nix run .#test -- install \"${{ matrix.host }}\"\nmkdir -p /tmp/install-cooldown-marker\ndate -u > /tmp/install-cooldown-marker/timestamp\n"
+      - if: steps.should-run.outputs.run == 'true'
+        name: Run Install & Storage Lifecycle Tests (install)
+        run: "nix build --no-link -L \".#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.install\"\nmkdir -p /tmp/install-cooldown-marker\ndate -u > /tmp/install-cooldown-marker/timestamp\n"
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - hasInstall: true
-            host: astrolabe
-          - hasInstall: true
-            host: x240
+        host:
+          - astrolabe
+          - x240
+  static-tests:
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'static'))
+    name: Static Verification (${{ matrix.host }})
+    runs-on: ubuntu-latest
+    steps:
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Checkout repository
+        uses: actions/checkout@v4
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "extra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: lw-54
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Run eval & inspect checks
+        run: nix build --no-link -L ".#checks.x86_64-linux.eval-${{ matrix.host }}" ".#checks.x86_64-linux.inspect-${{ matrix.host }}"
+    strategy:
+      fail-fast: false
+      matrix:
+        host:
+          - astrolabe
+          - x240
+  vm-tests:
+    if: github.event_name == 'schedule' || github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.tier == 'all' || github.event.inputs.tier == 'vm'))
+    name: VM Tests (${{ matrix.host }})
+    runs-on: ubuntu-latest
+    steps:
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Checkout repository
+        uses: actions/checkout@v4
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Cache Nix fetcher & eval cache
+        uses: actions/cache@v4
+        with:
+          key: nix-cache-${{ runner.os }}-${{ hashFiles('.tack/pins.lock.json', 'flake.lock') }}
+          path: ~/.cache/nix
+          restore-keys: nix-cache-${{ runner.os }}-
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Enable KVM permissions
+        run: "echo 'KERNEL==\"kvm\", GROUP=\"kvm\", MODE=\"0666\", OPTIONS+=\"static_node=kvm\"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules\nsudo udevadm control --reload-rules\nsudo udevadm trigger --name-match=kvm\n[ -e /dev/kvm ] && sudo chmod 666 /dev/kvm || true\n"
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "system-features = nixos-test benchmark big-parallel kvm\nextra-substituters = https://lw-54.cachix.org\nextra-trusted-public-keys = lw-54.cachix.org-1:1sScTQ6+QH/OBn5bCQEWz7LP090BE7njdpYTpxe5l0o=\n"
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Setup Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          name: lw-54
+      - if: github.event_name != 'workflow_dispatch' || github.event.inputs.host == 'all' || github.event.inputs.host == matrix.host
+        name: Run VM Runtime Tests (vm)
+        run: nix build --no-link -L ".#legacyPackages.x86_64-linux.hostTests.${{ matrix.host }}.vm"
+    strategy:
+      fail-fast: false
+      matrix:
+        host:
+          - astrolabe
+          - x240
 name: Host Verification & VM Tests
 'on':
   push:

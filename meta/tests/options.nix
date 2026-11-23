@@ -37,7 +37,7 @@
 
       script = lib.mkOption {
         type = lib.types.lines;
-        description = "Bash snippet run in artifact sandbox. Target /etc available as `$etc`, system toplevel available as `$system`.";
+        description = "Bash snippet run in artifact sandbox. Target /etc available as `$etc`, system-path available as `$sw`.";
       };
 
       priority = lib.mkOption {

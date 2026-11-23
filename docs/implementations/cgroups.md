@@ -22,6 +22,7 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_resources["nixosModule/astrolabe-resources"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_services["nixosModule/astrolabe-services"]:::defaultNode
     urn__nixconf__ast__module__astrolabe_system["nixosModule/astrolabe-system"]:::defaultNode
+    urn__nixconf__ast__module__attic["nixosModule/attic"]:::defaultNode
     urn__nixconf__ast__module__authelia["nixosModule/authelia"]:::defaultNode
     urn__nixconf__ast__module__caddy["nixosModule/caddy"]:::defaultNode
     urn__nixconf__ast__module__cgroups["nixosModule/cgroups"]:::defaultNode
@@ -130,6 +131,7 @@ flowchart LR
     urn__nixconf__onto__contract__secrets{{"secrets"}}:::contractNode
     urn__nixconf__onto__contract__storage{{"storage"}}:::contractNode
     urn__nixconf__onto__feature__antigravity("antigravity"):::featureNode
+    urn__nixconf__onto__feature__attic("attic"):::featureNode
     urn__nixconf__onto__feature__audio("audio"):::featureNode
     urn__nixconf__onto__feature__bitwarden("bitwarden"):::featureNode
     urn__nixconf__onto__feature__copyparty("copyparty"):::featureNode
@@ -222,6 +224,16 @@ flowchart LR
     urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_tiers
     urn__nixconf__ast__module__astrolabe_resources -.->|writes| urn__nixconf__ast__option__resources_volumes
     urn__nixconf__ast__module__astrolabe_services -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__caddy
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__cgroups
+    urn__nixconf__ast__module__attic -.->|flowsTo| urn__nixconf__ast__module__grafana
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__monitoring_dashboards
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__monitoring_logs
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__monitoring_probes
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__monitoring_rules
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__monitoring_services
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__monitoring_watchedUnits
+    urn__nixconf__ast__module__attic -.->|writes| urn__nixconf__ast__option__resources_units
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__caddy
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__cgroups
     urn__nixconf__ast__module__authelia -.->|flowsTo| urn__nixconf__ast__module__grafana
@@ -605,6 +617,7 @@ flowchart LR
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_resources
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_services
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__astrolabe_system
+    urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__attic
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__authelia
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__caddy
     urn__nixconf__eval__configuration__astrolabe -->|imports| urn__nixconf__ast__module__cgroups
@@ -716,6 +729,11 @@ flowchart LR
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__monitoring
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__feature__antigravity -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -->|outputs| urn__nixconf__ast__module__attic
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__monitoring
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__resources
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
+    urn__nixconf__onto__feature__attic -.->|consumes| urn__nixconf__onto__contract__secrets
     urn__nixconf__onto__feature__copyparty -->|outputs| urn__nixconf__ast__module__copyparty
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__backup
     urn__nixconf__onto__feature__copyparty -.->|consumes| urn__nixconf__onto__contract__monitoring
@@ -771,6 +789,7 @@ flowchart LR
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__resources
     urn__nixconf__onto__host__astrolabe -.->|consumes| urn__nixconf__onto__contract__reverse_proxy
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__antigravity
+    urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__attic
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__bitwarden
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__copyparty
     urn__nixconf__onto__host__astrolabe -->|imports| urn__nixconf__onto__feature__direnv
@@ -896,6 +915,7 @@ flowchart LR
     click urn__nixconf__ast__module__astrolabe_resources href "../modules/astrolabe-resources.md" "astrolabe-resources"
     click urn__nixconf__ast__module__astrolabe_services href "../modules/astrolabe-services.md" "astrolabe-services"
     click urn__nixconf__ast__module__astrolabe_system href "../modules/astrolabe-system.md" "astrolabe-system"
+    click urn__nixconf__ast__module__attic href "../modules/attic.md" "attic"
     click urn__nixconf__ast__module__authelia href "../modules/authelia.md" "authelia"
     click urn__nixconf__ast__module__caddy href "../modules/caddy.md" "caddy"
     click urn__nixconf__ast__module__cgroups href "../modules/cgroups.md" "cgroups"
@@ -1004,6 +1024,7 @@ flowchart LR
     click urn__nixconf__onto__contract__secrets href "../contracts/secrets.md" "secrets"
     click urn__nixconf__onto__contract__storage href "../contracts/storage.md" "storage"
     click urn__nixconf__onto__feature__antigravity href "../features/antigravity.md" "antigravity"
+    click urn__nixconf__onto__feature__attic href "../features/attic.md" "attic"
     click urn__nixconf__onto__feature__audio href "../features/audio.md" "audio"
     click urn__nixconf__onto__feature__bitwarden href "../features/bitwarden.md" "bitwarden"
     click urn__nixconf__onto__feature__copyparty href "../features/copyparty.md" "copyparty"
