@@ -234,7 +234,7 @@
           echo "==> [3/5] Logging into $endpoint and ensuring public cache '$cache' exists..."
           attic login "$cache" "$endpoint" "$token"
           attic cache create "$cache" --public 2>/dev/null || true
-          pub_key="$(attic cache info "$cache" | awk '/Public Key:/ { print $NF }' | tr -d '\r\n')"
+          pub_key="$(attic cache info "$cache" 2>&1 | sed -r 's/\x1B\[[0-9;]*[mK]//g' | awk '/Public Key:/ { print $NF }' | tr -d '\r\n')"
           if [[ -z "$pub_key" ]]; then
             echo "error: failed to read Attic cache public key." >&2
             exit 1
