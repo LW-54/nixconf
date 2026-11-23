@@ -40,6 +40,7 @@
 | `TEMPLATE` | [`experiments/TEMPLATE.md`](experiments/TEMPLATE.md) | template | `active` | meta | Standardized reproducible experiment & empirical benchmark report template. |
 | `EXP-0001` | [`experiments/EXP-0001-intent-sync-multi-provider-algebra.md`](experiments/EXP-0001-intent-sync-multi-provider-algebra.md) | experiment | `completed` | foundations | Validated ~120-LOC `lib.evalModules` Intent+Sync multi-provider core across VPS, test-mock, and WSL substrates in 175ms with zero recursion (`A-002` validated). |
 | `EXP-0002` | [`experiments/EXP-0002-comparative-paradigm-torture-test.md`](experiments/EXP-0002-comparative-paradigm-torture-test.md) | experiment | `completed` | foundations | Head-to-head torture test of Functors (P2), Stratified Intent+Sync (P3), and Rust Typed IR (P4) on feedback loops, type errors, port conflicts, and list-order bugs. |
+| `EXP-0003` | [`experiments/EXP-0003-rust-nix-seam-and-ux-comparison.md`](experiments/EXP-0003-rust-nix-seam-and-ux-comparison.md) | experiment | `completed` | foundations | Benchmarked M1–M4 Rust↔Nix authoring seams and verified commutative P5 handlers via pure zero-IFD `builtins.fromTOML` (264ms Nix eval, 4ms Rust validation vs 556ms recompile). |
 
 ## Deep Research Dossiers — Layer 3 (`research/`)
 
