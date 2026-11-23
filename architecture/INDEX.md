@@ -32,6 +32,7 @@
 | ID | Path | Type | Status | Domain | Summary |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `TEMPLATE` | [`adrs/TEMPLATE.md`](adrs/TEMPLATE.md) | template | `active` | meta | Standardized immutable MADR decision record template. |
+| `ADR-0001` | [`adrs/ADR-0001-effect-handler-composability.md`](adrs/ADR-0001-effect-handler-composability.md) | adr | `accepted` | foundations | Ratifies Pillar 1: implementation-agnostic Effect–Handler Composability (open multi-instance handlers, $O(N+M)$ mediation, strict stratification, commutative composition). |
 
 ## Experiments & Benchmarks (`experiments/`)
 
@@ -51,6 +52,7 @@
 | `RES-0002` | [`research/RES-0002-nixos-composition-initial-notes.md`](research/RES-0002-nixos-composition-initial-notes.md) | research | `active` | foundations | Non-binding initial survey notes on NixOS Dendritic & `flake-parts` patterns (one point in the RFD-0001 manifold). |
 | `RES-0003` | [`research/RES-0003-core-primitives-and-composition-manifold.md`](research/RES-0003-core-primitives-and-composition-manifold.md) | research | `active` | foundations | Expansive Phase 2 survey: Nickel/CUE/Nix/Rust seam, Tvix/Snix/Harmonia, `clan-core` tradeoffs, `nix-wrapper-modules`, `flake-parts` partitions, `blueprint`, `npins`, `.tack`. |
 | `RES-0004` | [`research/RES-0004-paradigms-theory-and-nix-semantics.md`](research/RES-0004-paradigms-theory-and-nix-semantics.md) | research | `active` | foundations | Theoretical analysis of 5 foundational paradigms (Mixin Lattice, ML Functors, Concepts+Sync, Algebraic Effects, Typed Compiler IR), Dolstra `evalModules` fixed-point limits, and Divnix/Paisano/Haumea lessons. |
+| `RES-0005` | [`research/RES-0005-fundamental-system-decompositions.md`](research/RES-0005-fundamental-system-decompositions.md) | research | `active` | foundations | Grounds remaining foundational axes in Saltzer & Kaashoek, Burgess Promise Theory, and Lampson Access Matrix; compares three candidate Coordinate Systems (A, B, C). |
 
 ## Session Lineage — Layer 4 (`journal/`)
 

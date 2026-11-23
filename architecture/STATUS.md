@@ -39,10 +39,10 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 ## Active & Open Items
 
-- **Open Decisions (`RFD-0001` progressive steps — currently on Step 1A/1B)**:
-  - **Step 1A–1B (Active)**: Comparing concrete Rust↔Nix authoring seams (**M1** Pure Nix P5, **M2** Thin Shared `fleet.toml` for S0 Topology + Nix P5 for S1–S3, **M3** Wide Shared TOML for S0+S1, **M4** Compiled Rust IR) with live `EXP-0003` benchmarks and draft real-world UX walkthroughs.
-  - **Step 1C (Queued)**: Standalone Portability & User Layer (`nix run` unification with OS layers).
-  - **Step 1D (Queued)**: Packaging, Entrypoint & Input Pinning (`flake.nix` vs `flake-parts` partitions vs `npins` vs `.tack`).
+- **Ratified Decisions**:
+  - **`ADR-0001` (`accepted`)**: Pillar 1 — Effect–Handler Composability (strictly implementation-agnostic; syntax/language/serialization like M1 vs M2 explicitly deferred).
+- **Current Decision Step (Meta-Primitives — Coordinate System)**:
+  - Choosing the cleanest, literature-grounded coordinate system for the remaining abstract foundational pillars before exploring Pillar 2 (`RES-0005` compares **A: Saltzer & Kaashoek**, **B: Promise Theory + Cybernetics**, **C: Space × Time × Authority × Truth**).
 - **Next After `RFD-0001` Ratification**: Crystallize `ADR-0001` (+ `ADR-0002` for pinning/standalone if split), then launch `RFD-0002` (Structural Invariants & Verification) and `RFD-0003` (Auxiliary Tooling & Pure Rust Integration).
 
 ---
