@@ -26,8 +26,8 @@
     unregisteredActiveSlices =
       builtins.filter (s: !(builtins.elem s (config.storage.activeSlices or []))) jobs.activeSlices;
 
-    emptyPruneJobs = builtins.attrNames (
-      lib.filterAttrs (_: j: (j.pruneOpts or []) == []) jobs.jobs
+    emptyPruneJobs = map (j: j.jobName) (
+      builtins.filter (j: (j.pruneOpts or []) == []) jobs.allJobsList
     );
   in {
     description = "Multi-provider restic backup job, storage slice integration, retention policy, and boot-time restore checks";

@@ -1039,7 +1039,7 @@ config = {
   monitoring.exporters = { blackbox = { enable = false; }; cadvisor = { dockerOnly = false; enable = true; }; extraBlocks = {}; process = { enable = true; }; unix = { collectors = [ /* 19 items */ ]; enable = true; setCollectors = []; textfileDirectory = "/var/lib/alloy/textfile"; }; };
   monitoring.extraGrafanaSettings = { users = { home_page = "/d/nixconf-fleet-overview"; }; };
   monitoring.logs = { files = {}; journal = { enable = true; labels = {}; maxAge = "12h"; stages = []; units = [ /* 50 items */ ]; }; };
-  monitoring.rules = { authelia = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; authelia-logs = { backend = "logs"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; caddy = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; disk = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; host = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 3 items */ ]; }; nixconf-perf = { backend = "metrics"; enable = true; interval = "5m"; rules = [ /* 5 items */ ]; }; operations-recording = { backend = "logs"; enable = true; interval = "5m"; rules = [ /* 6 items */ ]; }; persistence = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; /* ... +6 more */ };
+  monitoring.rules = { authelia = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; authelia-logs = { backend = "logs"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; caddy = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; disk = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 2 items */ ]; }; host = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 3 items */ ]; }; nixconf-perf = { backend = "metrics"; enable = true; interval = "5m"; rules = [ /* 7 items */ ]; }; operations-recording = { backend = "logs"; enable = true; interval = "5m"; rules = [ /* 6 items */ ]; }; persistence = { backend = "metrics"; enable = true; interval = "1m"; rules = [ /* 1 items */ ]; }; /* ... +6 more */ };
 };
 ```
 
@@ -1370,12 +1370,12 @@ config = {
 ...
 14: textfileDir = config.monitoring.exporters.unix.textfileDirectory or "/var/lib/alloy/textfile";
 ...
-298: monitoring = lib.mkIf (config.monitoring.enable or false) {
-299: exporters.unix.textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
-300: watchedUnits = ["nixconf-ci-metrics.service" "nixconf-eval-metrics.service"];
-301: rules.nixconf-perf = {
+375: monitoring = lib.mkIf (config.monitoring.enable or false) {
+376: exporters.unix.textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
+377: watchedUnits = ["nixconf-ci-metrics.service" "nixconf-eval-metrics.service"];
+378: rules.nixconf-perf = {
 ...
-359: json = mkDashboard self.lib.monitoring.dashboard;
+456: json = mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 

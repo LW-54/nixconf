@@ -141,6 +141,81 @@
                 ];
               })
               (d.mkSection {
+                title = "Pre-Commit & Local Check Workflows";
+                rows = [
+                  [
+                    (d.mkStat {
+                      title = "Pre-Commit (5-Target Cold)";
+                      w = 6;
+                      unit = "s";
+                      decimals = 1;
+                      colorMode = "background";
+                      thresholds = [
+                        {
+                          color = "green";
+                          value = null;
+                        }
+                        {
+                          color = "yellow";
+                          value = 18;
+                        }
+                        {
+                          color = "red";
+                          value = 25;
+                        }
+                      ];
+                      expr = ''nixconf_check_wall_seconds{check="pre-commit-5targets"}'';
+                      legend = "Cold";
+                    })
+                    (d.mkStat {
+                      title = "Last Real Pre-Commit";
+                      w = 6;
+                      unit = "s";
+                      decimals = 2;
+                      graphMode = "area";
+                      expr = ''max(nixconf_precommit_last_duration_seconds)'';
+                      legend = "Real Hook";
+                    })
+                    (d.mkStat {
+                      title = "just check-fast";
+                      w = 6;
+                      unit = "s";
+                      decimals = 1;
+                      graphMode = "area";
+                      expr = ''nixconf_check_wall_seconds{check="check-fast"}'';
+                      legend = "check-fast";
+                    })
+                    (d.mkStat {
+                      title = "nix flake check (--no-build)";
+                      w = 6;
+                      unit = "s";
+                      decimals = 1;
+                      graphMode = "area";
+                      expr = ''nixconf_check_wall_seconds{check="flake-check-nobuild"}'';
+                      legend = "flake check";
+                    })
+                  ]
+                  [
+                    (d.mkTimeseries {
+                      title = "Local Check Workflow Wall Time";
+                      w = 12;
+                      h = 8;
+                      unit = "s";
+                      expr = ''nixconf_check_wall_seconds'';
+                      legend = "{{check}}";
+                    })
+                    (d.mkTimeseries {
+                      title = "Live Pre-Commit Hook Duration (Real Commits)";
+                      w = 12;
+                      h = 8;
+                      unit = "s";
+                      expr = ''nixconf_precommit_last_duration_seconds'';
+                      legend = "{{mode}}";
+                    })
+                  ]
+                ];
+              })
+              (d.mkSection {
                 title = "Local Nix Evaluation & Binary Cache Health";
                 rows = [
                   [
@@ -242,6 +317,8 @@
                   (lib.escapeShellArg atticCacheUrl)
                   "--attic-dir"
                   (lib.escapeShellArg cfg.atticDir)
+                  "--precommit-state"
+                  (lib.escapeShellArg "/home/${cfg.evalUser}/.local/state/nixconf/precommit-metrics.json")
                   "--out"
                   (lib.escapeShellArg "${textfileDir}/nixconf_ci.prom")
                 ];
@@ -349,6 +426,26 @@
                     annotations = {
                       summary = "Nixconf docs evaluation regressed to {{ $value | humanizeDuration }}";
                       description = "Uncached packages.docs evaluation exceeded 20s (baseline target: ~10s). Profile with `just prof nix build --no-link .#docs`.";
+                    };
+                  }
+                  {
+                    alert = "NixconfPreCommitSlow";
+                    expr = ''nixconf_check_wall_seconds{check="pre-commit-5targets"} > 25'';
+                    "for" = "24h";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "Uncached pre-commit check regressed to {{ $value | humanizeDuration }}";
+                      description = "Combined 5-target pre-commit evaluation exceeded 25s. Profile with `just prof ./.githooks/pre-commit`.";
+                    };
+                  }
+                  {
+                    alert = "NixconfFlakeCheckSlow";
+                    expr = ''nixconf_check_wall_seconds{check="flake-check-nobuild"} > 45'';
+                    "for" = "24h";
+                    labels.severity = "warning";
+                    annotations = {
+                      summary = "nix flake check --no-build regressed to {{ $value | humanizeDuration }}";
+                      description = "Uncached nix flake check --no-build exceeded 45s (baseline target: ~22s). Profile with `just prof nix flake check --no-build`.";
                     };
                   }
                 ];

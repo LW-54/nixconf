@@ -194,6 +194,10 @@ enum Commands {
         #[arg(long)]
         attic_dir: Option<PathBuf>,
 
+        /// Path to local .githooks/pre-commit JSON telemetry file to export
+        #[arg(long)]
+        precommit_state: Option<PathBuf>,
+
         /// Local git repository checkout for --eval benchmarks
         #[arg(long, default_value = ".")]
         repo_dir: PathBuf,
@@ -298,6 +302,7 @@ fn main() -> ExitCode {
             attic_url,
             cachix_url,
             attic_dir,
+            precommit_state,
             repo_dir,
             system,
             out,
@@ -309,6 +314,7 @@ fn main() -> ExitCode {
             attic_url,
             cachix_url,
             attic_dir,
+            precommit_state,
             repo_dir,
             system,
             out,

@@ -1,6 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+PRECOMMIT_T0_MS="$(date +%s%3N 2>/dev/null || echo 0)"
+PRECOMMIT_MODE="noop"
+
+record_precommit_metrics() {
+  local rc=$?
+  if [ "$PRECOMMIT_T0_MS" = "0" ]; then
+    return "$rc"
+  fi
+  local t1_ms elapsed_ms dur_s state_dir state_file prev_runs runs ts tmp_file
+  t1_ms="$(date +%s%3N 2>/dev/null || echo "$PRECOMMIT_T0_MS")"
+  elapsed_ms=$((t1_ms - PRECOMMIT_T0_MS))
+  if [ "$elapsed_ms" -lt 0 ]; then elapsed_ms=0; fi
+  dur_s="$(printf '%d.%03d' $((elapsed_ms / 1000)) $((elapsed_ms % 1000)))"
+  ts="$(date +%s)"
+  state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/nixconf"
+  state_file="$state_dir/precommit-metrics.json"
+  mkdir -p "$state_dir" 2>/dev/null || return "$rc"
+  prev_runs=0
+  if [ -f "$state_file" ]; then
+    prev_runs="$(grep -oE '"runs_total":[[:space:]]*[0-9]+' "$state_file" 2>/dev/null | grep -oE '[0-9]+' || echo 0)"
+  fi
+  runs=$((prev_runs + 1))
+  tmp_file="$state_file.tmp.$$"
+  printf '{"runs_total":%d,"last_duration_s":%s,"last_mode":"%s","last_exit":%d,"last_timestamp":%d}\n' \
+    "$runs" "$dur_s" "$PRECOMMIT_MODE" "$rc" "$ts" > "$tmp_file" 2>/dev/null && mv -f "$tmp_file" "$state_file" 2>/dev/null || rm -f "$tmp_file" 2>/dev/null || true
+  return "$rc"
+}
+trap record_precommit_metrics EXIT
+
 if ! command -v nix >/dev/null 2>&1; then
   exit 0
 fi
@@ -73,6 +102,7 @@ esac
 # 2. Single shared Nix evaluation for docs + CI sync + fast static checks (schemas + host evals)
 #    All targets share one Nix evaluator process, one memoized nixpkgs, and one host eval.
 if [ "$NEEDS_NIX_SYNC" -eq 1 ]; then
+  PRECOMMIT_MODE="full"
   echo "==> [pre-commit] Evaluating docs, CI workflows, schemas, and host eval checks in one pass..."
   TARGETS=(
     ".#packages.${SYS}.docs"
@@ -82,6 +112,7 @@ if [ "$NEEDS_NIX_SYNC" -eq 1 ]; then
     ".#checks.${SYS}.eval-x240"
   )
 else
+  PRECOMMIT_MODE="docs-only"
   echo "==> [pre-commit] Synchronizing docs and CI workflows in one pass..."
   TARGETS=(
     ".#packages.${SYS}.docs"

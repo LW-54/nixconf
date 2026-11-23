@@ -15,6 +15,7 @@ pub struct MetricsOpts {
     pub attic_url: String,
     pub cachix_url: String,
     pub attic_dir: Option<PathBuf>,
+    pub precommit_state: Option<PathBuf>,
     pub repo_dir: PathBuf,
     pub system: String,
     pub out: Option<PathBuf>,
@@ -158,19 +159,44 @@ fn collect_ci_metrics(opts: &MetricsOpts, buf: &mut String) {
             let _ = writeln!(buf, "nixconf_attic_storage_files {files}");
         }
     }
+
+    if let Some(pc_path) = &opts.precommit_state {
+        if let Ok(raw) = fs::read_to_string(pc_path) {
+            if let Ok(v) = serde_json::from_str::<Value>(&raw) {
+                let runs = v.get("runs_total").and_then(Value::as_u64).unwrap_or(0);
+                let dur = v.get("last_duration_s").and_then(Value::as_f64).unwrap_or(0.0);
+                let mode = v.get("last_mode").and_then(Value::as_str).unwrap_or("unknown");
+                let exit_code = v.get("last_exit").and_then(Value::as_i64).unwrap_or(0);
+                let ts = v.get("last_timestamp").and_then(Value::as_u64).unwrap_or(0);
+                let mode_esc = prom_escape(mode);
+
+                let _ = writeln!(buf, "# HELP nixconf_precommit_runs_total Cumulative count of local .githooks/pre-commit executions.");
+                let _ = writeln!(buf, "# TYPE nixconf_precommit_runs_total counter");
+                let _ = writeln!(buf, "nixconf_precommit_runs_total {runs}");
+                let _ = writeln!(buf, "# HELP nixconf_precommit_last_duration_seconds Wall-clock duration of the most recent local pre-commit hook execution.");
+                let _ = writeln!(buf, "# TYPE nixconf_precommit_last_duration_seconds gauge");
+                let _ = writeln!(buf, "nixconf_precommit_last_duration_seconds{{mode=\"{mode_esc}\"}} {dur:.3}");
+                let _ = writeln!(buf, "# HELP nixconf_precommit_last_exit_code Exit status of the most recent local pre-commit hook execution.");
+                let _ = writeln!(buf, "# TYPE nixconf_precommit_last_exit_code gauge");
+                let _ = writeln!(buf, "nixconf_precommit_last_exit_code {exit_code}");
+                let _ = writeln!(buf, "# HELP nixconf_precommit_last_timestamp_seconds Unix timestamp of the most recent local pre-commit hook execution.");
+                let _ = writeln!(buf, "# TYPE nixconf_precommit_last_timestamp_seconds gauge");
+                let _ = writeln!(buf, "nixconf_precommit_last_timestamp_seconds {ts}");
+            }
+        }
+    }
 }
 
-fn measure_nix_eval(repo_dir: &Path, attr: &str) -> Option<(f64, f64, u64)> {
+fn measure_nix_cmd(args: &[String]) -> Option<(f64, f64, u64)> {
     let ts = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
         .as_nanos();
     let stats_path = std::env::temp_dir().join(format!("nixprof-stats-{ts}.json"));
-    let target = format!("git+file://{}#{attr}", repo_dir.display());
 
     let t0 = Instant::now();
     let status = Command::new("nix")
-        .args(["eval", "--raw", "--no-eval-cache", &target])
+        .args(args)
         .env("NIX_SHOW_STATS", "1")
         .env("NIX_SHOW_STATS_PATH", &stats_path)
         .stdout(std::process::Stdio::null())
@@ -197,6 +223,16 @@ fn measure_nix_eval(repo_dir: &Path, attr: &str) -> Option<(f64, f64, u64)> {
     } else {
         None
     }
+}
+
+fn measure_nix_eval(repo_dir: &Path, attr: &str) -> Option<(f64, f64, u64)> {
+    let target = format!("git+file://{}#{attr}", repo_dir.display());
+    measure_nix_cmd(&[
+        "eval".into(),
+        "--raw".into(),
+        "--no-eval-cache".into(),
+        target,
+    ])
 }
 
 fn eval_out_paths(flake_uri: &str, system: &str) -> Option<Vec<(String, String)>> {
@@ -280,10 +316,13 @@ fn collect_eval_metrics(opts: &MetricsOpts, buf: &mut String) {
     }
 
     let sys = &opts.system;
+    let uri = format!("git+file://{}", repo_dir.display());
     let targets = [
         ("checks.schemas", format!("checks.{sys}.schemas.outPath")),
         ("checks.eval-astrolabe", format!("checks.{sys}.eval-astrolabe.outPath")),
         ("checks.eval-x240", format!("checks.{sys}.eval-x240.outPath")),
+        ("checks.inspect-astrolabe", format!("checks.{sys}.inspect-astrolabe.outPath")),
+        ("checks.inspect-x240", format!("checks.{sys}.inspect-x240.outPath")),
         ("packages.ci", format!("packages.{sys}.ci.outPath")),
         ("packages.docs", format!("packages.{sys}.docs.outPath")),
     ];
@@ -300,6 +339,58 @@ fn collect_eval_metrics(opts: &MetricsOpts, buf: &mut String) {
             let _ = writeln!(buf, "nixconf_eval_wall_seconds{{target=\"{label}\"}} {wall:.3}");
             let _ = writeln!(buf, "nixconf_eval_cpu_seconds{{target=\"{label}\"}} {cpu:.3}");
             let _ = writeln!(buf, "nixconf_eval_alloc_bytes{{target=\"{label}\"}} {bytes}");
+        }
+    }
+
+    let check_workflows: [(&str, Vec<String>); 3] = [
+        (
+            "check-fast",
+            vec![
+                "build".into(),
+                "--no-link".into(),
+                "--no-eval-cache".into(),
+                format!("{uri}#checks.{sys}.schemas"),
+                format!("{uri}#checks.{sys}.eval-astrolabe"),
+                format!("{uri}#checks.{sys}.eval-x240"),
+            ],
+        ),
+        (
+            "pre-commit-5targets",
+            vec![
+                "build".into(),
+                "--no-link".into(),
+                "--no-eval-cache".into(),
+                format!("{uri}#packages.{sys}.docs"),
+                format!("{uri}#packages.{sys}.ci"),
+                format!("{uri}#checks.{sys}.schemas"),
+                format!("{uri}#checks.{sys}.eval-astrolabe"),
+                format!("{uri}#checks.{sys}.eval-x240"),
+            ],
+        ),
+        (
+            "flake-check-nobuild",
+            vec![
+                "flake".into(),
+                "check".into(),
+                "--no-build".into(),
+                "--no-eval-cache".into(),
+                uri.clone(),
+            ],
+        ),
+    ];
+
+    let _ = writeln!(buf, "# HELP nixconf_check_wall_seconds Uncached wall-clock time of combined local check workflows (pre-commit, check-fast, flake-check).");
+    let _ = writeln!(buf, "# TYPE nixconf_check_wall_seconds gauge");
+    let _ = writeln!(buf, "# HELP nixconf_check_cpu_seconds Uncached CPU time of combined local check workflows.");
+    let _ = writeln!(buf, "# TYPE nixconf_check_cpu_seconds gauge");
+    let _ = writeln!(buf, "# HELP nixconf_check_alloc_bytes Total bytes allocated during combined local check workflows.");
+    let _ = writeln!(buf, "# TYPE nixconf_check_alloc_bytes gauge");
+
+    for (label, args) in &check_workflows {
+        if let Some((wall, cpu, bytes)) = measure_nix_cmd(args) {
+            let _ = writeln!(buf, "nixconf_check_wall_seconds{{check=\"{label}\"}} {wall:.3}");
+            let _ = writeln!(buf, "nixconf_check_cpu_seconds{{check=\"{label}\"}} {cpu:.3}");
+            let _ = writeln!(buf, "nixconf_check_alloc_bytes{{check=\"{label}\"}} {bytes}");
         }
     }
 

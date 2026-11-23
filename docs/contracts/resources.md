@@ -1060,10 +1060,10 @@ config = {
 ```nix
 # modules/features/perf-monitor.nix
 ...
-363: resources.units = lib.mkIf (config.resources.enable or false) {
-364: "nixconf-ci-metrics.service".tier = lib.mkDefault "background";
-365: "nixconf-eval-metrics.service".tier = lib.mkDefault "background";
-366: };
+460: resources.units = lib.mkIf (config.resources.enable or false) {
+461: "nixconf-ci-metrics.service".tier = lib.mkDefault "background";
+462: "nixconf-eval-metrics.service".tier = lib.mkDefault "background";
+463: };
 ...
 ```
 

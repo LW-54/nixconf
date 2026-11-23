@@ -623,12 +623,12 @@ Capability contracts configured by this feature:
 ...
 14: textfileDir = config.monitoring.exporters.unix.textfileDirectory or "/var/lib/alloy/textfile";
 ...
-298: monitoring = lib.mkIf (config.monitoring.enable or false) {
-299: exporters.unix.textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
-300: watchedUnits = ["nixconf-ci-metrics.service" "nixconf-eval-metrics.service"];
-301: rules.nixconf-perf = {
+375: monitoring = lib.mkIf (config.monitoring.enable or false) {
+376: exporters.unix.textfileDirectory = lib.mkDefault "/var/lib/alloy/textfile";
+377: watchedUnits = ["nixconf-ci-metrics.service" "nixconf-eval-metrics.service"];
+378: rules.nixconf-perf = {
 ...
-359: json = mkDashboard self.lib.monitoring.dashboard;
+456: json = mkDashboard self.lib.monitoring.dashboard;
 ...
 ```
 
@@ -643,10 +643,10 @@ Capability contracts configured by this feature:
 ```nix
 # modules/features/perf-monitor.nix
 ...
-363: resources.units = lib.mkIf (config.resources.enable or false) {
-364: "nixconf-ci-metrics.service".tier = lib.mkDefault "background";
-365: "nixconf-eval-metrics.service".tier = lib.mkDefault "background";
-366: };
+460: resources.units = lib.mkIf (config.resources.enable or false) {
+461: "nixconf-ci-metrics.service".tier = lib.mkDefault "background";
+462: "nixconf-eval-metrics.service".tier = lib.mkDefault "background";
+463: };
 ...
 ```
 
