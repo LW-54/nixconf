@@ -20,7 +20,7 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
 - **Project Identity**: **Antikythera (`aky`)** *(ratified in `ADR-0008`)*
-- **Current Phase**: **Phase 3 — `W1` Walking Skeleton Gate PASSED (`v2/`, `EXP-0009`) → Ready for Stage `3B` (Trust, Mesh & Convergence Plane)!**
+- **Current Phase**: **Phase 3 — Stage `3B.1` Trust Plane RATIFIED (`ADR-0011`) → Entering Stage `3B.2` (Mesh Network Fabric, `A-006`)!**
 - **Last Updated**: 2026-11-24
 
 ---
@@ -33,7 +33,7 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 | **1** | Empirical Current-State Audit & Boundary-Constraint Harvest | **Complete** | `AUD-0001`..`AUD-0004` (50k LOC census, live `astrolabe` baseline, fleet boundary matrix) |
 | **2A** | Foundational Decisions & Red-Team Synthesis | **Complete** | `RES-0003`..`RES-0011`, `EXP-0001`..`EXP-0004`, `ADR-0002`..`ADR-0006` (`ADR-0001` superseded), `spec/FOUNDATION.md` |
 | **2B** | Formal Mathematical Specification, Rival-Theory Audit & Production Verification | **Complete** | `RES-0012`..`RES-0013`, `EXP-0005` (v0.2), `ADR-0007`, **`PAPER-FOUNDATION` v2.0**, `architecture/formal/` (**35 Lean 4 theorems**, **11 TLC invariants + 8 tests**, **2,005-fleet 1:1 modular Rust↔Lean4 DRT**) |
-| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3B.1`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B** Trust/Mesh/Convergence (NEXT) → **3C** Pluggable Capabilities → **3D** CCA & `M1-Sunset` Cutover Plan |
+| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3B.2`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B.1** Trust Plane ✅ (`ADR-0011`) → **3B.2** Mesh Fabric (NEXT) → **3B.3** TUF Pull/GitOps → **3C** Pluggable Capabilities → **3D** CCA & `M1-Sunset` Cutover Plan |
 | **4** | Full v2 Implementation & `M1-Sunset` Cutover (`x240` → `astrolabe`) | Queued | Production build on top of Walking Skeleton + zero-carry-forward live cutover & legacy deletion |
 
 ---
@@ -55,8 +55,9 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
   - Live runnable **100% usage-agnostic, zero-sugar** Antikythera core (`4` flake inputs, 0 `home-manager`, **0 domain strings** in `Aky/Spec/*` and `aky-core/src/*`), **41 machine-checked Lean 4 theorems (0 `sorryAx`)** over recursive `Agent` trees (`checkAgentTree_substitution_invariant`), declarative `AttrExpr` `PromiseInvariant`s (CALM as pure data), mandatory `Broadcast`/`Partitioned` binding, and NixOS `{ config, ... }:` backdoor blocking (`assertNonPiercingNixos`).
   - `7/7` hermetic checks passing (0 warnings), **`2,003/2,003` recursive-tree Rust↔Lean DRT (0 divergences)**, bit-for-bit `S1` Rust==Nix equivalence, byte-for-byte identical `astrolabe` & `live-iso` `.drv` hashes, and `2.39 ms` zero-Nix `aky check`.
   - **Ergonomics Policy Locked**: Build initial production implementation on raw primitives first; defer syntactic sugar & factorization helpers to a dedicated post-architecture Ergonomics phase once Stages `3B`–`3D` provide global vision.
-- **Next Step — Stage `3B` (One-Way Door Cluster B: Trust, Mesh & Convergence Plane)**:
-  - Begin **Stage `3B.1` — Cryptographic Root Identity, Secrets, Attenuated Capabilities & Zero-Trust Genesis/Break-Glass (`L3+` + `C1`)** (designed cohesively with `3B.2` Mesh Fabric and `3B.3` Triadic TUF Pull/GitOps/Mirror!).
+- **Next Step — Stage `3B.2` (Mesh Network Fabric, `A-006`)**:
+  - **Ratified `ADR-0011` (`accepted`) — Stage `3B.1` (`S-Sops` + `C-Pragmatic`)**: Sealed `sops-nix` (1 file per secret boundary, parameterized `config:sops-key-path`, native templates/`restartUnits`) + outer `aky secrets {sync, gen, audit}` Cedar compiler/generators, multi-recipient human root (Vaultwarden daily + offline break-glass `age` & emergency SSH keys), LUKS2+TPM2-PIN+Lanzaboote on roaming laptops, `systemd LoadCredential=`, OIDC/CLI-scoped external tokens, and `biscuit-auth` for `aky`-owned capabilities.
+  - Begin **Stage `3B.2` — Mesh Network Fabric (`A-006`)**: wide-spectrum 2025–2026 research across Tailscale, Headscale, NetBird, Nebula, ZeroTier, raw WireGuard, and Innernet/Yggdrasil across impermanent VPS, roaming laptops, WSL, `aarch64` RPi, and Live-ISO.
 
 ---
 
