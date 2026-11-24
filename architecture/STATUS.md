@@ -13,7 +13,7 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 (2A + 2B) FORMALLY VERIFIED & COMPLETE!** Backed by `ADR-0002`..`ADR-0007`, `SPEC-FOUNDATION`, **`PAPER-FOUNDATION`**, **22 zero-`sorryAx` Lean 4.35.0 theorems (`3.34 s` cold)**, **8 exhaustively TLC-checked Quint 0.33.1 invariants (`62,732` + `50` distinct states in `< 5 s`)**, and **AWS Cedar VGD Rust↔Lean4 DRT (`2,004 / 2,004` fleets, `0` divergences; Rust `6.27 ms` / `319.8k fleets/s`)**. Ready for **Phase 3 — Concrete Realization & Engineering RFDs (`R1`–`R7`)**!
+Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 (2A + 2B v2.0) PRODUCTION-ARCHITECTED & FORMALLY VERIFIED!** Backed by `ADR-0002`..`ADR-0007`, `SPEC-FOUNDATION`, **`PAPER-FOUNDATION` v2.0**, **4-layer `cedar-lean` Lean 4.35.0 suite (35 zero-`sorryAx` theorems, `7.27 s` cold)**, **3 modular Informal Systems Quint 0.33.1 / TLC specs (`1,878,049` + `54` + `77` transitions, 11 invariants + 8 `quint test` runs)**, and **1:1 modular Rust↔Lean4 DRT (`2,005 / 2,005` fleets, `0` divergences; Rust `12.74 ms` / `157.3k fleets/s`)** closing all 6 modeling gaps! Ready for **Phase 3 (`R1`–`R7`)**!
 <!-- abstract:end -->
 
 # Redesign Program Status

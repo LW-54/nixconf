@@ -97,7 +97,7 @@ The ratified, implementation-agnostic **Theoretical Constitution** of `nixconf` 
 
 ## 5. Machine-Checked Verification Pillar (`ADR-0007` — AWS Cedar VGD `F3-b`)
 
-- **Unbounded Algebraic Proofs**: [`architecture/formal/lean/`](../formal/lean/) (`lean4 4.35.0`, zero Mathlib) — **22 theorems** verified cold in `3.34 s` with zero `sorryAx` (`AxiomAudit.lean`).
-- **Exhaustive Distributed Model Checking**: [`architecture/formal/quint/`](../formal/quint/) (`quint 0.33.1` + TLC) — **8 safety invariants** exhaustively verified across `165,376` (`triadic_pull_c3`) + `241` (`genesis_and_degradation`) transitions in `< 5 s`.
-- **Production Engine Equivalence**: [`architecture/formal/drt/main.rs`](../formal/drt/main.rs) — idiomatic Rust production verifier (`319k fleets/s`) continuously locked to the proved Lean 4 oracle via Differential Randomized Testing (`2,004 / 2,004` fleets, `0` divergences).
-- **Complete Mathematical Treatise**: [`PAPER-FOUNDATION`](../paper/FOUNDATION-PAPER.md).
+- **4-Layer Lean 4 Architecture (`Data` → `Spec` → `Thm` → `Oracle`)**: [`architecture/formal/lean/Nixconf/`](../formal/lean/Nixconf/) (`lean4 4.35.0`, zero Mathlib, modeled on `cedar-policy/cedar-spec`) — **35 theorems** verified cold in `7.27 s` with zero `sorryAx` (`Nixconf/Audit.lean`), unifying Authorization, Partitioned Routing, and Open State Traits onto one shared `Data/AttrExpr` Boolean Lattice.
+- **Modular Exhaustive Distributed Model Checking**: [`architecture/formal/quint/`](../formal/quint/) (`quint 0.33.1` + TLC, single-record Informal Systems style) — **11 safety invariants + 8 `quint test` runs** exhaustively verified across `1,878,049` (`triadic_pull`) + `54` (`lifecycle_recovery`) + `77` (`conditional_degradation`) transitions with `0` remaining.
+- **Modular Production Engine Equivalence**: [`architecture/formal/drt/`](../formal/drt/) (`engine/*` mirroring `Nixconf/Spec/` 1:1) — Rust production verifier (`157k fleets/s`) continuously locked to the proved Lean 4 oracle via Differential Randomized Testing (`2,005 / 2,005` fleets, `0` divergences).
+- **Architecture & Complete Mathematical Treatise**: [`formal/README.md`](../formal/README.md) + [`PAPER-FOUNDATION`](../paper/FOUNDATION-PAPER.md).

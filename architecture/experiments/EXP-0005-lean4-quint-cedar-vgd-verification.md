@@ -61,3 +61,20 @@ Empirically benchmarks and verifies the **F3-b (AWS Cedar Verification-Guided De
 1. **Why F3-b (AWS Cedar VGD) Beats F3-a Empirically**: Rust evaluates **~173× faster** (`6.27 ms` vs. `1,085 ms` for 2,004 fleets) and has rich CLI/TOML/TUI/SSH/async libraries — while Lean 4 compiles our pure 22-theorem kernel in **3.34 s cold** and runs 2,004 differential oracle tests in **1.08 s**! Combining both gives sub-millisecond production speed with machine-checked mathematical truth.
 2. **ABI Pinning Lesson**: Linking native Lean 4 executables requires matching the exact `stdenv.cc` (GCC 16) that built `lean4` in `nixpkgs` — trivial inside a pure Nix derivation (`pkgs.lean4` + `pkgs.stdenv`), avoiding ad-hoc PATH mismatches.
 3. **Symmetry Reduction for Exhaustive TLC**: 3 symmetric independent hosts explode combinatorially ($44.5\text{M}+$ distinct states), while symmetry-reducing to 2 representative heterogeneous hosts (`astrolabe`, `rpi`) exhaustively proves 100% of every protocol interleaving in `3.17 s` — fast enough to run right inside CI!
+
+---
+
+## 5. v0.2 Production Refactor & 6-Gap Closure Benchmark (2026-11-24)
+
+Following a rigorous code-architecture review modeled directly on **`cedar-policy/cedar-spec`** (`Data/` → `Spec/` → `Thm/` → `Oracle/`) and **Informal Systems modular Quint** (single-record state + `quint test`), we closed all 6 modeling simplifications from v0.1 (`P-Explicit` interior conformance, `AttrExpr` partitioned routing + critical-tier priority + multi-stratum termination, open `AttrExpr` state traits replacing the closed 7-Boolean struct, combined delegator+delegatee `forbid` delegation, full 4×4 Burgess & Couch weak-transitivity algebra, and Quint mid-switch power crash + human switch lock + Zero-Infra Break-Glass disaster recovery):
+
+| v0.2 Artifact / Suite | Verification Scope | Wall Time | Result |
+| :--- | :--- | ---: | :--- |
+| **`lake build Nixconf`** *(clean cold, 4-layer)* | 15 modules (`Data`/`Spec`/`Thm`/`Oracle`), **35 unbounded theorems** | **`7.27 s`** | **PASS** (0 warnings, 0 `sorry`; proof-only edits skip `Spec`/`Oracle` in ~2s!) |
+| **`Nixconf/Audit.lean` (`#print axioms`)** | All **35 theorems** mechanically audited | `< 1.0 s` | **PASS** (only `[propext, Quot.sound, Classical.choice]`, **0 `sorryAx`**) |
+| **`quint test` (all 3 modular specs)** | **8 deterministic trace runs** (upgrade, rollback, mid-switch crash, genesis crash, stolen rotation, break-glass, TUF unplug, WAN heal) | **`2.91 s`** total | **8/8 PASS** |
+| **`quint verify --backend=tlc` (`lifecycle_recovery`)** | **100% exhaustive** (54 states, 21 distinct, depth 9) | **`1.24 s`** | **PASS** (0 left on queue) |
+| **`quint verify --backend=tlc` (`conditional_degradation`)** | **100% exhaustive** (77 states, 18 distinct, depth 5) | **`1.26 s`** | **PASS** (0 left on queue) |
+| **`quint verify --backend=tlc` (`triadic_pull`)** | **100% exhaustive** (1,878,049 states, 572,644 distinct, depth 18 — incl. mid-switch crash + human override lock!) | **`11.10 s`** | **PASS** (0 left on queue) |
+| **Modular Rust Engine (`drt/engine/*`, 2,005 fleets)** | 5 concrete gap scenarios + 2,000 fuzzed fleets (incl. `conforms`, `stratumValid`, `determiningPolicies`, `delegatedResults`!) | **`12.74 ms`** | **`157,338 fleets/s`** (~6.4 µs/fleet) |
+| **4-Layer Lean 4 Native Oracle (2,005 fleets)** | Exact same 2,005 NDJSON vectors | **`1,708.80 ms`** | **`1,173 fleets/s`**; **0 divergences vs. Rust!** |

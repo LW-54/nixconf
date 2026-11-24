@@ -1,10 +1,10 @@
-name = "nixconf-foundation"
-version = "0.1.0"
-defaultTargets = ["NixconfFoundation", "nixconf-oracle"]
+name = "nixconf-formal"
+version = "0.2.0"
+defaultTargets = ["Nixconf", "nixconf-oracle"]
 
 [[lean_lib]]
-name = "NixconfFoundation"
+name = "Nixconf"
 
 [[lean_exe]]
 name = "nixconf-oracle"
-root = "OracleCLI"
+root = "Nixconf.Oracle.Main"

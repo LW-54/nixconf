@@ -11,7 +11,8 @@
 | `ARCH-CHARTER` | [`CHARTER.md`](CHARTER.md) | charter | `active` | foundations | Bias-free fundamental mission, 6 mathematical design axioms (`X1`–`X6`), ATAM scenarios (`QA-01`–`QA-08`), and fleet/capability horizon. |
 | `ARCH-ASSUMPTIONS` | [`ASSUMPTIONS.md`](ASSUMPTIONS.md) | ledger | `active` | foundations | Explicit falsifiable Assumptions Ledger (`A-001`–`A-012`) tracking validation status and linked evidence. |
 | `SPEC-FOUNDATION` | [`spec/FOUNDATION.md`](spec/FOUNDATION.md) | spec | `active` | foundations | Ratified Phase 2 Master Theoretical Constitution unifying Promise Theory, Semantic Spacetime, and Hard Enforcement (`ADR-0002`..`ADR-0007`), backed by Lean 4 + Quint/TLC + Rust DRT. |
-| `PAPER-FOUNDATION` | [`paper/FOUNDATION-PAPER.md`](paper/FOUNDATION-PAPER.md) | paper | `active` | foundations | Publication-grade formal mathematical specification & verification paper (*Promised Spacetime*) cross-linked to all 22 Lean 4 theorems, 8 Quint/TLC invariants, and DRT benchmarks. |
+| `PAPER-FOUNDATION` | [`paper/FOUNDATION-PAPER.md`](paper/FOUNDATION-PAPER.md) | paper | `active` | foundations | Publication-grade formal mathematical specification & verification paper (*Promised Spacetime* v2.0) cross-linked to all 35 Lean 4 theorems, 11 Quint/TLC invariants + 8 tests, and modular DRT benchmarks. |
+| `FORMAL-README` | [`formal/README.md`](formal/README.md) | spec | `active` | foundations | Production 4-layer Lean 4 (`cedar-lean` `Data`/`Spec`/`Thm`/`Oracle`), modular Informal Systems Quint, and 1:1 Rust DRT architecture & verification guide. |
 
 ## Empirical Audit — Phase 1 (`audit/`)
 
