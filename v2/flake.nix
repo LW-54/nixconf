@@ -123,7 +123,6 @@
         ./agents
         ./profiles
         ./policies
-        ./hosts
       ];
     };
   in {
@@ -145,7 +144,8 @@
     checks = forAllSystems ({pkgs, ...}: let
       rust = mkRust pkgs;
       oracle = mkLeanOracle pkgs;
-      nixResolvedJson = pkgs.writeText "nix-resolved-astrolabe.json" (builtins.toJSON realized.resolvedBindings.astrolabe);
+      nixResolvedAstrolabe = pkgs.writeText "nix-resolved-astrolabe.json" (builtins.toJSON realized.resolvedBindings.astrolabe);
+      nixResolvedIso = pkgs.writeText "nix-resolved-live-iso.json" (builtins.toJSON realized.resolvedBindings.live-iso);
     in {
       rust-clippy = rust.clippy;
       rust-test = rust.test;
@@ -153,19 +153,23 @@
       lean-audit = oracle;
       quint-check = mkQuintCheck pkgs;
 
-      # Zero-Nix fleet boundary verification + AWS Cedar DRT (real hosts + 500 fuzzed vs Lean 4!)
+      # Zero-Nix recursive Superagent boundary verification + Lean 4 DRT (real superagents + 500 fuzzed!)
       aky-fleet-and-drt = pkgs.runCommand "aky-fleet-and-drt" {} ''
         ${rust.aky}/bin/aky --root ${fleetTomlSrc} check
         ${rust.aky}/bin/aky --root ${fleetTomlSrc} drt --oracle ${oracle}/bin/aky-oracle --cases 500
         echo "OK" > $out
       '';
 
-      # S1 CI Equivalence Check: proves Nix `lib/realize.nix` bound map == Rust `aky resolve` bit-for-bit!
+      # S1 CI Equivalence Check: proves recursive Nix `lib/realize.nix` == Rust `aky resolve` bit-for-bit!
       s1-binding-equiv = pkgs.runCommand "aky-s1-binding-equiv" {nativeBuildInputs = [pkgs.jq];} ''
-        ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve astrolabe | jq -S . > rust.json
-        jq -S . ${nixResolvedJson} > nix.json
-        diff -u rust.json nix.json
-        echo "S1_EQUIV_OK" > $out
+        ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve astrolabe | jq -S . > rust-astro.json
+        jq -S . ${nixResolvedAstrolabe} > nix-astro.json
+        diff -u rust-astro.json nix-astro.json
+
+        ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve live-iso | jq -S . > rust-iso.json
+        jq -S . ${nixResolvedIso} > nix-iso.json
+        diff -u rust-iso.json nix-iso.json
+        echo "S1_RECURSIVE_EQUIV_OK" > $out
       '';
     });
 

@@ -1,0 +1,19 @@
+id = "live-iso"
+kind = "superagent"
+description = "Ephemeral rescue & onboarding Live-ISO — simply a closed root Dressed Superagent!"
+attributes = ["role:rescue", "posture:ephemeral"]
+contains = [
+  {agent = "target-nixos-iso"},
+  {agent = "git"},
+]
+
+[realize]
+system = "x86_64-linux"
+
+[internal_offers."ram"]
+kind = "budgeted"
+amount = 2048
+
+[internal_offers."config:hostname"]
+kind = "exclusive"
+value = "live-iso"

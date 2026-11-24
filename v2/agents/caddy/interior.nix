@@ -1,8 +1,8 @@
-{self, ...}: {
+{bound, ...}: {
   nixos = {
     services.caddy = {
       enable = true;
-      virtualHosts."vault.${self.offers."proxy:https".domain}".extraConfig = ''
+      virtualHosts."vault.${bound."config:domain".value}".extraConfig = ''
         reverse_proxy 127.0.0.1:8222
       '';
     };

@@ -11,8 +11,8 @@ use std::time::Instant;
 use aky_core::authority::{Decision, Entity, authorize, blast_radius};
 use aky_core::drt::{OracleRequest, OracleResponse, eval_request, generate_fuzzed_cases};
 use aky_core::fleet::{
-    AgentManifest, FleetSpec, HostManifest, PolicyCatalog, ProfileManifest, host_to_oracle_request,
-    resolve_host_bindings, verify_fleet,
+    AgentManifest, FleetSpec, PolicyCatalog, ProfileManifest, resolve_target_bindings,
+    superagent_to_oracle_request, verify_fleet,
 };
 use clap::{Parser, Subcommand};
 use thiserror::Error;
@@ -25,7 +25,7 @@ use thiserror::Error;
     about = "Antikythera declarative fleet verifier"
 )]
 struct Cli {
-    /// Root directory of the Antikythera fleet (`agents/`, `profiles/`, `policies/`, `hosts/`).
+    /// Root directory of the Antikythera repo (`agents/`, `profiles/`, `policies/`).
     #[arg(long, global = true, default_value = ".")]
     root: PathBuf,
 
@@ -39,11 +39,11 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Cmd {
-    /// Verify all hosts, budgets, non-piercing boundaries, open state traits, and standalone agents.
+    /// Verify all Dressed Superagents (stacks & root targets), budgets, state traits, and standalone agents.
     Check,
     /// Explain a Cedar L3+ authorization verdict including `determiningPolicies`.
     Explain {
-        /// Principal ID from `policies/*.toml` or `hosts/*.toml`.
+        /// Principal ID from `policies/*.toml` or `agents/*/agent.toml`.
         principal: String,
         /// Action name (e.g., `read-secret`).
         action: String,
@@ -58,17 +58,17 @@ enum Cmd {
         #[arg(default_value = "read-secret")]
         action: String,
     },
-    /// Emit deterministic S1 `bound` + `persistent_paths` JSON for a host (CI equivalence test).
+    /// Emit deterministic S1 `bound` + `persistent_paths` JSON for a root Dressed Superagent.
     Resolve {
-        /// Host identifier.
-        host: String,
+        /// Root agent identifier (e.g., `astrolabe`).
+        target: String,
     },
     /// Run AWS Cedar Differential Randomized Testing comparing `aky-core` against `aky-oracle`.
     Drt {
         /// Path to the compiled Lean 4 `aky-oracle` binary.
         #[arg(long)]
         oracle: PathBuf,
-        /// Number of deterministic randomized fuzzed fleets to test in addition to real repo hosts.
+        /// Number of deterministic randomized fuzzed fleets to test in addition to real repo superagents.
         #[arg(long, default_value_t = 500)]
         cases: usize,
         /// Deterministic PRNG seed.
@@ -156,25 +156,6 @@ fn load_fleet(root: &Path) -> Result<FleetSpec, CliError> {
         }
     }
 
-    let mut hosts = BTreeMap::new();
-    let hosts_dir = root.join("hosts");
-    if hosts_dir.is_dir() {
-        for entry in fs::read_dir(&hosts_dir).map_err(|source| CliError::Io {
-            path: hosts_dir.clone(),
-            source,
-        })? {
-            let entry = entry.map_err(|source| CliError::Io {
-                path: hosts_dir.clone(),
-                source,
-            })?;
-            let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("toml") && path.is_file() {
-                let host: HostManifest = read_toml(&path)?;
-                hosts.insert(host.id.clone(), host);
-            }
-        }
-    }
-
     let mut policy_catalog = PolicyCatalog::default();
     let policies_dir = root.join("policies");
     if policies_dir.is_dir() {
@@ -204,7 +185,6 @@ fn load_fleet(root: &Path) -> Result<FleetSpec, CliError> {
     Ok(FleetSpec {
         agents,
         profiles,
-        hosts,
         policy_catalog,
     })
 }
@@ -213,10 +193,10 @@ fn find_principal(fleet: &FleetSpec, id: &str) -> Result<Entity, CliError> {
     if let Some(p) = fleet.policy_catalog.principals.iter().find(|p| p.id == id) {
         return Ok(p.clone());
     }
-    if let Some(h) = fleet.hosts.get(id) {
+    if let Some(a) = fleet.agents.get(id) {
         return Ok(Entity {
-            id: h.id.clone(),
-            tags: h.attributes.clone(),
+            id: a.id.clone(),
+            tags: a.attributes.clone(),
         });
     }
     Err(CliError::NotFound {
@@ -225,32 +205,10 @@ fn find_principal(fleet: &FleetSpec, id: &str) -> Result<Entity, CliError> {
     })
 }
 
-fn run_drt(
-    fleet: &FleetSpec,
+fn invoke_oracle(
     oracle_path: &Path,
-    fuzzed_count: usize,
-    seed: u64,
-    as_json: bool,
-) -> Result<bool, CliError> {
-    let mut requests: Vec<(String, OracleRequest)> = Vec::new();
-    for hid in fleet.hosts.keys() {
-        if let Some(req) = host_to_oracle_request(fleet, hid) {
-            requests.push((format!("fleet:{hid}"), req));
-        }
-    }
-    for (idx, req) in generate_fuzzed_cases(seed, fuzzed_count)
-        .into_iter()
-        .enumerate()
-    {
-        requests.push((format!("fuzz:{idx}"), req));
-    }
-
-    // 1. Evaluate all cases in Rust `aky-core`
-    let t_rust = Instant::now();
-    let rust_results: Vec<OracleResponse> = requests.iter().map(|(_, r)| eval_request(r)).collect();
-    let rust_ms = t_rust.elapsed().as_secs_f64() * 1000.0;
-
-    // 2. Stream exact same NDJSON frames through Lean 4 `aky-oracle`
+    requests: &[(String, OracleRequest)],
+) -> Result<(Vec<OracleResponse>, f64), CliError> {
     let t_lean = Instant::now();
     let mut child = Command::new(oracle_path)
         .stdin(Stdio::piped())
@@ -264,7 +222,7 @@ fn run_drt(
             .stdin
             .take()
             .ok_or_else(|| CliError::Oracle("missing oracle stdin".to_string()))?;
-        for (_, req) in &requests {
+        for (_, req) in requests {
             let line = serde_json::to_string(req)?;
             writeln!(stdin, "{line}")
                 .map_err(|e| CliError::Oracle(format!("write to oracle failed: {e}")))?;
@@ -291,7 +249,36 @@ fn run_drt(
             "oracle exited with status {status}"
         )));
     }
-    let lean_ms = t_lean.elapsed().as_secs_f64() * 1000.0;
+    Ok((lean_results, t_lean.elapsed().as_secs_f64() * 1000.0))
+}
+
+fn run_drt(
+    fleet: &FleetSpec,
+    oracle_path: &Path,
+    fuzzed_count: usize,
+    seed: u64,
+    as_json: bool,
+) -> Result<bool, CliError> {
+    let mut requests: Vec<(String, OracleRequest)> = Vec::new();
+    let mut real_superagents: usize = 0;
+    for aid in fleet.agents.keys() {
+        if let Some(req) = superagent_to_oracle_request(fleet, aid) {
+            real_superagents = real_superagents.saturating_add(1);
+            requests.push((format!("superagent:{aid}"), req));
+        }
+    }
+    for (idx, req) in generate_fuzzed_cases(seed, fuzzed_count)
+        .into_iter()
+        .enumerate()
+    {
+        requests.push((format!("fuzz:{idx}"), req));
+    }
+
+    let t_rust = Instant::now();
+    let rust_results: Vec<OracleResponse> = requests.iter().map(|(_, r)| eval_request(r)).collect();
+    let rust_ms = t_rust.elapsed().as_secs_f64() * 1000.0;
+
+    let (lean_results, lean_ms) = invoke_oracle(oracle_path, &requests)?;
 
     if lean_results.len() != rust_results.len() {
         return Err(CliError::Oracle(format!(
@@ -317,7 +304,7 @@ fn run_drt(
             "{}",
             serde_json::to_string_pretty(&serde_json::json!({
                 "totalCases": requests.len(),
-                "realHosts": fleet.hosts.len(),
+                "realSuperagents": real_superagents,
                 "fuzzedCases": fuzzed_count,
                 "divergences": divergences.len(),
                 "rustMs": rust_ms,
@@ -327,10 +314,10 @@ fn run_drt(
         );
     } else {
         println!(
-            "DRT: {}/{} cases matched bit-for-bit ({} real hosts + {} fuzzed) | Rust: {:.2} ms | Lean 4 oracle: {:.2} ms",
+            "DRT: {}/{} cases matched bit-for-bit ({} real superagents + {} fuzzed) | Rust: {:.2} ms | Lean 4 oracle: {:.2} ms",
             requests.len().saturating_sub(divergences.len()),
             requests.len(),
-            fleet.hosts.len(),
+            real_superagents,
             fuzzed_count,
             rust_ms,
             lean_ms
@@ -348,25 +335,25 @@ fn run_check(fleet: &FleetSpec, elapsed_ms: f64, as_json: bool) -> Result<bool, 
     if as_json {
         println!("{}", serde_json::to_string_pretty(&report)?);
     } else {
-        for hr in report.hosts.values() {
-            let status = if hr.is_valid() { "PASS" } else { "FAIL" };
+        for sr in report.superagents.values() {
+            let status = if sr.is_valid() { "PASS" } else { "FAIL" };
+            let target_tag = sr.system.as_deref().unwrap_or("nested-superagent");
             println!(
-                "[{status}] host={} ({}) agents={} persisted={}",
-                hr.host_id,
-                hr.system,
-                hr.resolved_agents.len(),
-                hr.persistent_paths.len()
+                "[{status}] superagent={} ({target_tag}) children={} persisted={}",
+                sr.agent_id,
+                sr.direct_children.len(),
+                sr.persistent_paths.len()
             );
-            for m in &hr.missing_refs {
+            for m in &sr.missing_refs {
                 eprintln!("  missing: {m}");
             }
-            for b in &hr.binding_errors {
+            for b in &sr.binding_errors {
                 eprintln!("  binding: {b:?}");
             }
-            for c in &hr.boundary_errors {
+            for c in &sr.boundary_errors {
                 eprintln!("  boundary: {c:?}");
             }
-            for s in &hr.state_errors {
+            for s in &sr.state_errors {
                 eprintln!("  state: {s:?}");
             }
         }
@@ -432,11 +419,11 @@ fn run(cli: &Cli) -> Result<bool, CliError> {
             }
             Ok(true)
         }
-        Cmd::Resolve { host } => {
+        Cmd::Resolve { target } => {
             let resolved =
-                resolve_host_bindings(&fleet, host).ok_or_else(|| CliError::NotFound {
-                    kind: "host",
-                    id: host.clone(),
+                resolve_target_bindings(&fleet, target).ok_or_else(|| CliError::NotFound {
+                    kind: "root target",
+                    id: target.clone(),
                 })?;
             println!("{}", serde_json::to_string_pretty(&resolved)?);
             Ok(true)

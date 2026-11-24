@@ -1,12 +1,14 @@
 id = "vaultwarden"
-kind = "atomic"
-description = "Self-hosted Bitwarden-compatible password vault with Agent-Declared State-As-Promise (S2+)."
+description = "Self-hosted password vault with Agent-Declared State-As-Promise (S2+) and Parameter-as-Promise config."
 
 [offers."http:vaultwarden"]
 kind = "exclusive"
 port = 8222
 
 [requires."proxy:https"]
+kind = "exclusive"
+
+[requires."config:domain"]
 kind = "exclusive"
 
 [requires."secrets:runtime"]

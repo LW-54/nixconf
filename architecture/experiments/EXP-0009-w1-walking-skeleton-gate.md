@@ -54,3 +54,17 @@ Executes and passes the **Mandatory `W1` Walking Skeleton Gate** ([`RES-0014`](.
 
 ## 3. Gate Verdict
 **`W1` WALKING SKELETON GATE PASSED.** All Stage `3A` Structural Kernel decisions (`ADR-0008`..`ADR-0010`) hold under real Nix/Rust/Lean/Quint execution with clean ergonomics, `< 7 ms` zero-Nix verification, bit-for-bit Nix↔Rust and Rust↔Lean equivalence, and 0 cache busts. Cleared to enter **Stage `3B` — Trust, Mesh & Convergence Plane**!
+
+---
+
+## 4. Pure Model-A Refactor Addendum (2026-11-24 — Zero `HostManifest`, Parameters-as-Promises, Recursive `web-stack`)
+
+Following a critical architectural audit of the initial skeleton, we eliminated two subtle drifts from `ADR-0002` + `ADR-0003`:
+1. **Hosts ARE Regular Dressed Superagents:** Deleted `HostManifest`, `v2/hosts/`, and special host-only fields (`ram_mib`, `backup_providers`, `substrate_offers`). `astrolabe`, `live-iso`, and nested `web-stack` ALL use the exact same universal `AgentManifest` (`v2/agents/<name>/agent.toml`), checked recursively with `superagent_conforms`.
+2. **Parameters ARE Promises:** Deleted the unverified `params` side-channel and magic `host` argument in `interior.nix`. Config inputs (`config:hostname`, `config:domain`, `config:primary-user`) flow strictly through `-b` / `+b` promises (`internal_offers` & child-scoped `offers`), hardened with `#[serde(deny_unknown_fields)]` (which immediately caught a real TOML section-scoping bug!).
+
+### Re-Verified Pure Model-A Results
+- **`aky --root v2 check`**: **`2.43 ms`** engine (`9.11 ms` wall) — `[PASS] astrolabe (x86_64-linux)`, `[PASS] live-iso (x86_64-linux)`, `[PASS] web-stack (nested-superagent)`, `Standalone: [git]`.
+- **`aky drt --cases 2000`**: **`2,003 / 2,003` bit-for-bit** (`3` real Dressed Superagents incl. nested `web-stack` + `2,000` fuzzed, **0 divergences**; Rust `9.42 ms` vs. Lean 4 `1,010.10 ms`).
+- **7/7 Hermetic Flake Checks PASS**: incl. recursive **`s1-binding-equiv`** matching `web-stack/caddy`, `web-stack/vaultwarden`, `target-nixos-efi`, `sub-home-hjem` bit-for-bit between Rust and Nix on both `astrolabe` and `live-iso`, plus **4/4 Rust unit tests** (including negative tests catching lying/leaking Dressed Superagents and missing mandatory parameter promises!).
+- **Real NixOS & Cache Isolation**: `astrolabe` (`hjemEnabled = true`, `persisted = ["/var/lib/nixos", "/var/lib/vaultwarden"]`), `live-iso` (`isoImage.drv`), standalone `git 2.56.0`, and **0 cache busts** on `aky`, `aky-oracle`, and `astrolabe`.

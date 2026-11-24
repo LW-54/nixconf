@@ -1,6 +1,9 @@
 id = "sub-home-hjem"
 kind = "substrate"
-description = "Sealed `feel-co/hjem` (H2) for residual $HOME dotfiles and standalone user environments."
+description = "Sealed `feel-co/hjem` (H2) for residual $HOME dotfiles (takes primary user strictly as a `-b` promise!)."
+
+[requires."config:primary-user"]
+kind = "exclusive"
 
 [offers."home:files"]
 kind = "exclusive"

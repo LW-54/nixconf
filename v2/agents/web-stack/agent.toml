@@ -1,0 +1,18 @@
+id = "web-stack"
+kind = "superagent"
+description = "Nested Dressed Superagent (P-Explicit) encapsulating Caddy + Vaultwarden; hides `proxy:https` behind Σ."
+
+contains = [
+  {agent = "caddy"},
+  {agent = "vaultwarden"},
+]
+
+[requires."config:domain"]
+kind = "exclusive"
+
+[requires."secrets:runtime"]
+kind = "exclusive"
+
+[offers."http:vaultwarden"]
+kind = "exclusive"
+port = 8222

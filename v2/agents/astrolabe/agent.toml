@@ -1,0 +1,33 @@
+id = "astrolabe"
+kind = "superagent"
+description = "Production impermanent x86_64 VPS — simply a closed root Dressed Superagent!"
+attributes = ["role:server", "env:prod"]
+profiles = ["base-server"]
+contains = [
+  {agent = "web-stack"},
+]
+
+[realize]
+system = "x86_64-linux"
+
+[internal_offers."ram"]
+kind = "budgeted"
+amount = 11264
+
+[internal_offers."backup:provider"]
+kind = "broadcast"
+
+[internal_offers."secrets:runtime"]
+kind = "exclusive"
+
+[internal_offers."config:hostname"]
+kind = "exclusive"
+value = "astrolabe"
+
+[internal_offers."config:domain"]
+kind = "exclusive"
+value = "astrolabe.example.org"
+
+[internal_offers."config:primary-user"]
+kind = "exclusive"
+name = "lw"

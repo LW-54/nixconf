@@ -3,6 +3,9 @@ kind = "substrate"
 description = "UEFI NixOS bare-metal/VPS target offering exclusive `target:os` and `hw:physical-block`."
 contributes_traits = ["systemd", "uefi"]
 
+[requires."config:hostname"]
+kind = "exclusive"
+
 [offers."target:os"]
 kind = "exclusive"
 target_class = "nixos"

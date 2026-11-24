@@ -1,13 +1,19 @@
-{inputs, ...}: {
+{
+  bound,
+  inputs,
+  ...
+}: let
+  user = bound."config:primary-user".name;
+in {
   nixos = {
     imports = [
       inputs.hjem.nixosModules.default
     ];
-    users.users.lw = {
+    users.users.${user} = {
       isNormalUser = true;
-      home = "/home/lw";
+      home = "/home/${user}";
     };
-    hjem.users.lw = {
+    hjem.users.${user} = {
       enable = true;
       files.".config/aky/README".text = "Managed by Antikythera (sealed feel-co/hjem).\n";
     };
