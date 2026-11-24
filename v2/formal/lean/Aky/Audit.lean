@@ -1,21 +1,25 @@
 /-
-  Aky.Audit — Mechanical Kernel Axiom Verification covering ALL 35 Core Theorems!
+  Aky.Audit — Mechanical Kernel Axiom Verification covering ALL 41 Core Theorems!
   Ensures ZERO `sorryAx` and ZERO custom axioms across the entire formal library.
 -/
 import Aky
 
 open Aky.Thm
 
--- Agency (7)
+-- Agency & Non-Piercing Conformance (11)
 #print axioms flattenScope_append
 #print axioms profile_nesting_invariant
 #print axioms boundary_first_stratification
 #print axioms non_piercing_interior_substitution
 #print axioms conforms_no_lying_offers
 #print axioms conforms_no_leaked_requirements
+#print axioms conforms_budget_and_critical_sound
+#print axioms conforms_volume_persistence_sound
+#print axioms conforms_volume_backup_sound
+#print axioms conforms_volume_calm_sound
 #print axioms checkStandalone_sound_and_complete
 
--- Binding (8)
+-- Binding & Recursive Agent Tree Substitution (10)
 #print axioms validateScope_nil_iff_valid
 #print axioms checkPromise_perm
 #print axioms isScopeValid_perm
@@ -24,6 +28,8 @@ open Aky.Thm
 #print axioms budget_and_critical_tier_sound
 #print axioms soft_conditional_law_sound
 #print axioms multi_stratum_bounded
+#print axioms checkAgentTree_superagent_sound
+#print axioms checkAgentTree_substitution_invariant
 
 -- Authority & Delegation (10)
 #print axioms isAuthorized_iff

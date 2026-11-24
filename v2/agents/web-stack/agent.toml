@@ -1,6 +1,6 @@
 id = "web-stack"
+description = "Nested Dressed Superagent (P-Explicit) encapsulating Caddy + Vaultwarden; hides `proxy:https` & `http:route` behind Σ while exposing coarse-grained budgets and state."
 kind = "superagent"
-description = "Nested Dressed Superagent (P-Explicit) encapsulating Caddy + Vaultwarden; hides `proxy:https` behind Σ."
 
 contains = [
   {agent = "caddy"},
@@ -13,6 +13,13 @@ kind = "exclusive"
 [requires."secrets:runtime"]
 kind = "exclusive"
 
-[offers."http:vaultwarden"]
+[offers."https:ingress"]
 kind = "exclusive"
-port = 8222
+
+[budgets]
+ram_mib = 384
+tier = "critical"
+
+[state.vaultwarden-data]
+path = "/var/lib/vaultwarden"
+traits = ["survives-reboot", "backup-required", "single-auth-writer"]

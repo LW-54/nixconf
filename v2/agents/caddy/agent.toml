@@ -1,10 +1,18 @@
 id = "caddy"
-description = "Public HTTPS reverse proxy offering exclusive `proxy:https` (takes domain strictly as a `-b` promise!)."
+description = "Public HTTPS reverse proxy binding partitioned `http:route` (`zone:public`) dynamically with zero hardcoded upstreams."
 
 [requires."config:domain"]
 kind = "exclusive"
 
+[requires."http:route"]
+kind = "partitioned"
+mandatory = false
+selector = {kind = "atom", tag = "zone:public"}
+
 [offers."proxy:https"]
+kind = "exclusive"
+
+[offers."https:ingress"]
 kind = "exclusive"
 
 [budgets]

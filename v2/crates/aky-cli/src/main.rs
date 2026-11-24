@@ -356,6 +356,9 @@ fn run_check(fleet: &FleetSpec, elapsed_ms: f64, as_json: bool) -> Result<bool, 
             for s in &sr.state_errors {
                 eprintln!("  state: {s:?}");
             }
+            if !sr.tree_valid {
+                eprintln!("  tree: recursive Agent tree verification failed");
+            }
         }
         println!(
             "Standalone agents (X4): [{}] | verified in {elapsed_ms:.2} ms",

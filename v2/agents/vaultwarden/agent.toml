@@ -1,8 +1,12 @@
 id = "vaultwarden"
-description = "Self-hosted password vault with Agent-Declared State-As-Promise (S2+) and Parameter-as-Promise config."
+description = "Self-hosted password vault emitting partitioned `http:route` (+b), Agent-Declared State (S2+), and Parameter-as-Promise config."
 
-[offers."http:vaultwarden"]
-kind = "exclusive"
+[offers."route:vault"]
+ptype = "http:route"
+key = "vault"
+kind = "partitioned"
+tags = ["zone:public"]
+subdomain = "vault"
 port = 8222
 
 [requires."proxy:https"]

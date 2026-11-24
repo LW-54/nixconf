@@ -3,14 +3,16 @@
   Zero `sorry`. Proves:
     - Diagnostic completeness (`validateScope ps = [] ↔ isScopeValid ps = true`)
     - Commutative Binding Order-Invariance (`List.Perm`)
-    - B3 Exclusive 1:1 Soundness & Partitioned AttrExpr Disjointness (Gap #2)
-    - C4 Budget Conservation + Critical-Tier Priority OOM Protection (Gap #2)
+    - B3 Exclusive 1:1 Soundness & Partitioned AttrExpr Disjointness
+    - C4 Budget Conservation + Critical-Tier Priority OOM Protection
     - Conditional Soft Promise Law Soundness
-    - Multi-Stratum Strict Stratification Soundness & Acyclic Termination (Gap #2)
+    - Multi-Stratum Strict Stratification Soundness & Acyclic Termination
+    - Recursive `checkAgentTree` Soundness & Compositional Non-Piercing Substitution Invariance!
 -/
 
 import Aky.Data.ListLemmas
 import Aky.Spec.Binding
+import Aky.Thm.Agency
 
 namespace Aky.Thm
 
@@ -88,7 +90,7 @@ theorem exclusive_binding_sound (ps : List Promise) (hvalid : isScopeValid ps = 
     simp [hgt] at hCard
 
 /--
-  GAP #2 CLOSED — B3 Partitioned AttrExpr Disjointness Soundness:
+  B3 Partitioned AttrExpr Disjointness Soundness:
   If `isScopeValid ps = true`, then for EVERY partitioned offer `p`, at most ONE partitioned
   provider's `AttrExpr` selector matches `p.tags` (zero ambiguous routing between proxies!).
 -/
@@ -109,7 +111,7 @@ theorem partitioned_selector_disjoint_sound (ps : List Promise) (hvalid : isScop
   · simp [hgt] at hSel
   · omega
 
-/-- C4 Budget Conservation + Priority-Tier Critical OOM Protection (Gap #2 CLOSED!). -/
+/-- C4 Budget Conservation + Priority-Tier Critical OOM Protection. -/
 theorem budget_and_critical_tier_sound (ps : List Promise) (hvalid : isScopeValid ps = true)
     (p : Promise) (hp : p ∈ ps)
     (hcard : p.cardinality = Cardinality.budgeted)
@@ -150,10 +152,9 @@ theorem soft_conditional_law_sound (ps : List Promise) (hvalid : isScopeValid ps
     | true  => exact ⟨sc, rfl, hcomp⟩
 
 /--
-  GAP #2 CLOSED — Multi-Stratum Strict Stratification Soundness:
+  Multi-Stratum Strict Stratification Soundness:
   If `validateStratumRules rules = []`, every rule strictly advances stratum (`in < out`), AND
-  evaluating `evalStratified rules base k` ONLY produces promises with `stratum ≤ k` (assuming
-  base promises live at stratum 0) — proving strict forward acyclic termination with zero cycles!
+  evaluating `evalStratified rules base k` ONLY produces promises with `stratum ≤ k`.
 -/
 theorem multi_stratum_bounded (rules : List HandlerRule) (base : List Promise)
     (hRules : validateStratumRules rules = [])
@@ -197,5 +198,57 @@ theorem multi_stratum_bounded (rules : List HandlerRule) (base : List Promise)
         have hpStrat := hCond.2 p hpEmit
         omega
       · cases hRuleOk
+
+private theorem checkAgentTreeList_append (xs ys : List Agent) :
+    checkAgentTreeList (xs ++ ys) = (checkAgentTreeList xs && checkAgentTreeList ys) := by
+  induction xs with
+  | nil => simp [checkAgentTreeList]
+  | cons x rest ih => simp [checkAgentTreeList, ih, Bool.and_assoc]
+
+private theorem checkAgentTreeList_mem (xs : List Agent) :
+    checkAgentTreeList xs = true ↔ ∀ a ∈ xs, checkAgentTree a = true := by
+  induction xs with
+  | nil => simp [checkAgentTreeList]
+  | cons x rest ih =>
+    simp only [checkAgentTreeList, Bool.and_eq_true, List.mem_cons, forall_eq_or_imp, ih]
+
+/--
+  Recursive Agent Tree Verification Soundness (F1 TCB CLOSURE!):
+  If `checkAgentTree (Agent.superagent ext children) = true`, then boundary conformance holds,
+  interior scope binding holds, AND every child recursively satisfies `checkAgentTree`.
+-/
+theorem checkAgentTree_superagent_sound (ext : ExteriorSurface) (children : List Agent)
+    (hTree : checkAgentTree (Agent.superagent ext children) = true) :
+    checkSuperagentConformance ext children = [] ∧
+    isScopeValid (inboundFromExterior ext ++ (siblingOperationalView children).flatMap (·.promises)) = true ∧
+    (∀ c ∈ children, checkAgentTree c = true) := by
+  simp only [checkAgentTree, Bool.and_eq_true, List.isEmpty_iff] at hTree
+  exact ⟨hTree.1.1, hTree.1.2, (checkAgentTreeList_mem children).mp hTree.2⟩
+
+/--
+  Compositional Non-Piercing Substitution Invariance (F1 CROWN JEWEL!):
+  Replacing ANY nested Dressed Superagent's interior `cs1` with ANY valid conforming interior `cs2`
+  that preserves `Pi_ext` (`ext`, including exterior promises, coarse-grained budgets, and exterior
+  state volumes) is GUARANTEED to preserve full recursive validity of the enclosing Superagent!
+-/
+theorem checkAgentTree_substitution_invariant
+    (parentExt ext : ExteriorSurface) (pre post cs1 cs2 : List Agent)
+    (hParent : checkAgentTree (Agent.superagent parentExt (pre ++ [Agent.superagent ext cs1] ++ post)) = true)
+    (hNew : checkAgentTree (Agent.superagent ext cs2) = true) :
+    checkAgentTree (Agent.superagent parentExt (pre ++ [Agent.superagent ext cs2] ++ post)) = true := by
+  have hView :
+      siblingOperationalView (pre ++ [Agent.superagent ext cs2] ++ post) =
+      siblingOperationalView (pre ++ [Agent.superagent ext cs1] ++ post) :=
+    (non_piercing_interior_substitution pre post ext cs1 cs2).symm
+  simp only [checkAgentTree, Bool.and_eq_true] at hParent ⊢
+  refine ⟨⟨?_, ?_⟩, ?_⟩
+  · unfold checkSuperagentConformance at hParent ⊢
+    rw [hView]
+    exact hParent.1.1
+  · rw [hView]
+    exact hParent.1.2
+  · have hKids := hParent.2
+    simp only [checkAgentTreeList_append, checkAgentTreeList, Bool.and_true, Bool.and_eq_true] at hKids ⊢
+    exact ⟨⟨hKids.1.1, hNew⟩, hKids.2⟩
 
 end Aky.Thm

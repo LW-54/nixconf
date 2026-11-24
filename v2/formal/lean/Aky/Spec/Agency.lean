@@ -1,10 +1,12 @@
 /-
   Aky.Spec.Agency — Layer 1 Executable Specification (NO PROOFS)
   Fractal Uniform Agency (ADR-0002), P-Dual (ADR-0003), Boundary-First Stratification (C2),
-  P-Explicit Interior Conformance (Gap #1 closed), Standalone Scope (X4), Epistemic Zoom (C5).
+  P-Explicit Interior Conformance (Promises + Coarse-Grained Budgets + Non-Piercing State Volumes),
+  Standalone Scope (X4), Epistemic Zoom (C5).
 -/
 
 import Aky.Data.AttrExpr
+import Aky.Spec.StateSafety
 
 namespace Aky.Spec
 
@@ -38,8 +40,8 @@ def SoftContract.isComplete (sc : SoftContract) : Bool :=
 
 structure Promise where
   id            : String
-  ptype         : String               -- Promise type tau (e.g. "secret", "http-endpoint", "ram-mb")
-  key           : String               -- Commutative merge / unique key
+  ptype         : String               -- Promise type tau (e.g. "http:route", "ram", "config:domain")
+  key           : String               -- Commutative merge / unique key (distinct from ptype!)
   polarity      : Polarity
   strength      : Strength
   cardinality   : Cardinality
@@ -57,6 +59,7 @@ structure ExteriorSurface where
   agentId    : String
   promises   : List Promise
   attributes : List String
+  volumes    : List StateVolume := []
   deriving Repr, DecidableEq, BEq
 
 /--
@@ -72,8 +75,13 @@ inductive Agent where
   deriving Repr, BEq
 
 inductive BoundaryError where
-  | unbackedExteriorOffer   (superagentId ptype key : String)
-  | leakedInteriorUse       (superagentId ptype key : String)
+  | unbackedExteriorOffer       (superagentId ptype key : String)
+  | leakedInteriorUse           (superagentId ptype key : String)
+  | underreportedBudget         (superagentId ptype : String) (extPlusIntSupply intDemand : Nat)
+  | underreportedCriticalBudget (superagentId ptype : String) (extCritPlusIntSupply intCritDemand : Nat)
+  | unbackedExteriorVolume      (superagentId volumeId : String)
+  | leakedInteriorVolume        (superagentId volumeId : String)
+  | unsafeInteriorVolume        (superagentId volumeId : String)
   deriving Repr, DecidableEq, BEq
 
 /-- Flatten transparent Profiles while halting strictly at opaque Boundaries. -/
@@ -100,21 +108,67 @@ def isMandatoryHardUse (p : Promise) : Bool :=
   | Polarity.use, Strength.hard, true => true
   | _, _, _                           => false
 
-/--
-  P-Explicit Interior Conformance Validator (Gap #1 CLOSED!):
-  Checks that a Dressed Superagent's `Interior(children)` faithfully backs its declared `Pi_ext`:
-    1. No lying offers: every `+b` promise exported in `ext` must be offered by some interior child.
-    2. No leaked requirements: every mandatory hard `-b` inside `children` that is NOT satisfied
-       internally by a sibling offer MUST be explicitly declared as a `-b` in `ext`.
--/
 def hasOffer (ps : List Promise) (ptype key : String) : Bool :=
   ps.any (fun p => p.polarity == Polarity.offer && p.ptype == ptype && p.key == key)
 
 def hasUse (ps : List Promise) (ptype key : String) : Bool :=
   ps.any (fun p => p.polarity == Polarity.use && p.ptype == ptype && p.key == key)
 
+def isInternallySatisfied (intPs : List Promise) (p : Promise) : Bool :=
+  match p.cardinality with
+  | Cardinality.partitioned =>
+    intPs.any (fun o =>
+      o.polarity == Polarity.offer &&
+      o.cardinality == Cardinality.partitioned &&
+      o.ptype == p.ptype &&
+      p.selector.eval o.tags)
+  | Cardinality.broadcast =>
+    intPs.any (fun o => o.polarity == Polarity.offer && o.ptype == p.ptype)
+  | _ => hasOffer intPs p.ptype p.key
+
+def totalBudgetSupply (ps : List Promise) (ptype : String) : Nat :=
+  List.foldl (fun acc p => acc + p.amount) 0
+    (ps.filter (fun p => p.polarity == Polarity.offer && p.cardinality == Cardinality.budgeted && p.ptype == ptype))
+
+def totalBudgetDemand (ps : List Promise) (ptype : String) : Nat :=
+  List.foldl (fun acc p => acc + p.amount) 0
+    (ps.filter (fun p => p.polarity == Polarity.use && p.cardinality == Cardinality.budgeted && p.ptype == ptype))
+
+/-- Sum of critical-tier (`priority == 0`, e.g. Vaultwarden/Caddy) budgeted demands (C4 OOM protection). -/
+def criticalBudgetDemand (ps : List Promise) (ptype : String) : Nat :=
+  List.foldl (fun acc p => acc + p.amount) 0
+    (ps.filter (fun p => p.polarity == Polarity.use && p.cardinality == Cardinality.budgeted && p.ptype == ptype && p.priority == 0))
+
+/-- Derive substrate capabilities strictly from direct children's exterior surfaces (ZERO interior piercing!). -/
+def deriveSubstrate (intSurfaces : List ExteriorSurface) : SubstrateCapabilities :=
+  let attrs := intSurfaces.flatMap (·.attributes)
+  let ps := intSurfaces.flatMap (·.promises)
+  {
+    providesDurableStorage := attrs.contains "trait:durable" && !attrs.contains "trait:ephemeral"
+    backupProviderCount := (ps.filter (fun p => p.polarity == Polarity.offer && p.ptype == "backup:provider")).length
+  }
+
+/--
+  P-Explicit Interior Conformance Validator (Promises + Coarse-Grained Budgets + Non-Piercing State):
+  Checks that a Dressed Superagent's `Interior(children)` faithfully backs its declared `Pi_ext`
+  while observing ONLY `exteriorOf` of direct children:
+    1. No lying offers: every `+b` promise exported in `ext` must be offered by some interior child.
+    2. No leaked requirements: every mandatory hard `-b` inside `children` not satisfied internally
+       MUST be explicitly declared as a `-b` in `ext`.
+    3. Coarse-grained budget & critical-tier conservation: for every budgeted `-b` inside `children`,
+       `ext` demand + internal supply must cover total and critical-tier interior demands.
+    4. Non-piercing state conformance + CALM safety:
+       - Every exterior volume in `ext.volumes` must be backed by a matching child volume (`id`).
+       - Every interior child volume must be CALM-safe.
+       - Every interior child volume needing persistence or backup that is NOT discharged by this
+         superagent's internal substrate MUST be explicitly surfaced in `ext.volumes` preserving
+         those traits!
+-/
 def checkSuperagentConformance (ext : ExteriorSurface) (children : List Agent) : List BoundaryError :=
-  let intPs := (siblingOperationalView children).flatMap (·.promises)
+  let intSurfaces := siblingOperationalView children
+  let intPs := intSurfaces.flatMap (·.promises)
+  let intVols := intSurfaces.flatMap (·.volumes)
+  let intSub := deriveSubstrate intSurfaces
   let offerErrs :=
     ext.promises.filterMap fun p =>
       match p.polarity with
@@ -124,11 +178,51 @@ def checkSuperagentConformance (ext : ExteriorSurface) (children : List Agent) :
       | Polarity.use => none
   let useErrs :=
     intPs.filterMap fun p =>
-      if isMandatoryHardUse p && !hasOffer intPs p.ptype p.key then
+      if isMandatoryHardUse p && !isInternallySatisfied intPs p then
         if hasUse ext.promises p.ptype p.key then none
         else some (BoundaryError.leakedInteriorUse ext.agentId p.ptype p.key)
       else none
-  offerErrs ++ useErrs
+  let budgetErrs :=
+    intPs.flatMap fun p =>
+      match p.polarity, p.cardinality with
+      | Polarity.use, Cardinality.budgeted =>
+        let intSup := totalBudgetSupply intPs p.ptype
+        let intDem := totalBudgetDemand intPs p.ptype
+        let intCrit := criticalBudgetDemand intPs p.ptype
+        let extDem := totalBudgetDemand ext.promises p.ptype
+        let extCrit := criticalBudgetDemand ext.promises p.ptype
+        let e1 :=
+          if extDem + intSup < intDem then
+            [BoundaryError.underreportedBudget ext.agentId p.ptype (extDem + intSup) intDem]
+          else []
+        let e2 :=
+          if extCrit + intSup < intCrit then
+            [BoundaryError.underreportedCriticalBudget ext.agentId p.ptype (extCrit + intSup) intCrit]
+          else []
+        e1 ++ e2
+      | _, _ => []
+  let volBackingErrs :=
+    ext.volumes.filterMap fun ev =>
+      if intVols.any (fun v => v.id == ev.id) then none
+      else some (BoundaryError.unbackedExteriorVolume ext.agentId ev.id)
+  let volLeakErrs :=
+    intVols.flatMap fun v =>
+      let calmErr :=
+        if !predCalmSafe.eval v.traits then
+          [BoundaryError.unsafeInteriorVolume ext.agentId v.id]
+        else []
+      let persistErr :=
+        if predNeedsLocalPersistence.eval v.traits && !intSub.providesDurableStorage then
+          if ext.volumes.any (fun ev => ev.id == v.id && predNeedsLocalPersistence.eval ev.traits) then []
+          else [BoundaryError.leakedInteriorVolume ext.agentId v.id]
+        else []
+      let backupErr :=
+        if predBackupRequired.eval v.traits && intSub.backupProviderCount == 0 then
+          if ext.volumes.any (fun ev => ev.id == v.id && predBackupRequired.eval ev.traits) then []
+          else [BoundaryError.leakedInteriorVolume ext.agentId v.id]
+        else []
+      calmErr ++ persistErr ++ backupErr
+  offerErrs ++ useErrs ++ budgetErrs ++ volBackingErrs ++ volLeakErrs
 
 /-- Scope-Emergent Standalone Check (X4): satisfiable in minimal store-only Standalone Superagent. -/
 def checkStandalone (ext : ExteriorSurface) : Bool :=

@@ -83,6 +83,18 @@ pub fn needs_local_persistence(traits: &[String]) -> bool {
     pred_needs_local_persistence().eval(traits)
 }
 
+/// Returns `true` iff a volume's traits satisfy Hellerstein's CALM monotonicity law.
+#[must_use]
+pub fn is_calm_safe(traits: &[String]) -> bool {
+    pred_calm_safe().eval(traits)
+}
+
+/// Returns `true` iff a volume's traits require an off-host backup provider.
+#[must_use]
+pub fn is_backup_required(traits: &[String]) -> bool {
+    pred_backup_required().eval(traits)
+}
+
 /// Validates all declared state volumes against a substrate, returning structured errors.
 #[must_use]
 pub fn validate_volumes(sub: &SubstrateCapabilities, vs: &[StateVolume]) -> Vec<StateError> {

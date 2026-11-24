@@ -1,8 +1,8 @@
 /-
   Aky.Spec.Binding — Layer 1 Executable Specification (NO PROOFS)
   Unified B3 Scoped Binding (Exclusive, Broadcast, Partitioned via shared `AttrExpr`,
-  Budgeted Capacity with Priority Tiers), Soft Conditional Law, and Multi-Stratum
-  Stratified Handler Resolution (Gap #2 CLOSED!).
+  Budgeted Capacity with Priority Tiers), Soft Conditional Law, Multi-Stratum
+  Stratified Handler Resolution, and Recursive Non-Piercing `Agent` Tree Verification!
 -/
 
 import Aky.Data.AttrExpr
@@ -41,19 +41,6 @@ def countMatchingPartitionHandlers (ps : List Promise) (ptype : String) (offerTa
     h.cardinality == Cardinality.partitioned &&
     h.ptype == ptype &&
     h.selector.eval offerTags)).length
-
-def totalBudgetSupply (ps : List Promise) (ptype : String) : Nat :=
-  List.foldl (fun acc p => acc + p.amount) 0
-    (ps.filter (fun p => p.polarity == Polarity.offer && p.cardinality == Cardinality.budgeted && p.ptype == ptype))
-
-def totalBudgetDemand (ps : List Promise) (ptype : String) : Nat :=
-  List.foldl (fun acc p => acc + p.amount) 0
-    (ps.filter (fun p => p.polarity == Polarity.use && p.cardinality == Cardinality.budgeted && p.ptype == ptype))
-
-/-- Sum of critical-tier (`priority == 0`, e.g. Vaultwarden/Caddy) budgeted demands (C4 OOM protection). -/
-def criticalBudgetDemand (ps : List Promise) (ptype : String) : Nat :=
-  List.foldl (fun acc p => acc + p.amount) 0
-    (ps.filter (fun p => p.polarity == Polarity.use && p.cardinality == Cardinality.budgeted && p.ptype == ptype && p.priority == 0))
 
 /-- Diagnostic validation of a single promise against full scope promise multiset. -/
 def checkPromise (allPs : List Promise) (p : Promise) : List BindingError :=
@@ -98,10 +85,49 @@ def isScopeValid (ps : List Promise) : Bool :=
   ps.all (fun p => (checkPromise ps p).isEmpty)
 
 /--
-  Multi-Stratum Stratified Evaluation (ADR-0003 Strict Stratification — Gap #2 CLOSED!):
+  Convert a Dressed Superagent's exterior `-b` promises into inbound `+b` supplies
+  visible inside its interior scope (including Budgeted capacity reserves!).
+-/
+def inboundFromExterior (ext : ExteriorSurface) : List Promise :=
+  ext.promises.filterMap fun p =>
+    match p.polarity with
+    | Polarity.use =>
+      some { p with
+        id := s!"{ext.agentId}:inbound:{p.id}"
+        polarity := Polarity.offer
+        stratum := 0
+      }
+    | Polarity.offer => none
+
+/-
+  Recursive Fractal Uniform Agent Tree Verifier (TCB CLOSURE):
+  Verifies EVERY Dressed Superagent in an arbitrary-depth `Agent` tree strictly without piercing:
+    1. `checkSuperagentConformance ext children = []`
+    2. `isScopeValid (inboundFromExterior ext ++ (siblingOperationalView children).flatMap (·.promises)) = true`
+    3. Every direct child `Agent` recursively satisfies `checkAgentTree`.
+-/
+mutual
+  def checkAgentTree : Agent -> Bool
+    | Agent.atomic ext _ =>
+      ext.volumes.all (fun v => predCalmSafe.eval v.traits)
+    | Agent.superagent ext children =>
+      let intSurfaces := siblingOperationalView children
+      let scopePs := inboundFromExterior ext ++ intSurfaces.flatMap (·.promises)
+      (checkSuperagentConformance ext children).isEmpty &&
+      isScopeValid scopePs &&
+      checkAgentTreeList children
+    | Agent.profile ms =>
+      checkAgentTreeList ms
+
+  def checkAgentTreeList : List Agent -> Bool
+    | [] => true
+    | a :: rest => checkAgentTree a && checkAgentTreeList rest
+end
+
+/--
+  Multi-Stratum Stratified Evaluation (ADR-0003 Strict Stratification):
   Every handler rule MUST strictly increase stratum (`inStratum < outStratum`) and tag every
-  emitted derived promise with `outStratum`. Bounded recursion over `maxStratum` is guaranteed
-  to terminate deterministically without fixed-point cycles!
+  emitted derived promise with `outStratum`.
 -/
 def validateStratumRules (rules : List HandlerRule) : List BindingError :=
   rules.filterMap fun r =>

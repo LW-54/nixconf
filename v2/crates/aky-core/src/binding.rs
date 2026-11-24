@@ -1,9 +1,13 @@
-//! `B3` Scoped Binding, Budget Priority Tiering, and Multi-Stratum Stratification
-//! mirroring `Aky/Spec/Binding.lean`.
+//! `B3` Scoped Binding, Budget Priority Tiering, Multi-Stratum Stratification,
+//! and Recursive Non-Piercing `Agent` Tree Verification mirroring `Aky/Spec/Binding.lean`.
 
 use serde::{Deserialize, Serialize};
 
-use crate::agency::{Cardinality, Polarity, Promise, Strength};
+use crate::agency::{
+    Agent, Cardinality, ExteriorSurface, Polarity, Promise, Strength, critical_budget_demand,
+    sibling_operational_view, superagent_conforms, total_budget_demand, total_budget_supply,
+};
+use crate::state::is_calm_safe;
 
 /// Declarative cross-stratum handler rule (`in_stratum < out_stratum`).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -88,37 +92,6 @@ fn count_matching_partition_handlers(ps: &[Promise], ptype: &str, offer_tags: &[
         .count()
 }
 
-fn total_budget_supply(ps: &[Promise], ptype: &str) -> u64 {
-    ps.iter()
-        .filter(|p| {
-            p.polarity == Polarity::Offer
-                && p.cardinality == Cardinality::Budgeted
-                && p.ptype == ptype
-        })
-        .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
-}
-
-fn total_budget_demand(ps: &[Promise], ptype: &str) -> u64 {
-    ps.iter()
-        .filter(|p| {
-            p.polarity == Polarity::Use
-                && p.cardinality == Cardinality::Budgeted
-                && p.ptype == ptype
-        })
-        .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
-}
-
-fn critical_budget_demand(ps: &[Promise], ptype: &str) -> u64 {
-    ps.iter()
-        .filter(|p| {
-            p.polarity == Polarity::Use
-                && p.cardinality == Cardinality::Budgeted
-                && p.ptype == ptype
-                && p.priority == 0
-        })
-        .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
-}
-
 /// Validates all `B3` scoped binding laws, returning structured diagnostics.
 #[must_use]
 pub fn validate_scope(ps: &[Promise]) -> Vec<BindingError> {
@@ -178,9 +151,9 @@ pub fn validate_scope(ps: &[Promise]) -> Vec<BindingError> {
                 }
             }
             (Cardinality::Budgeted, Polarity::Use, _, _) => {
-                let supply = total_budget_supply(ps, &p.ptype);
-                let total_demand = total_budget_demand(ps, &p.ptype);
-                let critical_demand = critical_budget_demand(ps, &p.ptype);
+                let supply = total_budget_supply(ps.iter(), &p.ptype);
+                let total_demand = total_budget_demand(ps.iter(), &p.ptype);
+                let critical_demand = critical_budget_demand(ps.iter(), &p.ptype);
                 if total_demand > supply || critical_demand > supply {
                     errors.push(BindingError::BudgetExceeded {
                         ptype: p.ptype.clone(),
@@ -200,6 +173,43 @@ pub fn validate_scope(ps: &[Promise]) -> Vec<BindingError> {
 #[must_use]
 pub fn is_scope_valid(ps: &[Promise]) -> bool {
     validate_scope(ps).is_empty()
+}
+
+/// Projects a Dressed Superagent's exterior `-b` promises into inbound `+b` supplies
+/// inside its interior scope, mirroring `Aky.Spec.inboundFromExterior` 1:1.
+#[must_use]
+pub fn inbound_from_exterior(ext: &ExteriorSurface) -> Vec<Promise> {
+    ext.promises
+        .iter()
+        .filter(|p| p.polarity == Polarity::Use)
+        .map(|p| {
+            let mut inbound = p.clone();
+            inbound.id = format!("{}:inbound:{}", ext.agent_id, p.id);
+            inbound.polarity = Polarity::Offer;
+            inbound.stratum = 0;
+            inbound
+        })
+        .collect()
+}
+
+/// Recursive Fractal Uniform Agent Tree Verifier (TCB Closure),
+/// mirroring `Aky.Spec.checkAgentTree` 1:1.
+#[must_use]
+pub fn check_agent_tree(agent: &Agent) -> bool {
+    match agent {
+        Agent::Atomic { ext, .. } => ext.volumes.iter().all(|v| is_calm_safe(&v.traits)),
+        Agent::Superagent { ext, children } => {
+            let int_surfaces = sibling_operational_view(children);
+            let mut scope_ps = inbound_from_exterior(ext);
+            for surf in int_surfaces {
+                scope_ps.extend(surf.promises.iter().cloned());
+            }
+            superagent_conforms(ext, children)
+                && is_scope_valid(&scope_ps)
+                && children.iter().all(check_agent_tree)
+        }
+        Agent::Profile { members } => members.iter().all(check_agent_tree),
+    }
 }
 
 /// Validates strict acyclic multi-stratum monotonicity (`in_stratum < out_stratum`).

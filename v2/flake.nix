@@ -43,6 +43,8 @@
         ];
       };
       commonArgs = {
+        pname = "aky-workspace";
+        version = "0.2.0";
         inherit src;
         strictDeps = true;
       };
@@ -61,7 +63,11 @@
           cargoClippyExtraArgs = "--workspace --all-targets -- --deny warnings";
         });
       test = craneLib.cargoTest (commonArgs // {inherit cargoArtifacts;});
-      fmt = craneLib.cargoFmt {inherit src;};
+      fmt = craneLib.cargoFmt {
+        pname = "aky-workspace";
+        version = "0.2.0";
+        inherit src;
+      };
     };
 
     # Hermetic offline Lean 4.35 oracle + 35-theorem Audit.lean (0 sorryAx, 0 extra inputs!)
@@ -160,17 +166,24 @@
         echo "OK" > $out
       '';
 
-      # S1 CI Equivalence Check: proves recursive Nix `lib/realize.nix` == Rust `aky resolve` bit-for-bit!
-      s1-binding-equiv = pkgs.runCommand "aky-s1-binding-equiv" {nativeBuildInputs = [pkgs.jq];} ''
-        ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve astrolabe | jq -S . > rust-astro.json
-        jq -S . ${nixResolvedAstrolabe} > nix-astro.json
-        diff -u rust-astro.json nix-astro.json
+      # S1 CI Equivalence Check: proves recursive Nix `lib/realize.nix` == Rust `aky resolve` bit-for-bit
+      # AND verifies Gap #5 (`assertNonPiercingNixos` rejects NixOS `{ config, ... }:` backdoors!).
+      s1-binding-equiv = let
+        fnBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {kind = "atomic";} ({config, ...}: {inherit config;}))).success;
+        importsBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {kind = "atomic";} {imports = [({config, ...}: {inherit config;})];})).success;
+        attrAllowed = (builtins.tryEval (realized.assertNonPiercingNixos "clean" {kind = "atomic";} {services.caddy.enable = true;})).success;
+      in
+        assert fnBlocked && importsBlocked && attrAllowed;
+          pkgs.runCommand "aky-s1-binding-equiv" {nativeBuildInputs = [pkgs.jq];} ''
+            ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve astrolabe | jq -S . > rust-astro.json
+            jq -S . ${nixResolvedAstrolabe} > nix-astro.json
+            diff -u rust-astro.json nix-astro.json
 
-        ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve live-iso | jq -S . > rust-iso.json
-        jq -S . ${nixResolvedIso} > nix-iso.json
-        diff -u rust-iso.json nix-iso.json
-        echo "S1_RECURSIVE_EQUIV_OK" > $out
-      '';
+            ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve live-iso | jq -S . > rust-iso.json
+            jq -S . ${nixResolvedIso} > nix-iso.json
+            diff -u rust-iso.json nix-iso.json
+            echo "S1_RECURSIVE_EQUIV_AND_GAP5_OK" > $out
+          '';
     });
 
     devShells = forAllSystems ({pkgs, ...}: {

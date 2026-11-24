@@ -4,14 +4,14 @@
 use serde::{Deserialize, Serialize};
 
 use crate::agency::{
-    Cardinality, ExteriorSurface, Polarity, Promise, SoftContract, Strength, superagent_conforms,
+    Agent, Cardinality, ExteriorSurface, Polarity, Promise, SoftContract, Strength,
 };
 use crate::attr_expr::AttrExpr;
 use crate::authority::{
     AuthPolicy, AuthResponse, Capability, Effect, Entity, authorize, blast_radius,
     is_delegated_authorized,
 };
-use crate::binding::{HandlerRule, is_scope_valid, validate_stratum_rules};
+use crate::binding::{HandlerRule, check_agent_tree, is_scope_valid, validate_stratum_rules};
 use crate::state::{StateVolume, SubstrateCapabilities, all_volumes_valid};
 
 /// Authorization query sent to both `aky-core` and `aky-oracle`.
@@ -40,21 +40,12 @@ pub struct DelegatedQuery {
     pub resource: Entity,
 }
 
-/// `P-Explicit` conformance check payload.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ConformanceCheck {
-    /// Superagent exterior boundary (`Π_ext`).
-    pub exterior: ExteriorSurface,
-    /// Direct interior child boundaries.
-    pub children: Vec<ExteriorSurface>,
-}
-
 /// Complete DRT request wire frame consumed by `aky-oracle` (`Aky.Oracle.Protocol`).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OracleRequest {
-    /// Superagent conformance check.
-    pub conformance: ConformanceCheck,
+    /// Full recursive Fractal Uniform Agent tree verified non-piercingly.
+    pub agent_tree: Agent,
     /// Scope promises.
     pub promises: Vec<Promise>,
     /// Multi-stratum handler rules.
@@ -89,8 +80,6 @@ pub struct OracleResponse {
     pub auth_responses: Vec<AuthResponse>,
     /// Blast-radius resource IDs.
     pub blast_radius: Vec<String>,
-    /// `P-Explicit` interior conformance verdict.
-    pub conforms: bool,
     /// Combined delegation verdicts.
     pub delegated_results: Vec<bool>,
     /// `B3` scoped binding verdict.
@@ -99,12 +88,14 @@ pub struct OracleResponse {
     pub state_valid: bool,
     /// Multi-stratum DAG acyclicity verdict.
     pub stratum_valid: bool,
+    /// Full recursive `Agent` tree non-piercing conformance + binding verdict.
+    pub tree_valid: bool,
 }
 
 /// Evaluates an [`OracleRequest`] using the pure Rust `aky-core` kernel.
 #[must_use]
 pub fn eval_request(req: &OracleRequest) -> OracleResponse {
-    let conforms = superagent_conforms(&req.conformance.exterior, &req.conformance.children);
+    let tree_valid = check_agent_tree(&req.agent_tree);
     let scope_valid = is_scope_valid(&req.promises);
     let stratum_valid = validate_stratum_rules(&req.stratum_rules);
     let auth_responses = req
@@ -137,11 +128,11 @@ pub fn eval_request(req: &OracleRequest) -> OracleResponse {
     OracleResponse {
         auth_responses,
         blast_radius: blast,
-        conforms,
         delegated_results,
         scope_valid,
         state_valid,
         stratum_valid,
+        tree_valid,
     }
 }
 
@@ -230,7 +221,7 @@ fn rand_tags(rng: &mut Rng, pool: &[&str], max_n: u64) -> Vec<String> {
 }
 
 fn rand_promises(rng: &mut Rng, case_idx: usize) -> Vec<Promise> {
-    let ptypes = ["proxy:https", "ram", "metrics", "route"];
+    let ptypes = ["proxy:https", "ram", "metrics", "http:route"];
     let keys = ["k0", "k1", "ram"];
     let n_ps = rng.range(6).saturating_add(2);
     let mut promises = Vec::new();
@@ -276,6 +267,176 @@ fn rand_promises(rng: &mut Rng, case_idx: usize) -> Vec<Promise> {
         });
     }
     promises
+}
+
+fn mk_budget_promise(id: &str, polarity: Polarity, amount: u64, priority: u64) -> Promise {
+    Promise {
+        id: id.to_string(),
+        ptype: "ram".to_string(),
+        key: "ram".to_string(),
+        polarity,
+        strength: Strength::Hard,
+        cardinality: Cardinality::Budgeted,
+        mandatory: true,
+        amount,
+        priority,
+        stratum: 1,
+        tags: Vec::new(),
+        selector: AttrExpr::Any,
+        soft_info: None,
+    }
+}
+
+fn rand_nested_superagent(rng: &mut Rng, i: usize) -> (Agent, u64) {
+    let child_ram = rng.range(256).saturating_add(64);
+    let child_prio = rng.range(2);
+    let nested_ram = if rng.flip() {
+        child_ram.saturating_add(rng.range(64))
+    } else {
+        child_ram.saturating_sub(32)
+    };
+    let nested_prio = if rng.flip() { child_prio } else { 1 };
+
+    let leaf_vol = StateVolume {
+        id: format!("/var/lib/svc-{i}"),
+        owner: format!("leaf-{i}"),
+        traits: rand_tags(rng, STATE_TAGS, 3),
+    };
+    let nested_ext_vols = if rng.flip() {
+        vec![StateVolume {
+            id: leaf_vol.id.clone(),
+            owner: format!("nested-{i}"),
+            traits: leaf_vol.traits.clone(),
+        }]
+    } else {
+        Vec::new()
+    };
+
+    let leaf_a = Agent::Atomic {
+        ext: ExteriorSurface {
+            agent_id: format!("leaf-{i}"),
+            promises: vec![
+                mk_budget_promise(
+                    &format!("leaf-{i}:-ram"),
+                    Polarity::Use,
+                    child_ram,
+                    child_prio,
+                ),
+                Promise {
+                    id: format!("leaf-{i}:+route"),
+                    ptype: "http:route".to_string(),
+                    key: format!("r-{i}"),
+                    polarity: Polarity::Offer,
+                    strength: Strength::Hard,
+                    cardinality: Cardinality::Partitioned,
+                    mandatory: true,
+                    amount: 0,
+                    priority: 0,
+                    stratum: 1,
+                    tags: vec!["zone:public".to_string()],
+                    selector: AttrExpr::Any,
+                    soft_info: None,
+                },
+            ],
+            attributes: Vec::new(),
+            volumes: vec![leaf_vol],
+        },
+        interior_hash: "h-leaf".to_string(),
+    };
+
+    let nested = Agent::Superagent {
+        ext: ExteriorSurface {
+            agent_id: format!("nested-{i}"),
+            promises: vec![mk_budget_promise(
+                &format!("nested-{i}:-ram"),
+                Polarity::Use,
+                nested_ram,
+                nested_prio,
+            )],
+            attributes: Vec::new(),
+            volumes: nested_ext_vols,
+        },
+        children: vec![leaf_a],
+    };
+    (nested, nested_ram)
+}
+
+fn rand_substrate_profile(
+    rng: &mut Rng,
+    i: usize,
+    nested_ram: u64,
+    promises: &[Promise],
+    volumes: &[StateVolume],
+) -> Agent {
+    let root_ram = if rng.flip() {
+        nested_ram.saturating_add(512)
+    } else {
+        nested_ram.saturating_sub(32)
+    };
+    let mut sub_attrs = Vec::new();
+    if rng.flip() {
+        sub_attrs.push("trait:durable".to_string());
+    }
+    if rng.range(4) == 0 {
+        sub_attrs.push("trait:ephemeral".to_string());
+    }
+    let mut sub_promises = vec![mk_budget_promise(
+        &format!("root-{i}:+ram"),
+        Polarity::Offer,
+        root_ram,
+        0,
+    )];
+    if rng.flip() {
+        sub_promises.push(Promise {
+            id: format!("root-{i}:+bak"),
+            ptype: "backup:provider".to_string(),
+            key: "backup:provider".to_string(),
+            polarity: Polarity::Offer,
+            strength: Strength::Hard,
+            cardinality: Cardinality::Broadcast,
+            mandatory: true,
+            amount: 0,
+            priority: 0,
+            stratum: 0,
+            tags: Vec::new(),
+            selector: AttrExpr::Any,
+            soft_info: None,
+        });
+    }
+    if rng.range(3) == 0 {
+        sub_promises.extend(promises.iter().take(2).cloned());
+    }
+
+    Agent::Profile {
+        members: vec![Agent::Atomic {
+            ext: ExteriorSurface {
+                agent_id: format!("sub-{i}"),
+                promises: sub_promises,
+                attributes: sub_attrs,
+                volumes: volumes.iter().take(1).cloned().collect(),
+            },
+            interior_hash: "h-sub".to_string(),
+        }],
+    }
+}
+
+fn rand_agent_tree(
+    rng: &mut Rng,
+    i: usize,
+    promises: &[Promise],
+    volumes: &[StateVolume],
+) -> Agent {
+    let (nested, nested_ram) = rand_nested_superagent(rng, i);
+    let substrate_profile = rand_substrate_profile(rng, i, nested_ram, promises, volumes);
+    Agent::Superagent {
+        ext: ExteriorSurface {
+            agent_id: format!("root-{i}"),
+            promises: Vec::new(),
+            attributes: rand_tags(rng, TAGS, 2),
+            volumes: Vec::new(),
+        },
+        children: vec![substrate_profile, nested],
+    }
 }
 
 fn rand_stratum_rules(rng: &mut Rng, i: usize) -> Vec<HandlerRule> {
@@ -325,16 +486,6 @@ fn rand_policies(rng: &mut Rng, i: usize) -> Vec<AuthPolicy> {
 
 fn generate_single_case(rng: &mut Rng, i: usize) -> OracleRequest {
     let promises = rand_promises(rng, i);
-    let ext = ExteriorSurface {
-        agent_id: format!("super-{i}"),
-        promises: promises.iter().take(2).cloned().collect(),
-        attributes: rand_tags(rng, TAGS, 2),
-    };
-    let child = ExteriorSurface {
-        agent_id: format!("child-{i}"),
-        promises: promises.clone(),
-        attributes: Vec::new(),
-    };
     let stratum_rules = rand_stratum_rules(rng, i);
     let policies = rand_policies(rng, i);
 
@@ -363,12 +514,10 @@ fn generate_single_case(rng: &mut Rng, i: usize) -> OracleRequest {
             traits: rand_tags(rng, STATE_TAGS, 4),
         })
         .collect();
+    let agent_tree = rand_agent_tree(rng, i, &promises, &volumes);
 
     OracleRequest {
-        conformance: ConformanceCheck {
-            exterior: ext,
-            children: vec![child],
-        },
+        agent_tree,
         promises,
         stratum_rules,
         policies,
@@ -421,11 +570,20 @@ mod tests {
 
     #[test]
     fn generator_produces_deterministic_cases() {
-        let a = generate_fuzzed_cases(42, 16);
-        let b = generate_fuzzed_cases(42, 16);
+        let a = generate_fuzzed_cases(42, 32);
+        let b = generate_fuzzed_cases(42, 32);
         assert_eq!(a, b);
+        let mut saw_true = false;
+        let mut saw_false = false;
         for case in &a {
-            let _ = eval_request(case);
+            let resp = eval_request(case);
+            if resp.tree_valid {
+                saw_true = true;
+            } else {
+                saw_false = true;
+            }
         }
+        assert!(saw_true, "expected at least one valid fuzzed agent tree");
+        assert!(saw_false, "expected at least one invalid fuzzed agent tree");
     }
 }

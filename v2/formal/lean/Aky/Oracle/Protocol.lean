@@ -1,7 +1,8 @@
 /-
   Aky.Oracle.Protocol — Layer 3 Thin JSON Interchange Boundary (AWS Cedar DRT Pattern)
-  Strictly isolated from Spec & Thm. Serializes/deserializes structured verdicts (including
-  determiningPolicies, P-Explicit boundary conformance, multi-stratum rules, and delegation).
+  Strictly isolated from Spec & Thm. Serializes/deserializes structured verdicts including
+  FULL RECURSIVE `Agent` trees (`atomic` | `superagent` | `profile`), P-Explicit boundary
+  conformance (promises + budgets + state volumes), multi-stratum rules, and Cedar/Biscuit delegation!
 -/
 
 import Lean.Data.Json
@@ -97,13 +98,46 @@ instance : FromJson Promise where
       priority, stratum, tags, selector, softInfo
     }
 
+instance : FromJson StateVolume where
+  fromJson? j := do
+    pure {
+      id     := ← j.getObjValAs? String "id"
+      owner  := ← j.getObjValAs? String "owner"
+      traits := ← j.getObjValAs? (List String) "traits"
+    }
+
 instance : FromJson ExteriorSurface where
   fromJson? j := do
+    let volumes : List StateVolume ←
+      match j.getObjVal? "volumes" with
+      | Except.ok vj => fromJson? vj
+      | Except.error _ => pure []
     pure {
       agentId    := ← j.getObjValAs? String "agentId"
       promises   := ← j.getObjValAs? (List Promise) "promises"
       attributes := ← j.getObjValAs? (List String) "attributes"
+      volumes
     }
+
+partial def parseAgent (j : Json) : Except String Agent := do
+  match ← j.getObjValAs? String "kind" with
+  | "atomic" =>
+    let ext ← j.getObjValAs? ExteriorSurface "ext"
+    let hash ← j.getObjValAs? String "interiorHash"
+    pure (Agent.atomic ext hash)
+  | "superagent" =>
+    let ext ← j.getObjValAs? ExteriorSurface "ext"
+    let arr ← (← j.getObjVal? "children").getArr?
+    let children ← arr.toList.mapM parseAgent
+    pure (Agent.superagent ext children)
+  | "profile" =>
+    let arr ← (← j.getObjVal? "members").getArr?
+    let members ← arr.toList.mapM parseAgent
+    pure (Agent.profile members)
+  | s => throw s!"invalid Agent kind: {s}"
+
+instance : FromJson Agent where
+  fromJson? := parseAgent
 
 instance : FromJson HandlerRule where
   fromJson? j := do
@@ -146,14 +180,6 @@ instance : FromJson Capability where
       caveats       := ← j.getObjValAs? (List AttrExpr) "caveats"
     }
 
-instance : FromJson StateVolume where
-  fromJson? j := do
-    pure {
-      id     := ← j.getObjValAs? String "id"
-      owner  := ← j.getObjValAs? String "owner"
-      traits := ← j.getObjValAs? (List String) "traits"
-    }
-
 instance : FromJson SubstrateCapabilities where
   fromJson? j := do
     pure {
@@ -191,19 +217,8 @@ instance : FromJson DelegatedQuery where
       resource   := ← j.getObjValAs? Entity "resource"
     }
 
-structure ConformanceCheck where
-  exterior : ExteriorSurface
-  children : List ExteriorSurface -- Atomic child exteriors inside Dressed Superagent
-
-instance : FromJson ConformanceCheck where
-  fromJson? j := do
-    pure {
-      exterior := ← j.getObjValAs? ExteriorSurface "exterior"
-      children := ← j.getObjValAs? (List ExteriorSurface) "children"
-    }
-
 structure OracleRequest where
-  conformance      : ConformanceCheck
+  agentTree        : Agent
   promises         : List Promise
   stratumRules     : List HandlerRule
   policies         : List AuthPolicy
@@ -218,7 +233,7 @@ structure OracleRequest where
 instance : FromJson OracleRequest where
   fromJson? j := do
     pure {
-      conformance      := ← j.getObjValAs? ConformanceCheck "conformance"
+      agentTree        := ← j.getObjValAs? Agent "agentTree"
       promises         := ← j.getObjValAs? (List Promise) "promises"
       stratumRules     := ← j.getObjValAs? (List HandlerRule) "stratumRules"
       policies         := ← j.getObjValAs? (List AuthPolicy) "policies"
@@ -239,8 +254,7 @@ def authResponseToJson (r : AuthResponse) : Json :=
   ]
 
 def evalRequest (req : OracleRequest) : Json :=
-  let childAgents := req.conformance.children.map (fun ext => Agent.atomic ext "h")
-  let conforms := (checkSuperagentConformance req.conformance.exterior childAgents).isEmpty
+  let treeValid := checkAgentTree req.agentTree
   let scopeValid := isScopeValid req.promises
   let stratumValid := (validateStratumRules req.stratumRules).isEmpty
   let authResponses := req.authQueries.map (fun q => authResponseToJson (authorize req.policies q.principal q.action q.resource))
@@ -251,11 +265,11 @@ def evalRequest (req : OracleRequest) : Json :=
   Json.mkObj [
     ("authResponses", toJson authResponses),
     ("blastRadius", toJson blastIds),
-    ("conforms", toJson conforms),
     ("delegatedResults", toJson delegatedResults),
     ("scopeValid", toJson scopeValid),
     ("stateValid", toJson stateValid),
-    ("stratumValid", toJson stratumValid)
+    ("stratumValid", toJson stratumValid),
+    ("treeValid", toJson treeValid)
   ]
 
 end Aky.Oracle
