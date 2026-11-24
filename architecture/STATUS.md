@@ -20,7 +20,7 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
 - **Project Identity**: **Antikythera (`aky`)** *(ratified in `ADR-0008`)*
-- **Current Phase**: **Phase 3 — Stage `3A.2` Complete (`ADR-0009`) → Active: Stage `3A.3` (Heterogeneous Substrate Realization — final step before `W1` Walking Skeleton!)**
+- **Current Phase**: **Phase 3 — Stage `3A` COMPLETE (`ADR-0008`..`ADR-0010`) → Entering Mandatory `W1` Walking Skeleton Gate!**
 - **Last Updated**: 2026-11-24
 
 ---
@@ -33,7 +33,7 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 | **1** | Empirical Current-State Audit & Boundary-Constraint Harvest | **Complete** | `AUD-0001`..`AUD-0004` (50k LOC census, live `astrolabe` baseline, fleet boundary matrix) |
 | **2A** | Foundational Decisions & Red-Team Synthesis | **Complete** | `RES-0003`..`RES-0011`, `EXP-0001`..`EXP-0004`, `ADR-0002`..`ADR-0006` (`ADR-0001` superseded), `spec/FOUNDATION.md` |
 | **2B** | Formal Mathematical Specification, Rival-Theory Audit & Production Verification | **Complete** | `RES-0012`..`RES-0013`, `EXP-0005` (v0.2), `ADR-0007`, **`PAPER-FOUNDATION` v2.0**, `architecture/formal/` (**35 Lean 4 theorems**, **11 TLC invariants + 8 tests**, **2,005-fleet 1:1 modular Rust↔Lean4 DRT**) |
-| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3A.3`)** | **3A** Structural Kernel (`3A.1` ✅ `ADR-0008` · `3A.2` ✅ `ADR-0009` → `3A.3`) → **`W1` Walking Skeleton Gate** → **3B** Trust/Mesh/Convergence → **3C** Pluggable Capabilities → **3D** CCA & `M1-Sunset` Cutover Plan |
+| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`W1` Gate)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton Gate (NEXT)** → **3B** Trust/Mesh/Convergence → **3C** Pluggable Capabilities → **3D** CCA & `M1-Sunset` Cutover Plan |
 | **4** | Full v2 Implementation & `M1-Sunset` Cutover (`x240` → `astrolabe`) | Queued | Production build on top of Walking Skeleton + zero-carry-forward live cutover & legacy deletion |
 
 ---
@@ -50,14 +50,15 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
   - **Verified Constitution & Paper**: [`spec/FOUNDATION.md`](spec/FOUNDATION.md) + [`paper/FOUNDATION-PAPER.md`](paper/FOUNDATION-PAPER.md) (**Phase 2A + 2B COMPLETE**).
   - **`ADR-0008` (`accepted`) — Stage `3A.1` (`Antikythera` / `aky`, `A2` + `S1`)**: Split `*.toml` Boundaries Everywhere + Pure `interior.nix` + Zero-Artifact Parallel Read (`builtins.fromTOML`, zero IFD, `5.79 ms` zero-Nix verification, Three-Tier Power Stratification).
   - **`ADR-0009` (`accepted`) — Stage `3A.2` (`P1` + `W-Std` + `R-Crane` + `F-Hermetic`)**: Plain `flake.nix` + `flake.lock` (~45 LOC), zero-dep pure `nixpkgs` standalone wrappers, single `crane` Cargo workspace + unified 4-language quality gates (`LW-54/rust-env` + `unsafe_code = "forbid"` + `cargo-deny`), and offline hermetic Lean/Quint Nix sandboxes.
-- **Next Step — Stage `3A.3`**:
-  - Execute 5-step protocol for **Stage `3A.3` — Heterogeneous Substrate Realization** (`A-007`, `QA-03`: VPS impermanent, desktops/laptops/ZenBook/TUF/Chromebook, `aarch64` RPi, `NixOS-WSL`, `Live-ISO`, `Standalone`) — then immediately build the **`W1` Walking Skeleton**!
+  - **`ADR-0010` (`accepted`) — Stage `3A.3` (`Open Orthogonal Substrates` + `I1` + `H2`)**: Arbitrary-axis composable Substrate Agents (zero fixed axis count / zero inheritance), sealed `impermanence` auto-consuming `[state.*]`, and sealed standalone-capable `feel-co/hjem`.
+- **Next Step — Mandatory `W1` Walking Skeleton Gate (`RES-0014`)**:
+  - Build and empirically benchmark the minimal end-to-end Antikythera Walking Skeleton (`aky-core` + `aky` CLI via `crane` + Lean 4 `aky-oracle` DRT + `S1` realizer + `W-Std` standalone `git` + `vaultwarden` + contrasting `astrolabe` / `live-iso` hosts) before designing Stage `3B`.
 
 ---
 
 ## Assumptions Tracker Snapshot
 - Total logged: **13** (`A-001` .. `A-013`)
-- Validated: **6** (`A-001`, `A-002`, `A-003`, `A-004`, `A-011`, `A-013`)
+- Validated: **7** (`A-001`, `A-002`, `A-003`, `A-004`, `A-007`, `A-011`, `A-013`)
 - Experimenting: **1** (`A-005` — `crane` incremental speed to be measured in `W1`)
-- Unverified: **6** (`A-006` .. `A-010`, `A-012`)
+- Unverified: **5** (`A-006`, `A-008`, `A-009`, `A-010`, `A-012`)
 - Falsified: **0**
