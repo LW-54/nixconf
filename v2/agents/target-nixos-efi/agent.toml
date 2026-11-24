@@ -1,15 +1,26 @@
 id = "target-nixos-efi"
-kind = "substrate"
-description = "UEFI NixOS bare-metal/VPS target offering exclusive `target:os` and `hw:physical-block`."
-contributes_traits = ["systemd", "uefi"]
+description = "UEFI NixOS bare-metal/VPS target declared purely with raw promises."
 
-[requires."config:hostname"]
-kind = "exclusive"
+[[promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
 
-[offers."target:os"]
-kind = "exclusive"
+[[promises]]
+ptype = "target:os"
+key = "target:os"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
 target_class = "nixos"
 output_attr = "toplevel"
 
-[offers."hw:physical-block"]
-kind = "exclusive"
+[[promises]]
+ptype = "hw:physical-block"
+key = "hw:physical-block"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true

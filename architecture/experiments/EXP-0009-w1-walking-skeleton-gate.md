@@ -88,3 +88,23 @@ Following a line-by-line formal audit comparing `v2/` against `SPEC-FOUNDATION` 
 - **`aky drt --cases 2000`**: **`2,003 / 2,003` recursive `Agent` trees matched bit-for-bit** (`3` real recursive Superagent trees + `2,000` fuzzed multi-level trees, **0 divergences**; Rust `17.32 ms` vs. Lean 4 `1,022.32 ms`).
 - **7/7 Hermetic Flake Checks PASS** + **7/7 Rust unit tests** (including negative tests for Gaps #1–#4) + **`s1-binding-equiv`** matching dynamic `Partitioned` `bound."http:route".vault` + Gap #5 `{ config, ... }:` rejection assertions!
 - **Real NixOS Eval**: `astrolabe` dynamically produces `services.caddy.virtualHosts."vault.astrolabe.example.org".extraConfig = "reverse_proxy 127.0.0.1:8222\n"` (zero hardcoded port/subdomain), `hjemEnabled = true`, `persisted = ["/var/lib/nixos", "/var/lib/vaultwarden"]` (non-piercing), `live-iso` (`isoImage.drv`), standalone `git 2.56.0`.
+
+---
+
+## 6. Pure Zero-Sugar Usage-Agnostic Core Addendum (2026-11-24 — Fundamental Primitives Only)
+
+Locked the **Usage-Agnostic Core First / Dedicated Ergonomics & Factorization Phase Later** architectural rule:
+
+1. **Zero Domain Strings & Zero Sugar in Core (`Aky/Spec/*`, `aky-core`, `v2/lib/realize.nix`)**:
+   - Deleted hardcoded `StateSafety.lean` / `state.rs` (`StateVolume`, `SubstrateCapabilities`, `deriveSubstrate`), `[budgets]`, `[state.*]`, `[realize]`, `[offers]`/`[requires]` split, `contributes_traits`, `kind`, `checkStandalone`, and `persistentPaths`.
+   - Replaced with **6 pure usage-agnostic primitives**: `AttrExpr`, `Promise` (including mandatory `Broadcast ≥ 1` & mandatory `Partitioned` offer `== 1` + dual `outboundFromExterior` sink), `Agent` (`Atomic` / `Superagent` / `Profile`, 3-field `ExteriorSurface`), declarative `PromiseInvariant` (`Invariants.lean` / `invariants.rs`), Cedar/Biscuit `Authority`, and $\gamma(3,4)$ `Spacetime`.
+   - **CALM monotonicity** (`multi-writer \ (monotonic ∪ single-auth-writer)`) now lives purely as a 1-entry declarative `[[invariants]]` rule in `v2/policies/default.toml`, proved as a domain-emergence corollary (`calm_emerges_from_generic_invariant`) of universal `invariant_violation_sound`!
+   - **Impermanence persistence** now emerges purely via `storage-ephemeral` binding `-b state:persist` (`Partitioned`, `selector = survives-reboot \ (reconstructible ∪ external-owned)`) — zero `persistentPaths` magic!
+2. **Brute-Forced Manual Manifests (`v2/agents/*`)**:
+   - All 10 agents use ONE identical 7-field `AgentManifest` (`id`, `description`, `attributes`, `profiles`, `contains`, `internal_promises`, `promises`) with zero sugar, revealing exact empirical factorization candidates for the dedicated post-architecture Ergonomics phase.
+3. **Verification Results**:
+   - **41/41 usage-agnostic Lean 4 theorems verified, `0 sorryAx`** (`Aky/Audit.lean`).
+   - **0 domain strings** in all production code of `Aky/Spec/*` and `aky-core/src/*`.
+   - **7/7 hermetic flake checks PASS** (0 warnings), **5/5 Rust unit tests**, `cargo-deny`/`alejandra`/`statix`/`deadnix` clean.
+   - **`2,003 / 2,003` recursive-tree DRT bit-for-bit match** (`0` divergences; Rust `24.13 ms`, Lean 4 `1,230.93 ms`).
+   - **Byte-for-byte identical NixOS `.drv` hashes** for both `astrolabe` (`l6392i...nixos-system-astrolabe...drv`, `persisted = ["/var/lib/nixos", "/var/lib/vaultwarden"]`, dynamic Caddy `reverse_proxy 127.0.0.1:8222`) and `live-iso` (`7xw5xs...nixos-minimal...iso.drv`)!

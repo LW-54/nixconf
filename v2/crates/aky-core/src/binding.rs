@@ -1,13 +1,16 @@
 //! `B3` Scoped Binding, Budget Priority Tiering, Multi-Stratum Stratification,
-//! and Recursive Non-Piercing `Agent` Tree Verification mirroring `Aky/Spec/Binding.lean`.
+//! and Recursive Non-Piercing `Agent` Tree Verification (100% usage-agnostic)
+//! mirroring `Aky/Spec/Binding.lean`.
 
 use serde::{Deserialize, Serialize};
 
 use crate::agency::{
-    Agent, Cardinality, ExteriorSurface, Polarity, Promise, Strength, critical_budget_demand,
-    sibling_operational_view, superagent_conforms, total_budget_demand, total_budget_supply,
+    Agent, Cardinality, ExteriorSurface, Polarity, Promise, Strength,
+    count_matching_partition_handlers, critical_budget_demand, sibling_operational_view,
+    superagent_conforms, total_budget_demand, total_budget_supply,
 };
-use crate::state::is_calm_safe;
+use crate::attr_expr::AttrExpr;
+use crate::invariants::{PromiseInvariant, all_invariants_hold};
 
 /// Declarative cross-stratum handler rule (`in_stratum < out_stratum`).
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -42,6 +45,13 @@ pub enum BindingError {
         /// Actual count of matching offers found in scope.
         offer_count: usize,
     },
+    /// A mandatory `Hard` `Broadcast` requirement has zero matching offers of `ptype`.
+    MissingBroadcastProvider {
+        /// Requirement promise identifier.
+        promise_id: String,
+        /// Required promise type.
+        ptype: String,
+    },
     /// Multiple `Exclusive` or `Partitioned` offers collided on the same `(ptype, key)`.
     DuplicateOffer {
         /// Colliding promise identifier.
@@ -62,9 +72,18 @@ pub enum BindingError {
         /// Number of matching partition handlers.
         handler_count: usize,
     },
+    /// A mandatory `Hard` `Partitioned` offer matched zero partition handlers in scope.
+    UnhandledPartitionedOffer {
+        /// Offer promise identifier.
+        promise_id: String,
+        /// Promise type.
+        ptype: String,
+        /// Offer key.
+        key: String,
+    },
     /// Total or critical-tier `Budgeted` demand exceeds available supply.
     BudgetExceeded {
-        /// Promise type (e.g., `"ram"`).
+        /// Promise type.
         ptype: String,
         /// Total available supply.
         supply: u64,
@@ -81,14 +100,9 @@ fn count_matching_offers(ps: &[Promise], ptype: &str, key: &str) -> usize {
         .count()
 }
 
-fn count_matching_partition_handlers(ps: &[Promise], ptype: &str, offer_tags: &[String]) -> usize {
+fn count_matching_broadcast_offers(ps: &[Promise], ptype: &str) -> usize {
     ps.iter()
-        .filter(|h| {
-            h.polarity == Polarity::Use
-                && h.cardinality == Cardinality::Partitioned
-                && h.ptype == ptype
-                && h.selector.eval(offer_tags)
-        })
+        .filter(|p| p.polarity == Polarity::Offer && p.ptype == ptype)
         .count()
 }
 
@@ -131,6 +145,14 @@ pub fn validate_scope(ps: &[Promise]) -> Vec<BindingError> {
                     });
                 }
             }
+            (Cardinality::Broadcast, Polarity::Use, Strength::Hard, true) => {
+                if count_matching_broadcast_offers(ps, &p.ptype) == 0 {
+                    errors.push(BindingError::MissingBroadcastProvider {
+                        promise_id: p.id.clone(),
+                        ptype: p.ptype.clone(),
+                    });
+                }
+            }
             (Cardinality::Partitioned, Polarity::Offer, _, _) => {
                 let offer_count = count_matching_offers(ps, &p.ptype, &p.key);
                 if offer_count > 1 {
@@ -141,12 +163,19 @@ pub fn validate_scope(ps: &[Promise]) -> Vec<BindingError> {
                         offer_count,
                     });
                 }
-                let handler_count = count_matching_partition_handlers(ps, &p.ptype, &p.tags);
+                let handler_count = count_matching_partition_handlers(ps.iter(), &p.ptype, &p.tags);
                 if handler_count > 1 {
                     errors.push(BindingError::OverlappingPartitionHandlers {
                         promise_id: p.id.clone(),
                         ptype: p.ptype.clone(),
                         handler_count,
+                    });
+                }
+                if p.strength == Strength::Hard && p.mandatory && handler_count == 0 {
+                    errors.push(BindingError::UnhandledPartitionedOffer {
+                        promise_id: p.id.clone(),
+                        ptype: p.ptype.clone(),
+                        key: p.key.clone(),
                     });
                 }
             }
@@ -192,23 +221,71 @@ pub fn inbound_from_exterior(ext: &ExteriorSurface) -> Vec<Promise> {
         .collect()
 }
 
-/// Recursive Fractal Uniform Agent Tree Verifier (TCB Closure),
+/// Dual projection: synthesizes one non-overlapping outbound `-b` sink per `Partitioned`
+/// `ptype` exported on `ext`, mirroring `Aky.Spec.outboundFromExterior` 1:1.
+#[must_use]
+pub fn outbound_from_exterior(ext: &ExteriorSurface, int_ps: &[Promise]) -> Vec<Promise> {
+    let mut exported_ptypes: Vec<String> = Vec::new();
+    for p in &ext.promises {
+        if p.polarity == Polarity::Offer
+            && p.cardinality == Cardinality::Partitioned
+            && !exported_ptypes.contains(&p.ptype)
+        {
+            exported_ptypes.push(p.ptype.clone());
+        }
+    }
+    exported_ptypes
+        .into_iter()
+        .map(|pt| {
+            let not_handled = int_ps
+                .iter()
+                .filter(|h| {
+                    h.polarity == Polarity::Use
+                        && h.cardinality == Cardinality::Partitioned
+                        && h.ptype == pt
+                })
+                .fold(AttrExpr::Any, |acc, h| {
+                    AttrExpr::inter(acc, AttrExpr::compl(h.selector.clone()))
+                });
+            Promise {
+                id: format!("{}:outbound:{pt}", ext.agent_id),
+                ptype: pt.clone(),
+                key: pt,
+                polarity: Polarity::Use,
+                strength: Strength::Hard,
+                cardinality: Cardinality::Partitioned,
+                mandatory: false,
+                amount: 0,
+                priority: 0,
+                stratum: 0,
+                tags: Vec::new(),
+                selector: not_handled,
+                soft_info: None,
+            }
+        })
+        .collect()
+}
+
+/// Recursive Fractal Uniform Agent Tree Verifier (100% usage-agnostic TCB),
 /// mirroring `Aky.Spec.checkAgentTree` 1:1.
 #[must_use]
-pub fn check_agent_tree(agent: &Agent) -> bool {
+pub fn check_agent_tree(invs: &[PromiseInvariant], agent: &Agent) -> bool {
     match agent {
-        Agent::Atomic { ext, .. } => ext.volumes.iter().all(|v| is_calm_safe(&v.traits)),
+        Agent::Atomic { ext, .. } => all_invariants_hold(invs, &ext.promises),
         Agent::Superagent { ext, children } => {
-            let int_surfaces = sibling_operational_view(children);
+            let int_ps: Vec<Promise> = sibling_operational_view(children)
+                .into_iter()
+                .flat_map(|surf| surf.promises.iter().cloned())
+                .collect();
             let mut scope_ps = inbound_from_exterior(ext);
-            for surf in int_surfaces {
-                scope_ps.extend(surf.promises.iter().cloned());
-            }
-            superagent_conforms(ext, children)
+            scope_ps.extend(outbound_from_exterior(ext, &int_ps));
+            scope_ps.extend(int_ps);
+            all_invariants_hold(invs, &ext.promises)
+                && superagent_conforms(ext, children)
                 && is_scope_valid(&scope_ps)
-                && children.iter().all(check_agent_tree)
+                && children.iter().all(|c| check_agent_tree(invs, c))
         }
-        Agent::Profile { members } => members.iter().all(check_agent_tree),
+        Agent::Profile { members } => members.iter().all(|m| check_agent_tree(invs, m)),
     }
 }
 

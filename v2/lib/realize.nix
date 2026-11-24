@@ -1,6 +1,11 @@
-# Antikythera S1 Pure-Nix Recursive Model-A Realizer
-# Zero IFD, Zero `${self}`, Zero interior piercing, Zero global `config` backdoors!
-{inputs}: let
+# Antikythera S1 Pure-Nix Zero-Sugar Recursive Realizer
+# Reads ONLY raw primitives (`promises`, `internal_promises`, `profiles`, `contains`, `attributes`).
+# Zero IFD, Zero `${self}`, Zero `persistentPaths`, Zero interior piercing, Zero global `config` backdoors!
+{
+  inputs,
+  nixosTargets,
+  standaloneTargets,
+}: let
   inherit (inputs.nixpkgs) lib;
 
   readToml = path: builtins.fromTOML (builtins.readFile path);
@@ -29,12 +34,6 @@
 
   isSuperagent = b: (b.contains or []) != [] || (b.profiles or []) != [];
 
-  # Exact S2+ persistence predicate matching `Aky/Spec/StateSafety.lean` & `aky-core`
-  needsLocalPersistence = traits:
-    (builtins.elem "survives-reboot" traits)
-    && !(builtins.elem "reconstructible" traits)
-    && !(builtins.elem "external-owned" traits);
-
   # Exact AttrExpr Boolean Lattice evaluator matching `Aky/Data/AttrExpr.lean` & `aky-core`
   evalAttrExpr = expr: tags: let
     k = expr.kind or "any";
@@ -55,22 +54,14 @@
     then false
     else throw "aky: unknown AttrExpr kind '${k}'";
 
-  # Normalize offer payload to match `aky_core::fleet::offer_to_json` bit-for-bit
-  normalizeOffer = o:
-    {kind = o.kind or "exclusive";}
-    // (lib.optionalAttrs ((o.amount or 0) > 0) {inherit (o) amount;})
-    // (builtins.removeAttrs o ["ptype" "key" "kind" "strength" "amount" "tags" "soft"]);
-
-  toScopeOffer = tableKey: o: {
-    ptype = o.ptype or tableKey;
-    key = o.key or tableKey;
-    kind = o.kind or "exclusive";
-    tags = o.tags or [];
-    value = normalizeOffer o;
-  };
-
-  mapToScopeOffers = attrs:
-    lib.mapAttrsToList toScopeOffer attrs;
+  specsToOffers = ps:
+    map (p: {
+      inherit (p) ptype key;
+      kind = p.cardinality;
+      tags = p.tags or [];
+      value = p.payload or {};
+    })
+    (builtins.filter (p: p.polarity == "offer") ps);
 
   expandChildren = b: let
     profRefs =
@@ -80,7 +71,7 @@
           value = {
             agent = aid;
             localName = aid;
-            offers = {};
+            promises = [];
           };
         })
         (flattenProfiles [] (b.profiles or []) []));
@@ -93,29 +84,13 @@
           value = {
             inherit (ch) agent;
             inherit localName;
-            offers = ch.offers or {};
+            promises = ch.promises or [];
           };
         })
         (b.contains or []));
     merged = profRefs // explicitRefs;
   in
     map (name: merged.${name}) (lib.sort builtins.lessThan (builtins.attrNames merged));
-
-  # Non-Piercing S2+ persistent-path collector:
-  # Reads ONLY `rootName`'s own exterior `state` and its DIRECT children's exterior `state`!
-  # Never pierces nested Superagents (conformance guarantees nested stacks surface their state!).
-  collectDirectPersistentPaths = rootName: let
-    b = loadBoundary rootName;
-    extractPaths = boundary:
-      lib.mapAttrsToList (_: vol: vol.path)
-      (lib.filterAttrs (_: vol: needsLocalPersistence (vol.traits or [])) (boundary.state or {}));
-    own = extractPaths b;
-    directChildPaths =
-      if isSuperagent b
-      then lib.concatMap (ch: extractPaths (loadBoundary ch.agent)) (expandChildren b)
-      else [];
-  in
-    lib.unique (lib.sort builtins.lessThan (own ++ directChildPaths));
 
   findLast = pred: xs: let
     matches = builtins.filter pred xs;
@@ -124,50 +99,75 @@
     then null
     else lib.last matches;
 
-  bindChildRequires = childBoundary: childPath: scopeOffers: localOffers:
-    lib.mapAttrs (reqName: rspec: let
-      reqPtype = rspec.ptype or reqName;
-      reqKey = rspec.key or reqName;
-      reqKind = rspec.kind or "exclusive";
-      selector = rspec.selector or {kind = "any";};
-      allOffers = scopeOffers ++ localOffers;
+  bindChildUses = childBoundary: childPath: scopeOffers: localOffers: let
+    uses = builtins.filter (p: p.polarity == "use") (childBoundary.promises or []);
+    allOffers = scopeOffers ++ localOffers;
+  in
+    builtins.listToAttrs (lib.concatMap (r: let
+      reqKind = r.cardinality;
+      selector = r.selector or {kind = "any";};
     in
       if reqKind == "partitioned"
       then let
         matched =
           builtins.filter
-          (o: o.ptype == reqPtype && o.kind == "partitioned" && evalAttrExpr selector o.tags)
+          (o: o.ptype == r.ptype && o.kind == "partitioned" && evalAttrExpr selector o.tags)
           allOffers;
-      in
-        builtins.listToAttrs (map (o: {
-            name = o.key;
-            inherit (o) value;
-          })
-          matched)
+      in [
+        {
+          name = r.key;
+          value = builtins.listToAttrs (map (o: {
+              name = o.key;
+              inherit (o) value;
+            })
+            matched);
+        }
+      ]
       else if reqKind == "broadcast"
       then let
-        matched = builtins.filter (o: o.ptype == reqPtype) allOffers;
-      in
-        builtins.listToAttrs (map (o: {
-            name = o.key;
-            inherit (o) value;
-          })
-          matched)
+        matched = builtins.filter (o: o.ptype == r.ptype) allOffers;
+      in [
+        {
+          name = r.key;
+          value = builtins.listToAttrs (map (o: {
+              name = o.key;
+              inherit (o) value;
+            })
+            matched);
+        }
+      ]
       else let
-        localHit = findLast (o: o.ptype == reqPtype && o.key == reqKey) localOffers;
-        scopeHit = findLast (o: o.ptype == reqPtype && o.key == reqKey) scopeOffers;
+        localHit = findLast (o: o.ptype == r.ptype && o.key == r.key) localOffers;
+        scopeHit = findLast (o: o.ptype == r.ptype && o.key == r.key) scopeOffers;
       in
         if localHit != null
-        then localHit.value
+        then [
+          {
+            name = r.key;
+            inherit (localHit) value;
+          }
+        ]
         else if scopeHit != null
-        then scopeHit.value
-        else if builtins.hasAttr "default" rspec
-        then rspec.default
-        else throw "aky: agent '${childPath}' requires unsatisfied promise '${reqName}'")
-    (childBoundary.requires or {});
+        then [
+          {
+            name = r.key;
+            inherit (scopeHit) value;
+          }
+        ]
+        else if builtins.hasAttr "default" r
+        then [
+          {
+            name = r.key;
+            value = r.default;
+          }
+        ]
+        else if !(r.mandatory or true)
+        then []
+        else throw "aky: agent '${childPath}' requires unsatisfied promise '${r.ptype}:${r.key}'")
+    uses);
 
   # Recursive Non-Piercing Binder:
-  # Each Dressed Superagent ONLY passes offers matching a child's declared `requires` across Σ!
+  # Each Dressed Superagent ONLY passes offers matching a child's declared `-b` promises across Σ!
   resolveTree = name: prefix: inboundBound: let
     b = loadBoundary name;
   in
@@ -182,51 +182,48 @@
     ]
     else let
       children = expandChildren b;
-      inboundOffers = lib.concatLists (lib.mapAttrsToList (rkey: rspec:
-        if builtins.hasAttr rkey inboundBound
+      inboundOffers = lib.concatMap (p:
+        if p.polarity == "use" && builtins.hasAttr p.key inboundBound
         then [
           {
-            ptype = rspec.ptype or rkey;
-            key = rspec.key or rkey;
-            kind = rspec.kind or "exclusive";
+            inherit (p) ptype key;
+            kind = p.cardinality;
             tags = [];
-            value = inboundBound.${rkey};
+            value = inboundBound.${p.key};
           }
         ]
         else [])
-      (b.requires or {}));
-      internalOffers = mapToScopeOffers (b.internal_offers or {});
+      (b.promises or []);
+      internalOffers = specsToOffers (b.internal_promises or []);
       childExtOffers =
-        lib.concatMap (ch: mapToScopeOffers ((loadBoundary ch.agent).offers or {})) children;
+        lib.concatMap (ch: specsToOffers ((loadBoundary ch.agent).promises or [])) children;
       scopeOffers = inboundOffers ++ internalOffers ++ childExtOffers;
     in
       lib.concatMap (ch: let
         cb = loadBoundary ch.agent;
-        localOffers = mapToScopeOffers ch.offers;
+        localOffers = specsToOffers ch.promises;
         childPath =
           if prefix == ""
           then ch.localName
           else "${prefix}/${ch.localName}";
-        childBound = bindChildRequires cb childPath scopeOffers localOffers;
+        childBound = bindChildUses cb childPath scopeOffers localOffers;
       in
         resolveTree ch.agent childPath childBound)
       children;
 
   # Gap #5 Hard Boundary Enforcement:
   # Forbids atomic `interior.nix` files from returning NixOS module lambdas `{ config, ... }:`
-  # (which would pierce Σ via NixOS's global `config` fixpoint!), and forbids non-substrate
-  # atomic agents from smuggling inline lambdas via `imports = [ ... ]`.
+  # and gates `nixos.imports` strictly on the factual attribute `"foreign:nixos-module"`.
   assertNonPiercingNixos = agentName: boundary: nixosMod:
     if !(builtins.isAttrs nixosMod)
     then throw "aky: interior '${agentName}/interior.nix' exported a non-attrset `nixos` (${builtins.typeOf nixosMod}); `{ config, ... }:` module functions are FORBIDDEN across Σ!"
-    else if (builtins.hasAttr "imports" nixosMod) && ((boundary.kind or "atomic") != "substrate")
-    then throw "aky: non-substrate atomic agent '${agentName}' may not use `nixos.imports` (prevents global NixOS `config` piercing across Σ)!"
+    else if (builtins.hasAttr "imports" nixosMod) && !(builtins.elem "foreign:nixos-module" (boundary.attributes or []))
+    then throw "aky: agent '${agentName}' without attribute `foreign:nixos-module` may not use `nixos.imports` (prevents global NixOS `config` piercing across Σ)!"
     else nixosMod;
 
   resolveRootData = rootName: let
     b = loadBoundary rootName;
     leaves = resolveTree rootName "" {};
-    persistentPaths = collectDirectPersistentPaths rootName;
     leafInstances = lib.sort builtins.lessThan (map (l: l.instancePath) leaves);
     boundByInstance = builtins.listToAttrs (map (l: {
         name = l.instancePath;
@@ -234,20 +231,18 @@
       })
       leaves);
   in {
-    inherit b leaves persistentPaths;
+    inherit b leaves;
     # Exact JSON shape matching `aky_core::fleet::ResolvedTargetBindings`
     summary = {
       root_id = b.id;
-      inherit (b.realize) system;
       leaf_instances = leafInstances;
-      persistent_paths = persistentPaths;
       bound_by_instance = boundByInstance;
     };
   };
 
-  realizeRoot = rootName: let
+  realizeRoot = rootName: system: let
     data = resolveRootData rootName;
-    pkgs = import inputs.nixpkgs {inherit (data.b.realize) system;};
+    pkgs = import inputs.nixpkgs {inherit system;};
     agentModules =
       lib.concatMap (
         leaf:
@@ -256,7 +251,6 @@
             raw = (loadInterior leaf.agentName) {
               self = leaf.boundary;
               inherit (leaf) bound;
-              inherit (data) persistentPaths;
               inherit pkgs lib inputs;
             };
           in [
@@ -267,7 +261,7 @@
       data.leaves;
   in
     inputs.nixpkgs.lib.nixosSystem {
-      inherit (data.b.realize) system;
+      inherit system;
       modules = agentModules;
     };
 
@@ -280,17 +274,9 @@
       bound = {};
       inherit pkgs lib inputs;
     }).package;
-
-  allAgentNames = builtins.attrNames (builtins.readDir ../agents);
-
-  rootTargetNames =
-    lib.filter (n: builtins.hasAttr "realize" (loadBoundary n)) allAgentNames;
-
-  standaloneNames =
-    lib.filter (n: (loadBoundary n).kind or "" == "standalone") allAgentNames;
 in {
   inherit assertNonPiercingNixos;
-  nixosConfigurations = lib.genAttrs rootTargetNames realizeRoot;
-  resolvedBindings = lib.genAttrs rootTargetNames (r: (resolveRootData r).summary);
-  standalonePackages = system: lib.genAttrs standaloneNames (realizeStandalone system);
+  nixosConfigurations = lib.mapAttrs realizeRoot nixosTargets;
+  resolvedBindings = lib.mapAttrs (r: _: (resolveRootData r).summary) nixosTargets;
+  standalonePackages = system: lib.genAttrs standaloneTargets (realizeStandalone system);
 }

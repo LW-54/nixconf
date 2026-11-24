@@ -1,8 +1,13 @@
 {
+  bound,
   inputs,
-  persistentPaths,
+  lib,
   ...
-}: {
+}: let
+  persistentPaths =
+    lib.sort builtins.lessThan
+    (lib.mapAttrsToList (_: vol: vol.path) bound."state:persist");
+in {
   nixos = {
     imports = [
       (inputs.impermanence + "/nixos.nix")
@@ -16,7 +21,7 @@
       fsType = "ext4";
       neededForBoot = true;
     };
-    # Auto-realized strictly from Agent-Declared S2+ [state.*] volumes in *.toml!
+    # Auto-realized strictly from generic Partitioned `bound."state:persist"` promises!
     environment.persistence."/persist" = {
       hideMounts = true;
       directories = persistentPaths;

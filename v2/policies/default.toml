@@ -30,19 +30,26 @@ tags = ["class:cache"]
 id = "permit-servers-vault"
 effect = "permit"
 action = "read-secret"
-principalPred = { kind = "atom", tag = "role:server" }
-resourcePred = { kind = "atom", tag = "class:vault" }
+principalPred = {kind = "atom", tag = "role:server"}
+resourcePred = {kind = "atom", tag = "class:vault"}
 
 [[policies]]
 id = "permit-roaming-wifi"
 effect = "permit"
 action = "read-secret"
-principalPred = { kind = "atom", tag = "posture:roaming" }
-resourcePred = { kind = "atom", tag = "class:wifi" }
+principalPred = {kind = "atom", tag = "posture:roaming"}
+resourcePred = {kind = "atom", tag = "class:wifi"}
 
 [[policies]]
 id = "forbid-roaming-or-ai-vault"
 effect = "forbid"
 action = "read-secret"
-principalPred = { kind = "union", left = { kind = "atom", tag = "posture:roaming" }, right = { kind = "atom", tag = "actor:ai-agent" } }
-resourcePred = { kind = "atom", tag = "class:vault" }
+principalPred = {kind = "union", left = {kind = "atom", tag = "posture:roaming"}, right = {kind = "atom", tag = "actor:ai-agent"}}
+resourcePred = {kind = "atom", tag = "class:vault"}
+
+# Domain law expressed purely as declarative AttrExpr data (zero storage logic in core kernel!):
+# Hellerstein CALM Monotonicity: forbid `multi-writer \ (monotonic ∪ single-auth-writer)` on `state:persist`.
+[[invariants]]
+id = "calm-monotonicity"
+ptype = "state:persist"
+forbidTags = {kind = "diff", left = {kind = "atom", tag = "multi-writer"}, right = {kind = "union", left = {kind = "atom", tag = "monotonic"}, right = {kind = "atom", tag = "single-auth-writer"}}}

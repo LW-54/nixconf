@@ -1,9 +1,11 @@
 {
   self,
   bound,
+  lib,
   ...
 }: let
-  route = self.offers."route:vault";
+  routeOffer = lib.findFirst (p: p.polarity == "offer" && p.ptype == "http:route" && p.key == "vault") (throw "missing http:route offer") self.promises;
+  route = routeOffer.payload;
 in {
   nixos = {
     services.vaultwarden = {

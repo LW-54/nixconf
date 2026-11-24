@@ -1,16 +1,15 @@
 /-
-  Aky.Oracle.Protocol — Layer 3 Thin JSON Interchange Boundary (AWS Cedar DRT Pattern)
-  Strictly isolated from Spec & Thm. Serializes/deserializes structured verdicts including
-  FULL RECURSIVE `Agent` trees (`atomic` | `superagent` | `profile`), P-Explicit boundary
-  conformance (promises + budgets + state volumes), multi-stratum rules, and Cedar/Biscuit delegation!
+  Aky.Oracle.Protocol — Layer 3 Thin JSON Interchange Boundary (100% Usage-Agnostic)
+  Serializes/deserializes recursive `Agent` trees, declarative `PromiseInvariant` rules,
+  scoped binding, multi-stratum rules, and Cedar/Biscuit authorization & delegation!
 -/
 
 import Lean.Data.Json
 import Aky.Data.AttrExpr
 import Aky.Spec.Agency
+import Aky.Spec.Invariants
 import Aky.Spec.Binding
 import Aky.Spec.Authority
-import Aky.Spec.StateSafety
 
 namespace Aky.Oracle
 
@@ -98,25 +97,12 @@ instance : FromJson Promise where
       priority, stratum, tags, selector, softInfo
     }
 
-instance : FromJson StateVolume where
-  fromJson? j := do
-    pure {
-      id     := ← j.getObjValAs? String "id"
-      owner  := ← j.getObjValAs? String "owner"
-      traits := ← j.getObjValAs? (List String) "traits"
-    }
-
 instance : FromJson ExteriorSurface where
   fromJson? j := do
-    let volumes : List StateVolume ←
-      match j.getObjVal? "volumes" with
-      | Except.ok vj => fromJson? vj
-      | Except.error _ => pure []
     pure {
       agentId    := ← j.getObjValAs? String "agentId"
       promises   := ← j.getObjValAs? (List Promise) "promises"
       attributes := ← j.getObjValAs? (List String) "attributes"
-      volumes
     }
 
 partial def parseAgent (j : Json) : Except String Agent := do
@@ -138,6 +124,14 @@ partial def parseAgent (j : Json) : Except String Agent := do
 
 instance : FromJson Agent where
   fromJson? := parseAgent
+
+instance : FromJson PromiseInvariant where
+  fromJson? j := do
+    pure {
+      id         := ← j.getObjValAs? String "id"
+      ptype      := ← j.getObjValAs? String "ptype"
+      forbidTags := ← j.getObjValAs? AttrExpr "forbidTags"
+    }
 
 instance : FromJson HandlerRule where
   fromJson? j := do
@@ -180,13 +174,6 @@ instance : FromJson Capability where
       caveats       := ← j.getObjValAs? (List AttrExpr) "caveats"
     }
 
-instance : FromJson SubstrateCapabilities where
-  fromJson? j := do
-    pure {
-      providesDurableStorage := ← j.getObjValAs? Bool "providesDurableStorage"
-      backupProviderCount    := ← j.getObjValAs? Nat "backupProviderCount"
-    }
-
 structure AuthQuery where
   principal : Entity
   action    : String
@@ -219,6 +206,7 @@ instance : FromJson DelegatedQuery where
 
 structure OracleRequest where
   agentTree        : Agent
+  invariants       : List PromiseInvariant
   promises         : List Promise
   stratumRules     : List HandlerRule
   policies         : List AuthPolicy
@@ -227,13 +215,12 @@ structure OracleRequest where
   blastTarget      : Entity
   blastAction      : String
   allResources     : List Entity
-  substrate        : SubstrateCapabilities
-  volumes          : List StateVolume
 
 instance : FromJson OracleRequest where
   fromJson? j := do
     pure {
       agentTree        := ← j.getObjValAs? Agent "agentTree"
+      invariants       := ← j.getObjValAs? (List PromiseInvariant) "invariants"
       promises         := ← j.getObjValAs? (List Promise) "promises"
       stratumRules     := ← j.getObjValAs? (List HandlerRule) "stratumRules"
       policies         := ← j.getObjValAs? (List AuthPolicy) "policies"
@@ -242,8 +229,6 @@ instance : FromJson OracleRequest where
       blastTarget      := ← j.getObjValAs? Entity "blastTarget"
       blastAction      := ← j.getObjValAs? String "blastAction"
       allResources     := ← j.getObjValAs? (List Entity) "allResources"
-      substrate        := ← j.getObjValAs? SubstrateCapabilities "substrate"
-      volumes          := ← j.getObjValAs? (List StateVolume) "volumes"
     }
 
 def authResponseToJson (r : AuthResponse) : Json :=
@@ -254,20 +239,20 @@ def authResponseToJson (r : AuthResponse) : Json :=
   ]
 
 def evalRequest (req : OracleRequest) : Json :=
-  let treeValid := checkAgentTree req.agentTree
+  let treeValid := checkAgentTree req.invariants req.agentTree
+  let invariantsValid := allInvariantsHold req.invariants req.promises
   let scopeValid := isScopeValid req.promises
   let stratumValid := (validateStratumRules req.stratumRules).isEmpty
   let authResponses := req.authQueries.map (fun q => authResponseToJson (authorize req.policies q.principal q.action q.resource))
   let delegatedResults := req.delegatedQueries.map (fun q =>
     isDelegatedAuthorized req.policies q.delegator q.delegatee q.capability q.action q.resource)
   let blastIds := (blastRadius req.policies req.blastTarget req.blastAction req.allResources).map (·.id)
-  let stateValid := allVolumesValid req.substrate req.volumes
   Json.mkObj [
     ("authResponses", toJson authResponses),
     ("blastRadius", toJson blastIds),
     ("delegatedResults", toJson delegatedResults),
+    ("invariantsValid", toJson invariantsValid),
     ("scopeValid", toJson scopeValid),
-    ("stateValid", toJson stateValid),
     ("stratumValid", toJson stratumValid),
     ("treeValid", toJson treeValid)
   ]

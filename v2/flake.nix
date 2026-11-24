@@ -1,5 +1,5 @@
 {
-  description = "Antikythera (aky) — Formally verified Promise Theory & Semantic Spacetime declarative platform";
+  description = "Antikythera (aky) — Zero-sugar usage-agnostic Promise Theory & Semantic Spacetime platform";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -28,7 +28,15 @@
           pkgs = import nixpkgs {inherit system;};
         });
 
-    realized = import ./lib/realize.nix {inherit inputs;};
+    # Realizer target mapping lives strictly in the NixOS realizer layer (zero NixOS concepts in aky-core!).
+    realized = import ./lib/realize.nix {
+      inherit inputs;
+      nixosTargets = {
+        astrolabe = "x86_64-linux";
+        live-iso = "x86_64-linux";
+      };
+      standaloneTargets = ["git"];
+    };
 
     mkRust = pkgs: let
       craneLib = crane.mkLib pkgs;
@@ -70,7 +78,7 @@
       };
     };
 
-    # Hermetic offline Lean 4.35 oracle + 35-theorem Audit.lean (0 sorryAx, 0 extra inputs!)
+    # Hermetic offline Lean 4.35 oracle + 41-theorem usage-agnostic Audit.lean (0 sorryAx!)
     mkLeanOracle = pkgs:
       pkgs.stdenv.mkDerivation {
         pname = "aky-oracle";
@@ -159,19 +167,19 @@
       lean-audit = oracle;
       quint-check = mkQuintCheck pkgs;
 
-      # Zero-Nix recursive Superagent boundary verification + Lean 4 DRT (real superagents + 500 fuzzed!)
+      # Zero-Nix usage-agnostic verification + Lean 4 recursive-tree DRT (real superagents + 500 fuzzed!)
       aky-fleet-and-drt = pkgs.runCommand "aky-fleet-and-drt" {} ''
         ${rust.aky}/bin/aky --root ${fleetTomlSrc} check
         ${rust.aky}/bin/aky --root ${fleetTomlSrc} drt --oracle ${oracle}/bin/aky-oracle --cases 500
         echo "OK" > $out
       '';
 
-      # S1 CI Equivalence Check: proves recursive Nix `lib/realize.nix` == Rust `aky resolve` bit-for-bit
-      # AND verifies Gap #5 (`assertNonPiercingNixos` rejects NixOS `{ config, ... }:` backdoors!).
+      # S1 CI Equivalence Check: proves zero-sugar Nix `lib/realize.nix` == Rust `aky resolve` bit-for-bit
+      # AND verifies Gap #5 (`assertNonPiercingNixos` blocks NixOS `{ config, ... }:` backdoors!).
       s1-binding-equiv = let
-        fnBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {kind = "atomic";} ({config, ...}: {inherit config;}))).success;
-        importsBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {kind = "atomic";} {imports = [({config, ...}: {inherit config;})];})).success;
-        attrAllowed = (builtins.tryEval (realized.assertNonPiercingNixos "clean" {kind = "atomic";} {services.caddy.enable = true;})).success;
+        fnBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {attributes = [];} ({config, ...}: {inherit config;}))).success;
+        importsBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {attributes = [];} {imports = [({config, ...}: {inherit config;})];})).success;
+        attrAllowed = (builtins.tryEval (realized.assertNonPiercingNixos "clean" {attributes = [];} {services.caddy.enable = true;})).success;
       in
         assert fnBlocked && importsBlocked && attrAllowed;
           pkgs.runCommand "aky-s1-binding-equiv" {nativeBuildInputs = [pkgs.jq];} ''
@@ -182,7 +190,7 @@
             ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve live-iso | jq -S . > rust-iso.json
             jq -S . ${nixResolvedIso} > nix-iso.json
             diff -u rust-iso.json nix-iso.json
-            echo "S1_RECURSIVE_EQUIV_AND_GAP5_OK" > $out
+            echo "S1_ZERO_SUGAR_EQUIV_OK" > $out
           '';
     });
 

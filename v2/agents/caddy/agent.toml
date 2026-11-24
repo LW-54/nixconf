@@ -1,20 +1,40 @@
 id = "caddy"
-description = "Public HTTPS reverse proxy binding partitioned `http:route` (`zone:public`) dynamically with zero hardcoded upstreams."
+description = "Public HTTPS reverse proxy declared purely with raw promises (zero sugar)."
 
-[requires."config:domain"]
-kind = "exclusive"
+[[promises]]
+ptype = "config:domain"
+key = "config:domain"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
 
-[requires."http:route"]
-kind = "partitioned"
+[[promises]]
+ptype = "http:route"
+key = "http:route"
+polarity = "use"
+cardinality = "partitioned"
 mandatory = false
 selector = {kind = "atom", tag = "zone:public"}
 
-[offers."proxy:https"]
-kind = "exclusive"
+[[promises]]
+ptype = "proxy:https"
+key = "proxy:https"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
 
-[offers."https:ingress"]
-kind = "exclusive"
+[[promises]]
+ptype = "https:ingress"
+key = "https:ingress"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
 
-[budgets]
-ram_mib = 128
-tier = "critical"
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 128
+priority = 0

@@ -1,8 +1,7 @@
 /-
-  Aky.Thm.Agency — Layer 2 Machine-Checked Proofs (1:1 mirror of Aky.Spec.Agency)
-  Zero `sorry`. Covers ADR-0002, P-Dual, Boundary-First Stratification (C2),
-  P-Explicit Interior Conformance (Promises + Coarse-Grained Budgets + Non-Piercing State Volumes),
-  and Scope-Emergent Standalone Portability (X4).
+  Aky.Thm.Agency — Layer 2 Machine-Checked Proofs (100% Usage-Agnostic, ZERO `sorry`)
+  Covers ADR-0002, P-Dual, Boundary-First Stratification (C2), P-Explicit Interior Conformance
+  (Offers, Uses, Mandatory Partitioned Offers, Coarse-Grained Budgets), and Scope-Emergent Composition.
 -/
 
 import Aky.Data.ListLemmas
@@ -44,7 +43,6 @@ theorem non_piercing_interior_substitution
     siblingOperationalView (pre ++ [Agent.superagent ext cs2] ++ post) := by
   simp [siblingOperationalView, exteriorOf]
 
-/-- Helper: if `filterMap f xs = []`, then `f x = none` for every `x ∈ xs`. -/
 private theorem filterMap_eq_nil_iff {α β : Type} (f : α -> Option β) (xs : List α) :
     xs.filterMap f = [] ↔ ∀ x ∈ xs, f x = none := by
   induction xs with
@@ -54,29 +52,21 @@ private theorem filterMap_eq_nil_iff {α β : Type} (f : α -> Option β) (xs : 
     | none => simp [hx, ih]
     | some b => simp [hx]
 
-/--
-  P-Explicit No-Lying-Offers Theorem:
-  If `checkSuperagentConformance ext children = []`, then EVERY `+b` offer declared in `Pi_ext`
-  is actually backed by a matching interior offer inside `children`!
--/
+/-- P-Explicit No-Lying-Offers Theorem (preserving exact tags on Partitioned offers). -/
 theorem conforms_no_lying_offers (ext : ExteriorSurface) (children : List Agent)
     (hConf : checkSuperagentConformance ext children = [])
     (p : Promise) (hp : p ∈ ext.promises) (hPol : p.polarity = Polarity.offer) :
-    hasOffer ((siblingOperationalView children).flatMap (·.promises)) p.ptype p.key = true := by
+    hasBackingOffer ((siblingOperationalView children).flatMap (·.promises)) p = true := by
   unfold checkSuperagentConformance at hConf
   simp only [List.append_eq_nil_iff] at hConf
-  have hOffers := (filterMap_eq_nil_iff _ ext.promises).mp hConf.1.1.1.1 p hp
+  have hOffers := (filterMap_eq_nil_iff _ ext.promises).mp hConf.1.1.1 p hp
   rw [hPol] at hOffers
   dsimp only at hOffers
-  cases hBack : hasOffer ((siblingOperationalView children).flatMap (·.promises)) p.ptype p.key with
+  cases hBack : hasBackingOffer ((siblingOperationalView children).flatMap (·.promises)) p with
   | true  => rfl
   | false => rw [hBack] at hOffers; simp at hOffers
 
-/--
-  P-Explicit No-Leaked-Requirements Theorem:
-  If `checkSuperagentConformance ext children = []`, then EVERY mandatory hard `-b` inside
-  `children` that is NOT satisfied internally is explicitly declared in `Pi_ext` (zero hidden deps!).
--/
+/-- P-Explicit No-Leaked-Requirements Theorem. -/
 theorem conforms_no_leaked_requirements (ext : ExteriorSurface) (children : List Agent)
     (hConf : checkSuperagentConformance ext children = [])
     (p : Promise) (hp : p ∈ (siblingOperationalView children).flatMap (·.promises))
@@ -85,7 +75,7 @@ theorem conforms_no_leaked_requirements (ext : ExteriorSurface) (children : List
     hasUse ext.promises p.ptype p.key = true := by
   unfold checkSuperagentConformance at hConf
   simp only [List.append_eq_nil_iff] at hConf
-  have hUses := (filterMap_eq_nil_iff _ _).mp hConf.1.1.1.2 p hp
+  have hUses := (filterMap_eq_nil_iff _ _).mp hConf.1.1.2 p hp
   rw [hMand, hUnmet] at hUses
   simp only [Bool.not_false, Bool.and_true, ↓reduceIte] at hUses
   cases hExt : hasUse ext.promises p.ptype p.key with
@@ -93,11 +83,27 @@ theorem conforms_no_leaked_requirements (ext : ExteriorSurface) (children : List
   | false => rw [hExt] at hUses; simp at hUses
 
 /--
-  Coarse-Grained Budget & Critical-Tier Conservation Across Boundary `Σ` (F1 Gap #1 CLOSED!):
-  If `checkSuperagentConformance ext children = []`, then for every budgeted `-b` inside `children`,
-  the exterior budget plus internal supply covers BOTH total and critical-tier interior demands —
-  allowing parent Superagents to verify budgets strictly from `Pi_ext` with ZERO interior piercing!
+  P-Explicit No-Dropped-Mandatory-Offers Theorem:
+  If an interior child emits a mandatory hard `Partitioned` `+b` offer that NO interior sibling
+  handles, a conforming Superagent MUST re-export it on `Pi_ext` with exact tag preservation!
+  (Guarantees stateful volumes, routes, or any mandatory partitioned capability can never be hidden!)
 -/
+theorem conforms_no_dropped_mandatory_offers (ext : ExteriorSurface) (children : List Agent)
+    (hConf : checkSuperagentConformance ext children = [])
+    (p : Promise) (hp : p ∈ (siblingOperationalView children).flatMap (·.promises))
+    (hMand : isMandatoryHardPartitionedOffer p = true)
+    (hUnhandled : countMatchingPartitionHandlers ((siblingOperationalView children).flatMap (·.promises)) p.ptype p.tags = 0) :
+    hasBackingOffer ext.promises p = true := by
+  unfold checkSuperagentConformance at hConf
+  simp only [List.append_eq_nil_iff] at hConf
+  have hDrop := (filterMap_eq_nil_iff _ _).mp hConf.1.2 p hp
+  rw [hMand, hUnhandled] at hDrop
+  simp only [beq_self_eq_true, Bool.and_true, ↓reduceIte] at hDrop
+  cases hExt : hasBackingOffer ext.promises p with
+  | true  => rfl
+  | false => rw [hExt] at hDrop; simp at hDrop
+
+/-- Coarse-Grained Budget & Critical-Tier Conservation Across Boundary `Σ` (any `ptype`!). -/
 theorem conforms_budget_and_critical_sound (ext : ExteriorSurface) (children : List Agent)
     (hConf : checkSuperagentConformance ext children = [])
     (p : Promise) (hp : p ∈ (siblingOperationalView children).flatMap (·.promises))
@@ -110,7 +116,7 @@ theorem conforms_budget_and_critical_sound (ext : ExteriorSurface) (children : L
       criticalBudgetDemand ((siblingOperationalView children).flatMap (·.promises)) p.ptype := by
   unfold checkSuperagentConformance at hConf
   simp only [List.append_eq_nil_iff] at hConf
-  have hBud := (List.flatMap_eq_nil_iff.mp hConf.1.1.2) p hp
+  have hBud := (List.flatMap_eq_nil_iff.mp hConf.2) p hp
   rw [hPol, hCard] at hBud
   dsimp only at hBud
   rw [List.append_eq_nil_iff] at hBud
@@ -128,87 +134,19 @@ theorem conforms_budget_and_critical_sound (ext : ExteriorSurface) (children : L
     · simp [hlt] at hBud
     · omega
 
-/--
-  Non-Piercing Persistent Volume Conformance Theorem (F1 Gap #1 CLOSED!):
-  If `checkSuperagentConformance ext children = []`, and an interior volume `v` requires durable
-  local persistence that `children` does NOT internally supply, then `ext.volumes` MUST expose
-  a matching volume preserving `predNeedsLocalPersistence`!
--/
-theorem conforms_volume_persistence_sound (ext : ExteriorSurface) (children : List Agent)
-    (hConf : checkSuperagentConformance ext children = [])
-    (v : StateVolume) (hv : v ∈ (siblingOperationalView children).flatMap (·.volumes))
-    (hPersist : predNeedsLocalPersistence.eval v.traits = true)
-    (hNoDur : (deriveSubstrate (siblingOperationalView children)).providesDurableStorage = false) :
-    ∃ ev ∈ ext.volumes, ev.id = v.id ∧ predNeedsLocalPersistence.eval ev.traits = true := by
-  unfold checkSuperagentConformance at hConf
-  simp only [List.append_eq_nil_iff] at hConf
-  have hVol := (List.flatMap_eq_nil_iff.mp hConf.2) v hv
-  simp only [List.append_eq_nil_iff] at hVol
-  have hP := hVol.1.2
-  rw [hPersist, hNoDur] at hP
-  simp only [Bool.not_false, Bool.and_true, ↓reduceIte] at hP
-  cases hAny : ext.volumes.any (fun ev => ev.id == v.id && predNeedsLocalPersistence.eval ev.traits) with
-  | false => rw [hAny] at hP; simp at hP
-  | true =>
-    rw [List.any_eq_true] at hAny
-    rcases hAny with ⟨ev, hMem, hCond⟩
-    simp only [Bool.and_eq_true, beq_iff_eq] at hCond
-    exact ⟨ev, hMem, hCond.1, hCond.2⟩
+/-- Scope-Emergent Portability (X4): sound & complete for ANY ambient scope `ambient`! -/
+def closesInAmbient (ambient ext : ExteriorSurface) : Prop :=
+  ∀ p ∈ ext.promises, isMandatoryHardUse p = true → isInternallySatisfied ambient.promises p = true
 
-/--
-  Non-Piercing Backup Coverage Conformance Theorem (F1 Gap #1 CLOSED!):
-  If `checkSuperagentConformance ext children = []`, and an interior volume `v` requires backup
-  that `children` does NOT internally supply, then `ext.volumes` MUST expose a matching volume
-  preserving `predBackupRequired`!
--/
-theorem conforms_volume_backup_sound (ext : ExteriorSurface) (children : List Agent)
-    (hConf : checkSuperagentConformance ext children = [])
-    (v : StateVolume) (hv : v ∈ (siblingOperationalView children).flatMap (·.volumes))
-    (hBak : predBackupRequired.eval v.traits = true)
-    (hNoBak : (deriveSubstrate (siblingOperationalView children)).backupProviderCount = 0) :
-    ∃ ev ∈ ext.volumes, ev.id = v.id ∧ predBackupRequired.eval ev.traits = true := by
-  unfold checkSuperagentConformance at hConf
-  simp only [List.append_eq_nil_iff] at hConf
-  have hVol := (List.flatMap_eq_nil_iff.mp hConf.2) v hv
-  simp only [List.append_eq_nil_iff] at hVol
-  have hB := hVol.2
-  rw [hBak, hNoBak] at hB
-  simp only [beq_self_eq_true, Bool.and_true, ↓reduceIte] at hB
-  cases hAny : ext.volumes.any (fun ev => ev.id == v.id && predBackupRequired.eval ev.traits) with
-  | false => rw [hAny] at hB; simp at hB
-  | true =>
-    rw [List.any_eq_true] at hAny
-    rcases hAny with ⟨ev, hMem, hCond⟩
-    simp only [Bool.and_eq_true, beq_iff_eq] at hCond
-    exact ⟨ev, hMem, hCond.1, hCond.2⟩
-
-/-- Interior CALM Monotonicity Enforcement Theorem: every direct child volume is CALM-safe. -/
-theorem conforms_volume_calm_sound (ext : ExteriorSurface) (children : List Agent)
-    (hConf : checkSuperagentConformance ext children = [])
-    (v : StateVolume) (hv : v ∈ (siblingOperationalView children).flatMap (·.volumes)) :
-    predCalmSafe.eval v.traits = true := by
-  unfold checkSuperagentConformance at hConf
-  simp only [List.append_eq_nil_iff] at hConf
-  have hVol := (List.flatMap_eq_nil_iff.mp hConf.2) v hv
-  simp only [List.append_eq_nil_iff] at hVol
-  have hC := hVol.1.1
-  cases hSafe : predCalmSafe.eval v.traits with
-  | true  => rfl
-  | false => rw [hSafe] at hC; simp at hC
-
-/-- Scope-Emergent Standalone Portability (X4): sound & complete iff store-only. -/
-def standaloneSatisfiable (ext : ExteriorSurface) : Prop :=
-  ∀ p ∈ ext.promises, isMandatoryHardUse p = true → p.ptype = "store-pkg"
-
-theorem checkStandalone_sound_and_complete (ext : ExteriorSurface) :
-    checkStandalone ext = true ↔ standaloneSatisfiable ext := by
-  unfold checkStandalone standaloneSatisfiable
-  simp only [List.all_eq_true, Bool.or_eq_true, Bool.not_eq_true', beq_iff_eq]
+theorem canComposeInScope_sound_and_complete (ambient ext : ExteriorSurface) :
+    canComposeInScope ambient ext = true ↔ closesInAmbient ambient ext := by
+  unfold canComposeInScope closesInAmbient
+  simp only [List.all_eq_true, Bool.or_eq_true, Bool.not_eq_true']
   constructor
   · intro h p hp hmand
     cases h p hp with
     | inl hfalse => rw [hmand] at hfalse; contradiction
-    | inr hpkg   => exact hpkg
+    | inr hsat   => exact hsat
   · intro h p hp
     by_cases hmand : isMandatoryHardUse p = true
     · exact Or.inr (h p hp hmand)

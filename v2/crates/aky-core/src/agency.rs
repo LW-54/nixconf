@@ -1,11 +1,9 @@
-//! Fractal Uniform Agency & `P-Explicit` Interior Conformance mirroring `Aky/Spec/Agency.lean`.
+//! Fractal Uniform Agency & `P-Explicit` Interior Conformance (100% usage-agnostic)
+//! mirroring `Aky/Spec/Agency.lean`.
 
 use serde::{Deserialize, Serialize};
 
 use crate::attr_expr::AttrExpr;
-use crate::state::{
-    StateVolume, SubstrateCapabilities, is_backup_required, is_calm_safe, needs_local_persistence,
-};
 
 /// Direction of a Promise Theory statement (`+b` Offer vs. `-b` Use).
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
@@ -21,7 +19,7 @@ pub enum Polarity {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Strength {
-    /// Structurally or cryptographically enforced statically.
+    /// Statically or cryptographically enforced invariant.
     Hard,
     /// Conditional runtime promise governed by the Conditional Promise Law.
     Soft,
@@ -31,11 +29,11 @@ pub enum Strength {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Cardinality {
-    /// Strict `1:1` unique provider per key.
+    /// Strict `1:1` unique provider per `(ptype, key)`.
     Exclusive,
-    /// Commutative `1:N` multi-observer binding.
+    /// Commutative `1:N` multi-provider binding (`mandatory` use requires `≥ 1`).
     Broadcast,
-    /// Disjoint `N:K` attribute-predicate routing.
+    /// Disjoint `N:K` attribute-predicate routing (`mandatory` offer requires `== 1` handler).
     Partitioned,
     /// Conservation budget (`∑ demands ≤ supply` + critical priority tiering).
     Budgeted,
@@ -45,7 +43,7 @@ pub enum Cardinality {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SoftContract {
-    /// Reference to the runtime condition (`-C`) such as `power:ac-plugged`.
+    /// Reference to the runtime condition (`-C`).
     pub condition_ref: String,
     /// Bounded degraded invariant when the condition is false.
     pub degraded_mode: String,
@@ -79,7 +77,7 @@ pub struct Promise {
     pub strength: Strength,
     /// `B3` binding cardinality.
     pub cardinality: Cardinality,
-    /// Whether an unsatisfied `Hard` Use is a build error.
+    /// Whether an unbound `Hard` promise fails verification in a closed scope.
     pub mandatory: bool,
     /// Quantitative resource amount for `Budgeted` promises.
     pub amount: u64,
@@ -87,9 +85,9 @@ pub struct Promise {
     pub priority: u64,
     /// Acyclic stratification rank.
     pub stratum: u64,
-    /// Attribute tags carried by this promise for `Partitioned` matching.
+    /// Attribute tags carried by this promise for `Partitioned` routing & declarative invariants.
     pub tags: Vec<String>,
-    /// `AttrExpr` routing selector for `Partitioned` handlers.
+    /// `AttrExpr` routing selector for `Partitioned` consumers.
     pub selector: AttrExpr,
     /// Required metadata when `strength == Strength::Soft`.
     pub soft_info: Option<SoftContract>,
@@ -103,11 +101,8 @@ pub struct ExteriorSurface {
     pub agent_id: String,
     /// Promises exported across the boundary `Σ`.
     pub promises: Vec<Promise>,
-    /// Factual entity attributes and substrate traits (`trait:*`) exported across `Σ`.
+    /// Factual entity attributes exported across `Σ`.
     pub attributes: Vec<String>,
-    /// State volumes (`S2+`) exported across `Σ`.
-    #[serde(default)]
-    pub volumes: Vec<StateVolume>,
 }
 
 /// Recursive Fractal Uniform Agent (`ADR-0002`) with `P-Dual` (`ADR-0003`),
@@ -140,7 +135,7 @@ pub enum Agent {
 /// Structured diagnostic returned by `P-Explicit` interior conformance checking.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BoundaryError {
-    /// An exported `+b` offer has no backing interior child offer (lying boundary).
+    /// An exported `+b` offer has no backing interior child offer (or alters partitioned tags).
     UnbackedOffer {
         /// Superagent identifier.
         superagent: String,
@@ -158,11 +153,20 @@ pub enum BoundaryError {
         /// Leaked promise key.
         key: String,
     },
+    /// A mandatory interior `Partitioned` `+b` offer has 0 interior handlers and is not exported in `Π_ext`.
+    DroppedMandatoryOffer {
+        /// Superagent identifier.
+        superagent: String,
+        /// Dropped promise type.
+        ptype: String,
+        /// Dropped promise key.
+        key: String,
+    },
     /// Exterior budget demand plus internal supply fails to cover total child demand.
     UnderreportedBudget {
         /// Superagent identifier.
         superagent: String,
-        /// Budget promise type (e.g., `"ram"`).
+        /// Budget promise type.
         ptype: String,
         /// Exterior declared demand plus internal supply.
         ext_plus_int_supply: u64,
@@ -173,33 +177,12 @@ pub enum BoundaryError {
     UnderreportedCriticalBudget {
         /// Superagent identifier.
         superagent: String,
-        /// Budget promise type (e.g., `"ram"`).
+        /// Budget promise type.
         ptype: String,
         /// Exterior critical-tier demand plus internal supply.
         ext_crit_plus_int_supply: u64,
         /// Sum of direct children's critical-tier demands.
         int_crit_demand: u64,
-    },
-    /// An exported exterior state volume has no matching backing child volume.
-    UnbackedVolume {
-        /// Superagent identifier.
-        superagent: String,
-        /// Unbacked volume identifier.
-        volume_id: String,
-    },
-    /// A child volume requiring persistence or backup is neither discharged internally nor surfaced in `Π_ext`.
-    LeakedVolume {
-        /// Superagent identifier.
-        superagent: String,
-        /// Leaked volume identifier.
-        volume_id: String,
-    },
-    /// A direct child volume violates Hellerstein's CALM monotonicity law.
-    UnsafeVolume {
-        /// Superagent identifier.
-        superagent: String,
-        /// Unsafe volume identifier.
-        volume_id: String,
     },
 }
 
@@ -226,9 +209,38 @@ pub fn is_mandatory_hard_use(p: &Promise) -> bool {
     p.polarity == Polarity::Use && p.strength == Strength::Hard && p.mandatory
 }
 
+/// Returns `true` iff `p` is a mandatory `Hard` `Partitioned` Offer promise.
+#[must_use]
+pub fn is_mandatory_hard_partitioned_offer(p: &Promise) -> bool {
+    p.polarity == Polarity::Offer
+        && p.strength == Strength::Hard
+        && p.cardinality == Cardinality::Partitioned
+        && p.mandatory
+}
+
+/// Set equality over tag slices, mirroring `Aky.Spec.sameTagSet`.
+#[must_use]
+pub fn same_tag_set(xs: &[String], ys: &[String]) -> bool {
+    xs.iter().all(|x| ys.iter().any(|y| y == x)) && ys.iter().all(|y| xs.iter().any(|x| x == y))
+}
+
 fn has_offer(ps: &[&Promise], ptype: &str, key: &str) -> bool {
     ps.iter()
         .any(|p| p.polarity == Polarity::Offer && p.ptype == ptype && p.key == key)
+}
+
+fn has_backing_offer(ps: &[&Promise], ext_offer: &Promise) -> bool {
+    if ext_offer.cardinality == Cardinality::Partitioned {
+        ps.iter().any(|o| {
+            o.polarity == Polarity::Offer
+                && o.cardinality == Cardinality::Partitioned
+                && o.ptype == ext_offer.ptype
+                && o.key == ext_offer.key
+                && same_tag_set(&o.tags, &ext_offer.tags)
+        })
+    } else {
+        has_offer(ps, &ext_offer.ptype, &ext_offer.key)
+    }
 }
 
 fn has_use(ps: &[Promise], ptype: &str, key: &str) -> bool {
@@ -236,7 +248,26 @@ fn has_use(ps: &[Promise], ptype: &str, key: &str) -> bool {
         .any(|p| p.polarity == Polarity::Use && p.ptype == ptype && p.key == key)
 }
 
-fn is_internally_satisfied(int_ps: &[&Promise], p: &Promise) -> bool {
+/// Counts `Partitioned` consumers whose `AttrExpr` selector matches `offer_tags`.
+#[must_use]
+pub fn count_matching_partition_handlers<'a>(
+    ps: impl IntoIterator<Item = &'a Promise>,
+    ptype: &str,
+    offer_tags: &[String],
+) -> usize {
+    ps.into_iter()
+        .filter(|h| {
+            h.polarity == Polarity::Use
+                && h.cardinality == Cardinality::Partitioned
+                && h.ptype == ptype
+                && h.selector.eval(offer_tags)
+        })
+        .count()
+}
+
+/// Returns `true` iff use promise `p` is satisfied by offers inside `int_ps`.
+#[must_use]
+pub fn is_internally_satisfied(int_ps: &[&Promise], p: &Promise) -> bool {
     match p.cardinality {
         Cardinality::Partitioned => int_ps.iter().any(|o| {
             o.polarity == Polarity::Offer
@@ -288,29 +319,6 @@ pub fn critical_budget_demand<'a>(ps: impl IntoIterator<Item = &'a Promise>, pty
         .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
 }
 
-/// Derives substrate capabilities strictly from direct children's exterior surfaces
-/// (zero interior piercing), mirroring `Aky.Spec.deriveSubstrate`.
-#[must_use]
-pub fn derive_substrate(int_surfaces: &[&ExteriorSurface]) -> SubstrateCapabilities {
-    let has_durable = int_surfaces
-        .iter()
-        .flat_map(|s| s.attributes.iter())
-        .any(|a| a == "trait:durable");
-    let has_ephemeral = int_surfaces
-        .iter()
-        .flat_map(|s| s.attributes.iter())
-        .any(|a| a == "trait:ephemeral");
-    let backup_count = int_surfaces
-        .iter()
-        .flat_map(|s| s.promises.iter())
-        .filter(|p| p.polarity == Polarity::Offer && p.ptype == "backup:provider")
-        .count();
-    SubstrateCapabilities {
-        provides_durable_storage: has_durable && !has_ephemeral,
-        backup_provider_count: u64::try_from(backup_count).unwrap_or(u64::MAX),
-    }
-}
-
 fn check_budget_conformance(
     ext: &ExteriorSurface,
     int_ps: &[&Promise],
@@ -345,54 +353,6 @@ fn check_budget_conformance(
     }
 }
 
-fn check_volume_conformance(
-    ext: &ExteriorSurface,
-    int_vols: &[&StateVolume],
-    int_sub: &SubstrateCapabilities,
-    errors: &mut Vec<BoundaryError>,
-) {
-    for ev in &ext.volumes {
-        if !int_vols.iter().any(|v| v.id == ev.id) {
-            errors.push(BoundaryError::UnbackedVolume {
-                superagent: ext.agent_id.clone(),
-                volume_id: ev.id.clone(),
-            });
-        }
-    }
-    for v in int_vols {
-        if !is_calm_safe(&v.traits) {
-            errors.push(BoundaryError::UnsafeVolume {
-                superagent: ext.agent_id.clone(),
-                volume_id: v.id.clone(),
-            });
-        }
-        if needs_local_persistence(&v.traits)
-            && !int_sub.provides_durable_storage
-            && !ext
-                .volumes
-                .iter()
-                .any(|ev| ev.id == v.id && needs_local_persistence(&ev.traits))
-        {
-            errors.push(BoundaryError::LeakedVolume {
-                superagent: ext.agent_id.clone(),
-                volume_id: v.id.clone(),
-            });
-        }
-        if is_backup_required(&v.traits)
-            && int_sub.backup_provider_count == 0
-            && !ext
-                .volumes
-                .iter()
-                .any(|ev| ev.id == v.id && is_backup_required(&ev.traits))
-        {
-            errors.push(BoundaryError::LeakedVolume {
-                superagent: ext.agent_id.clone(),
-                volume_id: v.id.clone(),
-            });
-        }
-    }
-}
-
 /// Validates `P-Explicit` conformance of `ext` against its interior `children`
 /// (observing strictly `exterior_of` of direct children — zero interior piercing!).
 #[must_use]
@@ -405,12 +365,11 @@ pub fn validate_superagent_conformance(
         .iter()
         .flat_map(|c| c.promises.iter())
         .collect();
-    let int_vols: Vec<&StateVolume> = int_surfaces.iter().flat_map(|c| c.volumes.iter()).collect();
-    let int_sub = derive_substrate(&int_surfaces);
+    let ext_ps_refs: Vec<&Promise> = ext.promises.iter().collect();
 
     let mut errors = Vec::new();
     for p in &ext.promises {
-        if p.polarity == Polarity::Offer && !has_offer(&int_ps, &p.ptype, &p.key) {
+        if p.polarity == Polarity::Offer && !has_backing_offer(&int_ps, p) {
             errors.push(BoundaryError::UnbackedOffer {
                 superagent: ext.agent_id.clone(),
                 ptype: p.ptype.clone(),
@@ -429,9 +388,18 @@ pub fn validate_superagent_conformance(
                 key: p.key.clone(),
             });
         }
+        if is_mandatory_hard_partitioned_offer(p)
+            && count_matching_partition_handlers(int_ps.iter().copied(), &p.ptype, &p.tags) == 0
+            && !has_backing_offer(&ext_ps_refs, p)
+        {
+            errors.push(BoundaryError::DroppedMandatoryOffer {
+                superagent: ext.agent_id.clone(),
+                ptype: p.ptype.clone(),
+                key: p.key.clone(),
+            });
+        }
     }
     check_budget_conformance(ext, &int_ps, &mut errors);
-    check_volume_conformance(ext, &int_vols, &int_sub, &mut errors);
     errors
 }
 
@@ -439,4 +407,13 @@ pub fn validate_superagent_conformance(
 #[must_use]
 pub fn superagent_conforms(ext: &ExteriorSurface, children: &[Agent]) -> bool {
     validate_superagent_conformance(ext, children).is_empty()
+}
+
+/// Scope-emergent portability check matching `Aky.Spec.canComposeInScope`.
+#[must_use]
+pub fn can_compose_in_scope(ambient: &ExteriorSurface, ext: &ExteriorSurface) -> bool {
+    let amb_refs: Vec<&Promise> = ambient.promises.iter().collect();
+    ext.promises
+        .iter()
+        .all(|p| !is_mandatory_hard_use(p) || is_internally_satisfied(&amb_refs, p))
 }

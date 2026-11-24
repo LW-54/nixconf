@@ -1,19 +1,24 @@
 id = "live-iso"
-kind = "superagent"
-description = "Ephemeral rescue & onboarding Live-ISO — simply a closed root Dressed Superagent!"
+description = "Ephemeral rescue & onboarding Live-ISO — closed root Dressed Superagent declared purely with raw promises."
 attributes = ["role:rescue", "posture:ephemeral"]
 contains = [
   {agent = "target-nixos-iso"},
   {agent = "git"},
 ]
 
-[realize]
-system = "x86_64-linux"
-
-[internal_offers."ram"]
-kind = "budgeted"
+[[internal_promises]]
+ptype = "ram"
+key = "ram"
+polarity = "offer"
+cardinality = "budgeted"
+mandatory = true
 amount = 2048
 
-[internal_offers."config:hostname"]
-kind = "exclusive"
+[[internal_promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
 value = "live-iso"

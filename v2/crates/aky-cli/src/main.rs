@@ -1,5 +1,5 @@
-//! **Antikythera (`aky`)** — Zero-Nix CLI verifier, Cedar policy explainer,
-//! stolen-device blast-radius analyzer, `S1` binding resolver, and Lean 4 DRT runner.
+//! **Antikythera (`aky`)** — Usage-agnostic zero-Nix CLI verifier, Cedar policy explainer,
+//! blast-radius analyzer, `S1` binding resolver, and Lean 4 DRT runner.
 
 use std::collections::BTreeMap;
 use std::fs;
@@ -17,15 +17,15 @@ use aky_core::fleet::{
 use clap::{Parser, Subcommand};
 use thiserror::Error;
 
-/// Antikythera (`aky`) fleet boundary verification & introspection CLI.
+/// Antikythera (`aky`) usage-agnostic boundary verification & introspection CLI.
 #[derive(Debug, Parser)]
 #[command(
     name = "aky",
     version,
-    about = "Antikythera declarative fleet verifier"
+    about = "Antikythera declarative boundary verifier"
 )]
 struct Cli {
-    /// Root directory of the Antikythera repo (`agents/`, `profiles/`, `policies/`).
+    /// Root directory (`agents/`, `profiles/`, `policies/`).
     #[arg(long, global = true, default_value = ".")]
     root: PathBuf,
 
@@ -39,28 +39,27 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Cmd {
-    /// Verify all Dressed Superagents (stacks & root targets), budgets, state traits, and standalone agents.
+    /// Verify all Dressed Superagents, recursive conformance, B3 scopes, and declarative invariants.
     Check,
     /// Explain a Cedar L3+ authorization verdict including `determiningPolicies`.
     Explain {
         /// Principal ID from `policies/*.toml` or `agents/*/agent.toml`.
         principal: String,
-        /// Action name (e.g., `read-secret`).
+        /// Action name.
         action: String,
         /// Resource ID from `policies/*.toml`.
         resource: String,
     },
-    /// Compute the exact sound-and-complete stolen-device blast radius for a principal.
+    /// Compute the exact sound-and-complete blast radius for a principal & action.
     BlastRadius {
         /// Principal ID to audit.
         principal: String,
-        /// Action name (defaults to `read-secret`).
-        #[arg(default_value = "read-secret")]
+        /// Action name.
         action: String,
     },
-    /// Emit deterministic S1 `bound` + `persistent_paths` JSON for a root Dressed Superagent.
+    /// Emit deterministic S1 `bound` JSON for any Dressed Superagent.
     Resolve {
-        /// Root agent identifier (e.g., `astrolabe`).
+        /// Superagent identifier.
         target: String,
     },
     /// Run AWS Cedar Differential Randomized Testing comparing `aky-core` against `aky-oracle`.
@@ -68,7 +67,7 @@ enum Cmd {
         /// Path to the compiled Lean 4 `aky-oracle` binary.
         #[arg(long)]
         oracle: PathBuf,
-        /// Number of deterministic randomized fuzzed fleets to test in addition to real repo superagents.
+        /// Number of deterministic randomized fuzzed cases to test in addition to real superagents.
         #[arg(long, default_value_t = 500)]
         cases: usize,
         /// Deterministic PRNG seed.
@@ -179,6 +178,7 @@ fn load_fleet(root: &Path) -> Result<FleetSpec, CliError> {
             policy_catalog.principals.extend(part.principals);
             policy_catalog.resources.extend(part.resources);
             policy_catalog.policies.extend(part.policies);
+            policy_catalog.invariants.extend(part.invariants);
         }
     }
 
@@ -337,12 +337,10 @@ fn run_check(fleet: &FleetSpec, elapsed_ms: f64, as_json: bool) -> Result<bool, 
     } else {
         for sr in report.superagents.values() {
             let status = if sr.is_valid() { "PASS" } else { "FAIL" };
-            let target_tag = sr.system.as_deref().unwrap_or("nested-superagent");
             println!(
-                "[{status}] superagent={} ({target_tag}) children={} persisted={}",
+                "[{status}] superagent={} children={}",
                 sr.agent_id,
-                sr.direct_children.len(),
-                sr.persistent_paths.len()
+                sr.direct_children.len()
             );
             for m in &sr.missing_refs {
                 eprintln!("  missing: {m}");
@@ -353,16 +351,19 @@ fn run_check(fleet: &FleetSpec, elapsed_ms: f64, as_json: bool) -> Result<bool, 
             for c in &sr.boundary_errors {
                 eprintln!("  boundary: {c:?}");
             }
-            for s in &sr.state_errors {
-                eprintln!("  state: {s:?}");
+            for inv in &sr.invariant_errors {
+                eprintln!("  invariant: {inv:?}");
             }
             if !sr.tree_valid {
                 eprintln!("  tree: recursive Agent tree verification failed");
             }
         }
+        for inv in &report.atomic_invariant_errors {
+            eprintln!("  atomic-invariant: {inv:?}");
+        }
         println!(
-            "Standalone agents (X4): [{}] | verified in {elapsed_ms:.2} ms",
-            report.standalone_agents.join(", ")
+            "Self-contained agents: [{}] | verified in {elapsed_ms:.2} ms",
+            report.self_contained_agents.join(", ")
         );
     }
     Ok(report.is_valid())
@@ -425,7 +426,7 @@ fn run(cli: &Cli) -> Result<bool, CliError> {
         Cmd::Resolve { target } => {
             let resolved =
                 resolve_target_bindings(&fleet, target).ok_or_else(|| CliError::NotFound {
-                    kind: "root target",
+                    kind: "superagent",
                     id: target.clone(),
                 })?;
             println!("{}", serde_json::to_string_pretty(&resolved)?);

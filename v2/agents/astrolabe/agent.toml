@@ -1,33 +1,56 @@
 id = "astrolabe"
-kind = "superagent"
-description = "Production impermanent x86_64 VPS — simply a closed root Dressed Superagent!"
+description = "Production impermanent x86_64 VPS — closed root Dressed Superagent declared purely with raw promises."
 attributes = ["role:server", "env:prod"]
 profiles = ["base-server"]
 contains = [
   {agent = "web-stack"},
 ]
 
-[realize]
-system = "x86_64-linux"
-
-[internal_offers."ram"]
-kind = "budgeted"
+[[internal_promises]]
+ptype = "ram"
+key = "ram"
+polarity = "offer"
+cardinality = "budgeted"
+mandatory = true
 amount = 11264
 
-[internal_offers."backup:provider"]
-kind = "broadcast"
+[[internal_promises]]
+ptype = "backup:provider"
+key = "offhost-default"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
 
-[internal_offers."secrets:runtime"]
-kind = "exclusive"
+[[internal_promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
 
-[internal_offers."config:hostname"]
-kind = "exclusive"
+[[internal_promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
 value = "astrolabe"
 
-[internal_offers."config:domain"]
-kind = "exclusive"
+[[internal_promises]]
+ptype = "config:domain"
+key = "config:domain"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
 value = "astrolabe.example.org"
 
-[internal_offers."config:primary-user"]
-kind = "exclusive"
+[[internal_promises]]
+ptype = "config:primary-user"
+key = "config:primary-user"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
 name = "lw"

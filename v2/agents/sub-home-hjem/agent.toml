@@ -1,9 +1,17 @@
 id = "sub-home-hjem"
-kind = "substrate"
-description = "Sealed `feel-co/hjem` (H2) for residual $HOME dotfiles (takes primary user strictly as a `-b` promise!)."
+description = "Sealed feel-co/hjem for residual $HOME dotfiles declared purely with raw promises."
+attributes = ["foreign:nixos-module"]
 
-[requires."config:primary-user"]
-kind = "exclusive"
+[[promises]]
+ptype = "config:primary-user"
+key = "config:primary-user"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
 
-[offers."home:files"]
-kind = "exclusive"
+[[promises]]
+ptype = "home:files"
+key = "home:files"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true

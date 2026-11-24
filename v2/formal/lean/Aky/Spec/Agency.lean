@@ -1,12 +1,11 @@
 /-
-  Aky.Spec.Agency — Layer 1 Executable Specification (NO PROOFS)
+  Aky.Spec.Agency — Layer 1 Executable Specification (100% Usage-Agnostic, NO PROOFS)
   Fractal Uniform Agency (ADR-0002), P-Dual (ADR-0003), Boundary-First Stratification (C2),
-  P-Explicit Interior Conformance (Promises + Coarse-Grained Budgets + Non-Piercing State Volumes),
-  Standalone Scope (X4), Epistemic Zoom (C5).
+  P-Explicit Interior Conformance (Offers, Uses, Mandatory Partitioned Offers, Budgets),
+  Scope-Emergent Composition (X4), and Epistemic Zoom (C5).
 -/
 
 import Aky.Data.AttrExpr
-import Aky.Spec.StateSafety
 
 namespace Aky.Spec
 
@@ -18,13 +17,13 @@ inductive Polarity where
   deriving Repr, DecidableEq, BEq
 
 inductive Strength where
-  | hard  -- Build/closure/cryptographic invariant (binary calibration)
+  | hard  -- Statically/cryptographically enforced invariant
   | soft  -- Runtime conditional (+b | C), assessed continuously via alpha
   deriving Repr, DecidableEq, BEq
 
 inductive Cardinality where
   | exclusive   -- 1:1 unique provider (0 -> missing, >1 -> conflict)
-  | broadcast   -- 1:N 0..N commutative observers
+  | broadcast   -- 1:N commutative providers (mandatory use requires >= 1)
   | partitioned -- N:K routed by disjoint AttrExpr predicates on promise tags
   | budgeted    -- Additive quantitative capacity (sum demands <= supply) + priority tier
   deriving Repr, DecidableEq, BEq
@@ -40,17 +39,17 @@ def SoftContract.isComplete (sc : SoftContract) : Bool :=
 
 structure Promise where
   id            : String
-  ptype         : String               -- Promise type tau (e.g. "http:route", "ram", "config:domain")
-  key           : String               -- Commutative merge / unique key (distinct from ptype!)
+  ptype         : String               -- Promise contract type tau
+  key           : String               -- Commutative merge / unique key
   polarity      : Polarity
   strength      : Strength
   cardinality   : Cardinality
-  mandatory     : Bool                 -- For use (-b): true -> must be satisfied in closed root
+  mandatory     : Bool                 -- For use (-b) or partitioned offer (+b): must bind in closed scope
   amount        : Nat                  -- For budgeted: supply (+b) or demand (-b)
-  priority      : Nat := 1             -- For budgeted: 0 = critical-edge, 1 = core, 2 = ai, 3 = obs
-  stratum       : Nat := 0             -- Strict stratification level (S0 -> S1 -> S2 -> ...)
-  tags          : List String := []    -- Expressed tags for B3 Partitioned AttrExpr routing
-  selector      : AttrExpr := AttrExpr.any -- Partition/disambiguation predicate for providers
+  priority      : Nat := 1             -- For budgeted: 0 = critical survival tier, >0 = non-critical
+  stratum       : Nat := 0             -- Strict stratification level
+  tags          : List String := []    -- Expressed tags for Partitioned routing & Invariant rules
+  selector      : AttrExpr := AttrExpr.any -- Partition predicate for consumers
   softInfo      : Option SoftContract := none
   deriving Repr, DecidableEq, BEq
 
@@ -59,12 +58,11 @@ structure ExteriorSurface where
   agentId    : String
   promises   : List Promise
   attributes : List String
-  volumes    : List StateVolume := []
   deriving Repr, DecidableEq, BEq
 
 /--
   Fractal Uniform Agent (ADR-0002) with P-Dual (ADR-0003):
-  - `atomic`: opaque interior (binary, hardware quirk, foreign NixOS wrapper, human, AI, SaaS).
+  - `atomic`: opaque interior.
   - `superagent`: Opaque encapsulation boundary `Sigma` with explicit `exterior` (Pi_ext).
   - `profile`: Transparent reusable Agent Set (NOT a boundary) flattened into enclosing scope.
 -/
@@ -77,11 +75,9 @@ inductive Agent where
 inductive BoundaryError where
   | unbackedExteriorOffer       (superagentId ptype key : String)
   | leakedInteriorUse           (superagentId ptype key : String)
+  | droppedMandatoryOffer       (superagentId ptype key : String)
   | underreportedBudget         (superagentId ptype : String) (extPlusIntSupply intDemand : Nat)
   | underreportedCriticalBudget (superagentId ptype : String) (extCritPlusIntSupply intCritDemand : Nat)
-  | unbackedExteriorVolume      (superagentId volumeId : String)
-  | leakedInteriorVolume        (superagentId volumeId : String)
-  | unsafeInteriorVolume        (superagentId volumeId : String)
   deriving Repr, DecidableEq, BEq
 
 /-- Flatten transparent Profiles while halting strictly at opaque Boundaries. -/
@@ -108,11 +104,38 @@ def isMandatoryHardUse (p : Promise) : Bool :=
   | Polarity.use, Strength.hard, true => true
   | _, _, _                           => false
 
+def isMandatoryHardPartitionedOffer (p : Promise) : Bool :=
+  match p.polarity, p.strength, p.cardinality, p.mandatory with
+  | Polarity.offer, Strength.hard, Cardinality.partitioned, true => true
+  | _, _, _, _                                                   => false
+
+def sameTagSet (xs ys : List String) : Bool :=
+  xs.all (fun x => ys.contains x) && ys.all (fun y => xs.contains y)
+
 def hasOffer (ps : List Promise) (ptype key : String) : Bool :=
   ps.any (fun p => p.polarity == Polarity.offer && p.ptype == ptype && p.key == key)
 
+def hasBackingOffer (ps : List Promise) (extOffer : Promise) : Bool :=
+  match extOffer.cardinality with
+  | Cardinality.partitioned =>
+    ps.any (fun o =>
+      o.polarity == Polarity.offer &&
+      o.cardinality == Cardinality.partitioned &&
+      o.ptype == extOffer.ptype &&
+      o.key == extOffer.key &&
+      sameTagSet o.tags extOffer.tags)
+  | _ => hasOffer ps extOffer.ptype extOffer.key
+
 def hasUse (ps : List Promise) (ptype key : String) : Bool :=
   ps.any (fun p => p.polarity == Polarity.use && p.ptype == ptype && p.key == key)
+
+/-- Count partitioned consumers whose `AttrExpr` selector matches a given offer's tags (B3). -/
+def countMatchingPartitionHandlers (ps : List Promise) (ptype : String) (offerTags : List String) : Nat :=
+  (ps.filter (fun h =>
+    h.polarity == Polarity.use &&
+    h.cardinality == Cardinality.partitioned &&
+    h.ptype == ptype &&
+    h.selector.eval offerTags)).length
 
 def isInternallySatisfied (intPs : List Promise) (p : Promise) : Bool :=
   match p.cardinality with
@@ -134,46 +157,28 @@ def totalBudgetDemand (ps : List Promise) (ptype : String) : Nat :=
   List.foldl (fun acc p => acc + p.amount) 0
     (ps.filter (fun p => p.polarity == Polarity.use && p.cardinality == Cardinality.budgeted && p.ptype == ptype))
 
-/-- Sum of critical-tier (`priority == 0`, e.g. Vaultwarden/Caddy) budgeted demands (C4 OOM protection). -/
 def criticalBudgetDemand (ps : List Promise) (ptype : String) : Nat :=
   List.foldl (fun acc p => acc + p.amount) 0
     (ps.filter (fun p => p.polarity == Polarity.use && p.cardinality == Cardinality.budgeted && p.ptype == ptype && p.priority == 0))
 
-/-- Derive substrate capabilities strictly from direct children's exterior surfaces (ZERO interior piercing!). -/
-def deriveSubstrate (intSurfaces : List ExteriorSurface) : SubstrateCapabilities :=
-  let attrs := intSurfaces.flatMap (·.attributes)
-  let ps := intSurfaces.flatMap (·.promises)
-  {
-    providesDurableStorage := attrs.contains "trait:durable" && !attrs.contains "trait:ephemeral"
-    backupProviderCount := (ps.filter (fun p => p.polarity == Polarity.offer && p.ptype == "backup:provider")).length
-  }
-
 /--
-  P-Explicit Interior Conformance Validator (Promises + Coarse-Grained Budgets + Non-Piercing State):
-  Checks that a Dressed Superagent's `Interior(children)` faithfully backs its declared `Pi_ext`
-  while observing ONLY `exteriorOf` of direct children:
-    1. No lying offers: every `+b` promise exported in `ext` must be offered by some interior child.
-    2. No leaked requirements: every mandatory hard `-b` inside `children` not satisfied internally
-       MUST be explicitly declared as a `-b` in `ext`.
-    3. Coarse-grained budget & critical-tier conservation: for every budgeted `-b` inside `children`,
-       `ext` demand + internal supply must cover total and critical-tier interior demands.
-    4. Non-piercing state conformance + CALM safety:
-       - Every exterior volume in `ext.volumes` must be backed by a matching child volume (`id`).
-       - Every interior child volume must be CALM-safe.
-       - Every interior child volume needing persistence or backup that is NOT discharged by this
-         superagent's internal substrate MUST be explicitly surfaced in `ext.volumes` preserving
-         those traits!
+  P-Explicit Interior Conformance Validator (100% Domain-Agnostic):
+  Verifies that a Dressed Superagent's `Interior(children)` faithfully backs its declared `Pi_ext`
+  observing strictly `exteriorOf` of direct children:
+    1. No lying offers: every `+b` in `ext` must be backed by an interior offer (preserving exact tags if partitioned).
+    2. No leaked uses: every mandatory hard `-b` inside `children` not satisfied internally MUST be declared in `ext`.
+    3. No dropped mandatory offers: every mandatory hard `Partitioned` `+b` inside `children` with 0 interior
+       handlers MUST be re-exported in `ext` (preserving exact tags).
+    4. Coarse-grained budget & critical-tier conservation: for every `Budgeted` `-b` in `children`,
+       exterior demand + internal supply must cover total and critical-tier interior demands.
 -/
 def checkSuperagentConformance (ext : ExteriorSurface) (children : List Agent) : List BoundaryError :=
-  let intSurfaces := siblingOperationalView children
-  let intPs := intSurfaces.flatMap (·.promises)
-  let intVols := intSurfaces.flatMap (·.volumes)
-  let intSub := deriveSubstrate intSurfaces
+  let intPs := (siblingOperationalView children).flatMap (·.promises)
   let offerErrs :=
     ext.promises.filterMap fun p =>
       match p.polarity with
       | Polarity.offer =>
-        if hasOffer intPs p.ptype p.key then none
+        if hasBackingOffer intPs p then none
         else some (BoundaryError.unbackedExteriorOffer ext.agentId p.ptype p.key)
       | Polarity.use => none
   let useErrs :=
@@ -181,6 +186,12 @@ def checkSuperagentConformance (ext : ExteriorSurface) (children : List Agent) :
       if isMandatoryHardUse p && !isInternallySatisfied intPs p then
         if hasUse ext.promises p.ptype p.key then none
         else some (BoundaryError.leakedInteriorUse ext.agentId p.ptype p.key)
+      else none
+  let droppedOfferErrs :=
+    intPs.filterMap fun p =>
+      if isMandatoryHardPartitionedOffer p && countMatchingPartitionHandlers intPs p.ptype p.tags == 0 then
+        if hasBackingOffer ext.promises p then none
+        else some (BoundaryError.droppedMandatoryOffer ext.agentId p.ptype p.key)
       else none
   let budgetErrs :=
     intPs.flatMap fun p =>
@@ -201,32 +212,11 @@ def checkSuperagentConformance (ext : ExteriorSurface) (children : List Agent) :
           else []
         e1 ++ e2
       | _, _ => []
-  let volBackingErrs :=
-    ext.volumes.filterMap fun ev =>
-      if intVols.any (fun v => v.id == ev.id) then none
-      else some (BoundaryError.unbackedExteriorVolume ext.agentId ev.id)
-  let volLeakErrs :=
-    intVols.flatMap fun v =>
-      let calmErr :=
-        if !predCalmSafe.eval v.traits then
-          [BoundaryError.unsafeInteriorVolume ext.agentId v.id]
-        else []
-      let persistErr :=
-        if predNeedsLocalPersistence.eval v.traits && !intSub.providesDurableStorage then
-          if ext.volumes.any (fun ev => ev.id == v.id && predNeedsLocalPersistence.eval ev.traits) then []
-          else [BoundaryError.leakedInteriorVolume ext.agentId v.id]
-        else []
-      let backupErr :=
-        if predBackupRequired.eval v.traits && intSub.backupProviderCount == 0 then
-          if ext.volumes.any (fun ev => ev.id == v.id && predBackupRequired.eval ev.traits) then []
-          else [BoundaryError.leakedInteriorVolume ext.agentId v.id]
-        else []
-      calmErr ++ persistErr ++ backupErr
-  offerErrs ++ useErrs ++ budgetErrs ++ volBackingErrs ++ volLeakErrs
+  offerErrs ++ useErrs ++ droppedOfferErrs ++ budgetErrs
 
-/-- Scope-Emergent Standalone Check (X4): satisfiable in minimal store-only Standalone Superagent. -/
-def checkStandalone (ext : ExteriorSurface) : Bool :=
-  ext.promises.all (fun p => !isMandatoryHardUse p || p.ptype == "store-pkg")
+/-- Scope-Emergent Portability (X4): an exterior closes inside ANY ambient scope `ambient` iff all mandatory uses satisfy. -/
+def canComposeInScope (ambient ext : ExteriorSurface) : Bool :=
+  ext.promises.all (fun p => !isMandatoryHardUse p || isInternallySatisfied ambient.promises p)
 
 /- Authorized Epistemic Zoom (C5): read-only CONTAINS traversal with zero operational coupling. -/
 mutual

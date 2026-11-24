@@ -1,12 +1,27 @@
 id = "target-nixos-iso"
-kind = "substrate"
-description = "Read-only ephemeral NixOS Live-ISO target (zero persistent storage; rejects durable state statically)."
-contributes_traits = ["ephemeral", "systemd", "iso"]
+description = "Read-only ephemeral NixOS Live-ISO target declared purely with raw promises."
+attributes = ["foreign:nixos-module"]
 
-[requires."config:hostname"]
-kind = "exclusive"
+[[promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
 
-[offers."target:os"]
-kind = "exclusive"
+[[promises]]
+ptype = "target:os"
+key = "target:os"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
 target_class = "nixos"
 output_attr = "isoImage"
+
+[[promises]]
+ptype = "storage:root"
+key = "storage:root"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true

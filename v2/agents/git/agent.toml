@@ -1,10 +1,18 @@
 id = "git"
-kind = "standalone"
-description = "Portable wrapped Git (W-Std pure nixpkgs) runnable standalone via `nix run` or installed on any NixOS host."
+description = "Portable wrapped Git (W-Std pure nixpkgs) declared purely with raw promises."
 
-[offers."bin:git"]
-kind = "exclusive"
+[[promises]]
+ptype = "bin:git"
+key = "bin:git"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
 
-[budgets]
-ram_mib = 32
-tier = "best-effort"
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = false
+amount = 32
+priority = 1
