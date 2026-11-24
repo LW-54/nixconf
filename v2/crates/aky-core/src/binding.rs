@@ -1,0 +1,211 @@
+//! `B3` Scoped Binding, Budget Priority Tiering, and Multi-Stratum Stratification
+//! mirroring `Aky/Spec/Binding.lean`.
+
+use serde::{Deserialize, Serialize};
+
+use crate::agency::{Cardinality, Polarity, Promise, Strength};
+
+/// Declarative cross-stratum handler rule (`in_stratum < out_stratum`).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HandlerRule {
+    /// Unique handler identifier.
+    pub id: String,
+    /// Input stratum consumed by this handler.
+    pub in_stratum: u64,
+    /// Output stratum emitted by this handler.
+    pub out_stratum: u64,
+    /// Promises emitted at `out_stratum`.
+    pub emitted: Vec<Promise>,
+}
+
+/// Structured binding violation diagnostic.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BindingError {
+    /// A `Soft` promise omitted its condition, degraded invariant, or probe.
+    IncompleteSoftContract {
+        /// Offending promise identifier.
+        promise_id: String,
+    },
+    /// A mandatory `Hard` `Exclusive` requirement has zero or multiple matching offers.
+    ExclusiveMismatch {
+        /// Requirement promise identifier.
+        promise_id: String,
+        /// Required promise type.
+        ptype: String,
+        /// Required promise key.
+        key: String,
+        /// Actual count of matching offers found in scope.
+        offer_count: usize,
+    },
+    /// Multiple `Exclusive` or `Partitioned` offers collided on the same `(ptype, key)`.
+    DuplicateOffer {
+        /// Colliding promise identifier.
+        promise_id: String,
+        /// Promise type.
+        ptype: String,
+        /// Colliding key.
+        key: String,
+        /// Number of duplicate offers.
+        offer_count: usize,
+    },
+    /// Two or more `Partitioned` handlers matched the same offer tags.
+    OverlappingPartitionHandlers {
+        /// Offer promise identifier.
+        promise_id: String,
+        /// Promise type.
+        ptype: String,
+        /// Number of matching partition handlers.
+        handler_count: usize,
+    },
+    /// Total or critical-tier `Budgeted` demand exceeds available supply.
+    BudgetExceeded {
+        /// Promise type (e.g., `"ram"`).
+        ptype: String,
+        /// Total available supply.
+        supply: u64,
+        /// Total demand across all consumers.
+        total_demand: u64,
+        /// Demand of priority-0 critical consumers.
+        critical_demand: u64,
+    },
+}
+
+fn count_matching_offers(ps: &[Promise], ptype: &str, key: &str) -> usize {
+    ps.iter()
+        .filter(|p| p.polarity == Polarity::Offer && p.ptype == ptype && p.key == key)
+        .count()
+}
+
+fn count_matching_partition_handlers(ps: &[Promise], ptype: &str, offer_tags: &[String]) -> usize {
+    ps.iter()
+        .filter(|h| {
+            h.polarity == Polarity::Use
+                && h.cardinality == Cardinality::Partitioned
+                && h.ptype == ptype
+                && h.selector.eval(offer_tags)
+        })
+        .count()
+}
+
+fn total_budget_supply(ps: &[Promise], ptype: &str) -> u64 {
+    ps.iter()
+        .filter(|p| {
+            p.polarity == Polarity::Offer
+                && p.cardinality == Cardinality::Budgeted
+                && p.ptype == ptype
+        })
+        .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
+}
+
+fn total_budget_demand(ps: &[Promise], ptype: &str) -> u64 {
+    ps.iter()
+        .filter(|p| {
+            p.polarity == Polarity::Use
+                && p.cardinality == Cardinality::Budgeted
+                && p.ptype == ptype
+        })
+        .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
+}
+
+fn critical_budget_demand(ps: &[Promise], ptype: &str) -> u64 {
+    ps.iter()
+        .filter(|p| {
+            p.polarity == Polarity::Use
+                && p.cardinality == Cardinality::Budgeted
+                && p.ptype == ptype
+                && p.priority == 0
+        })
+        .fold(0_u64, |acc, p| acc.saturating_add(p.amount))
+}
+
+/// Validates all `B3` scoped binding laws, returning structured diagnostics.
+#[must_use]
+pub fn validate_scope(ps: &[Promise]) -> Vec<BindingError> {
+    let mut errors = Vec::new();
+    for p in ps {
+        if p.strength == Strength::Soft {
+            let ok = p
+                .soft_info
+                .as_ref()
+                .is_some_and(super::agency::SoftContract::is_complete);
+            if !ok {
+                errors.push(BindingError::IncompleteSoftContract {
+                    promise_id: p.id.clone(),
+                });
+            }
+        }
+        match (p.cardinality, p.polarity, p.strength, p.mandatory) {
+            (Cardinality::Exclusive, Polarity::Use, Strength::Hard, true) => {
+                let count = count_matching_offers(ps, &p.ptype, &p.key);
+                if count != 1 {
+                    errors.push(BindingError::ExclusiveMismatch {
+                        promise_id: p.id.clone(),
+                        ptype: p.ptype.clone(),
+                        key: p.key.clone(),
+                        offer_count: count,
+                    });
+                }
+            }
+            (Cardinality::Exclusive, Polarity::Offer, _, _) => {
+                let count = count_matching_offers(ps, &p.ptype, &p.key);
+                if count > 1 {
+                    errors.push(BindingError::DuplicateOffer {
+                        promise_id: p.id.clone(),
+                        ptype: p.ptype.clone(),
+                        key: p.key.clone(),
+                        offer_count: count,
+                    });
+                }
+            }
+            (Cardinality::Partitioned, Polarity::Offer, _, _) => {
+                let offer_count = count_matching_offers(ps, &p.ptype, &p.key);
+                if offer_count > 1 {
+                    errors.push(BindingError::DuplicateOffer {
+                        promise_id: p.id.clone(),
+                        ptype: p.ptype.clone(),
+                        key: p.key.clone(),
+                        offer_count,
+                    });
+                }
+                let handler_count = count_matching_partition_handlers(ps, &p.ptype, &p.tags);
+                if handler_count > 1 {
+                    errors.push(BindingError::OverlappingPartitionHandlers {
+                        promise_id: p.id.clone(),
+                        ptype: p.ptype.clone(),
+                        handler_count,
+                    });
+                }
+            }
+            (Cardinality::Budgeted, Polarity::Use, _, _) => {
+                let supply = total_budget_supply(ps, &p.ptype);
+                let total_demand = total_budget_demand(ps, &p.ptype);
+                let critical_demand = critical_budget_demand(ps, &p.ptype);
+                if total_demand > supply || critical_demand > supply {
+                    errors.push(BindingError::BudgetExceeded {
+                        ptype: p.ptype.clone(),
+                        supply,
+                        total_demand,
+                        critical_demand,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+    errors
+}
+
+/// Boolean scope validity predicate matching `Aky.Spec.isScopeValid`.
+#[must_use]
+pub fn is_scope_valid(ps: &[Promise]) -> bool {
+    validate_scope(ps).is_empty()
+}
+
+/// Validates strict acyclic multi-stratum monotonicity (`in_stratum < out_stratum`).
+#[must_use]
+pub fn validate_stratum_rules(rules: &[HandlerRule]) -> bool {
+    rules.iter().all(|r| {
+        r.in_stratum < r.out_stratum && r.emitted.iter().all(|p| p.stratum == r.out_stratum)
+    })
+}

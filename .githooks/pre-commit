@@ -73,6 +73,8 @@ NEEDS_DOCS_ONLY=0
 NEEDS_CI_LINT=0
 for f in "${STAGED_FILES[@]}"; do
   case "$f" in
+    v2/*|architecture/*)
+      ;;
     meta/ci/*|.github/workflows/*)
       NEEDS_NIX_SYNC=1
       NEEDS_CI_LINT=1

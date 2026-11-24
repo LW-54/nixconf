@@ -1,0 +1,12 @@
+id = "target-nixos-efi"
+kind = "substrate"
+description = "UEFI NixOS bare-metal/VPS target offering exclusive `target:os` and `hw:physical-block`."
+contributes_traits = ["systemd", "uefi"]
+
+[offers."target:os"]
+kind = "exclusive"
+target_class = "nixos"
+output_attr = "toplevel"
+
+[offers."hw:physical-block"]
+kind = "exclusive"

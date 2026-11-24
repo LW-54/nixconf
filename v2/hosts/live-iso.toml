@@ -1,0 +1,8 @@
+id = "live-iso"
+system = "x86_64-linux"
+ram_mib = 2048
+backup_providers = 0
+attributes = ["role:rescue", "posture:ephemeral"]
+substrate_offers = []
+profiles = []
+agents = ["target-nixos-iso", "git"]

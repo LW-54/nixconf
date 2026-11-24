@@ -1,0 +1,48 @@
+[[principals]]
+id = "astrolabe"
+tags = ["role:server", "env:prod"]
+
+[[principals]]
+id = "x240"
+tags = ["role:workstation", "posture:roaming"]
+
+[[principals]]
+id = "chromebook"
+tags = ["role:tablet", "posture:roaming"]
+
+[[principals]]
+id = "agy"
+tags = ["role:server", "actor:ai-agent"]
+
+[[resources]]
+id = "vaultwarden-master"
+tags = ["class:vault", "env:prod"]
+
+[[resources]]
+id = "wifi-eduroam"
+tags = ["class:wifi"]
+
+[[resources]]
+id = "attic-cache-key"
+tags = ["class:cache"]
+
+[[policies]]
+id = "permit-servers-vault"
+effect = "permit"
+action = "read-secret"
+principalPred = { kind = "atom", tag = "role:server" }
+resourcePred = { kind = "atom", tag = "class:vault" }
+
+[[policies]]
+id = "permit-roaming-wifi"
+effect = "permit"
+action = "read-secret"
+principalPred = { kind = "atom", tag = "posture:roaming" }
+resourcePred = { kind = "atom", tag = "class:wifi" }
+
+[[policies]]
+id = "forbid-roaming-or-ai-vault"
+effect = "forbid"
+action = "read-secret"
+principalPred = { kind = "union", left = { kind = "atom", tag = "posture:roaming" }, right = { kind = "atom", tag = "actor:ai-agent" } }
+resourcePred = { kind = "atom", tag = "class:vault" }

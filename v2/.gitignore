@@ -1,0 +1,5 @@
+/target/
+formal/lean/.lake/
+_apalache-out/
+result
+result-*

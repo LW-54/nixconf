@@ -1,0 +1,21 @@
+id = "vaultwarden"
+kind = "atomic"
+description = "Self-hosted Bitwarden-compatible password vault with Agent-Declared State-As-Promise (S2+)."
+
+[offers."http:vaultwarden"]
+kind = "exclusive"
+port = 8222
+
+[requires."proxy:https"]
+kind = "exclusive"
+
+[requires."secrets:runtime"]
+kind = "exclusive"
+
+[budgets]
+ram_mib = 256
+tier = "critical"
+
+[state.data]
+path = "/var/lib/vaultwarden"
+traits = ["survives-reboot", "backup-required", "single-auth-writer"]

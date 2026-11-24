@@ -1,0 +1,10 @@
+name = "aky-formal"
+version = "0.2.0"
+defaultTargets = ["Aky", "aky-oracle"]
+
+[[lean_lib]]
+name = "Aky"
+
+[[lean_exe]]
+name = "aky-oracle"
+root = "Aky.Oracle.Main"

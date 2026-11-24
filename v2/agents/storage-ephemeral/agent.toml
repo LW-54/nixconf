@@ -1,0 +1,14 @@
+id = "storage-ephemeral"
+kind = "substrate"
+description = "Ephemeral root filesystem with sealed `nix-community/impermanence` (I1) auto-consuming S2+ `[state.*]` declarations."
+contributes_traits = ["durable", "ephemeral-root"]
+
+[offers."storage:root"]
+kind = "exclusive"
+
+[requires."hw:physical-block"]
+kind = "exclusive"
+
+[state.nixos-ids]
+path = "/var/lib/nixos"
+traits = ["survives-reboot", "single-auth-writer"]

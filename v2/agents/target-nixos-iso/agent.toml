@@ -1,0 +1,9 @@
+id = "target-nixos-iso"
+kind = "substrate"
+description = "Read-only ephemeral NixOS Live-ISO target (zero persistent storage; rejects durable state statically)."
+contributes_traits = ["ephemeral", "systemd", "iso"]
+
+[offers."target:os"]
+kind = "exclusive"
+target_class = "nixos"
+output_attr = "isoImage"

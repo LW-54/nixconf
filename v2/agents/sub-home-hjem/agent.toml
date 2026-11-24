@@ -1,0 +1,6 @@
+id = "sub-home-hjem"
+kind = "substrate"
+description = "Sealed `feel-co/hjem` (H2) for residual $HOME dotfiles and standalone user environments."
+
+[offers."home:files"]
+kind = "exclusive"

@@ -1,0 +1,9 @@
+id = "base-server"
+description = "P-Dual Transparent Profile bundling UEFI NixOS, ephemeral-root impermanence, hjem, wrapped git, and Caddy."
+agents = [
+  "target-nixos-efi",
+  "storage-ephemeral",
+  "sub-home-hjem",
+  "git",
+  "caddy",
+]

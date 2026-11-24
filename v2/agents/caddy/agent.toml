@@ -1,0 +1,11 @@
+id = "caddy"
+kind = "atomic"
+description = "Public HTTPS reverse proxy offering exclusive `proxy:https` routing."
+
+[offers."proxy:https"]
+kind = "exclusive"
+domain = "example.org"
+
+[budgets]
+ram_mib = 128
+tier = "critical"

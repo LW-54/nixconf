@@ -1,0 +1,21 @@
+[package]
+name = "aky-cli"
+description = "Antikythera (aky) zero-Nix fleet verifier, policy explainer, blast-radius analyzer, and Lean 4 DRT runner."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "aky"
+path = "src/main.rs"
+
+[dependencies]
+aky-core.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+toml.workspace = true
+
+[lints]
+workspace = true

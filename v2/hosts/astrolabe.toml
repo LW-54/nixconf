@@ -1,0 +1,8 @@
+id = "astrolabe"
+system = "x86_64-linux"
+ram_mib = 11264
+backup_providers = 1
+attributes = ["role:server", "env:prod"]
+substrate_offers = ["secrets:runtime"]
+profiles = ["base-server"]
+agents = ["vaultwarden"]

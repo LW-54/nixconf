@@ -1,0 +1,10 @@
+id = "git"
+kind = "standalone"
+description = "Portable wrapped Git (W-Std pure nixpkgs) runnable standalone via `nix run` or installed on any NixOS host."
+
+[offers."bin:git"]
+kind = "exclusive"
+
+[budgets]
+ram_mib = 32
+tier = "best-effort"
