@@ -13,14 +13,14 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 3 — Stage `3A` Structural Kernel ✅ + `W1` Pure Zero-Sugar Walking Skeleton ✅ + Stage `3B` ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) + Stage `3C.1` Storage/Backups/Compute ✅ (`ADR-0014`) + Stage `3C.2` Six-Pillar Observability/SST/Lossless-Archival/AI-Ops ✅ (`ADR-0015`, `EXP-0011..0013`) → Entering Stage `3C.3` (Knowledge, Docs `A-012`, CLI/UX & DevShells)**!
+Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 3 — Stage `3A` Structural Kernel ✅ + `W1` Pure Zero-Sugar Walking Skeleton ✅ + Stage `3B` ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) + Stage `3C` ALL Vertical Domains ✅ (`ADR-0014`..`ADR-0016`, ALL 13 Assumptions Resolved!) → Entering Stage `3D` (Final Cross-Consistency Assessment, `M1-Sunset` Live Cutover Plan & Dedicated Ergonomics/Factorization Blueprint)**!
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
 - **Project Identity**: **Antikythera (`aky`, `LW-54/antikythera`)** *(ratified in `ADR-0008` + `ADR-0013`)*
-- **Current Phase**: **Phase 3 — Stage `3C.2` Observability, `E3` SST Spine, Lossless Archival & AI Ops RATIFIED (`ADR-0015`, `A-010` falsified/replaced) → Ready for Stage `3C.3` (Knowledge, Docs `A-012`, CLI/UX & DevShells)!**
+- **Current Phase**: **Phase 3 — Stage `3C` COMPLETE (`ADR-0016`, `A-012` validated; `0` unverified assumptions!) → Entering Stage `3D` (CCA/ATAM, `M1-Sunset` Cutover Plan & Ergonomics/Factorization Blueprint)!**
 - **Last Updated**: 2026-11-25
 
 ---
@@ -33,7 +33,7 @@ Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** groun
 | **1** | Empirical Current-State Audit & Boundary-Constraint Harvest | **Complete** | `AUD-0001`..`AUD-0004` (50k LOC census, live `astrolabe` baseline, fleet boundary matrix) |
 | **2A** | Foundational Decisions & Red-Team Synthesis | **Complete** | `RES-0003`..`RES-0011`, `EXP-0001`..`EXP-0004`, `ADR-0002`..`ADR-0006` (`ADR-0001` superseded), `spec/FOUNDATION.md` |
 | **2B** | Formal Mathematical Specification, Rival-Theory Audit & Production Verification | **Complete** | `RES-0012`..`RES-0013`, `EXP-0005` (v0.2), `ADR-0007`, **`PAPER-FOUNDATION` v2.0**, `architecture/formal/` (**35 Lean 4 theorems**, **11 TLC invariants + 8 tests**, **2,005-fleet 1:1 modular Rust↔Lean4 DRT**) |
-| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3C.3`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B** ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) → **3C.1** Storage/Backups/Compute ✅ (`ADR-0014`) → **3C.2** Obs/SST/AI ✅ (`ADR-0015`, `EXP-0011..0013`) → **3C.3** Docs/UX (NEXT) → **3D** CCA, `M1-Sunset` Cutover & Factorization |
+| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3D` Final Synthesis)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B** ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) → **3C** ALL Vertical Domains ✅ (`ADR-0014`..`ADR-0016`) → **3D** CCA, `M1-Sunset` Cutover & Factorization (NEXT) |
 | **4** | Full v2 Implementation & `M1-Sunset` Cutover (`x240` → `astrolabe`) | Queued | Production build on top of Walking Skeleton + zero-carry-forward live cutover & legacy deletion |
 
 ---
@@ -63,14 +63,16 @@ Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** groun
   - `ST-UnifiedRestic` (native S3 R2 `< \$2/mo` w/ prefix-scoped Governance WORM, tuned SFTP `hbox`, optional `gdrive`, home-laptop `restic-rest-server`, substrate-isolated `btrbk` + Linux 6.18 Btrfs `squota`); `SP-GitAnnex` (`0 MiB` idle, client-encrypted `gdrive`) + workstation-only `harmonia` + `Copyparty` + optional `Syncthing`; sandboxed `DC-NATS-Pull` (`services.nats` JetStream `20.8 MiB`, allowlisted/signed Nix closures, NATS `submitter`/`worker` RBAC) + workstation `nix.buildMachines` + universal AC lid-closed mode (session lock, battery hysteresis `35%/25%`, `80/90 °C` thermal watchdog, metered-link byte quotas).
 - **Stage `3C.2` Six-Pillar Observability, `E3` SST Spine, Lossless Archival & Stratified AI Ops RATIFIED (`ADR-0015`, `EXP-0011..0013`, `A-010` FALSIFIED/REPLACED)**:
   - `COL-FluentNode` (`44.4 MiB`, `100%` `SIGKILL` crash-safe vs. falsified `vlagent`) + native cgroups v2/PSI (`768` vs `6,166` cAdvisor series) + structured journald (`SD_MESSAGE_UNIT_RESOURCES`) + Observability 2.0 wide JSON events + battery-adaptive sampling (`15s`/`30s`/`60s`), privately over Tailscale `zone:mesh`; `VictoriaStack` (`VM` + `VL` + `VictoriaTraces` `17.5 MiB`) + `ARC-LosslessKeepAll` (`1–3y` hot + `1h` mergeable rollups `45.8×` faster + 100% lossless pre-redacted `DuckDB 1.5.5` zstd-9 Parquet on `hbox`/`git-annex` + compact R2 mirror); `UI-PersesPure` (`Perses 0.54.0`, `89.9 MiB`, 64 built-in plugins, 5-step GQM/Endsley/Shneiderman/Cleveland–McGill generative dashboards); Tri-Purpose Probes (`C7`) → MWMBR SLOs + Availability Classes + Tiers 1–4 deterministic math/stats (`Theil–Sen`/`CUSUM`/`collapse_nums`/SST collapse + Weekly Digest) + Tier 5 read-only Biscuit MCP & `AI-EscalatedPR` strictly for semantic last-mile value (`~525–580 MiB` total on `astrolabe` = `2.6×` lighter than v1!).
-- **Next Step — Stage `3C.3` (Knowledge, Documentation `A-012`, CLI/UX & Portable DevShells/Templates)**:
-  - Audit v1 `meta/docs/` (169 generated Markdown files causing pre-commit churn), `Justfile`, `devShells`, and `nixprof`; research 2025–2026 static doc generation + LLM progressive-disclosure indices (`A-012`), unified `aky` CLI UX, and standalone portable DevShell/project templates.
+- **Stage `3C.3` Documentation Architecture, Agent-Native CLI, Composable Capabilities & DevShells RATIFIED (`ADR-0016`, `EXP-0014`, `A-012` VALIDATED — STAGE `3C` COMPLETE!)**:
+  - `DOC-MdBook` (`mdBook 0.5.4`, `1.39 s`, `61.6 MiB` Rust closure) out-of-Git compiled site (eliminating `75.1%` historical Git churn) hosted privately on Tailscale `docs.<tailnet>.ts.net` (`0 MiB` RAM) + privacy-filtered GitHub Pages + `aky doc serve`; Diátaxis × C4/arc42 × Carroll Minimalist 3 AM Crisis Runbooks (`docs/runbooks/`) + 5-language zero-wrapper in-code doc contract (TOML `description`/`[doc.links]`/`NOTES.md`, Nix RFC 145 `/** */`, Rust `///` + `clap` SSOT, Lean `/-- -/`, Quint `///`, `0` `.drv` busts, SST `NEAR` edges) + 4 mechanical anti-rot gates; `CLI-AkyPlusThinJust` (unified Rust `aky` folding `nixprof` → `aky prof`, `aky menu`, `aky doc`, `aky with` + `≤ 40`-LOC zero-logic `Justfile`); `CAP-AkyWith` declarative composable RAII capability supervisor (`capabilities/*.toml` DAG, 1-prompt Vaultwarden unlock, additive scoped RAM-tmpfs `ssh-agent`, Cedar AI `forbid`, offline break-glass); `DEV-PureStratified` (`pkgs.mkShellNoCC` + `nix-direnv 3.2.0` + `flake.templates#{rust,python,nix-pkg,docs}`).
+- **Next Step — Stage `3D` (Final Architectural Synthesis Before Phase 4 Implementation)**:
+  - (1) Full Cross-Consistency Assessment (CCA / ATAM) across all 15 accepted ADRs (`ADR-0002`..`ADR-0016`) + `CHARTER.md` (`QA-01`..`QA-10`) & exact total `astrolabe` / `rpi` RAM + NVMe + R2 cost budget verification; (2) Concrete `M1-Sunset` Zero-Carry-Forward Live Cutover Plan (`x240` → `astrolabe` + 100% deletion of v1 legacy); (3) Dedicated Ergonomics & Factorization Blueprint (clean optional sugar compiling 1-to-1 into our pure zero-sugar Lean-verified core).
 
 ---
 
 ## Assumptions Tracker Snapshot
 - Total logged: **13** (`A-001` .. `A-013`)
-- Validated: **9** (`A-001`, `A-002`, `A-003`, `A-004`, `A-005`, `A-007`, `A-009`, `A-011`, `A-013`)
+- Validated: **10** (`A-001`, `A-002`, `A-003`, `A-004`, `A-005`, `A-007`, `A-009`, `A-011`, `A-012`, `A-013`)
 - Experimenting: **2** (`A-006`, `A-008` — queued for Phase 4 QEMU runtime/fault-injection tests)
-- Unverified: **1** (`A-012`)
+- Unverified: **0** *(ALL 13 assumptions resolved!)*
 - Falsified: **1** (`A-010` — v1 `Alloy + Grafana` Pareto assumption disproven by `EXP-0011..0013` and replaced by `ADR-0015`)
