@@ -13,14 +13,14 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 3 — Stage `3A` Structural Kernel ✅ + `W1` Pure Zero-Sugar Walking Skeleton ✅ + Stage `3B` ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) + Stage `3C.1` Storage/Backups/Compute ✅ (`ADR-0014`, `EXP-0010`) → Entering Stage `3C.2` (Observability, Semantic Spacetime `E3` Epistemic Spine, Tri-Purpose Probes `C7`, & Autonomous AI Ops, `A-010`)**!
+Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 3 — Stage `3A` Structural Kernel ✅ + `W1` Pure Zero-Sugar Walking Skeleton ✅ + Stage `3B` ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) + Stage `3C.1` Storage/Backups/Compute ✅ (`ADR-0014`) + Stage `3C.2` Six-Pillar Observability/SST/Lossless-Archival/AI-Ops ✅ (`ADR-0015`, `EXP-0011..0013`) → Entering Stage `3C.3` (Knowledge, Docs `A-012`, CLI/UX & DevShells)**!
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
 - **Project Identity**: **Antikythera (`aky`, `LW-54/antikythera`)** *(ratified in `ADR-0008` + `ADR-0013`)*
-- **Current Phase**: **Phase 3 — Stage `3C.1` Storage/Backups/Compute RATIFIED (`ADR-0014`, `EXP-0010`) → Ready for Stage `3C.2` (Observability, `E3` SST Spine & AI Ops, `A-010`)!**
+- **Current Phase**: **Phase 3 — Stage `3C.2` Observability, `E3` SST Spine, Lossless Archival & AI Ops RATIFIED (`ADR-0015`, `A-010` falsified/replaced) → Ready for Stage `3C.3` (Knowledge, Docs `A-012`, CLI/UX & DevShells)!**
 - **Last Updated**: 2026-11-25
 
 ---
@@ -33,7 +33,7 @@ Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** groun
 | **1** | Empirical Current-State Audit & Boundary-Constraint Harvest | **Complete** | `AUD-0001`..`AUD-0004` (50k LOC census, live `astrolabe` baseline, fleet boundary matrix) |
 | **2A** | Foundational Decisions & Red-Team Synthesis | **Complete** | `RES-0003`..`RES-0011`, `EXP-0001`..`EXP-0004`, `ADR-0002`..`ADR-0006` (`ADR-0001` superseded), `spec/FOUNDATION.md` |
 | **2B** | Formal Mathematical Specification, Rival-Theory Audit & Production Verification | **Complete** | `RES-0012`..`RES-0013`, `EXP-0005` (v0.2), `ADR-0007`, **`PAPER-FOUNDATION` v2.0**, `architecture/formal/` (**35 Lean 4 theorems**, **11 TLC invariants + 8 tests**, **2,005-fleet 1:1 modular Rust↔Lean4 DRT**) |
-| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3C.2`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B** ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) → **3C.1** Storage/Backups/Compute ✅ (`ADR-0014`, `EXP-0010`) → **3C.2** Obs/SST/AI (NEXT) → **3C.3** Docs/UX → **3D** CCA, `M1-Sunset` Cutover & Factorization |
+| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3C.3`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B** ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) → **3C.1** Storage/Backups/Compute ✅ (`ADR-0014`) → **3C.2** Obs/SST/AI ✅ (`ADR-0015`, `EXP-0011..0013`) → **3C.3** Docs/UX (NEXT) → **3D** CCA, `M1-Sunset` Cutover & Factorization |
 | **4** | Full v2 Implementation & `M1-Sunset` Cutover (`x240` → `astrolabe`) | Queued | Production build on top of Walking Skeleton + zero-carry-forward live cutover & legacy deletion |
 
 ---
@@ -61,8 +61,10 @@ Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** groun
   - **Ratified `ADR-0013` (`accepted`) — Stage `3B.3` (`P-AkyPull` + `BC-Niks3` R2 + `U-SplitGHA` + `Perm-AgentApp` + `M-FleetBare + Codeberg`)**: Zero-eval Rust `aky pull` + TUF `calibration.json` + $\alpha$ auto-rollback + `systemd-boot.bootCounting`; `niks3 1.16.0` on Cloudflare R2 (`cache.adje.app`, GitHub OIDC, retiring B2/Attic/Cachix/CI-SOPS); free `ubuntu-24.04-arm` multi-arch CI; `LW-54/antikythera` strict PR-only `main` + locked `calibrated` Rulesets + `dix`/`gitleaks`; fleet-wide `~3–15 MiB` offline bare mirrors + Codeberg + `3-2-1-1-0` R2 WORM/Hetzner Box/metadata backups.
 - **Stage `3C.1` Storage, Backups & Opportunistic Compute RATIFIED (`ADR-0014`, `EXP-0010`, `A-009` VALIDATED)**:
   - `ST-UnifiedRestic` (native S3 R2 `< \$2/mo` w/ prefix-scoped Governance WORM, tuned SFTP `hbox`, optional `gdrive`, home-laptop `restic-rest-server`, substrate-isolated `btrbk` + Linux 6.18 Btrfs `squota`); `SP-GitAnnex` (`0 MiB` idle, client-encrypted `gdrive`) + workstation-only `harmonia` + `Copyparty` + optional `Syncthing`; sandboxed `DC-NATS-Pull` (`services.nats` JetStream `20.8 MiB`, allowlisted/signed Nix closures, NATS `submitter`/`worker` RBAC) + workstation `nix.buildMachines` + universal AC lid-closed mode (session lock, battery hysteresis `35%/25%`, `80/90 °C` thermal watchdog, metered-link byte quotas).
-- **Next Step — Stage `3C.2` (Observability, Semantic Spacetime `E3` Epistemic Spine, Tri-Purpose Probes `C7`, & Autonomous AI Ops, `A-010`)**:
-  - Audit v1 observability (`1.59 GiB` RSS on `astrolabe`!) + 2025–2026 research across metrics/logs/traces/eBPF profiling (`VictoriaMetrics`/`VictoriaLogs`/`VictoriaTraces`, `Grafana` vs `Perses`/`VictoriaUI`, `Alloy` vs `Vector`/`FluentBit`/`OTel Collector`, `Pyroscope`/`Parca`/`Beyla`) + concrete realization of `E3` $\gamma(3,4)$ Spine, Tri-Purpose Probes ($\alpha$), and Trust-Budgeted AI Ops.
+- **Stage `3C.2` Six-Pillar Observability, `E3` SST Spine, Lossless Archival & Stratified AI Ops RATIFIED (`ADR-0015`, `EXP-0011..0013`, `A-010` FALSIFIED/REPLACED)**:
+  - `COL-FluentNode` (`44.4 MiB`, `100%` `SIGKILL` crash-safe vs. falsified `vlagent`) + native cgroups v2/PSI (`768` vs `6,166` cAdvisor series) + structured journald (`SD_MESSAGE_UNIT_RESOURCES`) + Observability 2.0 wide JSON events + battery-adaptive sampling (`15s`/`30s`/`60s`), privately over Tailscale `zone:mesh`; `VictoriaStack` (`VM` + `VL` + `VictoriaTraces` `17.5 MiB`) + `ARC-LosslessKeepAll` (`1–3y` hot + `1h` mergeable rollups `45.8×` faster + 100% lossless pre-redacted `DuckDB 1.5.5` zstd-9 Parquet on `hbox`/`git-annex` + compact R2 mirror); `UI-PersesPure` (`Perses 0.54.0`, `89.9 MiB`, 64 built-in plugins, 5-step GQM/Endsley/Shneiderman/Cleveland–McGill generative dashboards); Tri-Purpose Probes (`C7`) → MWMBR SLOs + Availability Classes + Tiers 1–4 deterministic math/stats (`Theil–Sen`/`CUSUM`/`collapse_nums`/SST collapse + Weekly Digest) + Tier 5 read-only Biscuit MCP & `AI-EscalatedPR` strictly for semantic last-mile value (`~525–580 MiB` total on `astrolabe` = `2.6×` lighter than v1!).
+- **Next Step — Stage `3C.3` (Knowledge, Documentation `A-012`, CLI/UX & Portable DevShells/Templates)**:
+  - Audit v1 `meta/docs/` (169 generated Markdown files causing pre-commit churn), `Justfile`, `devShells`, and `nixprof`; research 2025–2026 static doc generation + LLM progressive-disclosure indices (`A-012`), unified `aky` CLI UX, and standalone portable DevShell/project templates.
 
 ---
 
@@ -70,5 +72,5 @@ Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** groun
 - Total logged: **13** (`A-001` .. `A-013`)
 - Validated: **9** (`A-001`, `A-002`, `A-003`, `A-004`, `A-005`, `A-007`, `A-009`, `A-011`, `A-013`)
 - Experimenting: **2** (`A-006`, `A-008` — queued for Phase 4 QEMU runtime/fault-injection tests)
-- Unverified: **2** (`A-010`, `A-012`)
-- Falsified: **0**
+- Unverified: **1** (`A-012`)
+- Falsified: **1** (`A-010` — v1 `Alloy + Grafana` Pareto assumption disproven by `EXP-0011..0013` and replaced by `ADR-0015`)
