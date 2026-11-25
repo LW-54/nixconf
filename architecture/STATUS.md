@@ -4,7 +4,7 @@ title: Redesign Program Live Status Dashboard
 type: status
 status: active
 created: 2026-11-23
-updated: 2026-11-24
+updated: 2026-11-25
 domain: meta
 tags: [status, dashboard, roadmap]
 summary: Single-page live operational state of the nixconf v2 architectural redesign on branch design/v2.
@@ -13,15 +13,15 @@ summary: Single-page live operational state of the nixconf v2 architectural rede
 <!-- abstract:start -->
 ## Executive Abstract
 
-Live status dashboard for the `nixconf` ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 2 (2A + 2B v2.0) COMPLETE & FORMALLY VERIFIED → Entering Phase 3 (Risk-Driven Realization & Walking Skeleton, `RES-0014`)**. Phase 3 follows a DSM-partitioned 4-stage plan (`3A` Structural Kernel → Mandatory **`W1` Walking Skeleton Gate** → `3B` Trust/Mesh/Convergence Plane → `3C` Pluggable Capability Domains → `3D` CCA & **`M1-Sunset`** Zero-Carry-Forward Safe Migration), starting with **Stage `3A.1`: Authoring Medium, Boundary-First Engine & Nix↔Rust Seam**.
+Live status dashboard for the **Antikythera (`aky`, `LW-54/antikythera`)** ground-up architectural redesign on branch `design/v2`. **Current Phase**: **Phase 3 — Stage `3A` Structural Kernel ✅ + `W1` Pure Zero-Sugar Walking Skeleton ✅ + Stage `3B` ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) → Entering Stage `3C.1` (Storage, Backups on Cloudflare R2 + Hetzner Box, & Opportunistic Distributed Compute, `A-009`)**!
 <!-- abstract:end -->
 
 # Redesign Program Status
 
 - **Active Branch**: `design/v2` (branched from `main` at `90c0b02`)
-- **Project Identity**: **Antikythera (`aky`)** *(ratified in `ADR-0008`)*
-- **Current Phase**: **Phase 3 — Stage `3B.2` Mesh Fabric RATIFIED (`ADR-0012`) → Entering Stage `3B.3` (Triadic Autonomous Pull `C3` + TUF, Cache, Security PRs & Git Mirror, `A-008`)!**
-- **Last Updated**: 2026-11-24
+- **Project Identity**: **Antikythera (`aky`, `LW-54/antikythera`)** *(ratified in `ADR-0008` + `ADR-0013`)*
+- **Current Phase**: **Phase 3 — Stage `3B` COMPLETE (`ADR-0011`..`ADR-0013`) → Entering Stage `3C.1` (Storage, Backups & Opportunistic Distributed Compute, `A-009`)!**
+- **Last Updated**: 2026-11-25
 
 ---
 
@@ -33,7 +33,7 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
 | **1** | Empirical Current-State Audit & Boundary-Constraint Harvest | **Complete** | `AUD-0001`..`AUD-0004` (50k LOC census, live `astrolabe` baseline, fleet boundary matrix) |
 | **2A** | Foundational Decisions & Red-Team Synthesis | **Complete** | `RES-0003`..`RES-0011`, `EXP-0001`..`EXP-0004`, `ADR-0002`..`ADR-0006` (`ADR-0001` superseded), `spec/FOUNDATION.md` |
 | **2B** | Formal Mathematical Specification, Rival-Theory Audit & Production Verification | **Complete** | `RES-0012`..`RES-0013`, `EXP-0005` (v0.2), `ADR-0007`, **`PAPER-FOUNDATION` v2.0**, `architecture/formal/` (**35 Lean 4 theorems**, **11 TLC invariants + 8 tests**, **2,005-fleet 1:1 modular Rust↔Lean4 DRT**) |
-| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3B.3`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B.1** Trust ✅ (`ADR-0011`) → **3B.2** Mesh ✅ (`ADR-0012`) → **3B.3** TUF Pull/GitOps (NEXT) → **3C** Pluggable Capabilities → **3D** CCA & `M1-Sunset` Cutover Plan |
+| **3** | Concrete Realization, Risk Burn-Down & Walking Skeleton (`RES-0014`) | **Active (`3C.1`)** | **3A** Structural Kernel ✅ (`ADR-0008`..`ADR-0010`) → **`W1` Walking Skeleton ✅ (`v2/`, `EXP-0009`)** → **3B** ALL Cross-Cutting Planes ✅ (`ADR-0011`..`ADR-0013`) → **3C** Pluggable Capabilities (`3C.1` Storage/Backups/Compute NEXT → `3C.2` Obs/SST/AI → `3C.3` Docs/UX) → **3D** CCA, `M1-Sunset` Cutover & Factorization |
 | **4** | Full v2 Implementation & `M1-Sunset` Cutover (`x240` → `astrolabe`) | Queued | Production build on top of Walking Skeleton + zero-carry-forward live cutover & legacy deletion |
 
 ---
@@ -55,17 +55,18 @@ Live status dashboard for the `nixconf` ground-up architectural redesign on bran
   - Live runnable **100% usage-agnostic, zero-sugar** Antikythera core (`4` flake inputs, 0 `home-manager`, **0 domain strings** in `Aky/Spec/*` and `aky-core/src/*`), **41 machine-checked Lean 4 theorems (0 `sorryAx`)** over recursive `Agent` trees (`checkAgentTree_substitution_invariant`), declarative `AttrExpr` `PromiseInvariant`s (CALM as pure data), mandatory `Broadcast`/`Partitioned` binding, and NixOS `{ config, ... }:` backdoor blocking (`assertNonPiercingNixos`).
   - `7/7` hermetic checks passing (0 warnings), **`2,003/2,003` recursive-tree Rust↔Lean DRT (0 divergences)**, bit-for-bit `S1` Rust==Nix equivalence, byte-for-byte identical `astrolabe` & `live-iso` `.drv` hashes, and `2.39 ms` zero-Nix `aky check`.
   - **Ergonomics Policy Locked**: Build initial production implementation on raw primitives first; defer syntactic sugar & factorization helpers to a dedicated post-architecture Ergonomics phase once Stages `3B`–`3D` provide global vision.
-- **Next Step — Stage `3B.3` (Triadic Autonomous Pull `C3` + TUF, Multi-Arch Builds, Binary Cache, Security PRs & Git Mirror, `A-008`)**:
+- **Stage `3B` Cross-Cutting Planes COMPLETE**:
   - **Ratified `ADR-0011` (`accepted`) — Stage `3B.1` (`S-Sops` + `C-Pragmatic`)**: Sealed `sops-nix`, Cedar→`.sops.yaml` compiler & audit, multi-recipient Vaultwarden + offline break-glass `age` & emergency SSH keys, LUKS2+TPM2-PIN+Lanzaboote, `LoadCredential=`, OIDC/CLI tokens, `biscuit-auth`.
   - **Ratified `ADR-0012` (`accepted`) — Stage `3B.2` (`M-Tailscale` + `H-TailnetTLS` + Dual SSH)**: Sealed `mesh-tailscale` (Personal Free \$0, 0 server RAM, GitOps `policy.hujson`, zero dormant Headscale bloat while retaining `config:mesh-control-url` swappability), Tailscale SSH + key-only `sshd`, `*.ts.net` Caddy auto-certs & split-horizon firewall.
-  - Begin **Stage `3B.3`**: Theoretical + practical research and empirical inspection of TUF-calibrated pull (`comin` vs `system.autoUpgrade` vs `aky-pull` daemon), binary cache (`Attic` vs `Harmonia` vs `Cachix` vs `NikS3`), multi-arch `aarch64` build pipelines, automated Vaultwarden/nixpkgs security PRs, and self-hosted Git mirror (`Forgejo` vs bare Git + `systemd` mirror).
-- **Assumptions Tracker Snapshot**: Total 13 | Validated 8 | Experimenting 1 (`A-006`) | Unverified 4 (`A-008`, `A-009`, `A-010`, `A-012`) | Falsified 0.
+  - **Ratified `ADR-0013` (`accepted`) — Stage `3B.3` (`P-AkyPull` + `BC-Niks3` R2 + `U-SplitGHA` + `Perm-AgentApp` + `M-FleetBare + Codeberg`)**: Zero-eval Rust `aky pull` + TUF `calibration.json` + $\alpha$ auto-rollback + `systemd-boot.bootCounting`; `niks3 1.16.0` on Cloudflare R2 (`cache.adje.app`, GitHub OIDC, retiring B2/Attic/Cachix/CI-SOPS); free `ubuntu-24.04-arm` multi-arch CI; `LW-54/antikythera` strict PR-only `main` + locked `calibrated` Rulesets + `dix`/`gitleaks`; fleet-wide `~3–15 MiB` offline bare mirrors + Codeberg + `3-2-1-1-0` R2 WORM/Hetzner Box/metadata backups.
+- **Next Step — Stage `3C.1` (Storage, Backups on Cloudflare R2 + Hetzner Box, & Opportunistic Distributed Compute, `A-009`)**:
+  - Audit v1 storage/backup/rclone/restic/snapshot/copyparty/cgroups-volumes modules + conduct 2025–2026 research across backup engines (`restic`/`rustic`/`kopia`/`borg`), file sync & distributed storage (`syncthing`, `rclone`, `taildrive`, `copyparty`, `garage`, `seaweedfs`, `ceph`), and opportunistic distributed compute (Nix remote builders over Tailscale SSH, TUF AC/idle `harmonia` peer cache, `incus`/`nomad`/`k3s`).
 
 ---
 
 ## Assumptions Tracker Snapshot
 - Total logged: **13** (`A-001` .. `A-013`)
 - Validated: **8** (`A-001`, `A-002`, `A-003`, `A-004`, `A-005`, `A-007`, `A-011`, `A-013`)
-- Experimenting: **0**
-- Unverified: **5** (`A-006`, `A-008`, `A-009`, `A-010`, `A-012`)
+- Experimenting: **2** (`A-006`, `A-008` — queued for Phase 4 QEMU runtime/fault-injection tests)
+- Unverified: **3** (`A-009`, `A-010`, `A-012`)
 - Falsified: **0**
