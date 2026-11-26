@@ -1,0 +1,55 @@
+id = "gitops-pull"
+description = "Autonomous zero-eval TUF pull agent (ADR-0013) consuming critical Broadcast probes for rollback & R2 CDN directly."
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "ext:service"
+key = "cache:cdn"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+selector = {kind = "atom", tag = "cdn-read"}
+
+[[promises]]
+ptype = "probe"
+key = "critical-probes"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "atom", tag = "critical"}
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/aky-pull"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/aky-pull"
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 16
+priority = 0
+
+[[promises]]
+ptype = "doc:link"
+key = "gitops-pull"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["doc:sst-near"]
+[promises.payload]
+adrs = ["ADR-0013"]
+runbooks = ["rollback-recovery"]

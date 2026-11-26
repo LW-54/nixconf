@@ -1,0 +1,10 @@
+id = "dev-rust"
+description = "Composable Rust toolchain capability Agent (DEV-PureStratified, pkgs.mkShellNoCC)."
+attributes = ["role:dev-capability"]
+
+[[promises]]
+ptype = "dev:toolchain"
+key = "rust"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false

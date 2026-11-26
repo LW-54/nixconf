@@ -1,0 +1,17 @@
+id = "dev-formal"
+description = "Composable formal verification capability Agent (Lean 4.35 + Quint 0.33.1) auto-discovered as devShells.formal!"
+attributes = ["role:dev-capability"]
+
+[[promises]]
+ptype = "dev:toolchain"
+key = "formal"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+
+[[promises]]
+ptype = "dev:shell"
+key = "formal"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false

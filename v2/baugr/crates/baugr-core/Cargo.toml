@@ -1,0 +1,14 @@
+[package]
+name = "baugr-core"
+description = "Pure, std::fs-free (Wasm-ready) Promise Theory & Semantic Spacetime verification kernel DRT-locked to Lean 4 Baugr"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,100 @@
+id = "vaultwarden"
+description = "Self-hosted password vault declared purely with first-principles Promise Theory claims (zero ghost offers!)."
+
+[[promises]]
+ptype = "http:route"
+key = "vault"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:public"]
+[promises.payload]
+subdomain = "vault"
+port = 8222
+
+[[promises]]
+ptype = "secret:claim"
+key = "vaultwarden-master"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:vault", "env:prod"]
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/vaultwarden"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "btrfs-snapshot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/vaultwarden"
+prepare_cmd = "sqlite3-backup"
+
+[[promises]]
+ptype = "probe"
+key = "vaultwarden-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "critical", "tier0"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:8222/alive"
+slo = 0.999
+
+[[promises]]
+ptype = "doc:link"
+key = "vaultwarden"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["doc:sst-near"]
+[promises.payload]
+adrs = ["ADR-0011", "ADR-0012", "ADR-0014"]
+runbooks = ["break-glass-recovery", "backup-restore-drill"]
+
+[[promises]]
+ptype = "proxy:public"
+key = "proxy:public"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "config:domain"
+key = "config:domain"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "backup:provider"
+key = "backup:provider"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+selector = {kind = "atom", tag = "offhost"}
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 76
+priority = 0

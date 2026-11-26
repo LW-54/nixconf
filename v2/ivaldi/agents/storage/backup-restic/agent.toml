@@ -1,0 +1,53 @@
+id = "backup-restic"
+description = "ST-UnifiedRestic (ADR-0014): subscribes to Broadcast backup-required state:persist; enforces keepDaily(21) > R2 WORM lock(14)."
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "backup:provider"
+key = "restic-unified"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["offhost", "worm-14d"]
+[promises.payload]
+keep_daily = 21
+worm_lock_days = 14
+
+[[promises]]
+ptype = "secret:claim"
+key = "restic-repo"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:backup"]
+
+[[promises]]
+ptype = "ext:service"
+key = "backup:offhost"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+selector = {kind = "atom", tag = "offhost-backup"}
+
+[[promises]]
+ptype = "state:persist"
+key = "state:backup"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "atom", tag = "backup-required"}
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 32
+priority = 1

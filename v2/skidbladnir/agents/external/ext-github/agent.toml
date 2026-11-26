@@ -1,0 +1,13 @@
+id = "ext-github"
+description = "External platform boundary stub: GitHub LW-54/antikythera origin + free x86_64/arm64 Actions OIDC."
+attributes = ["role:external-platform"]
+
+[[promises]]
+ptype = "ext:service"
+key = "github-origin"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["git-origin", "ci-oidc"]
+[promises.payload]
+repo = "LW-54/antikythera"

@@ -1,0 +1,24 @@
+id = "live-iso"
+description = "Ephemeral rescue & onboarding Live-ISO — zero prod secrets, zero mesh access, pure Dressed Superagent."
+attributes = ["auth:principal", "role:rescue", "posture:ephemeral"]
+contains = [
+  {agent = "target-nixos-iso"},
+  {agent = "git"},
+]
+
+[[internal_promises]]
+ptype = "ram"
+key = "ram"
+polarity = "offer"
+cardinality = "budgeted"
+mandatory = true
+amount = 2048
+
+[[internal_promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+value = "live-iso"

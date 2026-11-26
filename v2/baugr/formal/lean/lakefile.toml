@@ -1,0 +1,10 @@
+name = "baugr-formal"
+version = "0.1.0"
+defaultTargets = ["Baugr", "baugr-oracle"]
+
+[[lean_lib]]
+name = "Baugr"
+
+[[lean_exe]]
+name = "baugr-oracle"
+root = "Baugr.Oracle.Main"

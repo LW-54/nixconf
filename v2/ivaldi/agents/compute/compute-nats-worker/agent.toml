@@ -1,0 +1,71 @@
+id = "compute-nats-worker"
+description = "DC-NATS-Pull AC lid-closed opportunistic compute worker (ADR-0014): Soft conditional promise + Cedar admit-agent & worker-only RBAC!"
+
+[[promises]]
+ptype = "mesh:transport"
+key = "mesh:transport"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "agent:class"
+key = "nats-worker-agent"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["class:compute-worker"]
+
+[[promises]]
+ptype = "nats:claim"
+key = "nats-worker"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["role:worker"]
+
+[[promises]]
+ptype = "mesh:service"
+key = "nats-broker"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["zone:mesh", "nats-broker"]
+selector = {kind = "atom", tag = "nats-broker"}
+
+[[promises]]
+ptype = "compute:batch"
+key = "compute:tuf"
+polarity = "offer"
+strength = "soft"
+cardinality = "broadcast"
+mandatory = false
+tags = ["opportunistic", "ac-gated"]
+[promises.soft]
+conditionRef = "power:ac-and-thermal-nominal"
+degradedMode = "nak-drain-to-nats"
+probeId = "probe:nats-worker"
+[promises.payload]
+thermal_cap_c = 80
+battery_floor_pct = 35
+
+[[promises]]
+ptype = "probe"
+key = "nats-worker"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["systemd", "advisory", "tier2"]
+[promises.payload]
+kind = "systemd_active"
+unit = "aky-nats-worker.service"
+slo = 0.90
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 64
+priority = 1

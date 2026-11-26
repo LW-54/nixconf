@@ -1,0 +1,16 @@
+id = "actor-agent-bot"
+description = "First-class PR-only GitHub App AI bot Agent (ADR-0013 Perm-AgentApp + ADR-0015): read-only Biscuit MCP + PRs ONLY!"
+attributes = ["auth:principal", "actor:ai-agent", "role:bot"]
+
+contains = [
+  {agent = "cap-runtime"},
+  {agent = "cap-obs-mcp"},
+]
+
+[[promises]]
+ptype = "ext:service"
+key = "git:origin"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+selector = {kind = "atom", tag = "git-origin"}

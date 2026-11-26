@@ -1,0 +1,19 @@
+id = "fleet"
+description = "Top-level recursive Distributed System Superagent: hosts + CI/AI actors + external platforms — auto-discovered by lib/realize.nix!"
+attributes = ["role:fleet"]
+
+contains = [
+  {agent = "astrolabe"},
+  {agent = "x240"},
+  {agent = "tuf"},
+  {agent = "rpi"},
+  {agent = "wsl"},
+  {agent = "live-iso"},
+  {agent = "actor-gha-ci"},
+  {agent = "actor-agent-bot"},
+  {agent = "ext-cloudflare-r2"},
+  {agent = "ext-hbox"},
+  {agent = "ext-tailscale"},
+  {agent = "ext-github"},
+  {agent = "ext-codeberg"},
+]

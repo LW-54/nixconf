@@ -1,0 +1,13 @@
+id = "ext-hbox"
+description = "External platform boundary stub: Hetzner Storage Box (SFTP Restic + lossless DuckDB Parquet + git-annex archive)."
+attributes = ["role:external-platform"]
+
+[[promises]]
+ptype = "ext:service"
+key = "hbox-sftp"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["offhost-backup", "parquet-archive"]
+[promises.payload]
+endpoint = "sftp://hbox"

@@ -1,0 +1,31 @@
+id = "fs-luks-disk"
+description = "Orthogonal LUKS2 + TPM2-PIN persistent workstation disk substrate."
+
+[[promises]]
+ptype = "storage:root"
+key = "storage:root"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "hw:physical-block"
+key = "hw:physical-block"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "state:persist"
+key = "state:persist"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "atom", tag = "survives-reboot"}

@@ -1,5 +1,5 @@
 {
-  description = "Antikythera (aky) — Zero-sugar usage-agnostic Promise Theory & Semantic Spacetime platform";
+  description = "Baugr -> Verft -> Ivaldi -> Skidbladnir: Strictly Fenced 4-Layer Promise Theory & Semantic Spacetime Ecosystem";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -28,42 +28,44 @@
           pkgs = import nixpkgs {inherit system;};
         });
 
-    # Realizer target mapping lives strictly in the NixOS realizer layer (zero NixOS concepts in aky-core!).
-    realized = import ./lib/realize.nix {
-      inherit inputs;
-      nixosTargets = {
-        astrolabe = "x86_64-linux";
-        live-iso = "x86_64-linux";
-      };
-      standaloneTargets = ["git"];
-    };
-
-    mkRust = pkgs: let
+    # =========================================================================
+    # L0: `baugr` — Universal Promise Theory & SST Framework (0 Nix, 0 Linux, 0 domain!)
+    # Strictly sandbox-fenced via `lib.fileset.toSource { root = ./baugr; }` so it
+    # has ZERO visibility into `verft/`, `ivaldi/`, or `skidbladnir/`!
+    # =========================================================================
+    mkBaugrRust = pkgs: let
       craneLib = crane.mkLib pkgs;
       src = lib.fileset.toSource {
-        root = ./.;
+        root = ./baugr;
         fileset = lib.fileset.unions [
-          ./Cargo.toml
-          ./Cargo.lock
-          ./.clippy.toml
-          ./deny.toml
-          ./crates
+          ./baugr/Cargo.toml
+          ./baugr/Cargo.lock
+          ./baugr/.clippy.toml
+          ./baugr/deny.toml
+          ./baugr/crates
         ];
       };
       commonArgs = {
-        pname = "aky-workspace";
-        version = "0.2.0";
+        pname = "baugr-workspace";
+        version = "0.1.0";
         inherit src;
         strictDeps = true;
       };
       cargoArtifacts = craneLib.buildDepsOnly commonArgs;
     in {
-      aky = craneLib.buildPackage (commonArgs
+      baugr = craneLib.buildPackage (commonArgs
         // {
           inherit cargoArtifacts;
-          pname = "aky";
-          cargoExtraArgs = "-p aky-cli";
-          meta.mainProgram = "aky";
+          pname = "baugr";
+          cargoExtraArgs = "-p baugr-cli";
+          meta.mainProgram = "baugr";
+        });
+      baugr-doc = craneLib.buildPackage (commonArgs
+        // {
+          inherit cargoArtifacts;
+          pname = "baugr-doc";
+          cargoExtraArgs = "-p baugr-doc";
+          meta.mainProgram = "baugr-doc";
         });
       clippy = craneLib.cargoClippy (commonArgs
         // {
@@ -72,71 +74,127 @@
         });
       test = craneLib.cargoTest (commonArgs // {inherit cargoArtifacts;});
       fmt = craneLib.cargoFmt {
-        pname = "aky-workspace";
-        version = "0.2.0";
+        pname = "baugr-workspace";
+        version = "0.1.0";
         inherit src;
       };
     };
 
-    # Hermetic offline Lean 4.35 oracle + 41-theorem usage-agnostic Audit.lean (0 sorryAx!)
-    mkLeanOracle = pkgs:
+    # L0 Hermetic Offline Lean 4.35 Oracle + 54-Theorem `Baugr.Audit` (`0 sorryAx`!)
+    # Covers `Baugr.Theory.*` (pure Promise Theory + SST) <- `Baugr.Engine.*` (+ Resolve Progress & Preservation!)
+    mkBaugrOracle = pkgs:
       pkgs.stdenv.mkDerivation {
-        pname = "aky-oracle";
-        version = "0.2.0";
+        pname = "baugr-oracle";
+        version = "0.1.0";
         src = lib.fileset.toSource {
-          root = ./formal/lean;
+          root = ./baugr/formal/lean;
           fileset = lib.fileset.unions [
-            ./formal/lean/lakefile.toml
-            ./formal/lean/Aky.lean
-            ./formal/lean/Aky
+            ./baugr/formal/lean/lakefile.toml
+            ./baugr/formal/lean/Baugr.lean
+            ./baugr/formal/lean/Baugr
           ];
         };
         nativeBuildInputs = [pkgs.lean4];
         buildPhase = ''
           export HOME=$TMPDIR
-          lake build Aky aky-oracle
+          lake build Baugr baugr-oracle
         '';
         doCheck = true;
         checkPhase = ''
           export HOME=$TMPDIR
-          OUT=$(lake env lean Aky/Audit.lean)
+          OUT=$(lake env lean Baugr/Audit.lean)
           echo "$OUT"
           if echo "$OUT" | grep -q "sorryAx"; then
-            echo "ERROR: sorryAx detected in Aky.Audit!" >&2
+            echo "ERROR: sorryAx detected in Baugr.Audit!" >&2
             exit 1
           fi
         '';
         installPhase = ''
           mkdir -p $out/bin
-          cp .lake/build/bin/aky-oracle $out/bin/aky-oracle
+          cp .lake/build/bin/baugr-oracle $out/bin/baugr-oracle
         '';
       };
 
-    # Hermetic offline Quint 0.33.1 tests + exhaustive TLC verification
-    mkQuintCheck = pkgs: let
+    # =========================================================================
+    # L1: `verft` — Minimal Realization Framework (`hjem`-like) + Own Formal Verification
+    # Strictly sandbox-fenced Quint/TLC models:
+    #   - Positive exhaustive TLC safety + temporal liveness (`triadic_pull_tlc`)
+    #   - Negative TLC counterexample falsifications (`userspace_drop` SIGKILL & `vaultwarden_only` DR deadlock!)
+    # =========================================================================
+    mkVerftQuintCheck = pkgs: let
       src = lib.fileset.toSource {
-        root = ./formal/quint;
-        fileset = ./formal/quint;
+        root = ./verft/formal/quint;
+        fileset = lib.fileset.unions [
+          ./verft/formal/quint/types.qnt
+          ./verft/formal/quint/triadic_pull.qnt
+          ./verft/formal/quint/capability_session.qnt
+          ./verft/formal/quint/lifecycle_recovery.qnt
+          ./verft/formal/quint/conditional_degradation.qnt
+        ];
       };
     in
-      pkgs.runCommand "aky-quint-check" {nativeBuildInputs = [pkgs.quint];} ''
+      pkgs.runCommand "verft-quint-check" {nativeBuildInputs = [pkgs.quint];} ''
         export HOME=$TMPDIR
         cp -r ${src}/* .
         chmod -R u+w .
-        quint test triadic_pull.qnt
-        quint test lifecycle_recovery.qnt
+
+        # 1. Deterministic executable scenario tests
+        quint test capability_session.qnt --main=capability_session
+        quint test capability_session.qnt --main=capability_session_naive
+        quint test lifecycle_recovery.qnt --main=lifecycle_recovery
+        quint test lifecycle_recovery.qnt --main=lifecycle_recovery_naive
+        quint test triadic_pull.qnt --main=triadic_pull
         quint test conditional_degradation.qnt
-        quint verify --backend=tlc --invariant=allInvariants lifecycle_recovery.qnt
-        quint verify --backend=tlc --invariant=allInvariants conditional_degradation.qnt
-        echo "OK" > $out
+
+        # 2. Exhaustive positive TLC safety & temporal liveness proofs
+        quint verify --backend=tlc --main=capability_session --invariant=allInvariants capability_session.qnt
+        quint verify --backend=tlc --main=lifecycle_recovery --invariant=allInvariants lifecycle_recovery.qnt
+        quint verify --backend=tlc --main=conditional_degradation --invariant=allInvariants conditional_degradation.qnt
+        quint verify --backend=tlc --main=triadic_pull_tlc --invariant=allInvariants triadic_pull.qnt
+        quint verify --backend=tlc --main=triadic_pull_tlc --temporal=eventuallyHealthyStabilization triadic_pull.qnt
+
+        # 3. Non-vacuity proof: TLC MUST falsify naive mechanisms with real counterexamples!
+        if quint verify --backend=tlc --main=capability_session_naive --invariant=invZeroResidueOnHost capability_session.qnt; then
+          echo "ERROR: naive userspace_drop should have been FALSIFIED by TLC on SIGKILL!" >&2
+          exit 1
+        fi
+        if quint verify --backend=tlc --main=lifecycle_recovery_naive --invariant=invNoDrDeadlock lifecycle_recovery.qnt; then
+          echo "ERROR: naive vaultwarden_only DR should have been FALSIFIED by TLC!" >&2
+          exit 1
+        fi
+
+        echo "VERFT_QUINT_SAFETY_LIVENESS_FALSIFICATION_OK" > $out
       '';
 
-    fleetTomlSrc = lib.fileset.toSource {
-      root = ./.;
+    # =========================================================================
+    # L2 (`ivaldi`) + L3 (`skidbladnir`): Barrier-Free Multi-Root Fractal Composition!
+    # =========================================================================
+    realized = import ./verft/lib/realize.nix {
+      inherit inputs;
+      agentRoots = [
+        ./ivaldi/agents
+        ./skidbladnir/agents
+      ];
+      profileRoots = [
+        ./ivaldi/profiles
+      ];
+      fleetRoot = "fleet";
+    };
+
+    ivaldiSrc = lib.fileset.toSource {
+      root = ./ivaldi;
       fileset = lib.fileset.unions [
-        ./agents
-        ./profiles
-        ./policies
+        ./ivaldi/agents
+        ./ivaldi/profiles
+        ./ivaldi/policies
+      ];
+    };
+
+    skidbladnirSrc = lib.fileset.toSource {
+      root = ./skidbladnir;
+      fileset = lib.fileset.unions [
+        ./skidbladnir/agents
+        ./skidbladnir/policies
       ];
     };
   in {
@@ -146,62 +204,74 @@
       system,
       pkgs,
     }: let
-      rust = mkRust pkgs;
+      rust = mkBaugrRust pkgs;
     in
       (realized.standalonePackages system)
       // {
-        default = rust.aky;
-        inherit (rust) aky;
-        aky-oracle = mkLeanOracle pkgs;
+        default = rust.baugr;
+        inherit (rust) baugr baugr-doc;
+        baugr-oracle = mkBaugrOracle pkgs;
       });
 
     checks = forAllSystems ({pkgs, ...}: let
-      rust = mkRust pkgs;
-      oracle = mkLeanOracle pkgs;
-      nixResolvedAstrolabe = pkgs.writeText "nix-resolved-astrolabe.json" (builtins.toJSON realized.resolvedBindings.astrolabe);
-      nixResolvedIso = pkgs.writeText "nix-resolved-live-iso.json" (builtins.toJSON realized.resolvedBindings.live-iso);
+      rust = mkBaugrRust pkgs;
+      oracle = mkBaugrOracle pkgs;
+      equivTargets = realized.allSuperagentIds;
+      nixResolvedFiles =
+        lib.genAttrs equivTargets
+        (t: pkgs.writeText "nix-resolved-${t}.json" (builtins.toJSON realized.resolvedBindings.${t}));
     in {
-      rust-clippy = rust.clippy;
-      rust-test = rust.test;
-      rust-fmt = rust.fmt;
-      lean-audit = oracle;
-      quint-check = mkQuintCheck pkgs;
+      # L0 `baugr` strict sandbox-isolated checks
+      baugr-clippy = rust.clippy;
+      baugr-test = rust.test;
+      baugr-fmt = rust.fmt;
+      baugr-lean-audit = oracle;
 
-      # Zero-Nix usage-agnostic verification + Lean 4 recursive-tree DRT (real superagents + 500 fuzzed!)
-      aky-fleet-and-drt = pkgs.runCommand "aky-fleet-and-drt" {} ''
-        ${rust.aky}/bin/aky --root ${fleetTomlSrc} check
-        ${rust.aky}/bin/aky --root ${fleetTomlSrc} drt --oracle ${oracle}/bin/aky-oracle --cases 500
+      # L1 `verft` mechanism-faithful Quint/TLC safety + temporal liveness + falsification
+      verft-quint-check = mkVerftQuintCheck pkgs;
+
+      # L0 Unix filter doc pipe: `baugr graph --json | baugr-doc`
+      baugr-doc-pipe = pkgs.runCommand "baugr-doc-pipe" {} ''
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} graph --json \
+          | ${rust.baugr-doc}/bin/baugr-doc --out $out --title "Skidbladnir Architecture"
+        test -s $out/SUMMARY.md
+        test -s $out/index.md
+        test -s $out/scopes/fleet.md
+      '';
+
+      # L3 `skidbladnir` fleet check + 514-case Lean 4 DRT (checker + Resolve + SST + Cedar!) + 6-plane projections
+      skidbladnir-fleet-and-drt = pkgs.runCommand "skidbladnir-fleet-and-drt" {} ''
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} check
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} drt --oracle ${oracle}/bin/baugr-oracle --cases 500
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} graph --impact obs-victoriametrics
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} project read-secret
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} project assume-capability
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} project admit-agent
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} project mesh-connect
+        ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} project nats-queue
         echo "OK" > $out
       '';
 
-      # S1 CI Equivalence Check: proves zero-sugar Nix `lib/realize.nix` == Rust `aky resolve` bit-for-bit
-      # AND verifies Gap #5 (`assertNonPiercingNixos` blocks NixOS `{ config, ... }:` backdoors!).
-      s1-binding-equiv = let
+      # L1 `verft` S1 Rust == Nix Binding Equivalence across ALL auto-discovered closed Superagents
+      # + `assertNonPiercingNixos` proof checks!
+      verft-s1-equiv = let
         fnBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {attributes = [];} ({config, ...}: {inherit config;}))).success;
         importsBlocked = !(builtins.tryEval (realized.assertNonPiercingNixos "rogue" {attributes = [];} {imports = [({config, ...}: {inherit config;})];})).success;
         attrAllowed = (builtins.tryEval (realized.assertNonPiercingNixos "clean" {attributes = [];} {services.caddy.enable = true;})).success;
       in
         assert fnBlocked && importsBlocked && attrAllowed;
-          pkgs.runCommand "aky-s1-binding-equiv" {nativeBuildInputs = [pkgs.jq];} ''
-            ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve astrolabe | jq -S . > rust-astro.json
-            jq -S . ${nixResolvedAstrolabe} > nix-astro.json
-            diff -u rust-astro.json nix-astro.json
-
-            ${rust.aky}/bin/aky --root ${fleetTomlSrc} resolve live-iso | jq -S . > rust-iso.json
-            jq -S . ${nixResolvedIso} > nix-iso.json
-            diff -u rust-iso.json nix-iso.json
-            echo "S1_ZERO_SUGAR_EQUIV_OK" > $out
+          pkgs.runCommand "verft-s1-equiv" {nativeBuildInputs = [pkgs.jq];} ''
+            ${lib.concatMapStringsSep "\n" (t: ''
+                ${rust.baugr}/bin/baugr --root ${ivaldiSrc} --root ${skidbladnirSrc} resolve ${t} | jq -S . > rust-${t}.json
+                jq -S . ${nixResolvedFiles.${t}} > nix-${t}.json
+                diff -u rust-${t}.json nix-${t}.json
+              '')
+              equivTargets}
+            echo "VERFT_S1_ALL_SUPERAGENTS_EQUIV_OK" > $out
           '';
     });
 
-    devShells = forAllSystems ({pkgs, ...}: {
-      default = pkgs.mkShell {
-        packages = [pkgs.alejandra pkgs.statix pkgs.deadnix pkgs.cargo pkgs.rustc pkgs.clippy pkgs.rustfmt pkgs.cargo-deny];
-      };
-      formal = pkgs.mkShell {
-        packages = [pkgs.lean4 pkgs.quint];
-      };
-    });
+    devShells = forAllSystems ({system, ...}: realized.devShells system);
 
     formatter = forAllSystems ({pkgs, ...}: pkgs.alejandra);
   };

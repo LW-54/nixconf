@@ -1,0 +1,24 @@
+id = "ext-cloudflare-r2"
+description = "External platform boundary stub: Cloudflare R2 zero-egress CDN (`cache.adje.app`) & 14d Bucket-Lock WORM backup bucket."
+attributes = ["role:external-platform"]
+
+[[promises]]
+ptype = "ext:service"
+key = "r2-cdn"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["cdn-read", "zero-egress"]
+[promises.payload]
+url = "https://cache.adje.app"
+
+[[promises]]
+ptype = "ext:service"
+key = "r2-worm"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["offhost-backup", "worm-14d"]
+[promises.payload]
+bucket = "antikythera-backups"
+lock_days = 14

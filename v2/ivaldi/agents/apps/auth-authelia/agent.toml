@@ -1,0 +1,88 @@
+id = "auth-authelia"
+description = "Authelia SSO/OIDC portal (36 MiB RSS) consuming private auth:ldap inside auth-stack."
+
+[[promises]]
+ptype = "auth:ldap"
+key = "auth:ldap"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "proxy:public"
+key = "proxy:public"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "auth:oidc"
+key = "auth:oidc"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "http:route"
+key = "auth"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:public"]
+[promises.payload]
+subdomain = "auth"
+port = 9091
+
+[[promises]]
+ptype = "secret:claim"
+key = "authelia-session"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:auth", "env:prod"]
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/authelia"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "btrfs-snapshot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/authelia"
+prepare_cmd = "sqlite3-backup"
+
+[[promises]]
+ptype = "probe"
+key = "authelia-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "critical", "tier0"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:9091/api/health"
+slo = 0.999
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 36
+priority = 0

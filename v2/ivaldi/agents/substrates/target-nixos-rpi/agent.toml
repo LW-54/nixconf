@@ -1,0 +1,19 @@
+id = "target-nixos-rpi"
+description = "Constrained aarch64 Raspberry Pi SD-image OS target substrate (pure arch/boot axis)."
+
+[[promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "target:os"
+key = "target:os"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+target_class = "nixos-sd"
+arch = "aarch64-linux"

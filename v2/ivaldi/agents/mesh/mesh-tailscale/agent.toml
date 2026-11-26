@@ -1,0 +1,81 @@
+id = "mesh-tailscale"
+description = "Sealed Tailscale WireGuard mesh transport (ADR-0012, wait-online=false, persisted node identity)."
+
+[[promises]]
+ptype = "mesh:transport"
+key = "mesh:transport"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secret:claim"
+key = "tailscale-auth"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:mesh"]
+
+[[promises]]
+ptype = "ext:service"
+key = "mesh:control"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+selector = {kind = "atom", tag = "mesh-control"}
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/tailscale"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/tailscale"
+
+[[promises]]
+ptype = "probe"
+key = "tailscale-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["systemd", "critical", "tier0"]
+[promises.payload]
+kind = "systemd_active"
+unit = "tailscaled.service"
+slo = 0.999
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 48
+priority = 0
+
+[[promises]]
+ptype = "doc:link"
+key = "mesh-tailscale"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["doc:sst-near"]
+[promises.payload]
+adrs = ["ADR-0012"]
+runbooks = ["tailscale-recovery"]

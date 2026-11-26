@@ -1,0 +1,27 @@
+id = "cap-obs-mcp"
+description = "Ephemeral capability Agent: read-only Biscuit MCP observability session (safe for AI agents!)."
+
+[[promises]]
+ptype = "cap:claim"
+key = "obs-mcp-ro"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:obs-ro"]
+
+[[promises]]
+ptype = "obs:scope"
+key = "victoria-ro"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["class:obs-ro"]
+
+[[promises]]
+ptype = "cap:env"
+key = "AKY_MCP_BISCUIT"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false
+[promises.payload]
+token_kind = "biscuit-ro"

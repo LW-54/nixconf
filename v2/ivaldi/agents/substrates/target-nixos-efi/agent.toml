@@ -1,0 +1,26 @@
+id = "target-nixos-efi"
+description = "UEFI x86_64 NixOS bootloader/OS target substrate (pure arch/boot axis)."
+
+[[promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "target:os"
+key = "target:os"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+target_class = "nixos-efi"
+arch = "x86_64-linux"
+
+[[promises]]
+ptype = "hw:physical-block"
+key = "hw:physical-block"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true

@@ -1,0 +1,77 @@
+id = "cache-niks3"
+description = "niks3 R2 binary cache write/GC coordinator + PostgreSQL metadata DB (ADR-0013; reads bypass directly via R2 CDN)."
+
+[[promises]]
+ptype = "proxy:mesh"
+key = "proxy:mesh"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secret:claim"
+key = "r2-cache-write"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:cache-write", "env:prod"]
+
+[[promises]]
+ptype = "mesh:service"
+key = "niks3-upload"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "niks3-upload"]
+[promises.payload]
+url = "https://niks3.astrolabe.tailnet.ts.net"
+
+[[promises]]
+ptype = "http:route"
+key = "niks3"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:mesh"]
+[promises.payload]
+subdomain = "niks3"
+port = 5751
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/postgresql"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "btrfs-snapshot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/postgresql"
+prepare_cmd = "pg_dump"
+
+[[promises]]
+ptype = "probe"
+key = "niks3-health"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:5751/health"
+slo = 0.99
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 65
+priority = 1

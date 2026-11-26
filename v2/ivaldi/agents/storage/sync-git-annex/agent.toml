@@ -1,0 +1,29 @@
+id = "sync-git-annex"
+description = "SP-GitAnnex (ADR-0014): 0 MiB idle CALM-monotonic multi-writer fleet content-addressed sync."
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/git-annex"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "multi-writer", "monotonic", "squota-capped"]
+[promises.payload]
+path = "/var/lib/git-annex"
+squota_gib = 10
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 0
+priority = 1

@@ -1,0 +1,70 @@
+id = "x240"
+description = "Roaming LUKS2+TPM2-PIN ThinkPad workstation Superagent (ZERO ghost secret/posture offers!)."
+attributes = ["auth:principal", "role:workstation", "role:mesh-member", "posture:roaming", "env:dev"]
+profiles = ["base-workstation"]
+contains = [
+  {agent = "backup-restic"},
+  {agent = "cache-harmonia-dev"},
+]
+
+[[promises]]
+ptype = "ext:service"
+key = "mesh:control"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["mesh-control"]
+selector = {kind = "atom", tag = "mesh-control"}
+
+[[promises]]
+ptype = "ext:service"
+key = "cache:cdn"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["cdn-read"]
+selector = {kind = "atom", tag = "cdn-read"}
+
+[[promises]]
+ptype = "ext:service"
+key = "backup:offhost"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["offhost-backup"]
+selector = {kind = "atom", tag = "offhost-backup"}
+
+[[promises]]
+ptype = "mesh:service"
+key = "obs-ingest"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["zone:mesh", "obs-ingest"]
+selector = {kind = "atom", tag = "obs-ingest"}
+
+[[internal_promises]]
+ptype = "ram"
+key = "ram"
+polarity = "offer"
+cardinality = "budgeted"
+mandatory = true
+amount = 16384
+
+[[internal_promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+value = "x240"
+
+[[internal_promises]]
+ptype = "config:primary-user"
+key = "config:primary-user"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+name = "lw"

@@ -1,0 +1,13 @@
+id = "base-workstation"
+description = "P-Dual Transparent Profile for roaming LUKS2+TPM2-PIN UEFI laptop workstations."
+agents = [
+  "target-nixos-efi",
+  "fs-luks-disk",
+  "trust-sops",
+  "mesh-tailscale",
+  "gitops-pull",
+  "obs-fluent-node",
+  "sync-git-annex",
+  "sub-home-hjem",
+  "git",
+]

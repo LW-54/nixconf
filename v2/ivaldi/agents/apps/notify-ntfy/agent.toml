@@ -1,0 +1,67 @@
+id = "notify-ntfy"
+description = "Self-hosted push notification sink (ntfy, 70 MiB RSS) consumed by vmalert & aky-pull rollback alerts."
+
+[[promises]]
+ptype = "proxy:public"
+key = "proxy:public"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "notify:sink"
+key = "notify:sink"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+url = "http://127.0.0.1:2586"
+
+[[promises]]
+ptype = "http:route"
+key = "ntfy"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:public"]
+[promises.payload]
+subdomain = "ntfy"
+port = 2586
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/ntfy-sh"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/ntfy-sh"
+
+[[promises]]
+ptype = "probe"
+key = "ntfy-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:2586/v1/health"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 70
+priority = 1

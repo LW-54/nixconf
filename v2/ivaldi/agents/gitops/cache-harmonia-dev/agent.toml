@@ -1,0 +1,19 @@
+id = "cache-harmonia-dev"
+description = "Workstation-only local binary cache (ADR-0014): statically FORBIDDEN on env:prod via unified Cedar admit-agent!"
+
+[[promises]]
+ptype = "agent:class"
+key = "harmonia-dev"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["class:workstation-cache"]
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 32
+priority = 1

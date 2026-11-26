@@ -1,0 +1,211 @@
+id = "obs-hub"
+description = "Dressed Superagent (P-Explicit) encapsulating VictoriaMetrics + VictoriaLogs + VictoriaTraces + vmalert + Perses + DuckDB archiver (hides all internal loopback APIs behind Σ!)."
+attributes = ["role:stack"]
+
+contains = [
+  {agent = "obs-victoriametrics"},
+  {agent = "obs-victorialogs"},
+  {agent = "obs-victoriatraces"},
+  {agent = "obs-vmalert"},
+  {agent = "obs-perses"},
+  {agent = "obs-parquet-archiver"},
+]
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "proxy:mesh"
+key = "proxy:mesh"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "notify:sink"
+key = "notify:sink"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "ext:service"
+key = "archive:parquet"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["parquet-archive"]
+selector = {kind = "atom", tag = "parquet-archive"}
+
+[[promises]]
+ptype = "probe"
+key = "slo-probes"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "probe"
+key = "panel-probes"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "state:persist"
+key = "panel-state"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 502
+priority = 1
+
+[[promises]]
+ptype = "http:route"
+key = "perses"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:mesh"]
+[promises.payload]
+subdomain = "perses"
+port = 8080
+
+[[promises]]
+ptype = "http:route"
+key = "logs"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:mesh"]
+[promises.payload]
+subdomain = "logs"
+port = 9428
+
+[[promises]]
+ptype = "mesh:service"
+key = "obs-ingest"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "obs-ingest"]
+[promises.payload]
+host = "obs.astrolabe.tailnet.ts.net"
+port = 9428
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/victoriametrics"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "btrfs-snapshot", "squota-capped", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/victoriametrics"
+squota_gib = 12
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/victorialogs"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "btrfs-snapshot", "squota-capped", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/victorialogs"
+squota_gib = 6
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/victoriatraces"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "btrfs-snapshot", "squota-capped", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/victoriatraces"
+squota_gib = 2
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/perses"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/perses"
+
+[[promises]]
+ptype = "probe"
+key = "vm-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:8428/health"
+slo = 0.995
+
+[[promises]]
+ptype = "probe"
+key = "vl-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:9428/health"
+slo = 0.995
+
+[[promises]]
+ptype = "probe"
+key = "vt-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:10428/health"
+slo = 0.995
+
+[[promises]]
+ptype = "probe"
+key = "vmalert-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:8880/health"
+slo = 0.995
+
+[[promises]]
+ptype = "probe"
+key = "perses-ui"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:8080/api/v1/health"
+slo = 0.995

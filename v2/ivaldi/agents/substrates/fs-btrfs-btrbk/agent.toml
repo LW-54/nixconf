@@ -1,0 +1,32 @@
+id = "fs-btrfs-btrbk"
+description = "Pure orthogonal Btrfs squota + btrbk local snapshot substrate (reusable on ANY Btrfs host, impermanent or persistent!)."
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "snapshot:local"
+key = "btrbk"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+
+[[promises]]
+ptype = "state:persist"
+key = "state:btrfs-snapshot"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "atom", tag = "btrfs-snapshot"}
+
+[[promises]]
+ptype = "state:persist"
+key = "state:squota"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "atom", tag = "squota-capped"}

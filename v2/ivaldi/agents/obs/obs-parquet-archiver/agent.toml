@@ -1,0 +1,33 @@
+id = "obs-parquet-archiver"
+description = "Monthly lossless DuckDB 1.5.5 zstd-9 pre-redacted Parquet archiver (ADR-0015, 0 MiB idle, 512 MiB cap)."
+
+[[promises]]
+ptype = "obs:metrics-api"
+key = "obs:metrics-api"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "obs:logs-api"
+key = "obs:logs-api"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "ext:service"
+key = "archive:parquet"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+selector = {kind = "atom", tag = "parquet-archive"}
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 0
+priority = 1

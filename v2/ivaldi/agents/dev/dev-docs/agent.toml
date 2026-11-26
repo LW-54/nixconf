@@ -1,0 +1,17 @@
+id = "dev-docs"
+description = "Composable documentation toolchain capability Agent (mdBook 0.5.4, ADR-0016)."
+attributes = ["role:dev-capability"]
+
+[[promises]]
+ptype = "dev:toolchain"
+key = "docs"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+
+[[promises]]
+ptype = "dev:shell"
+key = "docs"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false

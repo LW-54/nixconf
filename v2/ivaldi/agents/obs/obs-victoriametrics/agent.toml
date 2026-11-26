@@ -1,0 +1,61 @@
+id = "obs-victoriametrics"
+description = "VictoriaMetrics TSDB + 1h mergeable rollups (ADR-0015, 0.47 B/sample, 200 MiB budgeted)."
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "obs:metrics-api"
+key = "obs:metrics-api"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+url = "http://127.0.0.1:8428"
+
+[[promises]]
+ptype = "mesh:service"
+key = "obs-ingest"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "obs-ingest"]
+[promises.payload]
+host = "obs.astrolabe.tailnet.ts.net"
+port = 9428
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/victoriametrics"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "btrfs-snapshot", "squota-capped", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/victoriametrics"
+squota_gib = 12
+
+[[promises]]
+ptype = "probe"
+key = "vm-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:8428/health"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 200
+priority = 1

@@ -1,0 +1,23 @@
+id = "dev-default"
+description = "Composable default developer Superagent combining dev-rust + dev-nix + dev-docs -> auto-discovered devShells.default!"
+attributes = ["role:dev-shell"]
+
+contains = [
+  {agent = "dev-rust"},
+  {agent = "dev-nix"},
+  {agent = "dev-docs"},
+]
+
+[[internal_promises]]
+ptype = "dev:shell"
+key = "default"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false
+
+[[promises]]
+ptype = "dev:shell"
+key = "default"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false

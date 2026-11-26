@@ -1,0 +1,65 @@
+id = "auth-lldap"
+description = "Lightweight LDAP directory backend (8 MiB RSS) encapsulated privately inside auth-stack!"
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "auth:ldap"
+key = "auth:ldap"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+url = "ldap://127.0.0.1:3890"
+
+[[promises]]
+ptype = "secret:claim"
+key = "lldap-jwt"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:auth", "env:prod"]
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/lldap"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "backup-required", "btrfs-snapshot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/lldap"
+prepare_cmd = "sqlite3-backup"
+
+[[promises]]
+ptype = "probe"
+key = "lldap-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["tcp", "critical", "tier0"]
+[promises.payload]
+kind = "tcp"
+port = 3890
+slo = 0.999
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 8
+priority = 0

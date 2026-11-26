@@ -1,0 +1,59 @@
+id = "compute-nats-hub"
+description = "DC-NATS-Pull JetStream broker hub on astrolabe (ADR-0014, 24 MiB RSS)."
+
+[[promises]]
+ptype = "mesh:transport"
+key = "mesh:transport"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "nats:claim"
+key = "nats-hub"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["role:hub"]
+
+[[promises]]
+ptype = "mesh:service"
+key = "nats-broker"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "nats-broker"]
+[promises.payload]
+host = "astrolabe.tailnet.ts.net"
+port = 4222
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/nats"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/nats"
+
+[[promises]]
+ptype = "probe"
+key = "nats-hub"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["tcp", "advisory", "tier1"]
+[promises.payload]
+kind = "tcp"
+port = 4222
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 24
+priority = 1

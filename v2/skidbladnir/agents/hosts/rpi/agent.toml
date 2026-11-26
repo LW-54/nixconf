@@ -1,0 +1,56 @@
+id = "rpi"
+description = "Constrained aarch64 1 GiB Raspberry Pi edge Superagent (orthogonal target-nixos-rpi + fs-simple-disk, ZERO ghost offers!)."
+attributes = ["auth:principal", "role:edge", "role:mesh-member", "env:prod"]
+contains = [
+  {agent = "target-nixos-rpi"},
+  {agent = "fs-simple-disk"},
+  {agent = "trust-sops"},
+  {agent = "mesh-tailscale"},
+  {agent = "gitops-pull"},
+  {agent = "obs-fluent-node"},
+  {agent = "git"},
+]
+
+[[promises]]
+ptype = "ext:service"
+key = "mesh:control"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["mesh-control"]
+selector = {kind = "atom", tag = "mesh-control"}
+
+[[promises]]
+ptype = "ext:service"
+key = "cache:cdn"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["cdn-read"]
+selector = {kind = "atom", tag = "cdn-read"}
+
+[[promises]]
+ptype = "mesh:service"
+key = "obs-ingest"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["zone:mesh", "obs-ingest"]
+selector = {kind = "atom", tag = "obs-ingest"}
+
+[[internal_promises]]
+ptype = "ram"
+key = "ram"
+polarity = "offer"
+cardinality = "budgeted"
+mandatory = true
+amount = 1024
+
+[[internal_promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+value = "rpi"

@@ -1,0 +1,21 @@
+[package]
+name = "baugr-doc"
+description = "Pure Unix filter transforming Baugr Semantic Spacetime γ(3,4) JSON into mdBook Markdown + Mermaid diagrams"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "baugr-doc"
+path = "src/main.rs"
+
+[dependencies]
+baugr-core.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

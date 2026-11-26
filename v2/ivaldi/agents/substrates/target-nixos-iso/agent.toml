@@ -1,0 +1,20 @@
+id = "target-nixos-iso"
+description = "Ephemeral read-only squashfs Live-ISO target substrate (pure arch/boot axis)."
+attributes = ["foreign:nixos-module"]
+
+[[promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "target:os"
+key = "target:os"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+target_class = "nixos-iso"
+arch = "x86_64-linux"

@@ -1,0 +1,10 @@
+id = "dev-nix"
+description = "Composable Nix lint & formatter capability Agent (alejandra, statix, deadnix)."
+attributes = ["role:dev-capability"]
+
+[[promises]]
+ptype = "dev:toolchain"
+key = "nix"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false

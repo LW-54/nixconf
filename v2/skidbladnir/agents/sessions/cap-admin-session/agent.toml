@@ -1,0 +1,10 @@
+id = "cap-admin-session"
+description = "Human online ephemeral session (`aky with sops-root github-cli r2-admin`) — ZERO ghost offers!"
+attributes = ["auth:principal", "actor:human", "role:session", "mode:online"]
+
+contains = [
+  {agent = "cap-runtime"},
+  {agent = "cap-sops-root"},
+  {agent = "cap-github-cli"},
+  {agent = "cap-r2-admin"},
+]

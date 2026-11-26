@@ -1,0 +1,141 @@
+id = "astrolabe"
+description = "Production impermanent x86_64 VPS — pure Promise Theory Dressed Superagent (ZERO ghost secret/nats/posture offers!)."
+attributes = ["auth:principal", "role:server", "role:mesh-member", "env:prod"]
+profiles = ["base-server"]
+contains = [
+  {agent = "caddy-public"},
+  {agent = "caddy-mesh"},
+  {agent = "vaultwarden"},
+  {agent = "auth-stack"},
+  {agent = "notify-ntfy"},
+  {agent = "cache-niks3"},
+  {agent = "compute-nats-hub"},
+  {agent = "sync-git-annex"},
+  {agent = "obs-hub"},
+  {agent = "docs-mdbook"},
+]
+
+# === Exterior `-b` Uses from enclosing `fleet` (External Platforms) ===
+
+[[promises]]
+ptype = "ext:service"
+key = "mesh:control"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["mesh-control"]
+selector = {kind = "atom", tag = "mesh-control"}
+
+[[promises]]
+ptype = "ext:service"
+key = "cache:cdn"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["cdn-read"]
+selector = {kind = "atom", tag = "cdn-read"}
+
+[[promises]]
+ptype = "ext:service"
+key = "backup:offhost"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["offhost-backup"]
+selector = {kind = "atom", tag = "offhost-backup"}
+
+[[promises]]
+ptype = "ext:service"
+key = "archive:parquet"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["parquet-archive"]
+selector = {kind = "atom", tag = "parquet-archive"}
+
+# === Exterior `+b` Offers exported across Σ to `fleet` ===
+
+[[promises]]
+ptype = "https:ingress"
+key = "https:ingress"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "mesh:service"
+key = "obs-ingest"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "obs-ingest"]
+[promises.payload]
+host = "obs.astrolabe.tailnet.ts.net"
+port = 9428
+
+[[promises]]
+ptype = "mesh:service"
+key = "nats-broker"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "nats-broker"]
+[promises.payload]
+host = "astrolabe.tailnet.ts.net"
+port = 4222
+
+[[promises]]
+ptype = "mesh:service"
+key = "niks3-upload"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["zone:mesh", "niks3-upload"]
+[promises.payload]
+url = "https://niks3.astrolabe.tailnet.ts.net"
+
+# === Sovereign Host Endowments & Locality Identity ONLY (ZERO ghost child offers!) ===
+
+[[internal_promises]]
+ptype = "ram"
+key = "ram"
+polarity = "offer"
+cardinality = "budgeted"
+mandatory = true
+amount = 11264
+
+[[internal_promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+value = "astrolabe"
+
+[[internal_promises]]
+ptype = "config:domain"
+key = "config:domain"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+value = "adje.app"
+
+[[internal_promises]]
+ptype = "config:tailnet"
+key = "config:tailnet"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+value = "astrolabe.tailnet.ts.net"
+
+[[internal_promises]]
+ptype = "config:primary-user"
+key = "config:primary-user"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[internal_promises.payload]
+name = "lw"

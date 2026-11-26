@@ -1,0 +1,19 @@
+id = "cap-github-cli"
+description = "Ephemeral capability Agent: short-lived GitHub CLI + scoped ssh-agent (online-only via Cedar!)."
+
+[[promises]]
+ptype = "cap:claim"
+key = "github-cli"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:online-admin"]
+
+[[promises]]
+ptype = "slot:ssh-agent"
+key = "slot:ssh-agent"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false
+[promises.payload]
+pdeathsig = "SIGKILL"

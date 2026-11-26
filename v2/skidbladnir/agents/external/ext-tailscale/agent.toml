@@ -1,0 +1,13 @@
+id = "ext-tailscale"
+description = "External platform boundary stub: Tailscale coordination plane (Personal Free, policy.hujson GitOps)."
+attributes = ["role:external-platform"]
+
+[[promises]]
+ptype = "ext:service"
+key = "tailscale-control"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["mesh-control"]
+[promises.payload]
+plan = "personal-free"

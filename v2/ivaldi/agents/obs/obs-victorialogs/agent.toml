@@ -1,0 +1,68 @@
+id = "obs-victorialogs"
+description = "VictoriaLogs wide-event JSON + LogsQL + 0-MiB built-in LogsQL Web UI (ADR-0015, 96 MiB)."
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "proxy:mesh"
+key = "proxy:mesh"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "obs:logs-api"
+key = "obs:logs-api"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+url = "http://127.0.0.1:9428"
+
+[[promises]]
+ptype = "http:route"
+key = "logs"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:mesh"]
+[promises.payload]
+subdomain = "logs"
+port = 9428
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/victorialogs"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "btrfs-snapshot", "squota-capped", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/victorialogs"
+squota_gib = 6
+
+[[promises]]
+ptype = "probe"
+key = "vl-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:9428/health"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 96
+priority = 1

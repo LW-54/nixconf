@@ -1,0 +1,13 @@
+id = "ext-codeberg"
+description = "External platform boundary stub: Codeberg async Git mirror (3-2-1-1-0 break-glass resilience)."
+attributes = ["role:external-platform"]
+
+[[promises]]
+ptype = "ext:service"
+key = "codeberg-mirror"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["git-mirror", "breakglass"]
+[promises.payload]
+repo = "codeberg:LW-54/antikythera"

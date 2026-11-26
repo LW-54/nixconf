@@ -1,0 +1,19 @@
+id = "cap-r2-admin"
+description = "Ephemeral capability Agent: Cloudflare R2 / wrangler admin token (online-only via Cedar!)."
+
+[[promises]]
+ptype = "cap:claim"
+key = "r2-admin"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:online-admin"]
+
+[[promises]]
+ptype = "cap:env"
+key = "CLOUDFLARE_API_TOKEN"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false
+[promises.payload]
+ttl_secs = 900

@@ -1,0 +1,19 @@
+id = "cap-breakglass"
+description = "Ephemeral capability Agent: air-gapped offline break-glass recovery (offline-only via Cedar + Exclusive ssh-agent!)."
+
+[[promises]]
+ptype = "cap:claim"
+key = "breakglass-root"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:breakglass"]
+
+[[promises]]
+ptype = "slot:ssh-agent"
+key = "slot:ssh-agent"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false
+[promises.payload]
+key_source = "cold-recovery-usb"

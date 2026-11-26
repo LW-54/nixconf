@@ -1,0 +1,52 @@
+id = "caddy-mesh"
+description = "Private Tailnet HTTPS reverse proxy (Unification 6): strictly Partitioned zone:mesh, bound to tailscale0!"
+
+[[promises]]
+ptype = "mesh:transport"
+key = "mesh:transport"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "config:tailnet"
+key = "config:tailnet"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "http:route"
+key = "http:route"
+polarity = "use"
+cardinality = "partitioned"
+mandatory = false
+selector = {kind = "atom", tag = "zone:mesh"}
+
+[[promises]]
+ptype = "proxy:mesh"
+key = "proxy:mesh"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "probe"
+key = "caddy-mesh"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["systemd", "advisory", "tier1"]
+[promises.payload]
+kind = "systemd_active"
+unit = "caddy-mesh.service"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 32
+priority = 1

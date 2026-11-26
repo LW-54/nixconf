@@ -1,0 +1,24 @@
+id = "fs-simple-disk"
+description = "Orthogonal simple durable root substrate for SD-card RPi and virtual WSL hosts (zero physical-block requirement)."
+
+[[promises]]
+ptype = "storage:root"
+key = "storage:root"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "state:persist"
+key = "state:persist"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "atom", tag = "survives-reboot"}

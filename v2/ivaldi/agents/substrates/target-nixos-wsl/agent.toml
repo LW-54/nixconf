@@ -1,0 +1,19 @@
+id = "target-nixos-wsl"
+description = "Diskless NixOS-WSL OS target substrate (pure arch/boot axis, zero physical block)."
+
+[[promises]]
+ptype = "config:hostname"
+key = "config:hostname"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "target:os"
+key = "target:os"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+target_class = "nixos-wsl"
+arch = "x86_64-linux"

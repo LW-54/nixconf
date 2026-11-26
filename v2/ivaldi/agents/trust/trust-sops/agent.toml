@@ -1,0 +1,45 @@
+id = "trust-sops"
+description = "Sealed sops-nix runtime secret realizer (ADR-0011): subscribes to Broadcast secret:claim & materializes sops.secrets automatically (zero ghost host offers!)."
+
+[[promises]]
+ptype = "secrets:runtime"
+key = "secrets:runtime"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "secret:claim"
+key = "secret:claim"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/sops-nix"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "early-boot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/sops-nix"
+
+[[promises]]
+ptype = "doc:link"
+key = "trust-sops"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = false
+tags = ["doc:sst-near"]
+[promises.payload]
+adrs = ["ADR-0011"]
+runbooks = ["break-glass-recovery", "key-rotation"]

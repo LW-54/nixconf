@@ -1,0 +1,161 @@
+# Skidbladnir Personal Situated Fleet Cedar L3+ Policies (6 Planes SSOT)
+# Composes cleanly on top of Ivaldi's generic `auth_bindings` & `invariants`!
+
+# === Plane 1: Secrets (`read-secret` -> `.sops.yaml`) ===
+
+[[policies]]
+id = "permit-prod-servers-vault-auth-backup-cache"
+effect = "permit"
+action = "read-secret"
+principalPred = {kind = "inter", left = {kind = "atom", tag = "role:server"}, right = {kind = "atom", tag = "env:prod"}}
+resourcePred = {kind = "union", left = {kind = "atom", tag = "class:vault"}, right = {kind = "union", left = {kind = "atom", tag = "class:auth"}, right = {kind = "union", left = {kind = "atom", tag = "class:backup"}, right = {kind = "atom", tag = "class:cache-write"}}}}
+
+[[policies]]
+id = "permit-mesh-members-mesh-secret"
+effect = "permit"
+action = "read-secret"
+principalPred = {kind = "atom", tag = "role:mesh-member"}
+resourcePred = {kind = "atom", tag = "class:mesh"}
+
+[[policies]]
+id = "permit-roaming-wifi-and-backup"
+effect = "permit"
+action = "read-secret"
+principalPred = {kind = "atom", tag = "posture:roaming"}
+resourcePred = {kind = "union", left = {kind = "atom", tag = "class:wifi"}, right = {kind = "atom", tag = "class:backup"}}
+
+[[policies]]
+id = "forbid-roaming-ephemeral-ci-or-ai-prod-secrets"
+effect = "forbid"
+action = "read-secret"
+principalPred = {kind = "union", left = {kind = "atom", tag = "posture:roaming"}, right = {kind = "union", left = {kind = "atom", tag = "posture:ephemeral"}, right = {kind = "union", left = {kind = "atom", tag = "actor:ai-agent"}, right = {kind = "atom", tag = "actor:ci-oidc"}}}}
+resourcePred = {kind = "union", left = {kind = "atom", tag = "class:vault"}, right = {kind = "union", left = {kind = "atom", tag = "class:auth"}, right = {kind = "atom", tag = "class:cache-write"}}}
+
+# === Plane 2: Tailscale Mesh & OIDC Upload (`mesh-connect` -> `policy.hujson`) ===
+
+[[policies]]
+id = "permit-mesh-members-zone-mesh"
+effect = "permit"
+action = "mesh-connect"
+principalPred = {kind = "atom", tag = "role:mesh-member"}
+resourcePred = {kind = "atom", tag = "zone:mesh"}
+
+[[policies]]
+id = "permit-ci-oidc-niks3-upload-only"
+effect = "permit"
+action = "mesh-connect"
+principalPred = {kind = "atom", tag = "actor:ci-oidc"}
+resourcePred = {kind = "atom", tag = "niks3-upload"}
+
+[[policies]]
+id = "forbid-ephemeral-rescue-from-mesh"
+effect = "forbid"
+action = "mesh-connect"
+principalPred = {kind = "atom", tag = "posture:ephemeral"}
+resourcePred = {kind = "atom", tag = "zone:mesh"}
+
+# === Plane 3: NATS JetStream Compute (`nats-queue` -> NATS RBAC) ===
+
+[[policies]]
+id = "permit-server-nats-hub"
+effect = "permit"
+action = "nats-queue"
+principalPred = {kind = "atom", tag = "role:server"}
+resourcePred = {kind = "atom", tag = "role:hub"}
+
+[[policies]]
+id = "permit-compute-donor-worker-only"
+effect = "permit"
+action = "nats-queue"
+principalPred = {kind = "atom", tag = "role:compute-worker"}
+resourcePred = {kind = "atom", tag = "role:worker"}
+
+[[policies]]
+id = "permit-workstation-submitter"
+effect = "permit"
+action = "nats-queue"
+principalPred = {kind = "atom", tag = "role:workstation"}
+resourcePred = {kind = "atom", tag = "role:submitter"}
+
+[[policies]]
+id = "forbid-compute-worker-from-submitting-or-hub"
+effect = "forbid"
+action = "nats-queue"
+principalPred = {kind = "atom", tag = "role:compute-worker"}
+resourcePred = {kind = "union", left = {kind = "atom", tag = "role:submitter"}, right = {kind = "atom", tag = "role:hub"}}
+
+# === Plane 4: Biscuit Read-Only Observability MCP (`obs-query`) ===
+
+[[policies]]
+id = "permit-human-and-ai-readonly-obs"
+effect = "permit"
+action = "obs-query"
+principalPred = {kind = "union", left = {kind = "atom", tag = "actor:human"}, right = {kind = "atom", tag = "actor:ai-agent"}}
+resourcePred = {kind = "atom", tag = "class:obs-ro"}
+
+[[policies]]
+id = "forbid-ai-obs-mutate"
+effect = "forbid"
+action = "obs-query"
+principalPred = {kind = "atom", tag = "actor:ai-agent"}
+resourcePred = {kind = "atom", tag = "class:obs-write"}
+
+# === Plane 5: Ephemeral Capabilities (`assume-capability` -> `verft-cap`, mode-exclusive!) ===
+
+[[policies]]
+id = "permit-human-all-capabilities"
+effect = "permit"
+action = "assume-capability"
+principalPred = {kind = "atom", tag = "actor:human"}
+resourcePred = {kind = "any"}
+
+[[policies]]
+id = "permit-ai-readonly-obs-capability"
+effect = "permit"
+action = "assume-capability"
+principalPred = {kind = "atom", tag = "actor:ai-agent"}
+resourcePred = {kind = "atom", tag = "class:obs-ro"}
+
+[[policies]]
+id = "forbid-ai-root-admin-or-breakglass-capabilities"
+effect = "forbid"
+action = "assume-capability"
+principalPred = {kind = "atom", tag = "actor:ai-agent"}
+resourcePred = {kind = "union", left = {kind = "atom", tag = "class:root-secret"}, right = {kind = "union", left = {kind = "atom", tag = "class:online-admin"}, right = {kind = "atom", tag = "class:breakglass"}}}
+
+[[policies]]
+id = "forbid-online-session-from-breakglass"
+effect = "forbid"
+action = "assume-capability"
+principalPred = {kind = "atom", tag = "mode:online"}
+resourcePred = {kind = "atom", tag = "class:breakglass"}
+
+[[policies]]
+id = "forbid-offline-session-from-online-admin"
+effect = "forbid"
+action = "assume-capability"
+principalPred = {kind = "atom", tag = "mode:offline"}
+resourcePred = {kind = "atom", tag = "class:online-admin"}
+
+# === Plane 6: Host Class Placement Admission (`admit-agent`) ===
+
+[[policies]]
+id = "permit-workstation-dev-cache"
+effect = "permit"
+action = "admit-agent"
+principalPred = {kind = "atom", tag = "role:workstation"}
+resourcePred = {kind = "atom", tag = "class:workstation-cache"}
+
+[[policies]]
+id = "forbid-prod-workstation-dev-cache"
+effect = "forbid"
+action = "admit-agent"
+principalPred = {kind = "atom", tag = "env:prod"}
+resourcePred = {kind = "atom", tag = "class:workstation-cache"}
+
+[[policies]]
+id = "permit-compute-donor-worker-agent"
+effect = "permit"
+action = "admit-agent"
+principalPred = {kind = "atom", tag = "role:compute-worker"}
+resourcePred = {kind = "atom", tag = "class:compute-worker"}

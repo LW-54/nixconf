@@ -1,0 +1,20 @@
+id = "cap-sops-root"
+description = "Ephemeral capability Agent: mounts SOPS age key into isolated mount-ns tmpfs (online or offline)."
+
+[[promises]]
+ptype = "cap:claim"
+key = "sops-root"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["class:root-secret"]
+[promises.payload]
+ttl_secs = 900
+mount_ns = "CLONE_NEWNS"
+
+[[promises]]
+ptype = "cap:env"
+key = "SOPS_AGE_KEY_FILE"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = false

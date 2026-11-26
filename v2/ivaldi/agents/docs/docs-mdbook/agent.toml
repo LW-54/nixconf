@@ -1,0 +1,45 @@
+id = "docs-mdbook"
+description = "DOC-MdBook (ADR-0016 + Unification 7): 0 MiB static Tailnet docs subscribing to Broadcast state:persist & doc:link, zone:mesh ONLY!"
+
+[[promises]]
+ptype = "proxy:mesh"
+key = "proxy:mesh"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "state:persist"
+key = "doc-state-tree"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "doc:link"
+key = "doc-links"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "http:route"
+key = "docs"
+polarity = "offer"
+cardinality = "partitioned"
+mandatory = true
+tags = ["zone:mesh"]
+[promises.payload]
+subdomain = "docs"
+port = 8099
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 0
+priority = 1

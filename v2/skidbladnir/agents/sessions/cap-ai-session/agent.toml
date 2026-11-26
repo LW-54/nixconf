@@ -1,0 +1,8 @@
+id = "cap-ai-session"
+description = "Attenuated AI diagnostic session (`aky with obs-mcp`) — Cedar L3+ blocks all root/admin/breakglass caps!"
+attributes = ["auth:principal", "actor:ai-agent", "role:session", "mode:online"]
+
+contains = [
+  {agent = "cap-runtime"},
+  {agent = "cap-obs-mcp"},
+]

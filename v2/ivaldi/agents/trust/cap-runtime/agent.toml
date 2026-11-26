@@ -1,0 +1,10 @@
+id = "cap-runtime"
+description = "Isolated Linux user+mount namespace (CLONE_NEWNS + PR_SET_PDEATHSIG) supervisor subscribing to Broadcast cap:claim."
+
+[[promises]]
+ptype = "cap:claim"
+key = "cap:claim"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}

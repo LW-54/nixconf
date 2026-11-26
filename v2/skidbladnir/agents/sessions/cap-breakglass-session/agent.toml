@@ -1,0 +1,9 @@
+id = "cap-breakglass-session"
+description = "Human air-gapped offline break-glass session (`aky with breakglass sops-root`) — ZERO ghost offers!"
+attributes = ["auth:principal", "actor:human", "role:session", "mode:offline"]
+
+contains = [
+  {agent = "cap-runtime"},
+  {agent = "cap-breakglass"},
+  {agent = "cap-sops-root"},
+]

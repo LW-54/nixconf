@@ -1,0 +1,14 @@
+id = "base-server"
+description = "P-Dual Transparent Profile for production impermanent Btrfs UEFI server hosts."
+agents = [
+  "target-nixos-efi",
+  "fs-impermanence",
+  "fs-btrfs-btrbk",
+  "trust-sops",
+  "mesh-tailscale",
+  "gitops-pull",
+  "backup-restic",
+  "obs-fluent-node",
+  "sub-home-hjem",
+  "git",
+]

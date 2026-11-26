@@ -1,0 +1,57 @@
+# Ivaldi Reusable Platform Contract Policies:
+# Generic Structural Cedar AuthBindings + Declarative AttrExpr Domain Laws (CALM, Split-Horizon).
+# Zero personal hostnames, zero personal domains, zero hardcoded user policy decisions!
+
+[[auth_bindings]]
+id = "ab-read-secret"
+ptype = "secret:claim"
+polarity = "offer"
+action = "read-secret"
+principalFilter = {kind = "atom", tag = "auth:principal"}
+
+[[auth_bindings]]
+id = "ab-assume-capability"
+ptype = "cap:claim"
+polarity = "offer"
+action = "assume-capability"
+principalFilter = {kind = "atom", tag = "auth:principal"}
+
+[[auth_bindings]]
+id = "ab-admit-agent"
+ptype = "agent:class"
+polarity = "offer"
+action = "admit-agent"
+principalFilter = {kind = "atom", tag = "auth:principal"}
+
+[[auth_bindings]]
+id = "ab-mesh-connect"
+ptype = "mesh:service"
+polarity = "use"
+action = "mesh-connect"
+principalFilter = {kind = "atom", tag = "auth:principal"}
+
+[[auth_bindings]]
+id = "ab-nats-queue"
+ptype = "nats:claim"
+polarity = "offer"
+action = "nats-queue"
+principalFilter = {kind = "atom", tag = "auth:principal"}
+
+[[auth_bindings]]
+id = "ab-obs-query"
+ptype = "obs:scope"
+polarity = "offer"
+action = "obs-query"
+principalFilter = {kind = "atom", tag = "auth:principal"}
+
+# Hellerstein CALM Monotonicity: forbid `multi-writer \ (monotonic ∪ single-auth-writer)` on `state:persist`.
+[[invariants]]
+id = "calm-monotonicity"
+ptype = "state:persist"
+forbidTags = {kind = "diff", left = {kind = "atom", tag = "multi-writer"}, right = {kind = "union", left = {kind = "atom", tag = "monotonic"}, right = {kind = "atom", tag = "single-auth-writer"}}}
+
+# Split-Horizon Non-Interference: forbid any `http:route` tagged BOTH `zone:public` and `zone:mesh`!
+[[invariants]]
+id = "split-horizon-disjoint-zones"
+ptype = "http:route"
+forbidTags = {kind = "inter", left = {kind = "atom", tag = "zone:public"}, right = {kind = "atom", tag = "zone:mesh"}}

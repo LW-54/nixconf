@@ -1,0 +1,52 @@
+id = "obs-vmalert"
+description = "vmalert MWMBR SLO burn-rate + 1h rollup rule evaluator consuming Broadcast probes & notify:sink (ADR-0015)."
+
+[[promises]]
+ptype = "obs:metrics-api"
+key = "obs:metrics-api"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "obs:logs-api"
+key = "obs:logs-api"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "notify:sink"
+key = "notify:sink"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "probe"
+key = "slo-probes"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "probe"
+key = "vmalert-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:8880/health"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 98
+priority = 1

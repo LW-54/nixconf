@@ -1,0 +1,64 @@
+id = "obs-fluent-node"
+description = "COL-FluentNode (ADR-0015): 45 MiB SIGKILL-safe Fluent Bit WAL + node_exporter + native cgroups v2/PSI edge collector."
+
+[[promises]]
+ptype = "mesh:transport"
+key = "mesh:transport"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "mesh:service"
+key = "obs-ingest"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = true
+tags = ["zone:mesh", "obs-ingest"]
+selector = {kind = "atom", tag = "obs-ingest"}
+
+[[promises]]
+ptype = "probe"
+key = "local-probes"
+polarity = "use"
+cardinality = "broadcast"
+mandatory = false
+selector = {kind = "any"}
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/fluent-bit"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/fluent-bit"
+
+[[promises]]
+ptype = "probe"
+key = "fluent-node"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["systemd", "advisory", "tier1"]
+[promises.payload]
+kind = "systemd_active"
+unit = "fluent-bit.service"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 45
+priority = 1

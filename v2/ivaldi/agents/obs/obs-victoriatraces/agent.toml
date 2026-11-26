@@ -1,0 +1,50 @@
+id = "obs-victoriatraces"
+description = "VictoriaTraces OTLP ingest + Jaeger query API (ADR-0015, 18 MiB)."
+
+[[promises]]
+ptype = "storage:durable"
+key = "storage:durable"
+polarity = "use"
+cardinality = "exclusive"
+mandatory = true
+
+[[promises]]
+ptype = "obs:traces-api"
+key = "obs:traces-api"
+polarity = "offer"
+cardinality = "exclusive"
+mandatory = true
+[promises.payload]
+url = "http://127.0.0.1:10428"
+
+[[promises]]
+ptype = "state:persist"
+key = "/var/lib/victoriatraces"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["survives-reboot", "btrfs-snapshot", "squota-capped", "single-auth-writer"]
+[promises.payload]
+path = "/var/lib/victoriatraces"
+squota_gib = 2
+
+[[promises]]
+ptype = "probe"
+key = "vt-alive"
+polarity = "offer"
+cardinality = "broadcast"
+mandatory = true
+tags = ["http", "advisory", "tier1"]
+[promises.payload]
+kind = "http_2xx"
+target = "http://127.0.0.1:10428/health"
+slo = 0.995
+
+[[promises]]
+ptype = "ram"
+key = "ram"
+polarity = "use"
+cardinality = "budgeted"
+mandatory = true
+amount = 18
+priority = 1

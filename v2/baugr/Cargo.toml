@@ -1,0 +1,44 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/baugr-core",
+  "crates/baugr-cli",
+  "crates/baugr-doc",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/LW-54/baugr"
+
+[workspace.dependencies]
+baugr-core = { version = "0.1.0", path = "crates/baugr-core" }
+clap = { version = "4.5", features = ["derive"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+toml = "0.8"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+unused_crate_dependencies = "deny"
+missing_debug_implementations = "warn"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+indexing_slicing = "deny"
+arithmetic_side_effects = "deny"
+unreachable = "deny"
+unimplemented = "deny"
+unchecked_time_subtraction = "deny"
+todo = "deny"
+string_slice = "deny"
+panic_in_result_fn = "deny"
+panic = "deny"
+exit = "deny"
+as_conversions = "deny"
