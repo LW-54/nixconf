@@ -106,6 +106,7 @@ in {
           "Documents"
           "Downloads"
           "Projects"
+          "workspace"
           ".ssh"
         ];
       };

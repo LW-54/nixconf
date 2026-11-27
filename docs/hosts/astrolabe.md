@@ -1265,7 +1265,8 @@ State preserved across reboots by fulfilling the [`persistence`](../contracts/pe
 ├── [dir]  ~lw/Documents/
 ├── [dir]  ~lw/Downloads/
 ├── [dir]  ~lw/Projects/
-└── [dir]  ~lw/nixconf/
+├── [dir]  ~lw/nixconf/
+└── [dir]  ~lw/workspace/
 ```
 
 ## Resource Allocation
@@ -1274,7 +1275,7 @@ Workload tiering, OOM protection, and capacity policies enforced via [`resources
 
 - **Profile**: `server`
 - **Power-Aware Throttling**: `false`
-- **systemd-oomd**: `true` (swap kill: `false`)
+- **systemd-oomd**: `true` (swap kill: `true`)
 
 ### Workload Tiers
 
@@ -1286,7 +1287,7 @@ Workload tiering, OOM protection, and capacity policies enforced via [`resources
 | `machine.slice` | CPU:100, IO:100, OOMKill:80% | — | — |
 | `standard.slice` | CPU:100, IO:100, MemHigh:75%, OOMKill:80%, Score:0 | — | `agy-hub.service`, `alertmanager.service`, `alloy.service`, `atticd.service`, `copyparty.service`, `grafana.service`, `mnt-storage-copyparty.mount`, `mnt-storage-gdrive.mount`, `mnt-storage-uchiyomi.mount`, `ntfy-sh.service`, `ttyd-web.service`, `victorialogs.service`, `victoriametrics.service`, `vmalert-logs.service`, `vmalert-metrics.service` |
 | `user.slice` | CPU:100, IO:100 | — | — |
-| `media.slice` | CPU:60, IO:60, MemHigh:50%, MemMax:65%, OOMKill:70%, Score:200 | — | `podman-uchiyomi-flaresolverr.service`, `podman-uchiyomi-suwayomi.service`, `podman-uchiyomi.service` |
+| `media.slice` | CPU:60, IO:60, MemHigh:45%, MemMax:55%, OOMKill:50%, Score:200 | — | `podman-uchiyomi-flaresolverr.service`, `podman-uchiyomi-suwayomi.service`, `podman-uchiyomi.service` |
 | `background.slice` | CPU:20, IO:20, MemHigh:80%, OOMKill:60%, Score:500 | — | `cachix-watch-store-agent.service`, `host-snapshot-gdrive.service`, `host-snapshot-hbox.service`, `nix-daemon.service`, `nix-gc.service`, `nix-optimise.service`, `nixconf-ci-metrics.service`, `nixconf-eval-metrics.service`, `nixconf-storage-scan.service`, `resources-storage-budgets.service`, `restic-backups-agy-gdrive-host.service`, `restic-backups-agy-hbox-host.service`, `restic-backups-authelia-gdrive-host.service`, `restic-backups-authelia-hbox-host.service`, `restic-backups-copyparty-gdrive-host.service`, `restic-backups-copyparty-hbox-host.service`, `restic-backups-grafana-gdrive-host.service`, `restic-backups-grafana-hbox-host.service`, `restic-backups-lldap-gdrive-host.service`, `restic-backups-lldap-hbox-host.service`, `restic-backups-telemetry-gdrive-host.service`, `restic-backups-telemetry-hbox-host.service`, `restic-backups-uchiyomi-gdrive-host.service`, `restic-backups-uchiyomi-hbox-host.service`, `restic-backups-vaultwarden-b2-shared.service`, `restic-backups-vaultwarden-gdrive-shared.service`, `restic-backups-vaultwarden-hbox-shared.service` |
 
 ### Local Disk Volumes
@@ -1352,8 +1353,8 @@ config = {
 ...
 9: resources = {
 10: profile = "server";
-11: # VPS relies solely on zram; disable swapKill to avoid false-positive kills under compressed swap pressure.
-12: oom.swapKill = false;
+11: # Kill highest-swap non-critical cgroup before zram saturation causes a host-wide page-cache thrashing livelock.
+12: oom = {
 ...
 ```
 

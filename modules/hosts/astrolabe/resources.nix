@@ -8,8 +8,11 @@
 
       resources = {
         profile = "server";
-        # VPS relies solely on zram; disable swapKill to avoid false-positive kills under compressed swap pressure.
-        oom.swapKill = false;
+        # Kill highest-swap non-critical cgroup before zram saturation causes a host-wide page-cache thrashing livelock.
+        oom = {
+          swapKill = true;
+          swapUsedLimit = "85%";
+        };
 
         tiers.agent = {
           description = "Autonomous coding agent daemon and spawned build/test subshells (Antigravity CLI).";
@@ -18,6 +21,7 @@
           memory = {
             high = "60%";
             max = "78%";
+            swapMax = "2G";
           };
           oom = {
             preference = "none";
@@ -32,13 +36,14 @@
           cpu.weight = 60;
           io.weight = 60;
           memory = {
-            high = "50%";
-            max = "65%";
+            high = "45%";
+            max = "55%";
+            swapMax = "1G";
           };
           oom = {
             preference = "none";
             kill = true;
-            pressureLimit = "70%";
+            pressureLimit = "50%";
             scoreAdjust = 200;
           };
         };

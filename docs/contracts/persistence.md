@@ -949,14 +949,14 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-289: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
-290: persistence.directories = ["/var/lib/containers"];
-291: })
-292: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
+294: (lib.mkIf ((config.persistence.enable or false) && backend == "podman") {
+295: persistence.directories = ["/var/lib/containers"];
+296: })
+297: (self.lib.reverse-proxy.mkConfig {inherit config cfg;})
 ...
-290: persistence.directories = ["/var/lib/containers"];
+295: persistence.directories = ["/var/lib/containers"];
 ...
-293: (self.lib.persistence.mkConfig {inherit config cfg;})
+298: (self.lib.persistence.mkConfig {inherit config cfg;})
 ...
 ```
 

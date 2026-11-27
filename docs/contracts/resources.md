@@ -803,8 +803,8 @@ Modules and instances configuring options under the `resources` contract capabil
 ...
 9: resources = {
 10: profile = "server";
-11: # VPS relies solely on zram; disable swapKill to avoid false-positive kills under compressed swap pressure.
-12: oom.swapKill = false;
+11: # Kill highest-swap non-critical cgroup before zram saturation causes a host-wide page-cache thrashing livelock.
+12: oom = {
 ...
 ```
 
@@ -1145,7 +1145,7 @@ config = {
 ...
 26: "--cgroup-parent=${self.lib.resources.sliceName cfg.resources.tier}"
 ...
-300: (self.lib.resources.mkConfig {inherit config cfg;})
+305: (self.lib.resources.mkConfig {inherit config cfg;})
 ...
 ```
 

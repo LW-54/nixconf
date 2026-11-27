@@ -719,7 +719,7 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-294: (self.lib.backup.mkConfig {inherit config cfg;})
+299: (self.lib.backup.mkConfig {inherit config cfg;})
 ...
 ```
 

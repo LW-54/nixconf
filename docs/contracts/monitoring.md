@@ -1454,17 +1454,17 @@ config = {
 ```nix
 # modules/features/uchiyomi.nix
 ...
-296: (self.lib.monitoring.mkConfig {
-297: inherit config cfg;
-298: name = "uchiyomi";
-299: })
+301: (self.lib.monitoring.mkConfig {
+302: inherit config cfg;
+303: name = "uchiyomi";
+304: })
 ...
-301: (lib.mkIf (config.monitoring.enable or false) {
-302: monitoring.exporters.cadvisor.enable = true;
-303: })
-304: ]);
+306: (lib.mkIf (config.monitoring.enable or false) {
+307: monitoring.exporters.cadvisor.enable = true;
+308: })
+309: ]);
 ...
-302: monitoring.exporters.cadvisor.enable = true;
+307: monitoring.exporters.cadvisor.enable = true;
 ...
 ```
 

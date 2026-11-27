@@ -149,6 +149,7 @@
                   [
                     "--shm-size=1g"
                     "--memory=2g"
+                    "--memory-swap=2560m"
                   ]
                   ++ cgroupParentOpts;
               };
@@ -173,6 +174,7 @@
                 extraOptions =
                   [
                     "--memory=3g"
+                    "--memory-swap=3584m"
                   ]
                   ++ cgroupParentOpts;
               };
@@ -191,6 +193,7 @@
                 environment =
                   {
                     PORT = "3000";
+                    NODE_OPTIONS = "--max-old-space-size=1536";
                     LIBRARY_BACKEND = "owned";
                     PUBLIC_ORIGIN =
                       if cfg.subdomain != null && domain != null
@@ -213,6 +216,8 @@
                 ];
                 extraOptions =
                   [
+                    "--memory=2g"
+                    "--memory-swap=2560m"
                     "--stop-timeout=40"
                   ]
                   ++ cgroupParentOpts;

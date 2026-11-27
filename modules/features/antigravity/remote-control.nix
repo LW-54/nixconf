@@ -192,6 +192,7 @@ in {
             default = [
               "-${repoDirClean}"
               "-/home/${cfg.user}/Projects"
+              "-/home/${cfg.user}/workspace"
               "-/home/${cfg.user}/.gemini"
               "-/home/${cfg.user}/.cache"
               "-/home/${cfg.user}/.local/state"
